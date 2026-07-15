@@ -1,0 +1,40 @@
+name: Assemble index.html
+
+on:
+  push:
+    paths:
+      - 'parts/p**.txt'
+  workflow_dispatch:
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble parts into index.html
+        run: |
+          cat parts/p01.txt \
+              parts/p02.txt \
+              parts/p03.txt \
+              parts/p04.txt \
+              parts/p05.txt \
+              parts/p06.txt \
+              parts/p07.txt \
+              parts/p08.txt \
+              parts/p09.txt \
+              parts/p10.txt \
+              parts/p11.txt \
+              parts/p12.txt > index.html
+          echo "Assembled index.html: $(wc -c < index.html) bytes"
+
+      - name: Commit assembled index.html
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: auto-assemble index.html from parts [skip ci]"
+          git push
