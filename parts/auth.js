@@ -1,145 +1,192 @@
-/* PromptOS — Google Identity Services Auth Layer
-   Uses Google GIS (accounts.google.com/gsi/client) — no backend needed.
-   Replace GOOGLE_CLIENT_ID with your real Client ID from Google Cloud Console.
-
-   Flow:
-     1. Page loads → check if user already signed in (in-memory session)
-     2. If not → show #onboarding, hide #appShell
-     3. User clicks "Sign in with Google" → GIS popup
-     4. On success → store profile in SESSION, show app, render topbar user
-     5. Sign-out → clear SESSION, show onboarding again
-*/
+/**
+ * auth.js — Google Identity Services (GIS) OAuth for PromptOS
+ *
+ * Flow:
+ *   1. Page loads → showOnboarding() (hide #appShell, show #onboarding)
+ *   2. GIS SDK loaded dynamically → initialize + renderButton into #gsiButton
+ *   3. User clicks Sign in → __gsiCallback receives JWT credential
+ *   4. Decode JWT payload → store user in memory → showApp()
+ *   5. showApp() hides #onboarding, shows #appShell, renders #userChip
+ *   6. Sign-out button → signOut() → back to #onboarding
+ *
+ * Sandbox-safe: no localStorage / sessionStorage used.
+ * Dev bypass: on localhost the sign-in screen is skipped automatically.
+ * Replace CLIENT_ID below with your real OAuth 2.0 Web Client ID.
+ */
 (function () {
   'use strict';
 
-  /* ── CONFIG ── swap this value after getting your Client ID ─────────────── */
-  var GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
-  /* ────────────────────────────────────────────────────────────────────────── */
+  /* ── CONFIG ──────────────────────────────────────────────────────────── */
+  var CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
-  /* In-memory session — never touches localStorage (sandbox-safe) */
-  var SESSION = { user: null };
+  /* ── IN-MEMORY SESSION (no localStorage — sandbox-safe) ──────────────── */
+  var SESSION = { user: null }; // { id, name, email, picture }
 
-  /* ── DOM refs (resolved after DOMContentLoaded) ─────────────────────────── */
-  function qs(s) { return document.querySelector(s); }
+  /* ── DOM HELPERS ────────────────────────────────────────────────────────── */
+  function qs(sel) { return document.querySelector(sel); }
 
-  /* ── Show/hide app vs onboarding ────────────────────────────────────────── */
-  function showApp() {
-    var ob = qs('#onboarding');
-    var app = qs('#appShell');
-    if (ob)  { ob.style.display  = 'none'; }
-    if (app) { app.style.display = ''; }
-    renderTopbarUser();
-  }
-
-  function showOnboarding() {
-    var ob  = qs('#onboarding');
-    var app = qs('#appShell');
-    if (ob)  { ob.style.display  = ''; }
-    if (app) { app.style.display = 'none'; }
-  }
-
-  /* ── Topbar user chip ───────────────────────────────────────────────────── */
-  function renderTopbarUser() {
-    var u = SESSION.user;
-    var slot = qs('#userChip');
-    if (!slot || !u) return;
-    slot.innerHTML =
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        (u.picture
-          ? '<img src="' + u.picture + '" width="26" height="26" ' +
-            'style="border-radius:50%;border:1px solid var(--border)" ' +
-            'alt="' + u.name + '" referrerpolicy="no-referrer">'
-          : '<div style="width:26px;height:26px;border-radius:50%;background:var(--primary-dim);' +
-            'display:grid;place-items:center;font-size:11px;color:var(--primary);font-weight:700">' +
-            (u.name ? u.name[0].toUpperCase() : '?') + '</div>') +
-        '<span style="font-size:13px;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
-          u.name +
-        '</span>' +
-        '<button id="signOutBtn" title="Sign out" ' +
-          'style="font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:var(--r-md);' +
-          'border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);cursor:pointer;' +
-          'transition:all 180ms cubic-bezier(.16,1,.3,1)">' +
-          'Sign out' +
-        '</button>' +
-      '</div>';
-    qs('#signOutBtn').addEventListener('click', signOut);
-  }
-
-  /* ── Google credential callback ─────────────────────────────────────────── */
-  function handleCredential(response) {
-    /* GIS returns a JWT — decode the payload (base64url middle segment) */
+  /* ── JWT DECODE ─────────────────────────────────────────────────────────── */
+  function decodeJwt(token) {
     try {
-      var parts   = response.credential.split('.');
-      var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-      SESSION.user = {
-        id:      payload.sub,
-        name:    payload.name    || payload.email,
-        email:   payload.email,
-        picture: payload.picture || ''
-      };
-      showApp();
+      var b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      var json = decodeURIComponent(
+        atob(b64).split('').map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join('')
+      );
+      return JSON.parse(json);
     } catch (e) {
-      console.error('PromptOS auth: failed to decode credential', e);
-      showOnboarding();
+      console.error('[PromptOS auth] JWT decode error', e);
+      return null;
     }
   }
 
-  /* ── Sign out ───────────────────────────────────────────────────────────── */
+  /* ── USER CHIP ─────────────────────────────────────────────────────────── */
+  function buildAvatar(user) {
+    if (user.picture) {
+      var img = document.createElement('img');
+      img.src    = user.picture;
+      img.alt    = user.name || 'User';
+      img.width  = 24;
+      img.height = 24;
+      img.setAttribute('referrerpolicy', 'no-referrer');
+      img.style.cssText = 'border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border)';
+      img.onerror = function () { img.replaceWith(buildInitials(user.name)); };
+      return img;
+    }
+    return buildInitials(user.name);
+  }
+
+  function buildInitials(name) {
+    var letters = (name || '?').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+    var el = document.createElement('div');
+    el.textContent = letters;
+    el.style.cssText = 'width:24px;height:24px;border-radius:50%;background:var(--primary-dim);color:var(--primary);' +
+      'font-family:var(--mono);font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0';
+    return el;
+  }
+
+  function renderUserChip(user) {
+    var chip = qs('#userChip');
+    if (!chip) return;
+    chip.innerHTML = '';
+
+    chip.appendChild(buildAvatar(user));
+
+    var nameSpan = document.createElement('span');
+    nameSpan.textContent = user.name || user.email || 'Signed in';
+    chip.appendChild(nameSpan);
+
+    var btn = document.createElement('button');
+    btn.textContent = 'Sign out';
+    btn.setAttribute('aria-label', 'Sign out of PromptOS');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); signOut(); });
+    chip.appendChild(btn);
+  }
+
+  /* ── SHOW / HIDE ────────────────────────────────────────────────────────── */
+  function showOnboarding() {
+    var ob  = qs('#onboarding');
+    var app = qs('#appShell');
+    if (ob)  ob.style.display  = 'flex';
+    if (app) app.style.display = 'none';
+  }
+
+  function showApp(user) {
+    SESSION.user = user;
+    var ob  = qs('#onboarding');
+    var app = qs('#appShell');
+    if (ob)  ob.style.display  = 'none';
+    if (app) app.style.display = '';
+    renderUserChip(user);
+    window.dispatchEvent(new CustomEvent('promptos:authed', { detail: user }));
+  }
+
+  /* ── SIGN OUT ──────────────────────────────────────────────────────────── */
   function signOut() {
     SESSION.user = null;
-    /* Revoke GIS session so One Tap doesn't auto-sign back in */
+    var chip = qs('#userChip');
+    if (chip) chip.innerHTML = '';
     if (window.google && google.accounts && google.accounts.id) {
       google.accounts.id.disableAutoSelect();
     }
     showOnboarding();
+    window.dispatchEvent(new CustomEvent('promptos:signedout'));
   }
 
-  /* ── Init GIS once the script is loaded ─────────────────────────────────── */
+  /* ── GIS CREDENTIAL CALLBACK ─────────────────────────────────────────── */
+  window.__promptosGsiCallback = function (response) {
+    if (!response || !response.credential) {
+      console.warn('[PromptOS auth] empty GIS response');
+      return;
+    }
+    var payload = decodeJwt(response.credential);
+    if (!payload) { showOnboarding(); return; }
+    showApp({
+      id     : payload.sub,
+      name   : payload.name    || payload.email || 'User',
+      email  : payload.email   || '',
+      picture: payload.picture || ''
+    });
+  };
+
+  /* ── GIS INIT ───────────────────────────────────────────────────────────── */
   function initGIS() {
     if (!window.google || !google.accounts || !google.accounts.id) {
-      /* GIS script not loaded yet — retry */
       setTimeout(initGIS, 150);
       return;
     }
     google.accounts.id.initialize({
-      client_id:  GOOGLE_CLIENT_ID,
-      callback:   handleCredential,
-      auto_select: false,
+      client_id           : CLIENT_ID,
+      callback            : window.__promptosGsiCallback,
+      auto_select         : false,
       cancel_on_tap_outside: true
     });
 
-    /* Render the Google-styled button inside #gsiButton */
     var btnEl = qs('#gsiButton');
     if (btnEl) {
       google.accounts.id.renderButton(btnEl, {
-        theme:  'filled_black',
-        size:   'large',
-        shape:  'pill',
-        width:  260,
-        text:   'signin_with'
+        theme : document.documentElement.getAttribute('data-theme') === 'light'
+                  ? 'outline' : 'filled_black',
+        size  : 'large',
+        shape : 'pill',
+        width : 280,
+        text  : 'signin_with'
       });
     }
-
-    /* Also show One Tap prompt */
     google.accounts.id.prompt();
   }
 
-  /* ── Boot ───────────────────────────────────────────────────────────────── */
+  /* ── LOAD GIS SDK ────────────────────────────────────────────────────────── */
+  function loadGIS() {
+    /* Dev bypass: skip sign-in on localhost */
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      showApp({ id: 'dev', name: 'Dev User', email: 'dev@local', picture: '' });
+      return;
+    }
+    if (document.getElementById('gis-sdk')) { initGIS(); return; }
+    var s   = document.createElement('script');
+    s.id    = 'gis-sdk';
+    s.src   = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.defer = true;
+    s.onload  = initGIS;
+    s.onerror = function () {
+      console.error('[PromptOS auth] GIS SDK failed to load');
+    };
+    document.head.appendChild(s);
+  }
+
+  /* ── PUBLIC API ──────────────────────────────────────────────────────────── */
+  window.PromptOSAuth  = { signOut: signOut, getUser: function () { return SESSION.user; } };
+  /* Legacy aliases kept for any existing calls */
+  window.promptOSSignOut = signOut;
+  window.promptOSSession = SESSION;
+
+  /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
-    /* Start hidden — auth decides what to show */
-    showOnboarding();
-
-    /* Load GIS script dynamically */
-    var script = document.createElement('script');
-    script.src  = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = initGIS;
-    document.head.appendChild(script);
-
-    /* Expose signOut globally so other modules can call it */
-    window.promptOSSignOut = signOut;
-    window.promptOSSession = SESSION;
+    showOnboarding(); // safe default until auth resolves
+    loadGIS();
   }
 
   if (document.readyState === 'loading') {
