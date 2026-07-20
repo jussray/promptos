@@ -11,13 +11,12 @@
  *
  * Sandbox-safe: no localStorage / sessionStorage used.
  * Dev bypass: on localhost the sign-in screen is skipped automatically.
- * Replace CLIENT_ID below with your real OAuth 2.0 Web Client ID.
  */
 (function () {
   'use strict';
 
   /* ── CONFIG ──────────────────────────────────────────────────────────── */
-  var CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+  var CLIENT_ID = 'project-dfb645a4-e937-4976-b1b.apps.googleusercontent.com';
 
   /* ── IN-MEMORY SESSION (no localStorage — sandbox-safe) ──────────────── */
   var SESSION = { user: null }; // { id, name, email, picture }
@@ -179,13 +178,12 @@
 
   /* ── PUBLIC API ──────────────────────────────────────────────────────────── */
   window.PromptOSAuth  = { signOut: signOut, getUser: function () { return SESSION.user; } };
-  /* Legacy aliases kept for any existing calls */
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 
   /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
-    showOnboarding(); // safe default until auth resolves
+    showOnboarding();
     loadGIS();
   }
 
