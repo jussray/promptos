@@ -11,12 +11,13 @@
  *
  * Sandbox-safe: no localStorage / sessionStorage used.
  * Dev bypass: on localhost the sign-in screen is skipped automatically.
+ * Authorized origin: https://jussray.github.io
  */
 (function () {
   'use strict';
 
   /* ── CONFIG ──────────────────────────────────────────────────────────── */
-  var CLIENT_ID = 'project-dfb645a4-e937-4976-b1b.apps.googleusercontent.com';
+  var CLIENT_ID = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
 
   /* ── IN-MEMORY SESSION (no localStorage — sandbox-safe) ──────────────── */
   var SESSION = { user: null }; // { id, name, email, picture }
