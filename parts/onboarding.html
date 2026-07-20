@@ -1,0 +1,138 @@
+<!-- PromptOS Onboarding Screen
+     Inject this fragment into index.html as the first child of <body>,
+     before #appShell. auth.js controls visibility.
+-->
+<div id="onboarding" style="
+  display:flex;
+  min-height:100vh;
+  background:var(--bg);
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  font-family:var(--sans);
+">
+  <div style="
+    width:min(480px,100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0;
+  ">
+
+    <!-- Logo mark -->
+    <div style="
+      width:52px;height:52px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--primary),var(--accent-purple));
+      display:grid;place-items:center;
+      color:#fff;font-size:22px;font-weight:800;
+      box-shadow:0 8px 28px var(--primary-glow);
+      margin-bottom:22px;
+      font-family:var(--mono);
+    ">P</div>
+
+    <!-- Wordmark -->
+    <div style="
+      font-family:var(--mono);
+      font-weight:800;
+      font-size:22px;
+      letter-spacing:-.03em;
+      margin-bottom:8px;
+    ">Prompt<span style="color:var(--primary)">OS</span></div>
+
+    <!-- Tagline -->
+    <p style="
+      color:var(--text-muted);
+      font-size:14px;
+      text-align:center;
+      max-width:34ch;
+      line-height:1.55;
+      margin-bottom:36px;
+    ">Your personal AI prompt library, builder, and sync layer.</p>
+
+    <!-- Value props -->
+    <div style="
+      width:100%;
+      display:grid;
+      gap:10px;
+      margin-bottom:36px;
+    ">
+      <!-- Step 1 -->
+      <div style="
+        display:flex;align-items:flex-start;gap:14px;
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:14px 16px;
+      ">
+        <div style="
+          width:32px;height:32px;flex-shrink:0;
+          border-radius:8px;
+          background:var(--primary-dim);
+          display:grid;place-items:center;
+          font-size:15px;
+        ">📚</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px">Library of pro prompts</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5">Curated prompts for coding, research, red-teaming, design, and more — ready to copy.</div>
+        </div>
+      </div>
+      <!-- Step 2 -->
+      <div style="
+        display:flex;align-items:flex-start;gap:14px;
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:14px 16px;
+      ">
+        <div style="
+          width:32px;height:32px;flex-shrink:0;
+          border-radius:8px;
+          background:rgba(168,111,223,.12);
+          display:grid;place-items:center;
+          font-size:15px;
+        ">⚡</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px">Build & freestyle</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5">Generate prompts from scratch with the builder, or describe what you need in plain English.</div>
+        </div>
+      </div>
+      <!-- Step 3 -->
+      <div style="
+        display:flex;align-items:flex-start;gap:14px;
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:14px 16px;
+      ">
+        <div style="
+          width:32px;height:32px;flex-shrink:0;
+          border-radius:8px;
+          background:rgba(253,171,67,.1);
+          display:grid;place-items:center;
+          font-size:15px;
+        ">☁️</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px">Syncs across devices</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5">Stars, custom prompts, and preferences sync via GitHub Gist — your data, your account.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google Sign-In button (rendered by GIS) -->
+    <div id="gsiButton" style="margin-bottom:16px"></div>
+
+    <!-- Fine print -->
+    <p style="
+      font-size:11px;
+      color:var(--text-faint);
+      text-align:center;
+      max-width:36ch;
+      line-height:1.6;
+    ">
+      Signing in with Google lets PromptOS identify you across devices.<br>
+      No data is sent to any server.
+    </p>
+
+  </div>
+</div>
