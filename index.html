@@ -58,6 +58,14 @@ button{cursor:pointer;background:none;border:none}
 .icon-btn:hover{background:var(--surface-3);color:var(--text)}
 .count-pill{font-family:var(--mono);font-size:11px;background:var(--primary-dim);color:var(--primary);border:1px solid var(--primary-glow);border-radius:var(--r-full);padding:2px 10px;white-space:nowrap}
 
+/* ── user chip (populated by auth.js) ── */
+#userChip{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:var(--r-full);border:1px solid var(--border);background:var(--surface-2);cursor:pointer;transition:border-color var(--t),background var(--t)}
+#userChip:hover{border-color:var(--border-2);background:var(--surface-3)}
+#userChip img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+#userChip span{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#userChip button{font-family:var(--mono);font-size:10px;color:var(--text-faint);padding:0 4px;transition:color var(--t)}
+#userChip button:hover{color:var(--accent-red)}
+
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:14px 10px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .side-label{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);padding:12px 10px 6px}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 10px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:var(--text-muted);transition:background var(--t),color var(--t)}
@@ -205,10 +213,69 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   .count-pill{display:none}
   .modal-wrap{padding:10px}
   .modal{max-height:92vh}
+  #userChip span{display:none}
 }
 </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════════
+     ONBOARDING SCREEN — shown until Google sign-in completes
+     auth.js hides this and shows #appShell on credential callback
+     ═══════════════════════════════════════════════════════ -->
+<div id="onboarding" style="display:flex;min-height:100vh;background:var(--bg);align-items:center;justify-content:center;padding:24px;">
+  <div style="width:min(460px,100%);display:flex;flex-direction:column;align-items:center;">
+
+    <!-- Logo mark -->
+    <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--accent-purple));display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800;font-family:var(--mono);box-shadow:0 8px 28px var(--primary-glow);margin-bottom:22px;">J</div>
+
+    <!-- Wordmark -->
+    <div style="font-family:var(--mono);font-weight:800;font-size:22px;letter-spacing:-.03em;margin-bottom:8px;">Prompt<span style="color:var(--primary)">OS</span></div>
+
+    <!-- Tagline -->
+    <p style="color:var(--text-muted);font-size:14px;text-align:center;max-width:34ch;line-height:1.55;margin-bottom:36px;">Your personal AI prompt library, builder, and sync layer.</p>
+
+    <!-- Value props -->
+    <div style="width:100%;display:grid;gap:10px;margin-bottom:36px;">
+      <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:var(--primary-dim);display:grid;place-items:center;font-size:15px;">📚</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px;">Library of pro prompts</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5;">Curated prompts for coding, research, red-teaming, design, and more — ready to copy.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:rgba(168,111,223,.12);display:grid;place-items:center;font-size:15px;">⚡</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px;">Build &amp; freestyle</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5;">Generate prompts from scratch with the builder, or describe what you need in plain English.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+        <div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:rgba(253,171,67,.1);display:grid;place-items:center;font-size:15px;">☁️</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px;">Syncs across devices</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5;">Stars, custom prompts, and preferences sync via GitHub Gist — your data, your account.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google Sign-In button — rendered by GIS into this div -->
+    <div id="gsiButton" style="margin-bottom:16px;min-height:44px;display:flex;align-items:center;justify-content:center;"></div>
+
+    <!-- Fine print -->
+    <p style="font-size:11px;color:var(--text-faint);text-align:center;max-width:36ch;line-height:1.6;">
+      Signing in with Google lets PromptOS identify you across devices.<br>
+      No data is sent to any server.
+    </p>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     APP SHELL — hidden until auth.js clears sign-in
+     ═══════════════════════════════════════════════════════ -->
+<div id="appShell" style="display:none;">
 <div class="app">
   <header class="topbar">
     <div class="logo"><span class="mark">J</span>Prompt<span class="os">OS</span></div>
@@ -221,6 +288,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
       </button>
+      <!-- User avatar + name + sign-out — populated by auth.js -->
+      <div id="userChip"></div>
     </div>
   </header>
 
@@ -404,7 +473,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       </div>
     </section>
   </main>
-</div>
+</div><!-- /.app -->
+</div><!-- /#appShell -->
 
 <!-- MODAL -->
 <div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true">
@@ -429,13 +499,14 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
 <div class="toast" id="toast"></div>
 
-<!-- INLINE PROMPT DATA + APP RUNTIME (unchanged from original) -->
+<!-- auth.js MUST load first — it controls #onboarding / #appShell visibility -->
+<script src="./parts/auth.js"></script>
 <script src="./parts/p05-new-prompts.js"></script>
 <script src="./parts/p06-gap-prompts.js"></script>
 <script src="./parts/p07-ship-ultrathink-skills.js"></script>
-<!-- cont/batches squash — 2026-07-20 -->
 <script src="./parts/p08-cont-redteam.js"></script>
 <script src="./parts/p09-cont-design.js"></script>
 <script src="./parts/p10-cont-ops-growth.js"></script>
+<script src="./parts/app.js"></script>
 </body>
 </html>
