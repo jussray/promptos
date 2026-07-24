@@ -29,7 +29,7 @@ Prompts, skills, agents, and automations must preserve human agency, dignity, pr
 
 ## /futureyou
 
-Ask: **How would Future You remember building this?**
+Ask: **How would it be remembered by building this?**
 
 Every reusable prompt or skill must preserve purpose, assumptions, inputs, outputs, boundaries, failure modes, evidence expectations, and rollback or disablement steps.
 
