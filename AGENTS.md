@@ -2,6 +2,34 @@
 
 Use these instructions whenever Claude, Codex, ChatGPT, Perplexity, GitHub-connected agents, or other AI coding agents work in this repository.
 
+## Founder Intelligence entrypoint
+
+Before material planning, implementation, review, automation, publication, deployment, migration, or cross-repository coordination, read and apply:
+
+- [`AGENTS_FOUNDER_INTELLIGENCE.md`](AGENTS_FOUNDER_INTELLIGENCE.md)
+- [`docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md`](docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md)
+
+Use the complete remembrance loop:
+
+```text
+/human
+→ /futureyou
+→ /truthmode
+→ /confess
+→ /billgates
+→ /elonmusk
+→ Build
+→ Verify
+→ Explain
+→ Leave evidence
+→ Teach the next builder
+→ Repeat
+```
+
+`/futureyou` asks: **How would it be remembered by building this?** Protect the future system from stale branches, hidden assumptions, unverifiable success, irreversible shortcuts, and instruction drift. Preserve purpose, boundaries, evidence, rollback, and enough context for the next builder to continue safely.
+
+This loop supplements every stricter repository, privacy, approval, release, and non-deletion rule below. It never invents founder approval or weakens a human-only gate.
+
 ## Founder operating stack
 
 Use the full founder stack for nontrivial work:
