@@ -1,9 +1,9 @@
 import {spawnSync} from 'node:child_process';
-import {mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
+import {access, mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
 const EXPECTED_REPOSITORY = 'jussray/promptos';
-const PARTS = Array.from({length: 12}, (_, index) => `parts/p${String(index + 1).padStart(2, '0')}.txt`);
+const ASSEMBLY_WORKFLOW = '.github/workflows/assemble.yml';
 const ALLOWED_KINDS = new Set([
   'typecheck',
   'lint',
@@ -34,11 +34,24 @@ function safePath(value) {
     && !value.split('/').includes('..');
 }
 
+async function exists(file) {
+  try {
+    await access(file);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function runSyntaxCheck(file) {
   return spawnSync(process.execPath, ['--check', file], {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
+
+function assemblySources(workflow) {
+  return [...workflow.matchAll(/parts\/p\d+\.txt/g)].map((match) => match[0]);
 }
 
 const rawManifest = await readFile('control-room.manifest.json', 'utf8');
@@ -71,6 +84,7 @@ for (const entry of Array.isArray(manifest.tests?.catalog) ? manifest.tests.cata
   }
   for (const evidencePath of Array.isArray(entry.evidencePaths) ? entry.evidencePaths : []) {
     if (!safePath(evidencePath)) entryErrors.push(`unsafe evidence path: ${String(evidencePath)}`);
+    else if (!(await exists(evidencePath))) entryErrors.push(`missing evidence path: ${evidencePath}`);
   }
   observations.push({
     id: entry.id,
@@ -82,11 +96,30 @@ for (const entry of Array.isArray(manifest.tests?.catalog) ? manifest.tests.cata
   for (const error of entryErrors) errors.push(`${entry.id || 'unknown'}: ${error}`);
 }
 
-const assembledParts = await Promise.all(PARTS.map((file) => readFile(file)));
-const expectedIndex = Buffer.concat(assembledParts);
-const actualIndex = await readFile('index.html');
-if (!actualIndex.equals(expectedIndex)) {
-  errors.push('index.html does not exactly match the canonical ordered p01-p12 assembly');
+const assemblyEntry = manifest.tests?.catalog?.find((entry) => entry.id === 'assembly-determinism');
+const workflow = await readFile(ASSEMBLY_WORKFLOW, 'utf8');
+const declaredSources = [...new Set(assemblySources(workflow))];
+const missingSources = [];
+for (const source of declaredSources) {
+  if (!(await exists(source))) missingSources.push(source);
+}
+
+let exactMatch = false;
+if (declaredSources.length === 0) {
+  errors.push('assembly workflow declares no ordered prompt sources');
+} else if (missingSources.length > 0) {
+  if (assemblyEntry?.status !== 'missing') {
+    errors.push(`assembly source drift must be cataloged as missing: ${missingSources.join(', ')}`);
+  }
+} else {
+  const assembledParts = await Promise.all(declaredSources.map((file) => readFile(file)));
+  const expectedIndex = Buffer.concat(assembledParts);
+  const actualIndex = await readFile('index.html');
+  exactMatch = actualIndex.equals(expectedIndex);
+  if (!exactMatch) errors.push('index.html does not exactly match the declared ordered assembly');
+  if (assemblyEntry?.status === 'missing') {
+    errors.push('assembly sources recovered; update assembly-determinism status from missing to active');
+  }
 }
 
 const promptModules = (await readdir('parts'))
@@ -115,8 +148,11 @@ const report = {
   status: errors.length === 0 ? 'passed' : 'failed',
   generatedAt: new Date().toISOString(),
   assembly: {
-    parts: PARTS,
-    exactMatch: actualIndex.equals(expectedIndex),
+    workflow: ASSEMBLY_WORKFLOW,
+    declaredSources,
+    missingSources,
+    status: missingSources.length > 0 ? 'missing' : exactMatch ? 'passed' : 'failed',
+    exactMatch,
   },
   promptModules: {
     count: promptModules.length,
