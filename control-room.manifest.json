@@ -4,7 +4,7 @@
   "portfolioHub": "jussray/founder-control-room",
   "role": "product-workbench",
   "authority": {
-    "sourceOfTruth": "PromptOS main, deterministic assembled index, prompt module syntax, and isolated Zapier SDK typecheck evidence",
+    "sourceOfTruth": "PromptOS main, checked-in prompt modules, isolated Zapier SDK typecheck evidence, and explicit assembly drift",
     "portfolioMode": "sanitized-read-only-observer",
     "productionMutation": "separate-founder-gate"
   },
@@ -29,21 +29,11 @@
         "kind": "build",
         "command": "node scripts/verify-control-room-tests.mjs",
         "required": true,
-        "status": "active",
+        "status": "missing",
         "evidencePaths": [
           "index.html",
-          "parts/p01.txt",
-          "parts/p02.txt",
-          "parts/p03.txt",
-          "parts/p04.txt",
-          "parts/p05.txt",
-          "parts/p06.txt",
-          "parts/p07.txt",
-          "parts/p08.txt",
-          "parts/p09.txt",
-          "parts/p10.txt",
-          "parts/p11.txt",
-          "parts/p12.txt"
+          ".github/workflows/assemble.yml",
+          "scripts/verify-control-room-tests.mjs"
         ]
       },
       {
@@ -101,10 +91,11 @@
   "risk": {
     "level": "medium",
     "blockers": [
+      "The declared assembly workflow references missing p05.txt through p08.txt sources",
       "Rendered browser proof is not configured",
       "The historical assembly workflow mutates the repository and is not counted as an exact-head test",
       "A catalog entry is not a pass until its exact-head runner produces evidence"
     ]
   },
-  "nextGate": "Pass the non-mutating exact-head catalog workflow, then add rendered browser proof without changing the prompt authority boundary."
+  "nextGate": "Restore the exact assembly source authority, prove index parity without mutation, then add rendered browser proof without changing prompt semantics."
 }
