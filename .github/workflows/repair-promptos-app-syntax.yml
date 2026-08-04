@@ -1,0 +1,53 @@
+name: Repair PromptOS App Syntax
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/repair-promptos-app-syntax.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  repair:
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/repo-control-room-tests-20260804' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: true
+
+      - name: Replace the exact malformed token
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('parts/app.js')
+          source = path.read_text(encoding='utf-8')
+          broken = "  search: '',n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }"
+          fixed = "  search: '',\n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }"
+          count = source.count(broken)
+          if count != 1:
+              raise SystemExit(f'expected exactly one malformed token, found {count}')
+          path.write_text(source.replace(broken, fixed, 1), encoding='utf-8')
+
+      - name: Verify repaired runtime syntax
+        run: node --check parts/app.js
+
+      - name: Commit exact repair and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/repair-promptos-app-syntax.yml
+          git add parts/app.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix: repair PromptOS app runtime syntax"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
