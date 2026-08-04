@@ -47,22 +47,11 @@
   "capabilities": [
     {
       "id": "deterministic-promptos-assembly",
-      "description": "Verifies the committed PromptOS front door exactly matches the ordered prompt part sources without mutating the repository.",
-      "status": "active",
+      "description": "Tracks the declared PromptOS assembly source contract and remains unverified while the workflow references missing p05.txt through p08.txt sources.",
+      "status": "planned",
       "evidencePaths": [
         "index.html",
-        "parts/p01.txt",
-        "parts/p02.txt",
-        "parts/p03.txt",
-        "parts/p04.txt",
-        "parts/p05.txt",
-        "parts/p06.txt",
-        "parts/p07.txt",
-        "parts/p08.txt",
-        "parts/p09.txt",
-        "parts/p10.txt",
-        "parts/p11.txt",
-        "parts/p12.txt",
+        ".github/workflows/assemble.yml",
         "scripts/verify-control-room-tests.mjs",
         ".github/workflows/control-room-tests.yml"
       ],
@@ -74,13 +63,13 @@
           "id": "catalog-workflow-runs-non-mutating-verifier",
           "path": ".github/workflows/control-room-tests.yml",
           "marker": "node scripts/verify-control-room-tests.mjs",
-          "description": "The control-room workflow compares the assembled artifact without committing or pushing."
+          "description": "The control-room workflow observes assembly drift without committing or pushing."
         },
         {
           "id": "historical-assembly-order-is-explicit",
           "path": ".github/workflows/assemble.yml",
           "marker": "parts/p12.txt > index.html",
-          "description": "The historical assembly workflow declares the canonical ordered source list."
+          "description": "The historical assembly workflow declares the intended ordered source list even though four sources are currently absent."
         }
       ]
     },
@@ -115,7 +104,7 @@
     },
     {
       "id": "repo-local-promptos-test-control-room",
-      "description": "Catalogs current PromptOS tests locally and exports only sanitized provider-check summaries to Founder Control Room.",
+      "description": "Catalogs current PromptOS tests and missing gates locally, then exports only sanitized provider-check summaries to Founder Control Room.",
       "status": "active",
       "evidencePaths": [
         "control-room.manifest.json",
@@ -134,10 +123,10 @@
           "description": "The local PromptOS control room forbids private content in portfolio evidence."
         },
         {
-          "id": "local-control-room-keeps-browser-proof-missing",
+          "id": "local-control-room-keeps-missing-gates-visible",
           "path": "control-room.manifest.json",
           "marker": "\"status\": \"missing\"",
-          "description": "Absent rendered proof remains visibly missing instead of being promoted to a pass."
+          "description": "Broken assembly authority and absent rendered proof remain visibly missing instead of being promoted to passes."
         }
       ]
     }
