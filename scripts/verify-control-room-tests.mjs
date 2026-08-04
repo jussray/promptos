@@ -4,6 +4,9 @@ import path from 'node:path';
 
 const EXPECTED_REPOSITORY = 'jussray/promptos';
 const ASSEMBLY_WORKFLOW = '.github/workflows/assemble.yml';
+const APP_RUNTIME = 'parts/app.js';
+const MALFORMED_APP_STATE = "  search: '',n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
+const REPAIRED_APP_STATE = "  search: '',\n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
 const ALLOWED_KINDS = new Set([
   'typecheck',
   'lint',
@@ -134,6 +137,14 @@ for (const file of promptModules) {
   }
 }
 
+const appRuntime = await readFile(APP_RUNTIME, 'utf8');
+if (appRuntime.includes(MALFORMED_APP_STATE)) {
+  errors.push('PromptOS app state contains the malformed search/sync token');
+}
+if (!appRuntime.includes(REPAIRED_APP_STATE)) {
+  errors.push('PromptOS app state does not contain the repaired search/sync boundary');
+}
+
 const zapierPackage = JSON.parse(await readFile('tools/zapier/package.json', 'utf8'));
 if (zapierPackage.scripts?.typecheck !== 'tsc -p tsconfig.json --noEmit') {
   errors.push('Zapier tooling typecheck command drifted');
@@ -157,6 +168,9 @@ const report = {
   promptModules: {
     count: promptModules.length,
     syntaxPassed: !errors.some((error) => error.includes('failed node --check')),
+    appRuntimeBoundaryPassed:
+      !appRuntime.includes(MALFORMED_APP_STATE)
+      && appRuntime.includes(REPAIRED_APP_STATE),
   },
   tests: observations,
   summary: {
