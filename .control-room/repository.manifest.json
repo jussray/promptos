@@ -1,0 +1,184 @@
+{
+  "schemaVersion": "1.0",
+  "projectId": "promptos",
+  "repository": {
+    "provider": "github",
+    "identifier": "jussray/promptos",
+    "defaultBranch": "main"
+  },
+  "verification": {
+    "requiredSignals": [
+      {
+        "id": "promptos-control-room-tests",
+        "name": "Verify PromptOS control room tests",
+        "required": true
+      }
+    ],
+    "testCatalog": [
+      {
+        "id": "assembly-determinism",
+        "name": "PromptOS assembly determinism",
+        "kind": "build",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "workflow": ".github/workflows/control-room-tests.yml"
+      },
+      {
+        "id": "prompt-module-syntax",
+        "name": "Prompt module JavaScript syntax",
+        "kind": "contract",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "workflow": ".github/workflows/control-room-tests.yml"
+      },
+      {
+        "id": "zapier-sdk-typecheck",
+        "name": "Isolated Zapier SDK TypeScript",
+        "kind": "typecheck",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "npm --prefix tools/zapier run typecheck",
+        "workflow": ".github/workflows/control-room-tests.yml"
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "deterministic-promptos-assembly",
+      "description": "Verifies the committed PromptOS front door exactly matches the ordered prompt part sources without mutating the repository.",
+      "status": "active",
+      "evidencePaths": [
+        "index.html",
+        "parts/p01.txt",
+        "parts/p02.txt",
+        "parts/p03.txt",
+        "parts/p04.txt",
+        "parts/p05.txt",
+        "parts/p06.txt",
+        "parts/p07.txt",
+        "parts/p08.txt",
+        "parts/p09.txt",
+        "parts/p10.txt",
+        "parts/p11.txt",
+        "parts/p12.txt",
+        "scripts/verify-control-room-tests.mjs",
+        ".github/workflows/control-room-tests.yml"
+      ],
+      "requiredSignals": [
+        "promptos-control-room-tests"
+      ],
+      "usageAssertions": [
+        {
+          "id": "catalog-workflow-runs-non-mutating-verifier",
+          "path": ".github/workflows/control-room-tests.yml",
+          "marker": "node scripts/verify-control-room-tests.mjs",
+          "description": "The control-room workflow compares the assembled artifact without committing or pushing."
+        },
+        {
+          "id": "historical-assembly-order-is-explicit",
+          "path": ".github/workflows/assemble.yml",
+          "marker": "parts/p12.txt > index.html",
+          "description": "The historical assembly workflow declares the canonical ordered source list."
+        }
+      ]
+    },
+    {
+      "id": "isolated-zapier-sdk-tooling",
+      "description": "Keeps Zapier SDK bootstrap and typechecking isolated from the static PromptOS runtime and excludes credential material from evidence.",
+      "status": "active",
+      "evidencePaths": [
+        "tools/zapier/package.json",
+        "tools/zapier/tsconfig.json",
+        "tools/zapier/scripts/sync-lockfile.mjs",
+        ".github/workflows/zapier-sdk-tooling.yml",
+        ".github/workflows/control-room-tests.yml"
+      ],
+      "requiredSignals": [
+        "promptos-control-room-tests"
+      ],
+      "usageAssertions": [
+        {
+          "id": "catalog-workflow-syncs-canonical-lock",
+          "path": ".github/workflows/control-room-tests.yml",
+          "marker": "sync-lockfile.mjs",
+          "description": "The exact-head control-room workflow materializes the verified lock before installation."
+        },
+        {
+          "id": "catalog-workflow-typechecks-isolated-tooling",
+          "path": ".github/workflows/control-room-tests.yml",
+          "marker": "npm --prefix tools/zapier run typecheck",
+          "description": "The isolated SDK is typechecked without widening PromptOS runtime authority."
+        }
+      ]
+    },
+    {
+      "id": "repo-local-promptos-test-control-room",
+      "description": "Catalogs current PromptOS tests locally and exports only sanitized provider-check summaries to Founder Control Room.",
+      "status": "active",
+      "evidencePaths": [
+        "control-room.manifest.json",
+        ".control-room/repository.manifest.json",
+        "scripts/verify-control-room-tests.mjs",
+        ".github/workflows/control-room-tests.yml"
+      ],
+      "requiredSignals": [
+        "promptos-control-room-tests"
+      ],
+      "usageAssertions": [
+        {
+          "id": "local-control-room-denies-private-content",
+          "path": "control-room.manifest.json",
+          "marker": "\"privateContentAllowed\": false",
+          "description": "The local PromptOS control room forbids private content in portfolio evidence."
+        },
+        {
+          "id": "local-control-room-keeps-browser-proof-missing",
+          "path": "control-room.manifest.json",
+          "marker": "\"status\": \"missing\"",
+          "description": "Absent rendered proof remains visibly missing instead of being promoted to a pass."
+        }
+      ]
+    }
+  ],
+  "buildAssist": {
+    "enabled": true,
+    "preferredBuilder": "codex",
+    "riskLevel": "medium"
+  },
+  "privacy": {
+    "allowlistedPacketFields": [
+      "projectId",
+      "repository.provider",
+      "repository.identifier",
+      "commitSha",
+      "branch",
+      "manifestHash",
+      "generatedAt",
+      "runner.provider",
+      "runner.runId",
+      "runner.detailsUrl",
+      "checks.id",
+      "checks.name",
+      "checks.required",
+      "checks.status",
+      "checks.detailsUrl",
+      "capabilities.id",
+      "capabilities.claimedStatus",
+      "capabilities.observedStatus",
+      "capabilities.evidencePaths",
+      "capabilities.usageAssertionIds",
+      "capabilities.failedUsageAssertionIds",
+      "capabilities.reason"
+    ],
+    "forbiddenData": [
+      "Zapier credentials or profile data",
+      "provider API keys or secrets",
+      "raw prompts entered by users",
+      "private model responses",
+      "raw workflow logs containing secrets",
+      "usage assertion marker text in runner packets"
+    ]
+  }
+}
