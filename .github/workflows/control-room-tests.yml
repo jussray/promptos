@@ -1,0 +1,75 @@
+name: PromptOS Control Room Tests
+
+on:
+  pull_request:
+    paths:
+      - "control-room.manifest.json"
+      - ".control-room/repository.manifest.json"
+      - "scripts/verify-control-room-tests.mjs"
+      - "parts/**"
+      - "index.html"
+      - "tools/zapier/**"
+      - ".github/workflows/control-room-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "control-room.manifest.json"
+      - ".control-room/repository.manifest.json"
+      - "scripts/verify-control-room-tests.mjs"
+      - "parts/**"
+      - "index.html"
+      - "tools/zapier/**"
+      - ".github/workflows/control-room-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  CONTROL_ROOM_TEST_REPORT_PATH: artifacts/control-room-tests.json
+
+jobs:
+  verify:
+    name: Verify PromptOS control room tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+
+      - name: Record and verify exact head
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Verify non-mutating assembly, prompt syntax, and catalog
+        run: node scripts/verify-control-room-tests.mjs
+
+      - name: Materialize verified Zapier lockfile
+        run: node tools/zapier/scripts/sync-lockfile.mjs
+
+      - name: Install isolated Zapier tooling
+        run: npm ci --prefix tools/zapier --ignore-scripts --no-audit --no-fund
+
+      - name: Typecheck isolated Zapier tooling
+        run: npm --prefix tools/zapier run typecheck
+
+      - name: Retain sanitized PromptOS test receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-control-room-tests-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/control-room-tests.json
+          if-no-files-found: error
+          retention-days: 14
