@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0",
+  "repository": "jussray/promptos",
+  "portfolioHub": "jussray/founder-control-room",
+  "role": "product-workbench",
+  "authority": {
+    "sourceOfTruth": "PromptOS main, checked-in prompt modules, isolated Zapier SDK typecheck evidence, and explicit assembly drift",
+    "portfolioMode": "sanitized-read-only-observer",
+    "productionMutation": "separate-founder-gate"
+  },
+  "controlRoom": {
+    "localSurface": true,
+    "surfaces": [
+      "control-room.manifest.json",
+      ".control-room/repository.manifest.json",
+      "scripts/verify-control-room-tests.mjs",
+      ".github/workflows/control-room-tests.yml"
+    ],
+    "privateContentAllowed": false
+  },
+  "tests": {
+    "authority": "repo-native",
+    "aggregation": "sanitized-check-summary-to-founder-control-room",
+    "rawLogsAllowed": false,
+    "catalog": [
+      {
+        "id": "assembly-determinism",
+        "name": "PromptOS assembly determinism",
+        "kind": "build",
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "required": true,
+        "status": "missing",
+        "evidencePaths": [
+          "index.html",
+          ".github/workflows/assemble.yml",
+          "scripts/verify-control-room-tests.mjs"
+        ]
+      },
+      {
+        "id": "prompt-module-syntax",
+        "name": "Prompt module JavaScript syntax",
+        "kind": "contract",
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "parts/p05-new-prompts.js",
+          "parts/p06-gap-prompts.js",
+          "parts/p07-ship-ultrathink-skills.js",
+          "parts/p08-cont-redteam.js"
+        ]
+      },
+      {
+        "id": "zapier-sdk-typecheck",
+        "name": "Isolated Zapier SDK TypeScript",
+        "kind": "typecheck",
+        "command": "npm --prefix tools/zapier run typecheck",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "tools/zapier/package.json",
+          "tools/zapier/tsconfig.json",
+          "tools/zapier/scripts/sync-lockfile.mjs",
+          ".github/workflows/zapier-sdk-tooling.yml"
+        ]
+      },
+      {
+        "id": "rendered-browser-proof",
+        "name": "PromptOS rendered browser proof",
+        "kind": "e2e",
+        "command": "not-configured",
+        "required": true,
+        "status": "missing",
+        "evidencePaths": [
+          "index.html"
+        ]
+      }
+    ]
+  },
+  "evidence": {
+    "status": "at-risk",
+    "commit": "c9d109adb17af75305fd57ee28e382dcfefff40d",
+    "observedAt": "2026-08-04",
+    "proofRefs": [
+      ".github/workflows/assemble.yml",
+      ".github/workflows/zapier-sdk-tooling.yml",
+      "index.html",
+      "parts"
+    ]
+  },
+  "risk": {
+    "level": "medium",
+    "blockers": [
+      "The declared assembly workflow references missing p05.txt through p08.txt sources",
+      "Rendered browser proof is not configured",
+      "The historical assembly workflow mutates the repository and is not counted as an exact-head test",
+      "A catalog entry is not a pass until its exact-head runner produces evidence"
+    ]
+  },
+  "nextGate": "Restore the exact assembly source authority, prove index parity without mutation, then add rendered browser proof without changing prompt semantics."
+}

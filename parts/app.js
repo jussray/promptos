@@ -13,7 +13,8 @@ var STATE = {
   theme: 'dark',
   page: 'library',
   filter: 'all',
-  search: '',n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }
+  search: '',
+  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }
 };
 
 /* ── 2. GIST SYNC ENGINE ──────────────────────────────────────────── */
