@@ -45,6 +45,35 @@ State what is known, inferred, assumed, unknown, blocked, and still needing veri
 
 Standardize only what has proven reusable. Identify the bottleneck, leverage point, shared interface, ownership model, and what must remain local or manual.
 
+## Scaling default
+
+Scalability is a default design constraint, not permission to multiply prompts, agents, or abstractions before they are needed.
+
+Use this loop for material prompt, skill, agent, and automation work:
+
+```text
+Goal
+→ Inspect reality
+→ Identify the bottleneck
+→ Make the smallest reversible fix
+→ Verify the real path
+→ Measure
+→ Ship
+→ Observe
+→ Repeat
+```
+
+PromptOS must:
+
+- scale through explicit, versioned instruction contracts and stable interfaces rather than copy-pasted prompt variants;
+- preserve repository-local authority and human approval when shared behavior expands across agents or projects;
+- keep provider-specific behavior behind portable contracts where practical so growth does not require rebuilding the instruction system;
+- automate repetitive routing only after the simpler manual path and evidence requirements are proven;
+- leave reusable tests, provenance, disablement, and rollback paths so the next agent can continue without hidden context;
+- refuse to scale conflicting authority, unverified tool behavior, stale instructions, or unnecessary abstraction.
+
+When reuse is not yet proven, build the seam for future reuse rather than prematurely globalizing the instruction.
+
 ## /elonmusk
 
 Question every instruction and abstraction. Remove duplicate prompts, conflicting authority, needless routing, and ornamental complexity before optimizing or automating.
