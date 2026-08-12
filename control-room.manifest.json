@@ -4,7 +4,7 @@
   "portfolioHub": "jussray/founder-control-room",
   "role": "product-workbench",
   "authority": {
-    "sourceOfTruth": "PromptOS main, checked-in prompt modules, isolated Zapier SDK typecheck evidence, and explicit assembly drift",
+    "sourceOfTruth": "PromptOS main, the explicit index script-source graph, checked-in prompt modules, exact-head Control Room tests, rendered browser proof, and isolated Zapier SDK typecheck evidence",
     "portfolioMode": "sanitized-read-only-observer",
     "productionMutation": "separate-founder-gate"
   },
@@ -14,6 +14,8 @@
       "control-room.manifest.json",
       ".control-room/repository.manifest.json",
       "scripts/verify-control-room-tests.mjs",
+      "e2e/rendered-proof.mjs",
+      ".github/workflows/assemble.yml",
       ".github/workflows/control-room-tests.yml"
     ],
     "privateContentAllowed": false
@@ -25,15 +27,23 @@
     "catalog": [
       {
         "id": "assembly-determinism",
-        "name": "PromptOS assembly determinism",
+        "name": "PromptOS index source authority",
         "kind": "build",
         "command": "node scripts/verify-control-room-tests.mjs",
         "required": true,
-        "status": "missing",
+        "status": "active",
         "evidencePaths": [
           "index.html",
-          ".github/workflows/assemble.yml",
-          "scripts/verify-control-room-tests.mjs"
+          "parts/auth.js",
+          "parts/p05-new-prompts.js",
+          "parts/p06-gap-prompts.js",
+          "parts/p07-ship-ultrathink-skills.js",
+          "parts/p08-cont-redteam.js",
+          "parts/p09-cont-design.js",
+          "parts/p10-cont-ops-growth.js",
+          "parts/app.js",
+          "scripts/verify-control-room-tests.mjs",
+          ".github/workflows/assemble.yml"
         ]
       },
       {
@@ -61,18 +71,21 @@
           "tools/zapier/package.json",
           "tools/zapier/tsconfig.json",
           "tools/zapier/scripts/sync-lockfile.mjs",
-          ".github/workflows/zapier-sdk-tooling.yml"
+          ".github/workflows/zapier-sdk-tooling.yml",
+          ".github/workflows/control-room-tests.yml"
         ]
       },
       {
         "id": "rendered-browser-proof",
-        "name": "PromptOS rendered browser proof",
+        "name": "PromptOS rendered desktop and mobile browser proof",
         "kind": "e2e",
-        "command": "not-configured",
+        "command": "node e2e/rendered-proof.mjs",
         "required": true,
-        "status": "missing",
+        "status": "active",
         "evidencePaths": [
-          "index.html"
+          "index.html",
+          "e2e/rendered-proof.mjs",
+          ".github/workflows/control-room-tests.yml"
         ]
       }
     ]
@@ -83,7 +96,10 @@
     "observedAt": "2026-08-04",
     "proofRefs": [
       ".github/workflows/assemble.yml",
+      ".github/workflows/control-room-tests.yml",
       ".github/workflows/zapier-sdk-tooling.yml",
+      "scripts/verify-control-room-tests.mjs",
+      "e2e/rendered-proof.mjs",
       "index.html",
       "parts"
     ]
@@ -91,11 +107,11 @@
   "risk": {
     "level": "medium",
     "blockers": [
-      "The declared assembly workflow references missing p05.txt through p08.txt sources",
-      "Rendered browser proof is not configured",
-      "The historical assembly workflow mutates the repository and is not counted as an exact-head test",
-      "A catalog entry is not a pass until its exact-head runner produces evidence"
+      "The repaired source graph and rendered browser gate are not proven until the exact-head PromptOS Control Room Tests signal succeeds",
+      "The Control Room evidence pointer must not advance until current-main exact-head proof exists",
+      "A catalog entry is not a pass until its exact-head runner produces evidence",
+      "Production or external provider mutation remains a separate founder gate"
     ]
   },
-  "nextGate": "Restore the exact assembly source authority, prove index parity without mutation, then add rendered browser proof without changing prompt semantics."
+  "nextGate": "Pass exact-head non-mutating source authority, Zapier typecheck, and desktop/mobile rendered proof; then refresh the evidence pointer only after current-main proof exists."
 }

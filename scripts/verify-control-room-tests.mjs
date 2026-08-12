@@ -5,6 +5,17 @@ import path from 'node:path';
 const EXPECTED_REPOSITORY = 'jussray/promptos';
 const ASSEMBLY_WORKFLOW = '.github/workflows/assemble.yml';
 const APP_RUNTIME = 'parts/app.js';
+const INDEX_PATH = 'index.html';
+const EXPECTED_INDEX_SCRIPTS = [
+  'parts/auth.js',
+  'parts/p05-new-prompts.js',
+  'parts/p06-gap-prompts.js',
+  'parts/p07-ship-ultrathink-skills.js',
+  'parts/p08-cont-redteam.js',
+  'parts/p09-cont-design.js',
+  'parts/p10-cont-ops-growth.js',
+  'parts/app.js',
+];
 const MALFORMED_APP_STATE = "  search: '',n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
 const REPAIRED_APP_STATE = "  search: '',\n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
 const ALLOWED_KINDS = new Set([
@@ -53,8 +64,13 @@ function runSyntaxCheck(file) {
   });
 }
 
-function assemblySources(workflow) {
-  return [...workflow.matchAll(/parts\/p\d+\.txt/g)].map((match) => match[0]);
+function indexPartScripts(indexHtml) {
+  return [...indexHtml.matchAll(/<script\b[^>]*\bsrc=["']\.\/(parts\/[^"']+\.js)["'][^>]*><\/script>/g)]
+    .map((match) => match[1]);
+}
+
+function sameSequence(left, right) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 const rawManifest = await readFile('control-room.manifest.json', 'utf8');
@@ -100,29 +116,34 @@ for (const entry of Array.isArray(manifest.tests?.catalog) ? manifest.tests.cata
 }
 
 const assemblyEntry = manifest.tests?.catalog?.find((entry) => entry.id === 'assembly-determinism');
-const workflow = await readFile(ASSEMBLY_WORKFLOW, 'utf8');
-const declaredSources = [...new Set(assemblySources(workflow))];
+const renderedEntry = manifest.tests?.catalog?.find((entry) => entry.id === 'rendered-browser-proof');
+const indexHtml = await readFile(INDEX_PATH, 'utf8');
+const declaredSources = indexPartScripts(indexHtml);
 const missingSources = [];
-for (const source of declaredSources) {
+for (const source of EXPECTED_INDEX_SCRIPTS) {
   if (!(await exists(source))) missingSources.push(source);
 }
+const exactMatch = sameSequence(declaredSources, EXPECTED_INDEX_SCRIPTS);
 
-let exactMatch = false;
-if (declaredSources.length === 0) {
-  errors.push('assembly workflow declares no ordered prompt sources');
-} else if (missingSources.length > 0) {
-  if (assemblyEntry?.status !== 'missing') {
-    errors.push(`assembly source drift must be cataloged as missing: ${missingSources.join(', ')}`);
-  }
-} else {
-  const assembledParts = await Promise.all(declaredSources.map((file) => readFile(file)));
-  const expectedIndex = Buffer.concat(assembledParts);
-  const actualIndex = await readFile('index.html');
-  exactMatch = actualIndex.equals(expectedIndex);
-  if (!exactMatch) errors.push('index.html does not exactly match the declared ordered assembly');
-  if (assemblyEntry?.status === 'missing') {
-    errors.push('assembly sources recovered; update assembly-determinism status from missing to active');
-  }
+if (missingSources.length > 0) errors.push(`index references missing canonical sources: ${missingSources.join(', ')}`);
+if (!exactMatch) {
+  errors.push(`index script authority drifted; expected ${EXPECTED_INDEX_SCRIPTS.join(' -> ')}, got ${declaredSources.join(' -> ')}`);
+}
+if (assemblyEntry?.status !== 'active') errors.push('assembly-determinism must be active once index source authority is repaired');
+if (renderedEntry?.status !== 'active') errors.push('rendered-browser-proof must be active once browser proof is configured');
+if (renderedEntry?.command !== 'node e2e/rendered-proof.mjs') {
+  errors.push('rendered-browser-proof must use node e2e/rendered-proof.mjs');
+}
+
+const assemblyWorkflow = await readFile(ASSEMBLY_WORKFLOW, 'utf8');
+const assemblyManualOnly = assemblyWorkflow.includes('workflow_dispatch:')
+  && !/^\s{2}(pull_request|push):/m.test(assemblyWorkflow);
+if (/contents:\s*write/.test(assemblyWorkflow)) errors.push('legacy assembly workflow must not retain contents: write');
+if (/\bgit\s+push\b/.test(assemblyWorkflow)) errors.push('legacy assembly workflow must not mutate the repository');
+if (!assemblyManualOnly) errors.push('legacy assembly workflow must remain workflow_dispatch-only to avoid duplicate hosted proof jobs');
+if (!assemblyWorkflow.includes('expected_head_sha:')) errors.push('manual source verifier must require an exact expected_head_sha input');
+if (!assemblyWorkflow.includes('node scripts/verify-control-room-tests.mjs')) {
+  errors.push('legacy assembly workflow must delegate to the non-mutating source verifier');
 }
 
 const promptModules = (await readdir('parts'))
@@ -159,11 +180,17 @@ const report = {
   status: errors.length === 0 ? 'passed' : 'failed',
   generatedAt: new Date().toISOString(),
   assembly: {
+    authority: 'index-script-graph',
     workflow: ASSEMBLY_WORKFLOW,
+    expectedSources: EXPECTED_INDEX_SCRIPTS,
     declaredSources,
     missingSources,
     status: missingSources.length > 0 ? 'missing' : exactMatch ? 'passed' : 'failed',
     exactMatch,
+    mutatingWorkflowRetired:
+      !/contents:\s*write/.test(assemblyWorkflow)
+      && !/\bgit\s+push\b/.test(assemblyWorkflow),
+    manualOnly: assemblyManualOnly,
   },
   promptModules: {
     count: promptModules.length,
@@ -171,6 +198,10 @@ const report = {
     appRuntimeBoundaryPassed:
       !appRuntime.includes(MALFORMED_APP_STATE)
       && appRuntime.includes(REPAIRED_APP_STATE),
+  },
+  renderedBrowserProof: {
+    configured: renderedEntry?.status === 'active' && renderedEntry?.command === 'node e2e/rendered-proof.mjs',
+    path: 'e2e/rendered-proof.mjs',
   },
   tests: observations,
   summary: {

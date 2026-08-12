@@ -21,6 +21,9 @@
 (function () {
   'use strict';
 
+  /* ── PROMPT REGISTRY BOOTSTRAP ──────────────────────────────────────── */
+  if (!Array.isArray(window.PROMPTS)) window.PROMPTS = [];
+
   /* ── CONFIG ────────────────────────────────────────────────────────── */
   var CLIENT_ID         = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
   var ANALYTICS_ENDPOINT = ''; // ← paste your Cloudflare Worker URL here, e.g. https://promptos-analytics.your-subdomain.workers.dev
