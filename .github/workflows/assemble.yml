@@ -1,29 +1,19 @@
 name: Verify PromptOS source authority
 
 on:
-  pull_request:
-    paths:
-      - 'index.html'
-      - 'parts/**.js'
-      - 'control-room.manifest.json'
-      - 'scripts/verify-control-room-tests.mjs'
-      - '.github/workflows/assemble.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'parts/**.js'
-      - 'control-room.manifest.json'
-      - 'scripts/verify-control-room-tests.mjs'
-      - '.github/workflows/assemble.yml'
   workflow_dispatch:
+    inputs:
+      expected_head_sha:
+        description: Exact 40-character commit SHA to verify
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
 
 jobs:
   verify:
@@ -31,6 +21,14 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 8
     steps:
+      - name: Validate requested exact head
+        shell: bash
+        run: |
+          case "$EXPECTED_HEAD_SHA" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
+            *) echo 'expected_head_sha must be an exact lowercase 40-character SHA' >&2; exit 2 ;;
+          esac
+
       - name: Check out exact head
         uses: actions/checkout@v4
         with:
