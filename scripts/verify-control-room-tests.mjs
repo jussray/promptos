@@ -136,8 +136,12 @@ if (renderedEntry?.command !== 'node e2e/rendered-proof.mjs') {
 }
 
 const assemblyWorkflow = await readFile(ASSEMBLY_WORKFLOW, 'utf8');
+const assemblyManualOnly = assemblyWorkflow.includes('workflow_dispatch:')
+  && !/^\s{2}(pull_request|push):/m.test(assemblyWorkflow);
 if (/contents:\s*write/.test(assemblyWorkflow)) errors.push('legacy assembly workflow must not retain contents: write');
 if (/\bgit\s+push\b/.test(assemblyWorkflow)) errors.push('legacy assembly workflow must not mutate the repository');
+if (!assemblyManualOnly) errors.push('legacy assembly workflow must remain workflow_dispatch-only to avoid duplicate hosted proof jobs');
+if (!assemblyWorkflow.includes('expected_head_sha:')) errors.push('manual source verifier must require an exact expected_head_sha input');
 if (!assemblyWorkflow.includes('node scripts/verify-control-room-tests.mjs')) {
   errors.push('legacy assembly workflow must delegate to the non-mutating source verifier');
 }
@@ -186,6 +190,7 @@ const report = {
     mutatingWorkflowRetired:
       !/contents:\s*write/.test(assemblyWorkflow)
       && !/\bgit\s+push\b/.test(assemblyWorkflow),
+    manualOnly: assemblyManualOnly,
   },
   promptModules: {
     count: promptModules.length,
