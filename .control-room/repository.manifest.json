@@ -17,7 +17,7 @@
     "testCatalog": [
       {
         "id": "assembly-determinism",
-        "name": "PromptOS assembly determinism",
+        "name": "PromptOS index source authority",
         "kind": "build",
         "signalId": "promptos-control-room-tests",
         "required": true,
@@ -41,35 +41,79 @@
         "required": true,
         "command": "npm --prefix tools/zapier run typecheck",
         "workflow": ".github/workflows/control-room-tests.yml"
+      },
+      {
+        "id": "rendered-browser-proof",
+        "name": "PromptOS rendered desktop and mobile proof",
+        "kind": "e2e",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "node e2e/rendered-proof.mjs",
+        "workflow": ".github/workflows/control-room-tests.yml"
       }
     ]
   },
   "capabilities": [
     {
       "id": "deterministic-promptos-assembly",
-      "description": "Tracks the declared PromptOS assembly source contract and remains unverified while the workflow references missing p05.txt through p08.txt sources.",
-      "status": "planned",
+      "description": "Verifies the explicit index script-source graph against the canonical checked-in JavaScript modules without rebuilding or committing index.html.",
+      "status": "active",
       "evidencePaths": [
         "index.html",
+        "parts/p05-new-prompts.js",
+        "parts/p06-gap-prompts.js",
+        "parts/p07-ship-ultrathink-skills.js",
+        "parts/p08-cont-redteam.js",
+        "parts/p09-cont-design.js",
+        "parts/p10-cont-ops-growth.js",
         ".github/workflows/assemble.yml",
         "scripts/verify-control-room-tests.mjs",
         ".github/workflows/control-room-tests.yml"
       ],
-      "requiredSignals": [
-        "promptos-control-room-tests"
-      ],
+      "requiredSignals": ["promptos-control-room-tests"],
       "usageAssertions": [
         {
           "id": "catalog-workflow-runs-non-mutating-verifier",
           "path": ".github/workflows/control-room-tests.yml",
           "marker": "node scripts/verify-control-room-tests.mjs",
-          "description": "The control-room workflow observes assembly drift without committing or pushing."
+          "description": "The exact-head Control Room workflow verifies source authority without repository mutation."
         },
         {
-          "id": "historical-assembly-order-is-explicit",
+          "id": "legacy-assembler-is-read-only",
           "path": ".github/workflows/assemble.yml",
-          "marker": "parts/p12.txt > index.html",
-          "description": "The historical assembly workflow declares the intended ordered source list even though four sources are currently absent."
+          "marker": "contents: read",
+          "description": "The historical assembly entrypoint is retained only as a read-only source-authority verifier."
+        },
+        {
+          "id": "index-loads-canonical-redteam-module",
+          "path": "index.html",
+          "marker": "./parts/p08-cont-redteam.js",
+          "description": "The runtime index loads the canonical p08 JavaScript module directly."
+        }
+      ]
+    },
+    {
+      "id": "rendered-promptos-browser-proof",
+      "description": "Exercises guest boot, canonical prompt-module rendering, search, modal open, and theme interaction at desktop and mobile viewports.",
+      "status": "active",
+      "evidencePaths": [
+        "index.html",
+        "e2e/rendered-proof.mjs",
+        ".github/workflows/control-room-tests.yml"
+      ],
+      "requiredSignals": ["promptos-control-room-tests"],
+      "usageAssertions": [
+        {
+          "id": "control-room-runs-rendered-proof",
+          "path": ".github/workflows/control-room-tests.yml",
+          "marker": "node e2e/rendered-proof.mjs",
+          "description": "The exact-head Control Room workflow runs the browser proof."
+        },
+        {
+          "id": "rendered-proof-exercises-p08",
+          "path": "e2e/rendered-proof.mjs",
+          "marker": "Jailbreak Pack Review",
+          "description": "The browser proof confirms a prompt supplied by the canonical p08 module is rendered and interactive."
         }
       ]
     },
@@ -84,9 +128,7 @@
         ".github/workflows/zapier-sdk-tooling.yml",
         ".github/workflows/control-room-tests.yml"
       ],
-      "requiredSignals": [
-        "promptos-control-room-tests"
-      ],
+      "requiredSignals": ["promptos-control-room-tests"],
       "usageAssertions": [
         {
           "id": "catalog-workflow-syncs-canonical-lock",
@@ -104,17 +146,16 @@
     },
     {
       "id": "repo-local-promptos-test-control-room",
-      "description": "Catalogs current PromptOS tests and missing gates locally, then exports only sanitized provider-check summaries to Founder Control Room.",
+      "description": "Catalogs PromptOS source, browser, and tooling gates locally, then exports only sanitized provider-check summaries to Founder Control Room.",
       "status": "active",
       "evidencePaths": [
         "control-room.manifest.json",
         ".control-room/repository.manifest.json",
         "scripts/verify-control-room-tests.mjs",
+        "e2e/rendered-proof.mjs",
         ".github/workflows/control-room-tests.yml"
       ],
-      "requiredSignals": [
-        "promptos-control-room-tests"
-      ],
+      "requiredSignals": ["promptos-control-room-tests"],
       "usageAssertions": [
         {
           "id": "local-control-room-denies-private-content",
@@ -123,10 +164,10 @@
           "description": "The local PromptOS control room forbids private content in portfolio evidence."
         },
         {
-          "id": "local-control-room-keeps-missing-gates-visible",
+          "id": "local-control-room-requires-rendered-proof",
           "path": "control-room.manifest.json",
-          "marker": "\"status\": \"missing\"",
-          "description": "Broken assembly authority and absent rendered proof remain visibly missing instead of being promoted to passes."
+          "marker": "\"id\": \"rendered-browser-proof\"",
+          "description": "Rendered behavior remains a required catalog gate rather than an optional screenshot."
         }
       ]
     }
