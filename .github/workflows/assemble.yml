@@ -1,40 +1,53 @@
-name: Assemble index.html
+name: Verify PromptOS source authority
 
 on:
-  push:
+  pull_request:
     paths:
-      - 'parts/p**.txt'
+      - 'index.html'
+      - 'parts/**.js'
+      - 'control-room.manifest.json'
+      - 'scripts/verify-control-room-tests.mjs'
+      - '.github/workflows/assemble.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'parts/**.js'
+      - 'control-room.manifest.json'
+      - 'scripts/verify-control-room-tests.mjs'
+      - '.github/workflows/assemble.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
-  assemble:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+  verify:
+    name: Verify non-mutating index source graph
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
     steps:
-      - name: Checkout
+      - name: Check out exact head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
 
-      - name: Assemble parts into index.html
+      - name: Verify immutable head
+        shell: bash
         run: |
-          cat parts/p01.txt \
-              parts/p02.txt \
-              parts/p03.txt \
-              parts/p04.txt \
-              parts/p05.txt \
-              parts/p06.txt \
-              parts/p07.txt \
-              parts/p08.txt \
-              parts/p09.txt \
-              parts/p10.txt \
-              parts/p11.txt \
-              parts/p12.txt > index.html
-          echo "Assembled index.html: $(wc -c < index.html) bytes"
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
 
-      - name: Commit assembled index.html
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git diff --cached --quiet && echo "No changes" || git commit -m "chore: auto-assemble index.html from parts [skip ci]"
-          git push
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify canonical PromptOS source authority
+        run: node scripts/verify-control-room-tests.mjs
