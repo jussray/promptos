@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
 const TARGET_PROMPT = 'Jailbreak Pack Review';
-const TARGET_PROMPT_ID = '64';
+const TARGET_PROMPT_ID = 64;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -36,8 +36,23 @@ async function proveViewport(browser, {name, width, height}) {
   const initialTheme = await page.locator('html').getAttribute('data-theme');
   assert(initialTheme === 'dark', `${name}: expected dark initial theme, got ${initialTheme}`);
 
+  const registry = await page.evaluate(({targetId, targetTitle}) => {
+    const prompts = typeof PROMPTS !== 'undefined' && Array.isArray(PROMPTS) ? PROMPTS : [];
+    const ids = prompts.map((prompt) => prompt?.id);
+    const target = prompts.find((prompt) => prompt?.id === targetId);
+    return {
+      count: prompts.length,
+      uniqueIds: new Set(ids).size,
+      targetTitle: target?.title ?? null,
+      targetPresent: target?.title === targetTitle,
+    };
+  }, {targetId: TARGET_PROMPT_ID, targetTitle: TARGET_PROMPT});
+  assert(registry.count > 0, `${name}: prompt registry is empty`);
+  assert(registry.uniqueIds === registry.count, `${name}: prompt registry contains duplicate IDs`);
+  assert(registry.targetPresent, `${name}: canonical p08 prompt is absent from the runtime registry`);
+
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
-  assert(Number.isFinite(totalPrompts) && totalPrompts >= 64, `${name}: prompt modules did not populate the library`);
+  assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered prompt count does not match runtime registry`);
 
   const scriptPaths = await page.evaluate(() => Array.from(document.scripts)
     .map((script) => script.src)
@@ -86,7 +101,9 @@ async function proveViewport(browser, {name, width, height}) {
     name,
     viewport: {width, height},
     totalPrompts,
+    registryUniqueIds: registry.uniqueIds,
     searchedPrompt: TARGET_PROMPT,
+    searchedPromptId: TARGET_PROMPT_ID,
     modalOpened: true,
     themeRoundTrip: true,
     localFailures,
