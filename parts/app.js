@@ -190,8 +190,11 @@ function applyTheme(t){
 function allPrompts(){
   var base = (typeof PROMPTS !== 'undefined') ? PROMPTS : [];
   var custom = STATE.custom.map(function(p){
+    var platforms = Array.isArray(p.platforms)
+      ? p.platforms
+      : (p.platforms||'chatgpt').split(',').map(function(x){ return x.trim(); }).filter(Boolean);
     return { id: p.id, emoji: p.emoji||'✨', title: p.title, sub: p.sub||'', cat: 'custom',
-      platforms: (p.platforms||'chatgpt').split(',').map(function(x){ return x.trim(); }),
+      platforms: platforms,
       notes: '', versions: { chatgpt: p.body||'' }, _custom: true };
   });
   return base.concat(custom);
