@@ -120,18 +120,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#cTitle').fill('Valid test');
   await page.locator('#cBody').fill('Use current repository evidence and return a bounded answer.');
   await page.locator('#saveCustom').click();
-  const validCustomCount = await page.locator('#customList .citem').count();
-  const validToast = await page.locator('#toast').textContent();
-  const validCustomDebug = await page.evaluate(() => {
-    const state = window.PromptOSState;
-    const body = document.querySelector('#cBody')?.value ?? '';
-    const result = state?.validateState({
-      custom: [{id: 'c_debug', title: document.querySelector('#cTitle')?.value ?? '', sub: document.querySelector('#cSub')?.value ?? '', cat: document.querySelector('#cCat')?.value ?? '', platforms: ['chatgpt'], body}],
-      theme: document.documentElement.getAttribute('data-theme') ?? 'dark'
-    });
-    return {title: document.querySelector('#cTitle')?.value ?? '', body, cat: document.querySelector('#cCat')?.value ?? '', result};
-  });
-  assert(validCustomCount === 1, `${name}: valid custom prompt was not saved; toast=${JSON.stringify(validToast)} pageErrors=${JSON.stringify(pageErrors)} debug=${JSON.stringify(validCustomDebug)}`);
+  assert(await page.locator('#customList .citem').count() === 1, `${name}: valid custom prompt was not saved`);
   await page.locator('[data-page="library"]:visible').click();
 
   await mkdir(OUTPUT_DIR, {recursive: true});
