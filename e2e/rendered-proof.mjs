@@ -111,7 +111,8 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'dark', `${name}: theme toggle did not return to dark`);
 
-  const customNav = page.locator('[data-page="custom"]:visible');
+  const navRoot = width <= 900 ? '#mobileNav' : '.sidebar';
+  const customNav = page.locator(`${navRoot} [data-page="custom"]`);
   await customNav.click();
   await page.locator('#cTitle').fill('Secret test');
   await page.locator('#cBody').fill('OPENAI_API_KEY=sk-12345678901234567890');
@@ -121,7 +122,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#cBody').fill('Use current repository evidence and return a bounded answer.');
   await page.locator('#saveCustom').click();
   assert(await page.locator('#customList .citem').count() === 1, `${name}: valid custom prompt was not saved`);
-  await page.locator('[data-page="library"]:visible').click();
+  await page.locator(`${navRoot} [data-page="library"]`).click();
 
   await mkdir(OUTPUT_DIR, {recursive: true});
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
