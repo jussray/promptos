@@ -8,6 +8,7 @@ const APP_RUNTIME = 'parts/app.js';
 const INDEX_PATH = 'index.html';
 const EXPECTED_INDEX_SCRIPTS = [
   'parts/auth.js',
+  'parts/state.js',
   'parts/p05-new-prompts.js',
   'parts/p06-gap-prompts.js',
   'parts/p07-ship-ultrathink-skills.js',

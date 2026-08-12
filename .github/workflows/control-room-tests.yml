@@ -6,6 +6,7 @@ on:
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - "scripts/verify-control-room-tests.mjs"
+      - "scripts/verify-prompt-state.mjs"
       - "parts/**"
       - "index.html"
       - "e2e/**"
@@ -62,6 +63,9 @@ jobs:
 
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
+
+      - name: Verify versioned prompt state boundary
+        run: node scripts/verify-prompt-state.mjs
 
       - name: Materialize verified Zapier lockfile
         run: node tools/zapier/scripts/sync-lockfile.mjs
