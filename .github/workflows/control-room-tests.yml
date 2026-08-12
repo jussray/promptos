@@ -8,7 +8,9 @@ on:
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
+      - "e2e/**"
       - "tools/zapier/**"
+      - ".github/workflows/assemble.yml"
       - ".github/workflows/control-room-tests.yml"
   push:
     branches: [main]
@@ -18,7 +20,9 @@ on:
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
+      - "e2e/**"
       - "tools/zapier/**"
+      - ".github/workflows/assemble.yml"
       - ".github/workflows/control-room-tests.yml"
   workflow_dispatch:
 
@@ -29,17 +33,20 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   CONTROL_ROOM_TEST_REPORT_PATH: artifacts/control-room-tests.json
+  PROMPTOS_BASE_URL: http://127.0.0.1:4173
+  PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
 
 jobs:
   verify:
     name: Verify PromptOS control room tests
     runs-on: ubuntu-22.04
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - name: Check out exact head
         uses: actions/checkout@v4
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
 
       - name: Record and verify exact head
         shell: bash
@@ -53,7 +60,7 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Verify non-mutating assembly, prompt syntax, and catalog
+      - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
 
       - name: Materialize verified Zapier lockfile
@@ -65,11 +72,39 @@ jobs:
       - name: Typecheck isolated Zapier tooling
         run: npm --prefix tools/zapier run typecheck
 
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start static PromptOS server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 > /tmp/promptos-server.log 2>&1 &
+          echo $! > /tmp/promptos-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent "$PROMPTOS_BASE_URL/" >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-server.log
+          exit 1
+
+      - name: Prove rendered desktop and mobile PromptOS paths
+        run: node e2e/rendered-proof.mjs
+
+      - name: Stop static PromptOS server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
+
       - name: Retain sanitized PromptOS test receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: promptos-control-room-tests-${{ env.EXPECTED_HEAD_SHA }}
-          path: artifacts/control-room-tests.json
+          path: |
+            artifacts/control-room-tests.json
+            artifacts/promptos-rendered-proof
           if-no-files-found: error
           retention-days: 14
