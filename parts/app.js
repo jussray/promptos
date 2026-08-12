@@ -6,6 +6,9 @@
 (function(){
 'use strict';
 
+var PromptState = window.PromptOSState;
+if (!PromptState) throw new Error('PromptOS state boundary failed to load');
+
 /* ── 1. IN-MEMORY STATE (no localStorage — sandbox-safe) ──────────── */
 var STATE = {
   stars: {},          // { [promptId]: true }
@@ -25,7 +28,12 @@ function gistHeaders(token){
 }
 
 function syncPayload(){
-  return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
+  return PromptState.serializeState({
+    schemaVersion: PromptState.SCHEMA_VERSION,
+    stars: STATE.stars,
+    custom: STATE.custom,
+    theme: STATE.theme
+  });
 }
 
 async function gistPush(){
@@ -62,12 +70,15 @@ async function gistPull(){
     var file = data.files[GIST_FILENAME];
     if (!file) throw new Error('No state file in Gist');
     var remote = JSON.parse(file.content);
+    var validation = PromptState.validateState(remote);
+    if (!validation.ok) throw new Error('Invalid synced state: ' + validation.errors[0]);
+    if (validation.findings.length) throw new Error('Sensitive-looking material detected in synced state; pull blocked.');
     /* Merge: remote wins on conflicts, local custom prompts are union-merged */
-    if (remote.stars)  STATE.stars  = Object.assign({}, remote.stars);
-    if (remote.theme)  STATE.theme  = remote.theme;
-    if (Array.isArray(remote.custom)) {
+    STATE.stars = validation.value.stars;
+    STATE.theme = validation.value.theme;
+    if (Array.isArray(validation.value.custom)) {
       var ids = new Set(STATE.custom.map(function(p){ return p.id; }));
-      remote.custom.forEach(function(p){ if (!ids.has(p.id)) STATE.custom.push(p); });
+      validation.value.custom.forEach(function(p){ if (!ids.has(p.id)) STATE.custom.push(p); });
     }
     STATE.sync.lastSynced = new Date();
     setSyncStatus('ok');
@@ -253,7 +264,7 @@ function renderGrid(){
     card.innerHTML =
       '<div class="top"><span class="emoji">'+(p.emoji||'📝')+'</span>'+
       '<div style="min-width:0"><h3>'+esc(p.title)+'</h3><div class="sub">'+esc(p.sub||'')+'</div></div>'+
-      '<button class="star-btn'+(starred?' on':'')+'" data-id="'+p.id+'" title="Star">'+(starred?'★':'☆')+'</button></div>'+
+      '<button class="star-btn'+(starred?' on':'')+'" type="button" data-id="'+esc(p.id)+'" title="Star" aria-label="'+(starred?'Remove prompt from starred':'Add prompt to starred')+'" aria-pressed="'+(starred?'true':'false')+'">'+(starred?'★':'☆')+'</button></div>'+
       '<div class="badges">'+
         '<span class="badge cat">'+esc(p.cat)+'</span>'+
         plats.map(function(pl){ return '<span class="badge">'+esc(pl)+'</span>'; }).join('')+
@@ -269,12 +280,12 @@ function renderGrid(){
   });
   /* open modal */
   el.querySelectorAll('[data-open]').forEach(function(btn){
-    btn.addEventListener('click', function(e){ e.stopPropagation(); openModal(parseInt(btn.dataset.open)); });
+    btn.addEventListener('click', function(e){ e.stopPropagation(); openModal(btn.dataset.open); });
   });
   el.querySelectorAll('.pcard').forEach(function(card){
     card.addEventListener('click', function(){
       var btn = card.querySelector('[data-open]');
-      if (btn) openModal(parseInt(btn.dataset.open));
+      if (btn) openModal(btn.dataset.open);
     });
   });
 }
@@ -293,26 +304,32 @@ function qs(sel){ return document.querySelector(sel); }
 
 /* ── 7. STARS ─────────────────────────────────────────────────────── */
 function toggleStar(id){
-  id = parseInt(id);
+  id = String(id);
   STATE.stars[id] = !STATE.stars[id];
   if (!STATE.stars[id]) delete STATE.stars[id];
   renderStats(); renderChips(); renderGrid();
   /* update modal star if open */
   var mStar = qs('#mStar');
-  if (mStar && mStar.dataset.id == id) {
-    mStar.classList.toggle('on', !!STATE.stars[id]);
-    mStar.textContent = STATE.stars[id] ? '★' : '☆';
-  }
+  if (mStar && mStar.dataset.id == id) setModalStarState(mStar, id);
   debouncePush();
 }
 
 /* ── 8. MODAL ─────────────────────────────────────────────────────── */
 var _openId = null;
 var _openTab = null;
+var _modalReturnFocus = null;
+
+function setModalStarState(button, id){
+  var starred = !!STATE.stars[id];
+  button.classList.toggle('on', starred);
+  button.textContent = starred ? '★' : '☆';
+  button.setAttribute('aria-pressed', starred ? 'true' : 'false');
+  button.setAttribute('aria-label', starred ? 'Remove prompt from starred' : 'Add prompt to starred');
+}
 
 function openModal(id){
   var all = allPrompts();
-  var p = all.find(function(x){ return x.id === id; });
+  var p = all.find(function(x){ return String(x.id) === String(id); });
   if (!p) return;
   _openId = id;
   var versions = p.versions || {};
@@ -325,13 +342,14 @@ function openModal(id){
   if (p.notes) { noteTxt.textContent = p.notes; noteEl.hidden = false; } else { noteEl.hidden = true; }
 
   var mStar = qs('#mStar');
-  mStar.dataset.id = id;
-  mStar.classList.toggle('on', !!STATE.stars[id]);
-  mStar.textContent = STATE.stars[id] ? '★' : '☆';
+  mStar.dataset.id = String(p.id);
+  setModalStarState(mStar, p.id);
 
   renderModalTabs(tabs, versions);
+  _modalReturnFocus = document.activeElement;
   qs('#modalWrap').classList.add('open');
   document.body.style.overflow = 'hidden';
+  setTimeout(function(){ qs('#mClose').focus(); }, 0);
 }
 
 function renderModalTabs(tabs, versions){
@@ -353,9 +371,39 @@ function renderModalTabs(tabs, versions){
 }
 
 function closeModal(){
+  var wasOpen = qs('#modalWrap').classList.contains('open');
   qs('#modalWrap').classList.remove('open');
   document.body.style.overflow = '';
   _openId = null;
+  if (wasOpen && _modalReturnFocus && typeof _modalReturnFocus.focus === 'function') _modalReturnFocus.focus();
+  _modalReturnFocus = null;
+}
+
+function handleModalKeydown(e){
+  var wrap = qs('#modalWrap');
+  if (!wrap || !wrap.classList.contains('open')) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeModal();
+    return;
+  }
+  if (e.key !== 'Tab') return;
+  var focusable = Array.from(wrap.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    .filter(function(el){ return !el.disabled && el.offsetParent !== null; });
+  if (!focusable.length) {
+    e.preventDefault();
+    wrap.focus();
+    return;
+  }
+  var first = focusable[0];
+  var last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
 }
 
 /* ── 9. BUILDER ───────────────────────────────────────────────────── */
@@ -449,10 +497,28 @@ function generateFreestyle(ask, plats){
 
 /* ── 11. CUSTOM PROMPTS ───────────────────────────────────────────── */
 function saveCustomPrompt(title, sub, cat, platforms, body){
+  var findings = PromptState.scanText([title, sub, body].join('\n'));
+  if (findings.length) {
+    toast('⚠️ Sensitive-looking material found. Remove secrets before saving.');
+    return false;
+  }
   var id = 'c_' + Date.now();
-  STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
+  while (STATE.custom.some(function(prompt){ return prompt.id === id; })) id = 'c_' + (Date.now() + 1);
+  var candidate = { id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() };
+  var validation = PromptState.validateState({
+    schemaVersion: PromptState.SCHEMA_VERSION,
+    stars: STATE.stars,
+    custom: STATE.custom.concat(candidate),
+    theme: STATE.theme
+  });
+  if (!validation.ok || validation.findings.length) {
+    toast('Prompt failed validation and was not saved.');
+    return false;
+  }
+  STATE.custom = validation.value.custom;
   renderAll();
   debouncePush();
+  return true;
 }
 
 function deleteCustom(id){
@@ -493,22 +559,90 @@ function renderBench(){
 }
 
 /* ── 13. EXPORT / IMPORT ──────────────────────────────────────────── */
-function exportState(){
-  var blob = new Blob([syncPayload()], { type: 'application/json' });
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'promptos-state.json'; a.click();
+function currentState(){
+  return {
+    schemaVersion: PromptState.SCHEMA_VERSION,
+    stars: STATE.stars,
+    custom: STATE.custom,
+    theme: STATE.theme
+  };
+}
+
+function downloadState(filename, payload){
+  try {
+    var blob = new Blob([payload], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 0);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function exportState(options){
+  options = options || {};
+  var payload;
+  try { payload = syncPayload(); }
+  catch (e) {
+    toast('⚠️ Export blocked. Remove sensitive-looking material first.');
+    return false;
+  }
+  var titles = STATE.custom.map(function(prompt){ return prompt.title; }).slice(0, 5).join(', ');
+  var more = STATE.custom.length > 5 ? ' +' + (STATE.custom.length - 5) + ' more' : '';
+  if (!options.skipConfirm && !confirm('Export ' + STATE.custom.length + ' custom prompt(s)' + (titles ? ': ' + titles + more : '') + '? The JSON contains prompt content. Keep it private and never export secrets.')) return false;
+  if (!downloadState(options.filename || 'promptos-state.json', payload)) {
+    toast('Export could not be created');
+    return false;
+  }
   toast('State exported');
+  return true;
 }
 
 function importState(json){
+  if (typeof json !== 'string' || json.length > PromptState.LIMITS.maxImportBytes) {
+    toast('Import rejected: file is too large');
+    return false;
+  }
   try {
-    var data = JSON.parse(json);
-    if (data.stars) STATE.stars = data.stars;
-    if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (Array.isArray(data.custom)) STATE.custom = data.custom;
+    var parsed = JSON.parse(json);
+    var validation = PromptState.validateState(parsed);
+    if (!validation.ok) {
+      toast('Import rejected: ' + validation.errors[0]);
+      return false;
+    }
+    if (validation.findings.length) {
+      toast('Import blocked: sensitive-looking material found');
+      return false;
+    }
+    var review = PromptState.summarizeImport(validation.value, currentState());
+    var summary = 'Import review — additions: ' + review.additions + ', updates/conflicts: ' + review.updates + ', unchanged: ' + review.unchanged + ', rejected: ' + review.rejected + '. Continue?';
+    if (!confirm(summary)) return false;
+
+    var hasExisting = STATE.custom.length || Object.keys(STATE.stars).length || STATE.theme !== 'dark';
+    if (hasExisting) {
+      var backup = PromptState.serializeState(currentState());
+      if (!downloadState('promptos-backup-before-import.json', backup)) {
+        toast('Import cancelled: backup could not be created');
+        return false;
+      }
+      toast('Backup downloaded; applying import…', 1400);
+    }
+    STATE.stars = validation.value.stars;
+    STATE.custom = validation.value.custom;
+    STATE.theme = validation.value.theme;
+    applyTheme(STATE.theme);
     renderAll();
     toast('State imported');
     debouncePush();
-  } catch(e) { toast('Invalid JSON'); }
+    return true;
+  } catch (e) {
+    toast('Import rejected: invalid JSON');
+    return false;
+  }
 }
 
 /* ── 14. NAV / PAGE SWITCHING ─────────────────────────────────────── */
@@ -535,13 +669,13 @@ function injectSyncUI(){
   html += '<span id="syncDot" style="width:8px;height:8px;border-radius:50%;background:#575552;flex-shrink:0"></span>';
   html += '<span id="syncLabel" style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">Sync off</span></div>';
   html += '<div class="field" style="margin-bottom:8px"><label style="display:block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">GitHub Token</label>';
-  html += '<input id="syncToken" type="password" placeholder="ghp_…" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 9px;font-size:12px;font-family:var(--mono);color:var(--text);transition:border-color var(--t)"></div>';
+  html += '<input id="syncToken" type="password" autocomplete="off" placeholder="ghp_…" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 9px;font-size:12px;font-family:var(--mono);color:var(--text);transition:border-color var(--t)"></div>';
   html += '<div style="display:flex;gap:6px">';
   html += '<button class="mini-btn solid" id="syncConnect" style="font-size:11px;padding:5px 10px">Connect</button>';
   html += '<button class="mini-btn" id="syncPush" style="font-size:11px;padding:5px 10px">Push</button>';
   html += '<button class="mini-btn" id="syncPull" style="font-size:11px;padding:5px 10px">Pull</button>';
   html += '</div>';
-  html += '<div style="font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5">Token needs <code style="color:var(--primary)">gist</code> scope. Saved in memory only — never persisted.</div>';
+  html += '<div style="font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5">Token needs <code style="color:var(--primary)">gist</code> scope. Saved in memory only — never persisted. Gist payloads are version-checked and secret-scanned.</div>';
   html += '</div>';
   foot.insertAdjacentHTML('beforebegin', html);
 
@@ -600,7 +734,7 @@ function boot(){
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
   qs('#modalWrap').addEventListener('click', function(e){ if (e.target === qs('#modalWrap')) closeModal(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', handleModalKeydown);
 
   /* Modal star */
   qs('#mStar').addEventListener('click', function(){
@@ -623,8 +757,7 @@ function boot(){
   });
   qs('#saveBuilder').addEventListener('click', function(){
     var title = qs('#bTask').value.slice(0,60) || 'Builder prompt';
-    saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt());
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt())) toast('Saved to My Prompts');
   });
 
   /* Freestyle */
@@ -676,8 +809,7 @@ function boot(){
   qs('#fsSave').addEventListener('click', function(){
     if (!fsState) return;
     var firstBody = fsState.versions[Object.keys(fsState.versions)[0]]||'';
-    saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody);
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody)) toast('Saved to My Prompts');
   });
   qs('#fsAsk').addEventListener('keydown', function(e){
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') runFreestyle();
@@ -692,9 +824,10 @@ function boot(){
     var plats = qs('#cPlatforms').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
     var body  = qs('#cBody').value.trim();
     if (!body) { toast('Add a prompt body'); return; }
-    saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body);
-    qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
-    toast('Prompt saved');
+    if (saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body)) {
+      qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
+      toast('Prompt saved');
+    }
   });
 
   /* Export / Import / Reset */
@@ -709,6 +842,14 @@ function boot(){
   });
   qs('#resetBtn').addEventListener('click', function(){
     if (!confirm('Reset all stars, custom prompts, and theme? This cannot be undone.')) return;
+    if (STATE.custom.length || Object.keys(STATE.stars).length || STATE.theme !== 'dark') {
+      if (confirm('Download a final backup before resetting? The backup contains your prompt content.')) {
+        if (!exportState({ filename: 'promptos-backup-before-reset.json', skipConfirm: true })) {
+          toast('Reset cancelled: backup could not be created');
+          return;
+        }
+      }
+    }
     STATE.stars = {}; STATE.custom = []; STATE.theme = 'dark';
     applyTheme('dark'); renderAll(); toast('State reset');
     if (STATE.sync.token) gistPush();
