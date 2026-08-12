@@ -191,6 +191,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 .pcheck{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--text-muted);cursor:pointer}
 .pcheck input{accent-color:var(--primary);width:14px;height:14px}
 .hint{font-size:11px;color:var(--text-faint);margin-top:9px}
+.privacy-note{margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-3);color:var(--text-muted);font-size:11px;line-height:1.55}
+.privacy-note strong{color:var(--text)}
 
 /* toast */
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:var(--surface-3);color:var(--text);border:1px solid var(--border-2);border-radius:var(--r-full);padding:9px 18px;font-family:var(--mono);font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.16,1,.3,1);z-index:120}
@@ -302,11 +304,11 @@ td .best{font-size:11.5px;color:var(--text-muted)}
     <button class="nav-item" data-page="anatomy">🧠 Anatomy</button>
     <button class="nav-item" data-page="bench">📊 Benchmarks</button>
     <div class="side-label">Data</div>
-    <button class="nav-item" id="exportBtn">⬇️ Export JSON</button>
-    <button class="nav-item" id="importBtn">⬆️ Import JSON</button>
+    <button class="nav-item" id="exportBtn" type="button">⬇️ Export JSON</button>
+    <button class="nav-item" id="importBtn" type="button">⬆️ Import JSON</button>
     <input type="file" id="importFile" accept="application/json" hidden>
-    <button class="nav-item" id="resetBtn">🗑 Reset saved state</button>
-    <div class="side-foot">Stars, custom prompts &amp; theme persist across sessions.</div>
+    <button class="nav-item" id="resetBtn" type="button">🗑 Reset saved state</button>
+    <div class="side-foot">Saved in memory for this tab. Optional private Gist sync. Never paste secrets.</div>
   </aside>
 
   <nav class="mobile-nav" id="mobileNav">
@@ -369,7 +371,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>freestyle</b></div>
         <h2>Freestyle</h2>
-        <p>Describe what you need in plain language. Claude drafts a structured, per-platform prompt — review it, then save the ones worth keeping straight into My Prompts.</p>
+        <p>Describe what you need in plain language. PromptOS generates a structured, per-platform draft — review it, then save the ones worth keeping straight into My Prompts.</p>
       </div>
       <div class="split">
         <div class="panel">
@@ -392,7 +394,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
             <button class="mini-btn solid" id="fsGenerate">✨ Generate</button>
             <button class="mini-btn" id="fsClear">Clear</button>
           </div>
-          <div class="hint">⌘ / Ctrl + Enter to generate. Category is inferred automatically. Figma/Canva/Shopify versions assume that connector is active in your Claude session.</div>
+          <div class="hint">⌘ / Ctrl + Enter to generate. Category is inferred automatically. Figma/Canva/Shopify outputs are templates; sending them requires the relevant connector.</div>
         </div>
         <div class="panel">
           <div class="panel-title"><span class="dot"></span>Result</div>
@@ -421,17 +423,18 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>my-prompts</b></div>
         <h2>My Prompts</h2>
-        <p>Your own prompts, saved to this app's storage. They show up in the Library under the <b>custom</b> filter.</p>
+        <p>Your prompts stay in memory for this tab by default and appear in the Library under the <b>custom</b> filter.</p>
       </div>
       <div class="split">
         <div class="panel">
           <div class="panel-title"><span class="dot"></span>New prompt</div>
-          <div class="field"><label>Title</label><input id="cTitle" placeholder="Supabase incident response"></div>
-          <div class="field"><label>Subtitle</label><input id="cSub" placeholder="What this prompt is for"></div>
-          <div class="field"><label>Category</label><select id="cCat"><option>coding</option><option>research</option><option>redteam</option><option>system</option></select></div>
-          <div class="field"><label>Platforms (comma-separated)</label><input id="cPlatforms" placeholder="chatgpt, claude, perplexity"></div>
-          <div class="field"><label>Prompt body</label><textarea id="cBody" placeholder="Paste your prompt here" style="min-height:140px"></textarea></div>
-          <button class="mini-btn solid" id="saveCustom">Save prompt</button>
+          <div class="field"><label for="cTitle">Title</label><input id="cTitle" autocomplete="off" placeholder="Supabase incident response"></div>
+          <div class="field"><label for="cSub">Subtitle</label><input id="cSub" autocomplete="off" placeholder="What this prompt is for"></div>
+          <div class="field"><label for="cCat">Category</label><select id="cCat"><option>coding</option><option>research</option><option>redteam</option><option>system</option></select></div>
+          <div class="field"><label for="cPlatforms">Platforms (comma-separated)</label><input id="cPlatforms" autocomplete="off" placeholder="chatgpt, claude, perplexity"></div>
+          <div class="field"><label for="cBody">Prompt body</label><textarea id="cBody" placeholder="Paste your prompt here" style="min-height:140px"></textarea></div>
+          <button class="mini-btn solid" id="saveCustom" type="button">Save prompt</button>
+          <div class="privacy-note" id="privacyNotice" role="note"><strong>Privacy check:</strong> PromptOS stays local to this tab unless you connect a private GitHub Gist. Saves and exports are scanned for common secret formats, but do not paste credentials, customer data, or private strategy.</div>
         </div>
         <div class="panel">
           <div class="panel-title"><span class="dot"></span>Saved</div>
@@ -477,22 +480,22 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 </div><!-- /#appShell -->
 
 <!-- MODAL -->
-<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true">
+<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mSub" tabindex="-1">
   <div class="modal">
     <div class="modal-head">
       <div style="flex:1;min-width:0">
         <h3 id="mTitle"></h3>
         <div class="sub" id="mSub"></div>
       </div>
-      <button class="star-btn" id="mStar" title="Star">☆</button>
-      <button class="icon-btn" id="mClose" aria-label="Close">✕</button>
+      <button class="star-btn" id="mStar" type="button" title="Star" aria-label="Add prompt to starred" aria-pressed="false">☆</button>
+      <button class="icon-btn" id="mClose" type="button" aria-label="Close prompt details">✕</button>
     </div>
     <div class="modal-note" id="mNote" hidden><b>When to use</b><span id="mNoteText"></span></div>
     <div class="ptabs" id="mTabs"></div>
     <div class="modal-body"><pre id="mBody"></pre></div>
     <div class="modal-foot">
-      <button class="mini-btn solid" id="mCopy">Copy this version</button>
-      <button class="mini-btn push" id="mClose2">Close</button>
+      <button class="mini-btn solid" id="mCopy" type="button">Copy this version</button>
+      <button class="mini-btn push" id="mClose2" type="button">Close</button>
     </div>
   </div>
 </div>
@@ -501,6 +504,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
 <!-- auth.js MUST load first — it controls #onboarding / #appShell visibility -->
 <script src="./parts/auth.js"></script>
+<script src="./parts/state.js"></script>
 <script src="./parts/p05-new-prompts.js"></script>
 <script src="./parts/p06-gap-prompts.js"></script>
 <script src="./parts/p07-ship-ultrathink-skills.js"></script>
