@@ -123,6 +123,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#saveCustom').click();
   assert(await page.locator('#customList .citem').count() === 1, `${name}: valid custom prompt was not saved`);
   await page.locator(`${navRoot} [data-page="library"]`).click();
+  await page.waitForTimeout(2400);
 
   await mkdir(OUTPUT_DIR, {recursive: true});
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
