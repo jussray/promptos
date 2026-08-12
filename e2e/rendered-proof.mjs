@@ -1,0 +1,118 @@
+import {mkdir, writeFile} from 'node:fs/promises';
+import {chromium} from 'playwright';
+
+const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
+const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
+const TARGET_PROMPT = 'Jailbreak Pack Review';
+const TARGET_PROMPT_ID = '64';
+
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+async function proveViewport(browser, {name, width, height}) {
+  const context = await browser.newContext({viewport: {width, height}});
+  const page = await context.newPage();
+  const pageErrors = [];
+  const consoleErrors = [];
+  const localFailures = [];
+  const origin = new URL(BASE_URL).origin;
+
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  page.on('response', (response) => {
+    const url = new URL(response.url());
+    if (url.origin === origin && response.status() >= 400) {
+      localFailures.push(`${response.status()} ${url.pathname}`);
+    }
+  });
+
+  await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
+  await page.locator('#appShell').waitFor({state: 'visible'});
+  assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
+
+  const initialTheme = await page.locator('html').getAttribute('data-theme');
+  assert(initialTheme === 'dark', `${name}: expected dark initial theme, got ${initialTheme}`);
+
+  const totalPrompts = Number(await page.locator('#statTotal').textContent());
+  assert(Number.isFinite(totalPrompts) && totalPrompts >= 64, `${name}: prompt modules did not populate the library`);
+
+  const scriptPaths = await page.evaluate(() => Array.from(document.scripts)
+    .map((script) => script.src)
+    .filter(Boolean)
+    .map((src) => new URL(src).pathname)
+    .filter((pathname) => pathname.startsWith('/parts/')));
+  for (const required of [
+    '/parts/auth.js',
+    '/parts/p05-new-prompts.js',
+    '/parts/p06-gap-prompts.js',
+    '/parts/p07-ship-ultrathink-skills.js',
+    '/parts/p08-cont-redteam.js',
+    '/parts/p09-cont-design.js',
+    '/parts/p10-cont-ops-growth.js',
+    '/parts/app.js',
+  ]) {
+    assert(scriptPaths.includes(required), `${name}: missing rendered script ${required}`);
+  }
+
+  const search = page.locator('#search');
+  await search.fill(TARGET_PROMPT);
+  const matchingCards = page.locator('.pcard');
+  await matchingCards.first().waitFor({state: 'visible'});
+  assert(await matchingCards.count() === 1, `${name}: search did not narrow to exactly one prompt`);
+  assert((await matchingCards.locator('h3').textContent())?.trim() === TARGET_PROMPT, `${name}: p08 prompt did not render`);
+
+  await page.locator(`[data-open="${TARGET_PROMPT_ID}"]`).click();
+  await page.locator('#modalWrap.open').waitFor({state: 'visible'});
+  assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: prompt modal did not open the searched item`);
+
+  await page.keyboard.press('Escape');
+  await page.locator('#themeBtn').click();
+  assert(await page.locator('html').getAttribute('data-theme') === 'light', `${name}: theme toggle did not switch to light`);
+  await page.locator('#themeBtn').click();
+  assert(await page.locator('html').getAttribute('data-theme') === 'dark', `${name}: theme toggle did not return to dark`);
+
+  await mkdir(OUTPUT_DIR, {recursive: true});
+  const screenshot = `${OUTPUT_DIR}/${name}.png`;
+  await page.screenshot({path: screenshot, fullPage: true});
+
+  assert(pageErrors.length === 0, `${name}: page errors: ${pageErrors.join(' | ')}`);
+  assert(consoleErrors.length === 0, `${name}: console errors: ${consoleErrors.join(' | ')}`);
+  assert(localFailures.length === 0, `${name}: local resource failures: ${localFailures.join(' | ')}`);
+
+  const result = {
+    name,
+    viewport: {width, height},
+    totalPrompts,
+    searchedPrompt: TARGET_PROMPT,
+    modalOpened: true,
+    themeRoundTrip: true,
+    localFailures,
+    pageErrors,
+    consoleErrors,
+    screenshot,
+  };
+  await context.close();
+  return result;
+}
+
+await mkdir(OUTPUT_DIR, {recursive: true});
+const browser = await chromium.launch({headless: true});
+try {
+  const results = [];
+  results.push(await proveViewport(browser, {name: 'desktop', width: 1440, height: 1000}));
+  results.push(await proveViewport(browser, {name: 'mobile', width: 390, height: 844}));
+  const receipt = {
+    schemaVersion: 1,
+    baseUrl: BASE_URL,
+    generatedAt: new Date().toISOString(),
+    result: 'passed',
+    viewports: results,
+  };
+  await writeFile(`${OUTPUT_DIR}/receipt.json`, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');
+  console.log(JSON.stringify(receipt));
+} finally {
+  await browser.close();
+}
