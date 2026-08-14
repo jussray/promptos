@@ -3,6 +3,9 @@ name: PromptOS Control Room Tests
 on:
   pull_request:
     paths:
+      - "AGENTS.md"
+      - "AGENTS_FOUNDER_INTELLIGENCE.md"
+      - "scripts/verify-juss-os-command-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - "scripts/verify-control-room-tests.mjs"
@@ -15,6 +18,9 @@ on:
   push:
     branches: [main]
     paths:
+      - "AGENTS.md"
+      - "AGENTS_FOUNDER_INTELLIGENCE.md"
+      - "scripts/verify-juss-os-command-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - "scripts/verify-control-room-tests.mjs"
@@ -59,6 +65,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
+
+      - name: Verify portable Juss OS command contract
+        run: node scripts/verify-juss-os-command-contract.mjs
 
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
