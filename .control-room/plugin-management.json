@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "contract": "juss/chatgpt-plugin-management@v1",
+  "repository": "jussray/promptos",
+  "authorityRepository": "jussray/founder-control-room",
+  "controlPlane": "ChatGPT Plugin Management",
+  "runtimeDiscoveryRequired": true,
+  "liveStateStored": false,
+  "writesRequireExplicitUserIntent": true,
+  "writesRequireFreshRepositoryAuthority": true,
+  "permissionStateSource": "chatgpt-runtime",
+  "connectionStateSource": "chatgpt-runtime",
+  "truthBoundary": "This file declares intended plugin capability only. It does not prove that a plugin is installed, connected, permitted, or that any action executed.",
+  "safetyBoundary": "Prompt, skill, provider, key, publication, deployment, and production authority remain separately gated; provider availability never expands instruction authority.",
+  "plugins": [
+    {
+      "name": "GitHub",
+      "role": "Authoritative repository, branch, pull request, review, exact-head, and CI evidence.",
+      "runtimeDiscoveryRequired": true,
+      "defaultMode": "read-first"
+    },
+    {
+      "name": "OpenAI Platform",
+      "role": "OpenAI project, model, API-key boundary, and agent-runtime configuration evidence without storing secrets in Git.",
+      "runtimeDiscoveryRequired": true,
+      "defaultMode": "read-first"
+    }
+  ]
+}
