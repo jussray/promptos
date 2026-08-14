@@ -6,8 +6,10 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-plugin-management-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
+      - ".control-room/plugin-management.json"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -21,8 +23,10 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-plugin-management-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
+      - ".control-room/plugin-management.json"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -68,6 +72,9 @@ jobs:
 
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
+
+      - name: Verify ChatGPT plugin management contract
+        run: node scripts/verify-plugin-management-contract.mjs
 
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
