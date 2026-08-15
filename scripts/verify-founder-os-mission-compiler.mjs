@@ -46,11 +46,11 @@ if (typeof sandbox.window.compilePromptOSMission !== 'function') {
   const uiMission = sandbox.window.compilePromptOSMission({
     project: 'jussray/Sekret-Bip',
     intent: 'Improve onboarding UX and measure dashboard completion rate',
-    constraints: 'Preserve auth behavior',
+    constraints: 'Preserve auth behavior, audit current main first',
   });
 
   if (uiMission.version !== 'founder-os-mission-v1') failures.push('unexpected compiler version');
-  if (uiMission.authorityCeiling !== 'L4') failures.push(`UI mission authority should be L4, got ${uiMission.authorityCeiling}`);
+  if (uiMission.authorityCeiling !== 'L4') failures.push(`main-audit UI mission authority should stay L4, got ${uiMission.authorityCeiling}`);
   for (const protocol of ['product-design', 'data-analytics']) {
     if (!uiMission.protocols.includes(protocol)) failures.push(`UI mission missing ${protocol}`);
   }
@@ -59,6 +59,12 @@ if (typeof sandbox.window.compilePromptOSMission !== 'function') {
   }
   if (uiMission.analytics.proofCoverageTargetPercent !== 100) failures.push('proof coverage target must be 100');
   if (!uiMission.productDesign.playwrightRequired) failures.push('UI mission must require Playwright');
+
+  const mergeMission = sandbox.window.compilePromptOSMission({
+    project: 'jussray/Sekret-Bip',
+    intent: 'Merge the verified focused fix after exact-head proof',
+  });
+  if (mergeMission.authorityCeiling !== 'L5') failures.push(`merge mission authority should be L5, got ${mergeMission.authorityCeiling}`);
 
   const prodMission = sandbox.window.compilePromptOSMission({
     project: 'jussray/Sekret-Bip',
@@ -93,4 +99,6 @@ console.log(JSON.stringify({
   compilerExported: true,
   productDesignGate: true,
   dataAnalyticsGate: true,
+  mainAuditDoesNotEscalateAuthority: true,
+  mergeEscalatesToL5: true,
 }));
