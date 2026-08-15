@@ -7,6 +7,7 @@ on:
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
+      - "scripts/verify-founder-os-mission-compiler.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
@@ -24,6 +25,7 @@ on:
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
+      - "scripts/verify-founder-os-mission-compiler.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
@@ -45,6 +47,7 @@ env:
   CONTROL_ROOM_TEST_REPORT_PATH: artifacts/control-room-tests.json
   PROMPTOS_BASE_URL: http://127.0.0.1:4173
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
+  PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
 
 jobs:
   verify:
@@ -75,6 +78,9 @@ jobs:
 
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
+
+      - name: Verify Founder OS mission compiler contract
+        run: node scripts/verify-founder-os-mission-compiler.mjs
 
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
@@ -109,6 +115,9 @@ jobs:
       - name: Prove rendered desktop and mobile PromptOS paths
         run: node e2e/rendered-proof.mjs
 
+      - name: Prove Founder OS mission compiler desktop and mobile
+        run: node e2e/founder-os-mission-compiler.mjs
+
       - name: Stop static PromptOS server
         if: always()
         shell: bash
@@ -122,5 +131,6 @@ jobs:
           path: |
             artifacts/control-room-tests.json
             artifacts/promptos-rendered-proof
+            artifacts/promptos-founder-os-proof
           if-no-files-found: error
           retention-days: 14
