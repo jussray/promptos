@@ -385,7 +385,7 @@ Never claim uplift without a valid baseline and comparable post-change observati
     var analytics = has(/\b(metric|analytics|data|funnel|conversion|retention|cohort|kpi|measure|instrument|telemetry|baseline|completion rate)\b/i, text);
     var providerWork = providers.length > 0 || has(/\b(github|cloudflare|supabase|shopify|hubspot|gmail|slack|figma|canva|provider|dns|worker|pages|database)\b/i, text);
     var production = has(/\b(production|deploy|deployment|migrate|migration|dns|domain|publish|send|spend|charge|refund|rollback)\b/i, text);
-    var integration = production || has(/\b(merge|integrate|integration|land|release|main\b)\b/i, text);
+    var integration = production || has(/\b(merge|integrate|integration|land|release)\b/i, text);
     var architecture = has(/\b(architecture|platform|operating system|control plane|runtime|broker|protocol|compiler|framework|system design)\b/i, text);
 
     var authority = production ? 'L6' : integration ? 'L5' : 'L4';
