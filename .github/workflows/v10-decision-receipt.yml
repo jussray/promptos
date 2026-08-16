@@ -5,12 +5,16 @@ on:
     paths:
       - "src/v10-decision-receipt.mjs"
       - "src/v10-decision-receipt.test.mjs"
+      - "src/v10-decision-receipt.conformance.test.mjs"
+      - "testdata/v10-decision-cycle-conformance.json"
       - ".github/workflows/v10-decision-receipt.yml"
   push:
     branches: [main]
     paths:
       - "src/v10-decision-receipt.mjs"
       - "src/v10-decision-receipt.test.mjs"
+      - "src/v10-decision-receipt.conformance.test.mjs"
+      - "testdata/v10-decision-cycle-conformance.json"
       - ".github/workflows/v10-decision-receipt.yml"
   workflow_dispatch:
 
@@ -42,5 +46,5 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Verify decision receipt adapter
-        run: node --test src/v10-decision-receipt.test.mjs
+      - name: Verify decision receipt adapter and cross-repo identity
+        run: node --test src/v10-decision-receipt.test.mjs src/v10-decision-receipt.conformance.test.mjs
