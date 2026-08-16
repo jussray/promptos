@@ -54,8 +54,8 @@ test('fails closed when any requested V10 lens is absent', () => {
   const incomplete = receipt({
     lensReports: REQUIRED_V10_LENSES.filter((lens) => lens !== 'product-design').map((lens) => ({ lens })),
   });
-  assert.match(
-    assert.throws(() => adaptV10DecisionForPromptOS(incomplete)).message,
+  assert.throws(
+    () => adaptV10DecisionForPromptOS(incomplete),
     /Required V10 decision lens missing: product-design/,
   );
 });
