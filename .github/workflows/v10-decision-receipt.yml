@@ -1,0 +1,50 @@
+name: V10 Decision Receipt Adapter
+
+on:
+  pull_request:
+    paths:
+      - "src/v10-decision-receipt.mjs"
+      - "src/v10-decision-receipt.test.mjs"
+      - "src/v10-decision-receipt.conformance.test.mjs"
+      - "testdata/v10-decision-cycle-conformance.json"
+      - ".github/workflows/v10-decision-receipt.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/v10-decision-receipt.mjs"
+      - "src/v10-decision-receipt.test.mjs"
+      - "src/v10-decision-receipt.conformance.test.mjs"
+      - "testdata/v10-decision-cycle-conformance.json"
+      - ".github/workflows/v10-decision-receipt.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  verify:
+    name: Verify PromptOS V10 decision receipt boundary
+    runs-on: ubuntu-22.04
+    timeout-minutes: 6
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact head
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Verify decision receipt adapter and cross-repo identity
+        run: node --test src/v10-decision-receipt.test.mjs src/v10-decision-receipt.conformance.test.mjs
