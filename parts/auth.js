@@ -1,10 +1,16 @@
 /**
- * auth.js — PromptOS Auth + Analytics
+ * auth.js — PromptOS Auth + Analytics + Browser Authority Guard
  *
  * Boot behaviour:
  *   • App opens immediately as Guest — no sign-in wall.
  *   • Google sign-in is optional (topbar chip shows “Sign in” button).
  *   • Signing in upgrades the session in-place.
+ *
+ * Persistence authority:
+ *   • Current browser state is session-only.
+ *   • Founder Control Room is the canonical runtime persistence authority.
+ *   • Browser GitHub/Gist credentials are not accepted.
+ *   • JSON Export / Import remains explicit backup and recovery.
  *
  * Analytics (no personal data stored):
  *   • guest_session_started  — every cold page load
@@ -27,6 +33,73 @@
   /* ── CONFIG ────────────────────────────────────────────────────────── */
   var CLIENT_ID         = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
   var ANALYTICS_ENDPOINT = ''; // ← paste your Cloudflare Worker URL here, e.g. https://promptos-analytics.your-subdomain.workers.dev
+
+  /* ── PERSISTENCE AUTHORITY GUARD ────────────────────────────────────── */
+  var nativeFetch = window.fetch.bind(window);
+  var persistenceAuthority = Object.freeze({
+    canonicalAuthority: 'Founder Control Room',
+    runtimePersistence: 'not-connected',
+    browserState: 'session-only',
+    browserGitHubTokenAccepted: false,
+    recovery: Object.freeze(['export', 'import'])
+  });
+
+  window.__PROMPTOS_PERSISTENCE_AUTHORITY__ = persistenceAuthority;
+
+  window.fetch = function promptOSAuthorityFetch(input, init) {
+    var requestUrl = input instanceof Request ? input.url : String(input);
+    var url;
+    try {
+      url = new URL(requestUrl, window.location.origin);
+    } catch (error) {
+      return nativeFetch(input, init);
+    }
+
+    if (url.origin === 'https://api.github.com' && (url.pathname === '/gists' || url.pathname.indexOf('/gists/') === 0)) {
+      return Promise.reject(new Error('Browser Gist sync is retired. Founder Control Room owns PromptOS runtime persistence authority.'));
+    }
+    return nativeFetch(input, init);
+  };
+
+  function replaceLegacyGistControls() {
+    var tokenInput = document.getElementById('syncToken');
+    if (!tokenInput) return;
+
+    var field = tokenInput.closest('.field');
+    var panel = field && field.parentElement;
+    if (!panel) {
+      tokenInput.remove();
+      return;
+    }
+
+    panel.innerHTML = '';
+    panel.setAttribute('data-persistence-authority', 'session-only');
+    panel.setAttribute('aria-label', 'PromptOS persistence authority');
+
+    var label = document.createElement('div');
+    label.className = 'side-label';
+    label.style.cssText = 'padding:0 0 8px';
+    label.textContent = '☁️ Runtime persistence';
+
+    var status = document.createElement('div');
+    status.id = 'persistenceAuthorityStatus';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
+    status.textContent = 'Session only · FCR runtime persistence not connected';
+
+    var recovery = document.createElement('div');
+    recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
+    recovery.textContent = 'Use Export / Import for explicit backup and recovery. PromptOS does not collect a browser GitHub token.';
+
+    panel.appendChild(label);
+    panel.appendChild(status);
+    panel.appendChild(recovery);
+  }
+
+  var persistenceObserver = new MutationObserver(replaceLegacyGistControls);
+  persistenceObserver.observe(document.documentElement, { childList: true, subtree: true });
+  replaceLegacyGistControls();
 
   /* ── SESSION ────────────────────────────────────────────────────────── */
   var SESSION = {
