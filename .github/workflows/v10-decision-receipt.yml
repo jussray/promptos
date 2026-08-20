@@ -6,7 +6,11 @@ on:
       - "src/v10-decision-receipt.mjs"
       - "src/v10-decision-receipt.test.mjs"
       - "src/v10-decision-receipt.conformance.test.mjs"
+      - "src/v10-recursive-hardening.mjs"
+      - "src/v10-recursive-hardening.test.mjs"
+      - "src/v10-recursive-hardening.conformance.test.mjs"
       - "testdata/v10-decision-cycle-conformance.json"
+      - "testdata/v10-recursive-hardening-conformance.json"
       - ".github/workflows/v10-decision-receipt.yml"
   push:
     branches: [main]
@@ -14,7 +18,11 @@ on:
       - "src/v10-decision-receipt.mjs"
       - "src/v10-decision-receipt.test.mjs"
       - "src/v10-decision-receipt.conformance.test.mjs"
+      - "src/v10-recursive-hardening.mjs"
+      - "src/v10-recursive-hardening.test.mjs"
+      - "src/v10-recursive-hardening.conformance.test.mjs"
       - "testdata/v10-decision-cycle-conformance.json"
+      - "testdata/v10-recursive-hardening-conformance.json"
       - ".github/workflows/v10-decision-receipt.yml"
   workflow_dispatch:
 
@@ -32,7 +40,7 @@ jobs:
     timeout-minutes: 6
     steps:
       - name: Check out exact head
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
           persist-credentials: false
@@ -42,9 +50,14 @@ jobs:
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
 
       - name: Set up Node 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
 
-      - name: Verify decision receipt adapter and cross-repo identity
-        run: node --test src/v10-decision-receipt.test.mjs src/v10-decision-receipt.conformance.test.mjs
+      - name: Verify decision receipt adapter, recursive hardening, and cross-repo identity
+        run: >-
+          node --test
+          src/v10-decision-receipt.test.mjs
+          src/v10-decision-receipt.conformance.test.mjs
+          src/v10-recursive-hardening.test.mjs
+          src/v10-recursive-hardening.conformance.test.mjs
