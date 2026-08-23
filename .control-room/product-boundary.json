@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "product": "PromptOS",
+  "repository": "jussray/promptos",
+  "role": "human-ai-operating-layer",
+  "coreQuestion": "How do humans structure repeatable AI work?",
+  "owns": [
+    "founder intent capture",
+    "context and constraint shaping",
+    "prompt and workflow composition",
+    "portable operating patterns",
+    "human-reviewed learning loops"
+  ],
+  "doesNotOwn": [
+    "agent execution authority",
+    "production mutation authority",
+    "provider authentication authority",
+    "deployment authority",
+    "publication authority"
+  ],
+  "chiefAI": {
+    "repository": "jussray/chief-ai-machine",
+    "role": "governed-ai-execution-layer",
+    "coreQuestion": "How do systems safely execute AI actions?"
+  },
+  "handoff": {
+    "fromPromptOS": "structured intent plus context plus constraints plus requested verification",
+    "toChiefAI": "bounded execution request",
+    "authorityRule": "A PromptOS artifact is advisory input. It cannot widen Chief AI authority or prove execution, deployment, provider state, or publication."
+  },
+  "contentFingerprint": {
+    "PromptOS": "intent -> context -> workflow -> execution request -> learning",
+    "ChiefAI": "request -> authority boundary -> execution -> verification -> receipt"
+  }
+}
