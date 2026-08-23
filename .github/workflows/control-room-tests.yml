@@ -8,11 +8,13 @@ on:
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
+      - "scripts/verify-product-boundary.mjs"
       - "scripts/verify-control-room-workflow-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
+      - ".control-room/product-boundary.json"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -28,11 +30,13 @@ on:
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
+      - "scripts/verify-product-boundary.mjs"
       - "scripts/verify-control-room-workflow-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
+      - ".control-room/product-boundary.json"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -85,6 +89,9 @@ jobs:
 
       - name: Verify Founder OS mission compiler contract
         run: node scripts/verify-founder-os-mission-compiler.mjs
+
+      - name: Verify PromptOS and Chief product boundary
+        run: node scripts/verify-product-boundary.mjs
 
       - name: Verify control-room workflow trigger contract
         run: node scripts/verify-control-room-workflow-contract.mjs
