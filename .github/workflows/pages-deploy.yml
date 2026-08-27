@@ -1,0 +1,172 @@
+name: PromptOS Public Pages Deploy
+
+# Founder-gated: manual only. This workflow is the sole path that publishes
+# PromptOS externally, so it never runs on push or pull_request. Enabling it
+# requires GitHub Pages be set to "GitHub Actions" as its source under
+# Settings -> Pages (a one-time, human, repository-admin action this
+# workflow cannot perform on its own).
+on:
+  workflow_dispatch:
+    inputs:
+      expected_head_sha:
+        description: Exact 40-character commit SHA to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
+
+concurrency:
+  group: promptos-public-pages
+  cancel-in-progress: false
+
+jobs:
+  verify-and-build:
+    name: Verify exact head and stage public site
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Validate requested exact head
+        shell: bash
+        run: |
+          case "$EXPECTED_HEAD_SHA" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
+            *) echo 'expected_head_sha must be an exact lowercase 40-character SHA' >&2; exit 2 ;;
+          esac
+
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify immutable head
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Verify non-mutating source authority, prompt syntax, and catalog
+        run: node scripts/verify-control-room-tests.mjs
+
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start static PromptOS server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 > /tmp/promptos-server.log 2>&1 &
+          echo $! > /tmp/promptos-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent "http://127.0.0.1:4173/" >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-server.log
+          exit 1
+
+      - name: Pre-flight rendered desktop and mobile proof (pre-publish)
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4173
+          PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
+        run: node e2e/rendered-proof.mjs
+
+      - name: Stop static PromptOS server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
+
+      # Only the public human-facing surface is staged: the checked-in index.html
+      # and the exact canonical parts/*.js it declares (the same list
+      # scripts/verify-control-room-tests.mjs holds source authority over).
+      # Governance/control-room manifests, AGENTS*.md, cloudflare-worker/,
+      # tools/, src/, docs/, scripts/, e2e/, and testdata/ are never copied in.
+      - name: Stage public site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site/parts
+          cp index.html _site/index.html
+          for part in auth.js p05-new-prompts.js p06-gap-prompts.js p07-ship-ultrathink-skills.js p08-cont-redteam.js p09-cont-design.js p10-cont-ops-growth.js app.js; do
+            cp "parts/$part" "_site/parts/$part"
+          done
+          # Stamp deployed runtime identity onto the staged copy only —
+          # the checked-in index.html in the repository is never modified.
+          sed -i "s#</head>#  <meta name=\"promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\">\n</head>#" _site/index.html
+          grep -q "promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\"" _site/index.html
+
+      - name: Upload public site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: verify-and-build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  prove-public-identity:
+    name: Prove deployed identity and rendered UI (desktop + mobile)
+    needs: deploy
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Prove public deploy identity, no login wall, and primary CTA
+        env:
+          PROMPTOS_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+          PROMPTOS_EXPECTED_SHA: ${{ env.EXPECTED_HEAD_SHA }}
+          PROMPTOS_PROOF_DIR: artifacts/promptos-public-deploy-proof
+        run: node e2e/public-deploy-proof.mjs
+
+      - name: Retain public deploy proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-public-deploy-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-public-deploy-proof
+          if-no-files-found: error
+          retention-days: 14
