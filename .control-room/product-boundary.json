@@ -18,6 +18,81 @@
     "deployment authority",
     "publication authority"
   ],
+  "portableGrammar": {
+    "contract": "promptos/portable-grammar@v1",
+    "authority": "advisory-only",
+    "providerNeutral": true,
+    "commands": [
+      {
+        "id": "plan",
+        "semantics": "Produce a bounded plan with dependencies, proof, rollback, stop conditions, and next gate without executing it."
+      },
+      {
+        "id": "goal",
+        "semantics": "Normalize intent into a goal, constraints, definition of done, evidence requirements, and authority ceiling."
+      },
+      {
+        "id": "loop",
+        "semantics": "Re-observe current state, compare it with the expected state, adapt the next bounded move, and invalidate stale evidence after state movement."
+      },
+      {
+        "id": "resume",
+        "semantics": "Reacquire current fingerprints and continuity evidence before continuing prior work; prior proof never carries across changed state."
+      },
+      {
+        "id": "compact",
+        "semantics": "Compress working context while preserving decisions, exact fingerprints, evidence, blockers, authority boundaries, rollback, and unresolved unknowns."
+      },
+      {
+        "id": "btw",
+        "semantics": "Answer a side question in isolation without silently changing the active goal, plan, authority, or continuity state."
+      },
+      {
+        "id": "effort",
+        "semantics": "Declare requested reasoning depth, time, or cost budget as planning metadata; effort may change analysis depth but never authority."
+      },
+      {
+        "id": "lens",
+        "semantics": "Request a named reasoning lens as advisory metadata and return conclusions, evidence, tradeoffs, and decisions without requiring private chain-of-thought or impersonating a named person."
+      },
+      {
+        "id": "pack",
+        "semantics": "Invoke a declared versioned prompt pack by identifier; a pack cannot widen authority and cannot be claimed as installed or executed until its runtime availability is observed."
+      }
+    ],
+    "reasoningLensExamples": [
+      "ultrathink",
+      "attack-ten",
+      "l99",
+      "lindy",
+      "ooda",
+      "first-principles",
+      "anti-advice",
+      "socratic-challenge",
+      "futureyou",
+      "80-20",
+      "unlearn",
+      "human",
+      "truth"
+    ],
+    "promptPackClasses": [
+      "social-strategy",
+      "content-pillars",
+      "30-day-calendar",
+      "post-creator",
+      "short-video-script",
+      "community-growth",
+      "performance-analysis",
+      "website-workflow"
+    ],
+    "rules": [
+      "Portable semantics describe intent and workflow behavior, not vendor-native command availability.",
+      "No command, lens, or prompt pack grants execution, merge, deployment, publication, provider, secret, spending, or destructive authority.",
+      "A state or fingerprint change invalidates predecessor proof for the changed subject.",
+      "PromptOS does not persist or require private chain-of-thought.",
+      "Runtime skill, plugin, or pack availability must be observed before execution is claimed."
+    ]
+  },
   "chiefAI": {
     "repository": "jussray/chief-ai-machine",
     "role": "governed-ai-execution-layer",
