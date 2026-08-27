@@ -39,35 +39,47 @@
   window.__PROMPTOS_PERSISTENCE_AUTHORITY__ = persistenceAuthority;
 
   function renderPersistenceAuthority() {
-    if (document.getElementById('persistenceAuthorityStatus')) return;
     var foot = document.querySelector('.side-foot');
-    if (!foot || !foot.parentElement) return;
+    if (foot && foot.parentElement && !document.getElementById('persistenceAuthorityStatus')) {
+      var panel = document.createElement('div');
+      panel.setAttribute('data-persistence-authority', 'session-only');
+      panel.setAttribute('aria-label', 'PromptOS persistence authority');
+      panel.style.cssText = 'margin-top:14px;padding:12px 10px;border-top:1px solid var(--border)';
 
-    var panel = document.createElement('div');
-    panel.setAttribute('data-persistence-authority', 'session-only');
-    panel.setAttribute('aria-label', 'PromptOS persistence authority');
-    panel.style.cssText = 'margin-top:14px;padding:12px 10px;border-top:1px solid var(--border)';
+      var label = document.createElement('div');
+      label.className = 'side-label';
+      label.style.cssText = 'padding:0 0 8px';
+      label.textContent = '☁️ Runtime persistence';
 
-    var label = document.createElement('div');
-    label.className = 'side-label';
-    label.style.cssText = 'padding:0 0 8px';
-    label.textContent = '☁️ Runtime persistence';
+      var status = document.createElement('div');
+      status.id = 'persistenceAuthorityStatus';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
+      status.textContent = 'Session only · FCR runtime persistence not connected';
 
-    var status = document.createElement('div');
-    status.id = 'persistenceAuthorityStatus';
-    status.setAttribute('role', 'status');
-    status.setAttribute('aria-live', 'polite');
-    status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
-    status.textContent = 'Session only · FCR runtime persistence not connected';
+      var recovery = document.createElement('div');
+      recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
+      recovery.textContent = 'Use Export / Import for explicit backup and recovery. PromptOS does not collect a browser GitHub token.';
 
-    var recovery = document.createElement('div');
-    recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
-    recovery.textContent = 'Use Export / Import for explicit backup and recovery. PromptOS does not collect a browser GitHub token.';
+      panel.appendChild(label);
+      panel.appendChild(status);
+      panel.appendChild(recovery);
+      foot.parentElement.insertBefore(panel, foot);
+      foot.textContent = 'Session-only state · use Export / Import for recovery.';
+    }
 
-    panel.appendChild(label);
-    panel.appendChild(status);
-    panel.appendChild(recovery);
-    foot.parentElement.insertBefore(panel, foot);
+    var mobileNav = document.getElementById('mobileNav');
+    if (mobileNav && !document.getElementById('persistenceAuthorityMobileStatus')) {
+      var mobileStatus = document.createElement('div');
+      mobileStatus.id = 'persistenceAuthorityMobileStatus';
+      mobileStatus.setAttribute('role', 'status');
+      mobileStatus.setAttribute('aria-live', 'polite');
+      mobileStatus.setAttribute('data-persistence-authority', 'session-only');
+      mobileStatus.style.cssText = 'font-family:var(--mono);font-size:10.5px;line-height:1;white-space:nowrap;flex-shrink:0;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r-full);background:var(--surface-2);color:var(--text-muted)';
+      mobileStatus.textContent = 'Session only · FCR not connected';
+      mobileNav.insertBefore(mobileStatus, mobileNav.firstChild);
+    }
   }
 
   var SESSION = {
