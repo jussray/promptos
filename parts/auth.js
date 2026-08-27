@@ -1,19 +1,22 @@
 /**
- * auth.js — PromptOS Auth + Analytics
+ * auth.js — PromptOS Auth + Analytics + Persistence Truth
  *
  * Boot behaviour:
  *   • App opens immediately as Guest — no sign-in wall.
  *   • Google sign-in is optional (topbar chip shows “Sign in” button).
  *   • Signing in upgrades the session in-place.
  *
+ * Persistence authority:
+ *   • Current browser state is session-only.
+ *   • Founder Control Room is the canonical runtime persistence authority.
+ *   • FCR runtime persistence is not connected from this browser product yet.
+ *   • Browser GitHub/Gist credentials are not accepted or implemented.
+ *   • JSON Export / Import remains explicit backup and recovery.
+ *
  * Analytics (no personal data stored):
  *   • guest_session_started  — every cold page load
  *   • google_signin_success  — Google OAuth completes
  *   • guest_to_google_upgrade — user was guest, then signed in
- *
- *   Events are sent via navigator.sendBeacon() to ANALYTICS_ENDPOINT.
- *   Set ANALYTICS_ENDPOINT to your Cloudflare Worker URL.
- *   Leave it empty (‘’) to disable — events will only log to console.
  *
  * Authorized JS origin: https://jussray.github.io
  * Client ID: 813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com
@@ -21,29 +24,59 @@
 (function () {
   'use strict';
 
-  /* ── PROMPT REGISTRY BOOTSTRAP ──────────────────────────────────────── */
   if (!Array.isArray(window.PROMPTS)) window.PROMPTS = [];
 
-  /* ── CONFIG ────────────────────────────────────────────────────────── */
-  var CLIENT_ID         = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
-  var ANALYTICS_ENDPOINT = ''; // ← paste your Cloudflare Worker URL here, e.g. https://promptos-analytics.your-subdomain.workers.dev
+  var CLIENT_ID = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
+  var ANALYTICS_ENDPOINT = '';
 
-  /* ── SESSION ────────────────────────────────────────────────────────── */
+  var persistenceAuthority = Object.freeze({
+    canonicalAuthority: 'Founder Control Room',
+    runtimePersistence: 'not-connected',
+    browserState: 'session-only',
+    browserGitHubTokenAccepted: false,
+    recovery: Object.freeze(['export', 'import'])
+  });
+  window.__PROMPTOS_PERSISTENCE_AUTHORITY__ = persistenceAuthority;
+
+  function renderPersistenceAuthority() {
+    if (document.getElementById('persistenceAuthorityStatus')) return;
+    var foot = document.querySelector('.side-foot');
+    if (!foot || !foot.parentElement) return;
+
+    var panel = document.createElement('div');
+    panel.setAttribute('data-persistence-authority', 'session-only');
+    panel.setAttribute('aria-label', 'PromptOS persistence authority');
+    panel.style.cssText = 'margin-top:14px;padding:12px 10px;border-top:1px solid var(--border)';
+
+    var label = document.createElement('div');
+    label.className = 'side-label';
+    label.style.cssText = 'padding:0 0 8px';
+    label.textContent = '☁️ Runtime persistence';
+
+    var status = document.createElement('div');
+    status.id = 'persistenceAuthorityStatus';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
+    status.textContent = 'Session only · FCR runtime persistence not connected';
+
+    var recovery = document.createElement('div');
+    recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
+    recovery.textContent = 'Use Export / Import for explicit backup and recovery. PromptOS does not collect a browser GitHub token.';
+
+    panel.appendChild(label);
+    panel.appendChild(status);
+    panel.appendChild(recovery);
+    foot.parentElement.insertBefore(panel, foot);
+  }
+
   var SESSION = {
-    user      : null,   // null = guest; object = signed-in Google user
-    startedAs : 'guest' // track whether this session began as guest
+    user: null,
+    startedAs: 'guest'
   };
 
-  /* ── DOM ─────────────────────────────────────────────────────────────── */
   function qs(s) { return document.querySelector(s); }
 
-  /* ── ANALYTICS ────────────────────────────────────────────────────────── */
-  /**
-   * logEvent(name)
-   * Sends a tiny analytics beacon: { event, ts }
-   * No user data, no prompt data, no IDs.
-   * Falls back to console.info if no endpoint is configured.
-   */
   function logEvent(name) {
     var payload = JSON.stringify({ event: name, ts: Date.now() });
     console.info('[PromptOS analytics]', name);
@@ -53,7 +86,6 @@
       if (navigator.sendBeacon) {
         navigator.sendBeacon(ANALYTICS_ENDPOINT, blob);
       } else {
-        /* Fallback for older browsers */
         var xhr = new XMLHttpRequest();
         xhr.open('POST', ANALYTICS_ENDPOINT, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -64,10 +96,9 @@
     }
   }
 
-  /* ── JWT DECODE ────────────────────────────────────────────────────────── */
   function decodeJwt(token) {
     try {
-      var b64  = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      var b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
       var json = decodeURIComponent(
         atob(b64).split('').map(function (c) {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -80,23 +111,19 @@
     }
   }
 
-  /* ── TOPBAR CHIP ────────────────────────────────────────────────────────── */
   function renderGuestChip() {
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
 
-    /* Guest icon — simple person outline */
     var icon = document.createElement('div');
     icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
     icon.style.cssText = 'width:24px;height:24px;border-radius:50%;background:var(--surface-3);display:grid;place-items:center;color:var(--text-faint);flex-shrink:0';
 
-    /* Label */
     var label = document.createElement('span');
     label.textContent = 'Guest';
     label.style.cssText = 'font-family:var(--mono);font-size:11px;color:var(--text-faint)';
 
-    /* Sign-in trigger */
     var signInBtn = document.createElement('button');
     signInBtn.textContent = 'Sign in';
     signInBtn.setAttribute('aria-label', 'Sign in with Google');
@@ -123,13 +150,12 @@
     if (!chip) return;
     chip.innerHTML = '';
 
-    /* Avatar */
     var avatarEl;
     if (user.picture) {
       avatarEl = document.createElement('img');
-      avatarEl.src    = user.picture;
-      avatarEl.alt    = user.name || 'User';
-      avatarEl.width  = 24;
+      avatarEl.src = user.picture;
+      avatarEl.alt = user.name || 'User';
+      avatarEl.width = 24;
       avatarEl.height = 24;
       avatarEl.setAttribute('referrerpolicy', 'no-referrer');
       avatarEl.style.cssText = 'border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--border)';
@@ -138,11 +164,9 @@
       avatarEl = buildInitials(user.name);
     }
 
-    /* Name */
     var nameSpan = document.createElement('span');
     nameSpan.textContent = user.name || user.email || 'Signed in';
 
-    /* Sign-out */
     var signOutBtn = document.createElement('button');
     signOutBtn.textContent = 'Sign out';
     signOutBtn.setAttribute('aria-label', 'Sign out of PromptOS');
@@ -162,42 +186,36 @@
     return el;
   }
 
-  /* ── BOOT AS GUEST ───────────────────────────────────────────────────────── */
   function bootAsGuest() {
-    /* Hide onboarding (if still visible), show app shell */
-    var ob  = qs('#onboarding');
+    var ob = qs('#onboarding');
     var app = qs('#appShell');
-    if (ob)  ob.style.display  = 'none';
+    if (ob) ob.style.display = 'none';
     if (app) app.style.display = '';
-    SESSION.user      = null;
+    SESSION.user = null;
     SESSION.startedAs = 'guest';
     renderGuestChip();
     logEvent('guest_session_started');
     window.dispatchEvent(new CustomEvent('promptos:guest'));
   }
 
-  /* ── GOOGLE SIGN-IN (optional upgrade) ─────────────────────────────── */
   function triggerGoogleSignIn() {
     if (window.google && google.accounts && google.accounts.id) {
       google.accounts.id.prompt();
     } else {
-      /* GIS not loaded yet — load it then prompt */
       loadGIS(true);
     }
   }
 
-  /* GIS credential callback */
   window.__promptosGsiCallback = function (response) {
     if (!response || !response.credential) return;
     var payload = decodeJwt(response.credential);
     if (!payload) return;
 
     var wasGuest = SESSION.startedAs === 'guest' && SESSION.user === null;
-
     SESSION.user = {
-      id     : payload.sub,
-      name   : payload.name    || payload.email || 'User',
-      email  : payload.email   || '',
+      id: payload.sub,
+      name: payload.name || payload.email || 'User',
+      email: payload.email || '',
       picture: payload.picture || ''
     };
 
@@ -207,45 +225,39 @@
     window.dispatchEvent(new CustomEvent('promptos:authed', { detail: SESSION.user }));
   };
 
-  /* ── SIGN OUT (returns to guest) ─────────────────────────────────────── */
   function signOut() {
-    SESSION.user      = null;
+    SESSION.user = null;
     SESSION.startedAs = 'guest';
     if (window.google && google.accounts && google.accounts.id) {
       google.accounts.id.disableAutoSelect();
     }
     renderGuestChip();
-    logEvent('guest_session_started'); /* back to guest — counts as new guest session */
+    logEvent('guest_session_started');
     window.dispatchEvent(new CustomEvent('promptos:signedout'));
   }
 
-  /* ── GIS INIT ──────────────────────────────────────────────────────────── */
   function initGIS() {
     if (!window.google || !google.accounts || !google.accounts.id) {
       setTimeout(initGIS, 150);
       return;
     }
     google.accounts.id.initialize({
-      client_id            : CLIENT_ID,
-      callback             : window.__promptosGsiCallback,
-      auto_select          : false,
+      client_id: CLIENT_ID,
+      callback: window.__promptosGsiCallback,
+      auto_select: false,
       cancel_on_tap_outside: true
     });
-    /* No button rendered here — topbar chip “Sign in” triggers prompt() instead */
   }
 
   function loadGIS(promptAfter) {
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      /* Dev bypass */
-      return;
-    }
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
     if (document.getElementById('gis-sdk')) {
       if (promptAfter && window.google) google.accounts.id.prompt();
       return;
     }
-    var s   = document.createElement('script');
-    s.id    = 'gis-sdk';
-    s.src   = 'https://accounts.google.com/gsi/client';
+    var s = document.createElement('script');
+    s.id = 'gis-sdk';
+    s.src = 'https://accounts.google.com/gsi/client';
     s.async = true;
     s.defer = true;
     s.onload = function () {
@@ -256,15 +268,14 @@
     document.head.appendChild(s);
   }
 
-  /* ── PUBLIC API ─────────────────────────────────────────────────────────── */
-  window.PromptOSAuth    = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
+  window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 
-  /* ── BOOT ──────────────────────────────────────────────────────────────── */
   function boot() {
-    bootAsGuest(); /* Open app immediately — no sign-in wall */
-    loadGIS();     /* Load GIS in background so “Sign in” button is ready */
+    bootAsGuest();
+    renderPersistenceAuthority();
+    loadGIS();
   }
 
   if (document.readyState === 'loading') {
@@ -272,5 +283,4 @@
   } else {
     boot();
   }
-
 })();
