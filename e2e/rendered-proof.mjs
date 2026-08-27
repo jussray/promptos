@@ -40,11 +40,15 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#appShell').waitFor({state: 'visible'});
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
-  const persistenceStatus = page.locator('#persistenceAuthorityStatus');
+  const persistenceSelector = width <= 900
+    ? '#persistenceAuthorityMobileStatus'
+    : '#persistenceAuthorityStatus';
+  const persistenceStatus = page.locator(persistenceSelector);
+  if (width > 900) await persistenceStatus.scrollIntoViewIfNeeded();
   await persistenceStatus.waitFor({state: 'visible'});
   const persistenceText = (await persistenceStatus.textContent())?.trim() || '';
   assert(persistenceText.includes('Session only'), `${name}: persistence status did not disclose session-only state`);
-  assert(persistenceText.includes('FCR runtime persistence not connected'), `${name}: persistence status overstated FCR runtime persistence`);
+  assert(persistenceText.includes('FCR') && persistenceText.includes('not connected'), `${name}: persistence status overstated FCR runtime persistence`);
 
   for (const selector of ['#syncToken', '#syncConnect', '#syncPush', '#syncPull']) {
     assert(await page.locator(selector).count() === 0, `${name}: legacy browser Gist control remains: ${selector}`);
@@ -52,6 +56,7 @@ async function proveViewport(browser, {name, width, height}) {
   const bodyText = await page.locator('body').innerText();
   assert(!bodyText.includes('Token needs gist scope'), `${name}: legacy Gist credential guidance is still visible`);
   assert(!bodyText.includes('GitHub Token'), `${name}: browser GitHub token collection copy is still visible`);
+  assert(!bodyText.includes('persist across sessions'), `${name}: stale cross-session persistence claim is still visible`);
 
   const persistenceAuthority = await page.evaluate(() => window.__PROMPTOS_PERSISTENCE_AUTHORITY__);
   assert(persistenceAuthority?.canonicalAuthority === 'Founder Control Room', `${name}: FCR is not declared as canonical persistence authority`);
