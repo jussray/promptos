@@ -87,6 +87,21 @@
           "e2e/rendered-proof.mjs",
           ".github/workflows/control-room-tests.yml"
         ]
+      },
+      {
+        "id": "public-pages-deploy-identity",
+        "name": "PromptOS public Pages deploy and runtime-identity proof",
+        "kind": "deployment",
+        "command": "node e2e/public-deploy-proof.mjs",
+        "required": false,
+        "status": "founder-gated",
+        "evidencePaths": [
+          "index.html",
+          "parts/auth.js",
+          "parts/app.js",
+          ".github/workflows/pages-deploy.yml",
+          "e2e/public-deploy-proof.mjs"
+        ]
       }
     ]
   },

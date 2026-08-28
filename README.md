@@ -34,6 +34,12 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
+- `.github/workflows/pages-deploy.yml` — founder-gated, `workflow_dispatch`-only publication of `index.html` and its canonical `parts/*.js` to GitHub Pages
+- `e2e/public-deploy-proof.mjs` — proves the deployed public URL is wall-free, renders the real guest-boot UI, and serves the exact published commit SHA
+
+## Public surface boundary
+
+PromptOS's human-facing browser UI (`index.html` and its canonical `parts/*.js`) may be published to GitHub Pages, but only through `.github/workflows/pages-deploy.yml`, which runs solely on an explicit `workflow_dispatch`. That workflow stages only the browser prompt library — Chief AI Machine, Founder Control Room, and every governance manifest in this repository stay off the public artifact. Publication is not merge; merging this repository's `main` branch never deploys anything on its own.
 
 ## Documentation rule
 
