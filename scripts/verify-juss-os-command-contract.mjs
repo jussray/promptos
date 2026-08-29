@@ -24,33 +24,80 @@ const commands = [
   '/pack',
 ];
 
-const requiredPortableIds = [
-  'plan',
-  'goal',
-  'loop',
-  'resume',
-  'compact',
-  'btw',
-  'effort',
-  'lens',
-  'pack',
+const requiredPortableContracts = [
+  {
+    id: 'plan',
+    semantics: 'Produce a bounded plan with dependencies, proof, rollback, stop conditions, and next gate without executing it.',
+    documentation: '- `/plan`: produce a bounded plan with dependencies, proof, rollback, stop conditions, and a next gate. Planning is not execution.',
+  },
+  {
+    id: 'goal',
+    semantics: 'Normalize intent into a goal, constraints, definition of done, evidence requirements, and authority ceiling.',
+    documentation: '- `/goal`: normalize intent into a goal, constraints, definition of done, evidence requirements, and an authority ceiling.',
+  },
+  {
+    id: 'loop',
+    semantics: 'Re-observe current state, compare it with the expected state, adapt the next bounded move, and invalidate stale evidence after state movement.',
+    documentation: '- `/loop`: re-observe current state, compare expected and observed state, adapt the next bounded move, and invalidate stale evidence after state movement.',
+  },
+  {
+    id: 'resume',
+    semantics: 'Reacquire current fingerprints and continuity evidence before continuing prior work; prior proof never carries across changed state.',
+    documentation: '- `/resume`: reacquire current fingerprints and continuity evidence before continuing prior work. Prior proof never carries across changed state.',
+  },
+  {
+    id: 'compact',
+    semantics: 'Compress working context while preserving decisions, exact fingerprints, evidence, blockers, authority boundaries, rollback, and unresolved unknowns.',
+    documentation: '- `/compact`: compress working context while preserving decisions, exact fingerprints, evidence, blockers, authority boundaries, rollback, and unresolved unknowns.',
+  },
+  {
+    id: 'btw',
+    semantics: 'Answer a side question in isolation without silently changing the active goal, plan, authority, or continuity state.',
+    documentation: '- `/btw`: answer a side question in isolation. It cannot silently change the active goal, plan, authority, or continuity state.',
+  },
+  {
+    id: 'effort',
+    semantics: 'Declare requested reasoning depth, time, or cost budget as planning metadata; effort may change analysis depth but never authority.',
+    documentation: '- `/effort`: declare requested reasoning depth, time, or cost budget as planning metadata. More effort may deepen analysis but cannot widen authority.',
+  },
+  {
+    id: 'lens',
+    semantics: 'Request a named reasoning lens as advisory metadata and return conclusions, evidence, tradeoffs, and decisions without requiring private chain-of-thought or impersonating a named person.',
+    documentation: '- `/lens`: request a named reasoning lens as advisory metadata. Return conclusions, evidence, tradeoffs, and decisions; do not require private chain-of-thought and do not impersonate a named person.',
+  },
+  {
+    id: 'pack',
+    semantics: 'Invoke a declared versioned prompt pack by identifier; a pack cannot widen authority and cannot be claimed as installed or executed until its runtime availability is observed.',
+    documentation: '- `/pack`: invoke a declared, versioned prompt pack by identifier. A pack cannot widen authority and cannot be described as installed or executed until runtime availability is observed.',
+  },
 ];
 
 const grammar = productBoundary?.portableGrammar;
 const grammarCommands = Array.isArray(grammar?.commands) ? grammar.commands : [];
 const grammarIds = grammarCommands.map((command) => command?.id);
+const requiredPortableIds = requiredPortableContracts.map(({id}) => id);
+
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hasExactCommandToken(text, command) {
+  return new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegex(command)}(?![A-Za-z0-9_-])`, 'm').test(text);
+}
 
 const checks = [
-  ...commands.map((command) => [`canonical command ${command} is documented`, entrypoint.includes(command)]),
+  ...commands.map((command) => [`canonical command ${command} is documented as a complete token`, hasExactCommandToken(entrypoint, command)]),
   ['portable grammar contract is v1', grammar?.contract === 'promptos/portable-grammar@v1'],
   ['portable grammar is advisory only', grammar?.authority === 'advisory-only'],
   ['portable grammar is provider neutral', grammar?.providerNeutral === true],
   ['portable grammar has exactly the required workflow semantics',
     grammarIds.length === requiredPortableIds.length
       && new Set(grammarIds).size === grammarIds.length
-      && requiredPortableIds.every((id) => grammarIds.includes(id))],
-  ['every portable semantic has a non-empty definition',
-    grammarCommands.every((command) => typeof command?.semantics === 'string' && command.semantics.trim().length > 20)],
+      && grammarIds.every((id, index) => id === requiredPortableIds[index])],
+  ['machine-readable portable semantics match the canonical definitions',
+    requiredPortableContracts.every(({id, semantics}) => grammarCommands.find((command) => command?.id === id)?.semantics === semantics)],
+  ['documented portable semantics match the canonical definitions',
+    requiredPortableContracts.every(({documentation}) => entrypoint.includes(documentation))],
   ['reasoning lenses are declared as examples',
     Array.isArray(grammar?.reasoningLensExamples) && grammar.reasoningLensExamples.includes('ultrathink') && grammar.reasoningLensExamples.includes('ooda')],
   ['prompt pack classes are data declarations',
