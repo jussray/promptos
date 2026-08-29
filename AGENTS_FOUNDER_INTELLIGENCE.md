@@ -40,6 +40,16 @@ PromptOS also exposes the canonical portable Juss OS reasoning modes:
 
 These portable commands are reasoning, planning, and routing modes only. They do not grant authority to execute, merge, deploy, publish, send externally, alter provider state, expose or rotate secrets, spend funds, delete material, or change production routing.
 
+## Governed portable skills
+
+### `browser-reality-inspector`
+
+- **File:** [`skills/browser-reality-inspector/SKILL.md`](skills/browser-reality-inspector/SKILL.md)
+- **Load when:** a user asks an agent to resolve a URL or share redirect and report what a real browser actually rendered.
+- **Do not load when:** ordinary public research does not require live rendered-page inspection.
+- **Boundary:** read-only navigation and evidence capture only; login/authentication steps, CAPTCHA, permission prompts, provider boundaries, mutation, and scope expansion stop the run.
+- **Privacy:** browser-managed first-party session cookies may remain in an already-authenticated browser but may never be inspected or exported; evidence fingerprints bind sanitized receipts and never identify people/devices or correlate activity across sites.
+
 The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins.
 
 This entrypoint supplements repository-local agent instructions and never weakens privacy, safety, approval, rollback, evidence, or non-deletion rules.
