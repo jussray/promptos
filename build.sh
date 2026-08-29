@@ -1,4 +1,7 @@
-#!/bin/bash
-# Stitch all parts into index.html
-cat parts/part1.html parts/part2.html parts/part3.html parts/part4.html parts/part5.html parts/part6.html parts/part7.html > index.html
-echo "Built index.html successfully"
+#!/usr/bin/env bash
+set -euo pipefail
+
+# PromptOS no longer assembles index.html from the legacy parts/part*.html files.
+# index.html plus its declared ./parts/*.js script graph are the canonical browser source.
+echo "PromptOS uses the canonical index.html source graph; legacy HTML assembly is retired."
+node scripts/verify-control-room-tests.mjs
