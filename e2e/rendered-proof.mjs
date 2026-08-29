@@ -16,11 +16,18 @@ async function proveViewport(browser, {name, width, height}) {
   const pageErrors = [];
   const consoleErrors = [];
   const localFailures = [];
+  const gistRequests = [];
   const origin = new URL(BASE_URL).origin;
 
   page.on('pageerror', (error) => pageErrors.push(error.message));
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.origin === 'https://api.github.com' && (url.pathname === '/gists' || url.pathname.startsWith('/gists/'))) {
+      gistRequests.push(`${request.method()} ${url.pathname}`);
+    }
   });
   page.on('response', (response) => {
     const url = new URL(response.url());
@@ -32,6 +39,31 @@ async function proveViewport(browser, {name, width, height}) {
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   await page.locator('#appShell').waitFor({state: 'visible'});
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
+
+  const persistenceSelector = width <= 900
+    ? '#persistenceAuthorityMobileStatus'
+    : '#persistenceAuthorityStatus';
+  const persistenceStatus = page.locator(persistenceSelector);
+  if (width > 900) await persistenceStatus.scrollIntoViewIfNeeded();
+  await persistenceStatus.waitFor({state: 'visible'});
+  const persistenceText = (await persistenceStatus.textContent())?.trim() || '';
+  assert(persistenceText.includes('Session only'), `${name}: persistence status did not disclose session-only state`);
+  assert(persistenceText.includes('FCR') && persistenceText.includes('not connected'), `${name}: persistence status overstated FCR runtime persistence`);
+
+  for (const selector of ['#syncToken', '#syncConnect', '#syncPush', '#syncPull']) {
+    assert(await page.locator(selector).count() === 0, `${name}: legacy browser Gist control remains: ${selector}`);
+  }
+  const bodyText = await page.locator('body').innerText();
+  assert(!bodyText.includes('Token needs gist scope'), `${name}: legacy Gist credential guidance is still visible`);
+  assert(!bodyText.includes('GitHub Token'), `${name}: browser GitHub token collection copy is still visible`);
+  assert(!bodyText.includes('persist across sessions'), `${name}: stale cross-session persistence claim is still visible`);
+
+  const persistenceAuthority = await page.evaluate(() => window.__PROMPTOS_PERSISTENCE_AUTHORITY__);
+  assert(persistenceAuthority?.canonicalAuthority === 'Founder Control Room', `${name}: FCR is not declared as canonical persistence authority`);
+  assert(persistenceAuthority?.runtimePersistence === 'not-connected', `${name}: runtime persistence should remain not-connected until a real FCR path exists`);
+  assert(persistenceAuthority?.browserState === 'session-only', `${name}: browser state is not truthfully marked session-only`);
+  assert(persistenceAuthority?.browserGitHubTokenAccepted === false, `${name}: browser GitHub token acceptance is not explicitly disabled`);
+  assert(Array.isArray(persistenceAuthority?.recovery) && persistenceAuthority.recovery.join(',') === 'export,import', `${name}: explicit export/import recovery contract is missing`);
 
   const initialTheme = await page.locator('html').getAttribute('data-theme');
   assert(initialTheme === 'dark', `${name}: expected dark initial theme, got ${initialTheme}`);
@@ -93,6 +125,7 @@ async function proveViewport(browser, {name, width, height}) {
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
   await page.screenshot({path: screenshot, fullPage: true});
 
+  assert(gistRequests.length === 0, `${name}: browser emitted forbidden Gist requests: ${gistRequests.join(' | ')}`);
   assert(pageErrors.length === 0, `${name}: page errors: ${pageErrors.join(' | ')}`);
   assert(consoleErrors.length === 0, `${name}: console errors: ${consoleErrors.join(' | ')}`);
   assert(localFailures.length === 0, `${name}: local resource failures: ${localFailures.join(' | ')}`);
@@ -106,6 +139,9 @@ async function proveViewport(browser, {name, width, height}) {
     searchedPromptId: TARGET_PROMPT_ID,
     modalOpened: true,
     themeRoundTrip: true,
+    persistenceAuthority,
+    persistenceText,
+    gistRequests,
     localFailures,
     pageErrors,
     consoleErrors,
