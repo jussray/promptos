@@ -231,7 +231,7 @@ Per-guardrail table | Worst bypass path | False positive examples | Fix order | 
   if (typeof PROMPTS === 'undefined' || !Array.isArray(PROMPTS)) return;
   var existing = new Set(PROMPTS.map(function(p){ return p.id; }));
   var prompt = {
-    id: 198,
+    id: 220,
     emoji: '☁️',
     title: 'Cloudflare Agent Setup',
     sub: 'Skills + MCP + OAuth, verified before provider work',
