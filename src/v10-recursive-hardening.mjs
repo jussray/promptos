@@ -23,6 +23,10 @@ function text(value, max = 4000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 
+function hashText(value) {
+  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
 function list(value, maxItems = 60, max = 1000) {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.map((item) => text(item, max)).filter(Boolean))].sort().slice(0, maxItems);
@@ -33,43 +37,46 @@ function sha256(value) {
 }
 
 function attack(value = {}) {
+  const item = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
   return {
-    mode: text(value.mode, 80).toLowerCase(),
-    finding: text(value.finding, 3000),
-    falsifier: text(value.falsifier, 3000),
-    evidenceRefs: list(value.evidenceRefs, 30),
-    skills: list(value.skills, 30, 120).map((skill) => skill.toLowerCase()),
-    disposition: text(value.disposition, 40).toLowerCase(),
+    mode: text(item.mode, 80).toLowerCase(),
+    finding: text(item.finding, 3000),
+    falsifier: text(item.falsifier, 3000),
+    evidenceRefs: list(item.evidenceRefs, 30),
+    skills: list(item.skills, 30, 120).map((skill) => skill.toLowerCase()),
+    disposition: text(item.disposition, 40).toLowerCase(),
   };
 }
 
 function cycle(value = {}) {
+  const item = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
   return {
-    cycle: Number.isInteger(value.cycle) ? value.cycle : 0,
-    inputConclusionHash: text(value.inputConclusionHash, 64).toLowerCase(),
-    observation: text(value.observation, 3000),
-    orientation: text(value.orientation, 3000),
-    attacks: Array.isArray(value.attacks)
-      ? value.attacks.map(attack).sort((left, right) => left.mode.localeCompare(right.mode))
+    cycle: Number.isInteger(item.cycle) ? item.cycle : 0,
+    inputConclusionHash: hashText(item.inputConclusionHash),
+    observation: text(item.observation, 3000),
+    orientation: text(item.orientation, 3000),
+    attacks: Array.isArray(item.attacks)
+      ? item.attacks.map(attack).sort((left, right) => left.mode.localeCompare(right.mode))
       : [],
-    decision: text(value.decision, 40).toLowerCase(),
-    outputConclusion: text(value.outputConclusion, 4000),
-    outputConclusionHash: text(value.outputConclusionHash, 64).toLowerCase(),
+    decision: text(item.decision, 40).toLowerCase(),
+    outputConclusion: text(item.outputConclusion, 4000),
+    outputConclusionHash: hashText(item.outputConclusionHash),
   };
 }
 
 function normalize(receipt = {}) {
+  const value = receipt && typeof receipt === 'object' && !Array.isArray(receipt) ? receipt : {};
   return {
     contract: RECURSIVE_HARDENING_CONTRACT,
-    decisionHash: text(receipt.decisionHash, 64).toLowerCase(),
-    initialConclusion: text(receipt.initialConclusion),
-    initialConclusionHash: text(receipt.initialConclusionHash, 64).toLowerCase(),
-    attackModes: list(receipt.attackModes, 10, 80).map((mode) => mode.toLowerCase()),
-    cycles: Array.isArray(receipt.cycles) ? receipt.cycles.map(cycle) : [],
-    finalConclusion: text(receipt.finalConclusion),
-    finalConclusionHash: text(receipt.finalConclusionHash, 64).toLowerCase(),
-    finalDisposition: text(receipt.finalDisposition, 40).toLowerCase(),
-    skillsCovered: list(receipt.skillsCovered, 60, 120).map((skill) => skill.toLowerCase()),
+    decisionHash: hashText(value.decisionHash),
+    initialConclusion: text(value.initialConclusion),
+    initialConclusionHash: hashText(value.initialConclusionHash),
+    attackModes: list(value.attackModes, 10, 80).map((mode) => mode.toLowerCase()),
+    cycles: Array.isArray(value.cycles) ? value.cycles.map(cycle) : [],
+    finalConclusion: text(value.finalConclusion),
+    finalConclusionHash: hashText(value.finalConclusionHash),
+    finalDisposition: text(value.finalDisposition, 40).toLowerCase(),
+    skillsCovered: list(value.skillsCovered, 60, 120).map((skill) => skill.toLowerCase()),
     authorityCeiling: 'reason',
     requiresFounderApproval: true,
     executionAuthorized: false,
@@ -124,15 +131,25 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
     return { valid: false, authorityEligible: false, errors: ['Recursive hardening receipt must be an object'] };
   }
 
+  const rawAttackModes = Array.isArray(hardeningReceipt.attackModes) ? hardeningReceipt.attackModes : [];
+  const canonicalRawAttackModes = rawAttackModes.map((mode) => text(mode, 80).toLowerCase());
+  if (
+    rawAttackModes.length !== 4
+    || canonicalRawAttackModes.some((mode) => !mode)
+    || new Set(canonicalRawAttackModes).size !== 4
+  ) {
+    errors.push('Recursive hardening requires exactly four unique declared attack modes');
+  }
+
   const normalized = normalize(hardeningReceipt);
   if (hardeningReceipt.contract !== RECURSIVE_HARDENING_CONTRACT) errors.push('Unsupported recursive hardening contract');
-  if (normalized.decisionHash !== text(decisionReceipt?.decisionHash, 64).toLowerCase()) {
+  if (normalized.decisionHash !== hashText(decisionReceipt?.decisionHash)) {
     errors.push('Recursive hardening decisionHash does not match base decision');
   }
   if (normalized.initialConclusion !== text(decisionReceipt?.recommendation)) {
     errors.push('Recursive hardening must attack the base decision recommendation');
   }
-  if (normalized.initialConclusionHash !== sha256(normalized.initialConclusion)) {
+  if (!HASH.test(normalized.initialConclusionHash) || normalized.initialConclusionHash !== sha256(normalized.initialConclusion)) {
     errors.push('Recursive hardening initial conclusion hash mismatch');
   }
   if (normalized.attackModes.length !== 4 || RECURSIVE_ATTACK_MODES.some((mode) => !normalized.attackModes.includes(mode))) {
@@ -143,16 +160,18 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
   let priorHash = normalized.initialConclusionHash;
   let survived = true;
   const observedSkills = new Set();
+  const findings = new Set();
   normalized.cycles.forEach((entry, index) => {
     const number = index + 1;
     if (entry.cycle !== number) errors.push(`Recursive hardening cycle ${number} number mismatch`);
-    if (entry.inputConclusionHash !== priorHash) errors.push(`Recursive hardening cycle ${number} input conclusion is stale`);
+    if (!HASH.test(entry.inputConclusionHash) || entry.inputConclusionHash !== priorHash) {
+      errors.push(`Recursive hardening cycle ${number} input conclusion is stale`);
+    }
     if (!entry.observation) errors.push(`Recursive hardening cycle ${number} observation is required`);
     if (!entry.orientation) errors.push(`Recursive hardening cycle ${number} orientation is required`);
     if (entry.attacks.length !== 4) errors.push(`Recursive hardening cycle ${number} requires four attacks`);
 
     const modes = new Set();
-    const findings = new Set();
     const cycleSkills = new Set();
     for (const item of entry.attacks) {
       if (!MODE_SET.has(item.mode)) errors.push(`Recursive hardening cycle ${number} has unsupported attack mode: ${item.mode}`);
@@ -160,7 +179,7 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
       modes.add(item.mode);
       if (!item.finding) errors.push(`Recursive hardening cycle ${number} ${item.mode} finding is required`);
       if (findings.has(item.finding)) errors.push(`Recursive hardening cycle ${number} repeats an attack finding`);
-      findings.add(item.finding);
+      if (item.finding) findings.add(item.finding);
       if (!item.falsifier) errors.push(`Recursive hardening cycle ${number} ${item.mode} falsifier is required`);
       if (item.evidenceRefs.length === 0) errors.push(`Recursive hardening cycle ${number} ${item.mode} evidence is required`);
       if (!DISPOSITIONS.has(item.disposition)) errors.push(`Recursive hardening cycle ${number} ${item.mode} disposition is invalid`);
@@ -178,7 +197,7 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
     }
     if (!DISPOSITIONS.has(entry.decision)) errors.push(`Recursive hardening cycle ${number} decision is invalid`);
     if (entry.decision !== 'survived') survived = false;
-    if (entry.outputConclusionHash !== sha256(entry.outputConclusion)) {
+    if (!HASH.test(entry.outputConclusionHash) || entry.outputConclusionHash !== sha256(entry.outputConclusion)) {
       errors.push(`Recursive hardening cycle ${number} output conclusion hash mismatch`);
     }
     if (entry.decision === 'survived' && entry.outputConclusionHash !== priorHash) {
@@ -196,7 +215,11 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
   if (normalized.finalConclusion !== (normalized.cycles.at(-1)?.outputConclusion || '')) {
     errors.push('Recursive hardening final conclusion does not match cycle 10');
   }
-  if (normalized.finalConclusionHash !== sha256(normalized.finalConclusion) || normalized.finalConclusionHash !== priorHash) {
+  if (
+    !HASH.test(normalized.finalConclusionHash)
+    || normalized.finalConclusionHash !== sha256(normalized.finalConclusion)
+    || normalized.finalConclusionHash !== priorHash
+  ) {
     errors.push('Recursive hardening final conclusion hash mismatch');
   }
   if (!DISPOSITIONS.has(normalized.finalDisposition)) errors.push('Recursive hardening final disposition is invalid');
@@ -208,9 +231,10 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
   if (hardeningReceipt.authorityCeiling !== 'reason') errors.push('Recursive hardening cannot exceed reason authority');
   if (hardeningReceipt.requiresFounderApproval !== true) errors.push('Recursive hardening must preserve founder approval');
   if (hardeningReceipt.executionAuthorized !== false) errors.push('Recursive hardening cannot authorize execution');
-  if (!HASH.test(text(hardeningReceipt.hardeningHash, 64))) {
+  const hardeningHash = hashText(hardeningReceipt.hardeningHash);
+  if (!HASH.test(hardeningHash)) {
     errors.push('Recursive hardening hardeningHash must be sha256');
-  } else if (promptOSRecursiveHardeningHash(normalized) !== text(hardeningReceipt.hardeningHash, 64).toLowerCase()) {
+  } else if (promptOSRecursiveHardeningHash(normalized) !== hardeningHash) {
     errors.push('Recursive hardening hash does not match receipt content');
   }
 
@@ -226,8 +250,8 @@ export function adaptRecursiveHardeningForPromptOS(decisionReceipt, hardeningRec
   if (!validation.valid) throw new Error(validation.errors.join('; '));
   return Object.freeze({
     contract: RECURSIVE_HARDENING_CONTRACT,
-    hardeningHash: text(hardeningReceipt.hardeningHash, 64).toLowerCase(),
-    decisionHash: text(hardeningReceipt.decisionHash, 64).toLowerCase(),
+    hardeningHash: hashText(hardeningReceipt.hardeningHash),
+    decisionHash: hashText(hardeningReceipt.decisionHash),
     sourceSystem: 'chief-ai-machine',
     sourceTrust: 'submitted-unverified',
     fourWayAttackCount: 4,
