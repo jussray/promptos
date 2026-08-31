@@ -57,6 +57,51 @@ test('rejects duplicate attack modes and findings', () => {
   assert.ok(result.errors.some((error) => error.includes('repeats an attack finding')));
 });
 
+test('rejects findings replayed in later cycles', () => {
+  const replayed = structuredClone(hardening);
+  replayed.cycles[1].attacks[0].finding = replayed.cycles[0].attacks[0].finding;
+  replayed.hardeningHash = promptOSRecursiveHardeningHash(replayed);
+  const result = validateSubmittedRecursiveHardening(decision, replayed);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes('repeats an attack finding')));
+});
+
+test('rejects null nested cycle and attack entries without throwing', () => {
+  const nullCycle = structuredClone(hardening);
+  nullCycle.cycles[0] = null;
+  assert.doesNotThrow(() => validateSubmittedRecursiveHardening(decision, nullCycle));
+  assert.equal(validateSubmittedRecursiveHardening(decision, nullCycle).valid, false);
+
+  const nullAttack = structuredClone(hardening);
+  nullAttack.cycles[0].attacks[0] = null;
+  assert.doesNotThrow(() => validateSubmittedRecursiveHardening(decision, nullAttack));
+  assert.equal(validateSubmittedRecursiveHardening(decision, nullAttack).valid, false);
+});
+
+test('rejects duplicate raw attack-mode declarations before normalization', () => {
+  const duplicateDeclaration = structuredClone(hardening);
+  duplicateDeclaration.attackModes.push(duplicateDeclaration.attackModes[0]);
+  duplicateDeclaration.hardeningHash = promptOSRecursiveHardeningHash(duplicateDeclaration);
+  const result = validateSubmittedRecursiveHardening(decision, duplicateDeclaration);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening requires exactly four unique declared attack modes'));
+});
+
+test('rejects hash values that only share a valid sha256 prefix', () => {
+  const extendedReceiptHash = structuredClone(hardening);
+  extendedReceiptHash.hardeningHash = `${hardening.hardeningHash}garbage`;
+  const receiptHashResult = validateSubmittedRecursiveHardening(decision, extendedReceiptHash);
+  assert.equal(receiptHashResult.valid, false);
+  assert.ok(receiptHashResult.errors.includes('Recursive hardening hardeningHash must be sha256'));
+
+  const extendedCycleHash = structuredClone(hardening);
+  extendedCycleHash.cycles[0].inputConclusionHash = `${hardening.cycles[0].inputConclusionHash}garbage`;
+  extendedCycleHash.hardeningHash = promptOSRecursiveHardeningHash(extendedCycleHash);
+  const cycleHashResult = validateSubmittedRecursiveHardening(decision, extendedCycleHash);
+  assert.equal(cycleHashResult.valid, false);
+  assert.ok(cycleHashResult.errors.includes('Recursive hardening cycle 1 input conclusion is stale'));
+});
+
 test('cannot promote recursive reasoning into execution authority', () => {
   const escalated = structuredClone(hardening);
   escalated.authorityCeiling = 'privileged';
