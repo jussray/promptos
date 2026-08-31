@@ -5,6 +5,9 @@ const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
 const TARGET_PROMPT = 'Jailbreak Pack Review';
 const TARGET_PROMPT_ID = 64;
+const CLOUDFLARE_PROMPT = 'Cloudflare Agent Setup';
+const CLOUDFLARE_PROMPT_ID = 198;
+const CLOUDFLARE_AGENT_SETUP_URL = 'https://developers.cloudflare.com/agent-setup/prompt.md';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -68,20 +71,33 @@ async function proveViewport(browser, {name, width, height}) {
   const initialTheme = await page.locator('html').getAttribute('data-theme');
   assert(initialTheme === 'dark', `${name}: expected dark initial theme, got ${initialTheme}`);
 
-  const registry = await page.evaluate(({targetId, targetTitle}) => {
+  const registry = await page.evaluate(({targetId, targetTitle, cloudflareId, cloudflareTitle}) => {
     const prompts = typeof PROMPTS !== 'undefined' && Array.isArray(PROMPTS) ? PROMPTS : [];
     const ids = prompts.map((prompt) => prompt?.id);
     const target = prompts.find((prompt) => prompt?.id === targetId);
+    const cloudflare = prompts.find((prompt) => prompt?.id === cloudflareId);
     return {
       count: prompts.length,
       uniqueIds: new Set(ids).size,
       targetTitle: target?.title ?? null,
       targetPresent: target?.title === targetTitle,
+      cloudflareTitle: cloudflare?.title ?? null,
+      cloudflarePresent: cloudflare?.title === cloudflareTitle,
+      cloudflareCategory: cloudflare?.cat ?? null,
+      cloudflareChatgpt: cloudflare?.versions?.chatgpt ?? null,
     };
-  }, {targetId: TARGET_PROMPT_ID, targetTitle: TARGET_PROMPT});
+  }, {
+    targetId: TARGET_PROMPT_ID,
+    targetTitle: TARGET_PROMPT,
+    cloudflareId: CLOUDFLARE_PROMPT_ID,
+    cloudflareTitle: CLOUDFLARE_PROMPT,
+  });
   assert(registry.count > 0, `${name}: prompt registry is empty`);
   assert(registry.uniqueIds === registry.count, `${name}: prompt registry contains duplicate IDs`);
   assert(registry.targetPresent, `${name}: canonical p08 prompt is absent from the runtime registry`);
+  assert(registry.cloudflarePresent, `${name}: Cloudflare Agent Setup prompt is absent from the runtime registry`);
+  assert(registry.cloudflareCategory === 'cloudflare', `${name}: Cloudflare Agent Setup prompt has the wrong category`);
+  assert(registry.cloudflareChatgpt?.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup prompt is not bound to the official machine instructions`);
 
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered prompt count does not match runtime registry`);
@@ -114,8 +130,19 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator(`[data-open="${TARGET_PROMPT_ID}"]`).click();
   await page.locator('#modalWrap.open').waitFor({state: 'visible'});
   assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: prompt modal did not open the searched item`);
-
   await page.keyboard.press('Escape');
+
+  await search.fill(CLOUDFLARE_PROMPT);
+  await matchingCards.first().waitFor({state: 'visible'});
+  assert(await matchingCards.count() === 1, `${name}: Cloudflare setup search did not narrow to exactly one prompt`);
+  assert((await matchingCards.locator('h3').textContent())?.trim() === CLOUDFLARE_PROMPT, `${name}: Cloudflare Agent Setup card did not render`);
+  await page.locator(`[data-open="${CLOUDFLARE_PROMPT_ID}"]`).click();
+  await page.locator('#modalWrap.open').waitFor({state: 'visible'});
+  assert((await page.locator('#modalWrap h3').textContent())?.includes(CLOUDFLARE_PROMPT), `${name}: Cloudflare Agent Setup modal did not open`);
+  assert((await page.locator('#mBody').textContent())?.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup modal omitted the official setup URL`);
+  assert((await page.locator('#mBody').textContent())?.includes('provider readback verified'), `${name}: Cloudflare Agent Setup modal omitted the provider-readback proof gate`);
+  await page.keyboard.press('Escape');
+
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'light', `${name}: theme toggle did not switch to light`);
   await page.locator('#themeBtn').click();
@@ -137,6 +164,10 @@ async function proveViewport(browser, {name, width, height}) {
     registryUniqueIds: registry.uniqueIds,
     searchedPrompt: TARGET_PROMPT,
     searchedPromptId: TARGET_PROMPT_ID,
+    cloudflarePrompt: CLOUDFLARE_PROMPT,
+    cloudflarePromptId: CLOUDFLARE_PROMPT_ID,
+    cloudflareOfficialSourceBound: true,
+    cloudflareModalOpened: true,
     modalOpened: true,
     themeRoundTrip: true,
     persistenceAuthority,
