@@ -225,3 +225,60 @@ Per-guardrail table | Worst bypass path | False positive examples | Fix order | 
   ];
   additions.forEach(function(p){ if (!existing.has(p.id)) PROMPTS.push(p); });
 })();
+
+/* Cloudflare Agent Setup implant — follows Cloudflare's official agent-setup prompt by reference. */
+(function(){
+  if (typeof PROMPTS === 'undefined' || !Array.isArray(PROMPTS)) return;
+  var existing = new Set(PROMPTS.map(function(p){ return p.id; }));
+  var prompt = {
+    id: 198,
+    emoji: '☁️',
+    title: 'Cloudflare Agent Setup',
+    sub: 'Skills + MCP + OAuth, verified before provider work',
+    cat: 'cloudflare',
+    platforms: ['chatgpt','claude','perplexity'],
+    card_accent: 'var(--accent-orange)',
+    notes: 'Use before Cloudflare provider work. Fetches Cloudflare’s current official machine instructions instead of freezing setup commands in PromptOS. Treat installed, MCP-registered, OAuth-authorized, and provider-readable as separate proof gates.',
+    versions: {
+      chatgpt: `Set up this AI development environment for Cloudflare using Cloudflare's current official machine instructions.
+
+AUTHORITATIVE SOURCE:
+https://developers.cloudflare.com/agent-setup/prompt.md
+
+Execute the appropriate section for the agent/runtime you are actually operating in.
+
+Rules:
+- Fetch the authoritative prompt first; do not rely on remembered setup commands.
+- Install Cloudflare Skills using the method specified for this agent.
+- Register every MCP server the current Cloudflare prompt requires, including API, docs, bindings, builds, and observability when applicable.
+- Trigger OAuth only through the supported Cloudflare flow. Never expose, print, or hardcode credentials.
+- Treat these as separate states: Skills installed | MCPs registered | OAuth authorized | Cloudflare tools callable | provider readback verified.
+- Never claim setup complete because a plugin appears in a catalog or because configuration text was written.
+- If this environment cannot modify the real agent config, classify BLOCKED and state the exact missing execution surface.
+- Do not weaken Cloudflare Access, DNS, WAF, Workers, or Zero Trust policies merely to prove connectivity.
+- After setup, verify the loaded MCP/tool surface and perform one read-only Cloudflare call before any mutation.
+
+Return exactly:
+REALITY:
+FIX:
+PROOF:
+RISK:
+ROLLBACK:
+NEXT GATE:`,
+      claude: `<role>Cloudflare environment bootstrap operator.</role>
+<authoritative_source>https://developers.cloudflare.com/agent-setup/prompt.md</authoritative_source>
+<objective>Fetch and execute the current Cloudflare agent-setup instructions for the actual runtime in use.</objective>
+<rules>
+- Fetch first; never use stale remembered commands.
+- Install the prescribed Cloudflare Skills and MCP servers.
+- Keep Skills installed, MCP registered, OAuth authorized, tool callable, and provider readback as distinct proof states.
+- Never expose credentials or weaken Access/DNS/WAF/Zero Trust to obtain a green result.
+- If the real agent configuration cannot be changed from this environment, stop and classify BLOCKED with the exact missing surface.
+- Verify one read-only Cloudflare provider call before any write.
+</rules>
+<output>REALITY | FIX | PROOF | RISK | ROLLBACK | NEXT GATE</output>`,
+      perplexity: `Open Cloudflare's current official AI agent setup instructions at https://developers.cloudflare.com/agent-setup/prompt.md and summarize only the setup branch relevant to [AGENT/RUNTIME]. Verify the currently required Cloudflare Skills/MCP endpoints against first-party Cloudflare documentation. Distinguish installation, MCP registration, OAuth authorization, and successful provider readback. Do not infer that any account mutation succeeded.`
+    }
+  };
+  if (!existing.has(prompt.id)) PROMPTS.push(prompt);
+})();
