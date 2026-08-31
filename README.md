@@ -2,6 +2,24 @@
 
 PromptOS is Juss Ray's governed prompt and founder-intent operating system. It started as a 159-prompt library for OODA, Redteam, L99, Lindy, coding, and Chief AI repo operations; current `main` also includes executable governance contracts, portable Juss OS command parity, plugin-management boundaries, and a Founder OS mission compiler with desktop/mobile browser proof.
 
+## Product boundary
+
+PromptOS and Chief AI Machine are complementary, not interchangeable.
+
+- **PromptOS is the human-AI operating layer.** It structures founder intent, context, constraints, reusable workflows, and human-reviewed learning.
+- **Chief AI Machine is the governed AI execution layer.** It owns bounded system execution, authority checks, verification, and execution receipts.
+- PromptOS may hand Chief AI a structured execution request, but a PromptOS artifact is advisory input. It cannot widen Chief AI authority or prove execution, deployment, provider state, or publication.
+
+The machine-readable contract lives at `.control-room/product-boundary.json` and is enforced by `scripts/verify-product-boundary.mjs`.
+
+```text
+PromptOS
+intent -> context -> workflow -> execution request -> learning
+
+Chief AI Machine
+request -> authority boundary -> execution -> verification -> receipt
+```
+
 ## What exists now
 
 - **Prompt library:** structured prompts for OODA, Redteam, L99, Lindy, coding, Chief AI, and founder operations.
@@ -30,10 +48,18 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md` — governance constitution
 - `docs/HUMAN_SAFE_BUILD_CONTRACT.md` — bounded build contract
 - `.control-room/plugin-management.json` — plugin-management declaration
+- `.control-room/product-boundary.json` — PromptOS/Chief product boundary
 - `control-room.manifest.json` — Control Room capability manifest
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
+- `scripts/verify-product-boundary.mjs` — PromptOS/Chief boundary proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
+- `.github/workflows/pages-deploy.yml` — founder-gated, `workflow_dispatch`-only publication of `index.html` and its canonical `parts/*.js` to GitHub Pages
+- `e2e/public-deploy-proof.mjs` — proves the deployed public URL is wall-free, renders the real guest-boot UI, and serves the exact published commit SHA
+
+## Public surface boundary
+
+PromptOS's human-facing browser UI (`index.html` and its canonical `parts/*.js`) may be published to GitHub Pages, but only through `.github/workflows/pages-deploy.yml`, which runs solely on an explicit `workflow_dispatch`. That workflow stages only the browser prompt library — Chief AI Machine, Founder Control Room, and every governance manifest in this repository stay off the public artifact. Publication is not merge; merging this repository's `main` branch never deploys anything on its own.
 
 ## Documentation rule
 

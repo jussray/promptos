@@ -5,15 +5,24 @@ on:
     paths:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
+      - ".control-room/browser-reality.contract.json"
+      - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-browser-reality-contract.mjs"
+      - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
+      - "scripts/verify-product-boundary.mjs"
+      - "scripts/verify-control-room-workflow-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
+      - ".control-room/founder-control.contract.json"
+      - "skills/browser-reality-inspector/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
+      - "build.sh"
       - "e2e/**"
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
@@ -23,15 +32,24 @@ on:
     paths:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
+      - ".control-room/browser-reality.contract.json"
+      - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-browser-reality-contract.mjs"
+      - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
+      - "scripts/verify-product-boundary.mjs"
+      - "scripts/verify-control-room-workflow-contract.mjs"
       - "control-room.manifest.json"
       - ".control-room/repository.manifest.json"
       - ".control-room/plugin-management.json"
+      - ".control-room/founder-control.contract.json"
+      - "skills/browser-reality-inspector/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
+      - "build.sh"
       - "e2e/**"
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
@@ -76,14 +94,32 @@ jobs:
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
 
+      - name: Verify browser reality inspection contract
+        run: node scripts/verify-browser-reality-contract.mjs
+
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
 
       - name: Verify Founder OS mission compiler contract
         run: node scripts/verify-founder-os-mission-compiler.mjs
 
+      - name: Verify PromptOS and Chief product boundary
+        run: node scripts/verify-product-boundary.mjs
+
+      - name: Verify control-room workflow trigger contract
+        run: node scripts/verify-control-room-workflow-contract.mjs
+
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
+
+      - name: Verify legacy build entrypoint is non-mutating
+        shell: bash
+        run: |
+          before="$(sha256sum index.html | awk '{print $1}')"
+          bash build.sh
+          after="$(sha256sum index.html | awk '{print $1}')"
+          printf 'index_before=%s\nindex_after=%s\n' "$before" "$after"
+          test "$before" = "$after"
 
       - name: Materialize verified Zapier lockfile
         run: node tools/zapier/scripts/sync-lockfile.mjs

@@ -61,6 +61,22 @@
         ]
       },
       {
+        "id": "browser-reality-contract",
+        "name": "Portable read-only browser reality contract",
+        "kind": "contract",
+        "command": "node scripts/verify-browser-reality-contract.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "AGENTS_FOUNDER_INTELLIGENCE.md",
+          ".control-room/browser-reality.contract.json",
+          "skills/browser-reality-inspector/SKILL.md",
+          "src/browser-reality-receipt.mjs",
+          "scripts/verify-browser-reality-contract.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
         "id": "zapier-sdk-typecheck",
         "name": "Isolated Zapier SDK TypeScript",
         "kind": "typecheck",
@@ -86,6 +102,21 @@
           "index.html",
           "e2e/rendered-proof.mjs",
           ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
+        "id": "public-pages-deploy-identity",
+        "name": "PromptOS public Pages deploy and runtime-identity proof",
+        "kind": "deployment",
+        "command": "node e2e/public-deploy-proof.mjs",
+        "required": false,
+        "status": "founder-gated",
+        "evidencePaths": [
+          "index.html",
+          "parts/auth.js",
+          "parts/app.js",
+          ".github/workflows/pages-deploy.yml",
+          "e2e/public-deploy-proof.mjs"
         ]
       }
     ]

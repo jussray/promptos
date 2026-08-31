@@ -1,7 +1,7 @@
-/* PromptOS — Full App Runtime + Gist Device Sync
+/* PromptOS — Full App Runtime
    State: stars, custom prompts, theme, last tab
-   Sync:  GitHub Gist (token-gated, opt-in)
-   Fallback: in-memory only (sandbox-safe, no localStorage)
+   Persistence: session-only browser state with explicit Export / Import recovery
+   Canonical runtime persistence authority: Founder Control Room (not connected here)
 */
 (function(){
 'use strict';
@@ -13,111 +13,14 @@ var STATE = {
   theme: 'dark',
   page: 'library',
   filter: 'all',
-  search: '',
-  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }
+  search: ''
 };
 
-/* ── 2. GIST SYNC ENGINE ──────────────────────────────────────────── */
-var GIST_FILENAME = 'promptos-state.json';
-
-function gistHeaders(token){
-  return { 'Authorization': 'token ' + token, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' };
-}
-
-function syncPayload(){
+function serializeState(){
   return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
 }
 
-async function gistPush(){
-  var t = STATE.sync.token, g = STATE.sync.gistId;
-  if (!t) return;
-  setSyncStatus('saving');
-  try {
-    var body = { files: {} };
-    body.files[GIST_FILENAME] = { content: syncPayload() };
-    var url, method;
-    if (g) { url = 'https://api.github.com/gists/' + g; method = 'PATCH'; }
-    else    { url = 'https://api.github.com/gists'; method = 'POST'; body.description = 'PromptOS device sync'; body.public = false; }
-    var res = await fetch(url, { method: method, headers: gistHeaders(t), body: JSON.stringify(body) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var data = await res.json();
-    STATE.sync.gistId = data.id;
-    STATE.sync.lastSynced = new Date();
-    setSyncStatus('ok');
-    toast('☁️ Synced to Gist');
-  } catch(e) {
-    setSyncStatus('error');
-    toast('⚠️ Sync failed: ' + e.message);
-  }
-}
-
-async function gistPull(){
-  var t = STATE.sync.token, g = STATE.sync.gistId;
-  if (!t || !g) return;
-  setSyncStatus('loading');
-  try {
-    var res = await fetch('https://api.github.com/gists/' + g, { headers: gistHeaders(t) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var data = await res.json();
-    var file = data.files[GIST_FILENAME];
-    if (!file) throw new Error('No state file in Gist');
-    var remote = JSON.parse(file.content);
-    /* Merge: remote wins on conflicts, local custom prompts are union-merged */
-    if (remote.stars)  STATE.stars  = Object.assign({}, remote.stars);
-    if (remote.theme)  STATE.theme  = remote.theme;
-    if (Array.isArray(remote.custom)) {
-      var ids = new Set(STATE.custom.map(function(p){ return p.id; }));
-      remote.custom.forEach(function(p){ if (!ids.has(p.id)) STATE.custom.push(p); });
-    }
-    STATE.sync.lastSynced = new Date();
-    setSyncStatus('ok');
-    applyTheme(STATE.theme);
-    renderAll();
-    toast('☁️ Pulled from Gist');
-  } catch(e) {
-    setSyncStatus('error');
-    toast('⚠️ Pull failed: ' + e.message);
-  }
-}
-
-async function gistFindOrCreate(){
-  var t = STATE.sync.token;
-  if (!t) return;
-  setSyncStatus('loading');
-  try {
-    /* List user's gists and find ours */
-    var res = await fetch('https://api.github.com/gists?per_page=100', { headers: gistHeaders(t) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var list = await res.json();
-    var found = list.find(function(g){ return g.files && g.files[GIST_FILENAME]; });
-    if (found) {
-      STATE.sync.gistId = found.id;
-      await gistPull();
-    } else {
-      await gistPush();
-    }
-  } catch(e) {
-    setSyncStatus('error');
-    toast('⚠️ Gist connect failed: ' + e.message);
-  }
-}
-
-function setSyncStatus(s){
-  STATE.sync.status = s;
-  var dot = document.getElementById('syncDot');
-  var lbl = document.getElementById('syncLabel');
-  if (!dot || !lbl) return;
-  var map = { idle: ['#575552','Sync off'], saving: ['var(--accent-yellow)','Saving…'], loading: ['var(--accent-blue)','Pulling…'], ok: ['var(--accent-green)','Synced'], error: ['var(--accent-red)','Sync error'] };
-  var m = map[s] || map.idle;
-  dot.style.background = m[0];
-  lbl.textContent = m[1];
-  if (STATE.sync.lastSynced && s === 'ok') {
-    var d = STATE.sync.lastSynced;
-    lbl.textContent = 'Synced ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
-  }
-}
-
-/* ── 3. BENCH DATA ────────────────────────────────────────────────── */
+/* ── 2. BENCH DATA ────────────────────────────────────────────────── */
 var BENCH = [
   {task:'Long-form research report',gpt:'★★★★☆',cla:'★★★★★',per:'★★★★☆',best:'Claude'},
   {task:'Code review / debug',gpt:'★★★★☆',cla:'★★★★★',per:'★★☆☆☆',best:'Claude'},
@@ -133,7 +36,7 @@ var BENCH = [
   {task:'Shopify admin automation',gpt:'★★★☆☆',cla:'★★★★★',per:'★★☆☆☆',best:'Claude'}
 ];
 
-/* ── 4. CATEGORY ACCENT COLOURS ──────────────────────────────────── */
+/* ── 3. CATEGORY ACCENT COLOURS ──────────────────────────────────── */
 var CAT_COLOR = {
   coding:   'var(--primary)',
   research: 'var(--accent-blue)',
@@ -148,7 +51,7 @@ var CAT_COLOR = {
   custom:   'var(--accent-purple)'
 };
 
-/* ── 5. HELPERS ───────────────────────────────────────────────────── */
+/* ── 4. HELPERS ───────────────────────────────────────────────────── */
 var _tid;
 function toast(msg, dur){
   var el = document.getElementById('toast');
@@ -180,13 +83,13 @@ function allPrompts(){
   var base = (typeof PROMPTS !== 'undefined') ? PROMPTS : [];
   var custom = STATE.custom.map(function(p){
     return { id: p.id, emoji: p.emoji||'✨', title: p.title, sub: p.sub||'', cat: 'custom',
-      platforms: (p.platforms||'chatgpt').split(',').map(function(x){ return x.trim(); }),
+      platforms: Array.isArray(p.platforms) ? p.platforms : String(p.platforms||'chatgpt').split(',').map(function(x){ return x.trim(); }),
       notes: '', versions: { chatgpt: p.body||'' }, _custom: true };
   });
   return base.concat(custom);
 }
 
-/* ── 6. RENDER LIBRARY ────────────────────────────────────────────── */
+/* ── 5. RENDER LIBRARY ────────────────────────────────────────────── */
 function renderAll(){
   renderStats(); renderChips(); renderGrid();
   renderCustomList(); renderBench();
@@ -263,11 +166,9 @@ function renderGrid(){
       '<button class="mini-btn push" data-open="'+p.id+'">Open →</button></div>';
     el.appendChild(card);
   });
-  /* star toggles */
   el.querySelectorAll('.star-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){ e.stopPropagation(); toggleStar(btn.dataset.id); });
   });
-  /* open modal */
   el.querySelectorAll('[data-open]').forEach(function(btn){
     btn.addEventListener('click', function(e){ e.stopPropagation(); openModal(parseInt(btn.dataset.open)); });
   });
@@ -291,22 +192,20 @@ function esc(s){
 
 function qs(sel){ return document.querySelector(sel); }
 
-/* ── 7. STARS ─────────────────────────────────────────────────────── */
+/* ── 6. STARS ─────────────────────────────────────────────────────── */
 function toggleStar(id){
   id = parseInt(id);
   STATE.stars[id] = !STATE.stars[id];
   if (!STATE.stars[id]) delete STATE.stars[id];
   renderStats(); renderChips(); renderGrid();
-  /* update modal star if open */
   var mStar = qs('#mStar');
   if (mStar && mStar.dataset.id == id) {
     mStar.classList.toggle('on', !!STATE.stars[id]);
     mStar.textContent = STATE.stars[id] ? '★' : '☆';
   }
-  debouncePush();
 }
 
-/* ── 8. MODAL ─────────────────────────────────────────────────────── */
+/* ── 7. MODAL ─────────────────────────────────────────────────────── */
 var _openId = null;
 var _openTab = null;
 
@@ -358,7 +257,7 @@ function closeModal(){
   _openId = null;
 }
 
-/* ── 9. BUILDER ───────────────────────────────────────────────────── */
+/* ── 8. BUILDER ───────────────────────────────────────────────────── */
 var BUILDER_TEMPLATES = {
   coding: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a senior software engineer working in '+r+'\n\nTask: '+task+'\n\nConstraints: '+constraints+'\n\nReturn: '+fmt; },
@@ -400,7 +299,7 @@ function renderBuilder(){
   if (out) out.textContent = buildPrompt();
 }
 
-/* ── 10. FREESTYLE (rule-based generator) ─────────────────────────── */
+/* ── 9. FREESTYLE (rule-based generator) ─────────────────────────── */
 var FS_CATS = {
   debug:    ['debug','fix','error','crash','broken','bug','exception','fail'],
   security: ['auth','security','token','permission','role','trust','vuln','xss','injection'],
@@ -447,18 +346,16 @@ function generateFreestyle(ask, plats){
   return { emoji: emoji, title: title, sub: sub, cat: cat, notes: notes, platforms: plats, versions: versions };
 }
 
-/* ── 11. CUSTOM PROMPTS ───────────────────────────────────────────── */
+/* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
 function saveCustomPrompt(title, sub, cat, platforms, body){
   var id = 'c_' + Date.now();
   STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
   renderAll();
-  debouncePush();
 }
 
 function deleteCustom(id){
   STATE.custom = STATE.custom.filter(function(p){ return p.id !== id; });
   renderAll();
-  debouncePush();
 }
 
 function renderCustomList(){
@@ -477,7 +374,7 @@ function renderCustomList(){
   });
 }
 
-/* ── 12. BENCH ────────────────────────────────────────────────────── */
+/* ── 11. BENCH ────────────────────────────────────────────────────── */
 function renderBench(){
   var el = qs('#benchBody'); if (!el) return;
   el.innerHTML = '';
@@ -492,9 +389,9 @@ function renderBench(){
   });
 }
 
-/* ── 13. EXPORT / IMPORT ──────────────────────────────────────────── */
+/* ── 12. EXPORT / IMPORT ──────────────────────────────────────────── */
 function exportState(){
-  var blob = new Blob([syncPayload()], { type: 'application/json' });
+  var blob = new Blob([serializeState()], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'promptos-state.json'; a.click();
   toast('State exported');
 }
@@ -507,11 +404,10 @@ function importState(json){
     if (Array.isArray(data.custom)) STATE.custom = data.custom;
     renderAll();
     toast('State imported');
-    debouncePush();
   } catch(e) { toast('Invalid JSON'); }
 }
 
-/* ── 14. NAV / PAGE SWITCHING ─────────────────────────────────────── */
+/* ── 13. NAV / PAGE SWITCHING ─────────────────────────────────────── */
 function updateCounts(){
   var navCount = qs('#navCount');
   var navCustom = qs('#navCustom');
@@ -526,69 +422,22 @@ function switchPage(name){
   document.querySelectorAll('.nav-item[data-page]').forEach(function(b){ b.classList.toggle('active', b.dataset.page === name); });
 }
 
-/* ── 15. SYNC UI (sidebar panel) ─────────────────────────────────── */
-function injectSyncUI(){
-  var foot = qs('.side-foot'); if (!foot) return;
-  var html = '<div style="margin-top:14px;padding:12px 10px;border-top:1px solid var(--border)">';
-  html += '<div class="side-label" style="padding:0 0 8px">☁️ Device Sync</div>';
-  html += '<div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">';
-  html += '<span id="syncDot" style="width:8px;height:8px;border-radius:50%;background:#575552;flex-shrink:0"></span>';
-  html += '<span id="syncLabel" style="font-family:var(--mono);font-size:11px;color:var(--text-muted)">Sync off</span></div>';
-  html += '<div class="field" style="margin-bottom:8px"><label style="display:block;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:5px">GitHub Token</label>';
-  html += '<input id="syncToken" type="password" placeholder="ghp_…" style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);padding:7px 9px;font-size:12px;font-family:var(--mono);color:var(--text);transition:border-color var(--t)"></div>';
-  html += '<div style="display:flex;gap:6px">';
-  html += '<button class="mini-btn solid" id="syncConnect" style="font-size:11px;padding:5px 10px">Connect</button>';
-  html += '<button class="mini-btn" id="syncPush" style="font-size:11px;padding:5px 10px">Push</button>';
-  html += '<button class="mini-btn" id="syncPull" style="font-size:11px;padding:5px 10px">Pull</button>';
-  html += '</div>';
-  html += '<div style="font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5">Token needs <code style="color:var(--primary)">gist</code> scope. Saved in memory only — never persisted.</div>';
-  html += '</div>';
-  foot.insertAdjacentHTML('beforebegin', html);
-
-  qs('#syncConnect').addEventListener('click', function(){
-    var tok = qs('#syncToken').value.trim();
-    if (!tok) { toast('Paste a GitHub token with gist scope'); return; }
-    STATE.sync.token = tok;
-    gistFindOrCreate();
-  });
-  qs('#syncPush').addEventListener('click', function(){
-    if (!STATE.sync.token) { toast('Connect first'); return; }
-    gistPush();
-  });
-  qs('#syncPull').addEventListener('click', function(){
-    if (!STATE.sync.token || !STATE.sync.gistId) { toast('Connect first'); return; }
-    gistPull();
-  });
-}
-
-/* Debounced auto-push on state changes */
-var _pushTimer;
-function debouncePush(){
-  clearTimeout(_pushTimer);
-  _pushTimer = setTimeout(function(){ if (STATE.sync.token) gistPush(); }, 2000);
-}
-
-/* ── 16. BOOT ─────────────────────────────────────────────────────── */
+/* ── 14. BOOT ─────────────────────────────────────────────────────── */
 function boot(){
   applyTheme(STATE.theme);
-  injectSyncUI();
   renderAll();
   switchPage('library');
 
-  /* Theme toggle */
   var themeBtn = qs('#themeBtn');
   if (themeBtn) themeBtn.addEventListener('click', function(){
     STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
     applyTheme(STATE.theme);
-    debouncePush();
   });
 
-  /* Nav */
   document.querySelectorAll('[data-page]').forEach(function(btn){
     btn.addEventListener('click', function(){ switchPage(btn.dataset.page); });
   });
 
-  /* Search */
   var searchEl = qs('#search');
   if (searchEl) searchEl.addEventListener('input', function(){
     STATE.search = searchEl.value;
@@ -596,23 +445,19 @@ function boot(){
     renderChips(); renderGrid();
   });
 
-  /* Modal close */
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
   qs('#modalWrap').addEventListener('click', function(e){ if (e.target === qs('#modalWrap')) closeModal(); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
 
-  /* Modal star */
   qs('#mStar').addEventListener('click', function(){
     if (_openId !== null) toggleStar(_openId);
   });
 
-  /* Modal copy */
   qs('#mCopy').addEventListener('click', function(){
     var body = qs('#mBody'); if (body) copy(body.textContent);
   });
 
-  /* Builder live update */
   ['#bPack','#bPlatform','#bRepo','#bTask','#bConstraints','#bFormat'].forEach(function(sel){
     var el = qs(sel); if (el) el.addEventListener('input', renderBuilder);
   });
@@ -627,7 +472,6 @@ function boot(){
     toast('Saved to My Prompts');
   });
 
-  /* Freestyle */
   var fsState = null;
   function getSelectedPlats(){
     return Array.from(document.querySelectorAll('.pcheck input:checked')).map(function(c){ return c.value; });
@@ -650,7 +494,6 @@ function boot(){
     var noteEl = qs('#fsNote'); var noteTxt = qs('#fsNoteText');
     if (fsState.notes) { noteTxt.textContent = fsState.notes; noteEl.hidden = false; } else { noteEl.hidden = true; }
 
-    /* Tabs */
     var tabEl = qs('#fsTabs'); tabEl.innerHTML = '';
     tabs.forEach(function(tab){
       var btn = document.createElement('button'); btn.className = 'ptab'+(tab===activeTab?' active':''); btn.textContent = tab;
@@ -683,7 +526,6 @@ function boot(){
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') runFreestyle();
   });
 
-  /* Custom save */
   qs('#saveCustom').addEventListener('click', function(){
     var title = qs('#cTitle').value.trim();
     if (!title) { toast('Add a title'); return; }
@@ -697,7 +539,6 @@ function boot(){
     toast('Prompt saved');
   });
 
-  /* Export / Import / Reset */
   qs('#exportBtn').addEventListener('click', exportState);
   qs('#importBtn').addEventListener('click', function(){ qs('#importFile').click(); });
   qs('#importFile').addEventListener('change', function(e){
@@ -711,7 +552,6 @@ function boot(){
     if (!confirm('Reset all stars, custom prompts, and theme? This cannot be undone.')) return;
     STATE.stars = {}; STATE.custom = []; STATE.theme = 'dark';
     applyTheme('dark'); renderAll(); toast('State reset');
-    if (STATE.sync.token) gistPush();
   });
 }
 
