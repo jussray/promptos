@@ -6,7 +6,7 @@ const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendere
 const TARGET_PROMPT = 'Jailbreak Pack Review';
 const TARGET_PROMPT_ID = 64;
 const CLOUDFLARE_PROMPT = 'Cloudflare Agent Setup';
-const CLOUDFLARE_PROMPT_ID = 198;
+const CLOUDFLARE_PROMPT_ID = 220;
 const CLOUDFLARE_AGENT_SETUP_URL = 'https://developers.cloudflare.com/agent-setup/prompt.md';
 
 function assert(condition, message) {
