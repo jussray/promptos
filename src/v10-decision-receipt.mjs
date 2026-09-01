@@ -20,8 +20,12 @@ export const REQUIRED_V10_LENSES = Object.freeze([
 const HASH = /^[0-9a-f]{64}$/i;
 const SHA = /^[0-9a-f]{40}$/i;
 
+function rawText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 function text(value, max = 4000) {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+  return rawText(value).slice(0, max);
 }
 
 function list(value, maxItems = 40, max = 1000) {
@@ -39,10 +43,14 @@ export function validateSubmittedV10DecisionReceipt(receipt) {
   if (!text(receipt.goal)) errors.push('Decision receipt goal is required');
   if (!text(receipt.workspaceId, 160)) errors.push('Decision receipt workspaceId is required');
   if (!text(receipt.projectSlug, 160)) errors.push('Decision receipt projectSlug is required');
-  if (receipt.expectedHeadSha && !SHA.test(text(receipt.expectedHeadSha, 40))) {
+
+  const expectedHeadSha = rawText(receipt.expectedHeadSha);
+  if (expectedHeadSha && !SHA.test(expectedHeadSha)) {
     errors.push('Decision receipt expectedHeadSha must be a full Git SHA when present');
   }
-  if (!HASH.test(text(receipt.decisionHash, 64))) errors.push('Decision receipt decisionHash must be sha256');
+  const decisionHash = rawText(receipt.decisionHash);
+  if (!HASH.test(decisionHash)) errors.push('Decision receipt decisionHash must be sha256');
+
   if (receipt.authorityCeiling !== 'reason') errors.push('Decision receipt cannot exceed reason authority');
   if (receipt.executionAuthorized !== false) errors.push('Decision receipt cannot authorize execution');
   if (receipt.requiresFounderApproval !== true) errors.push('Decision receipt must require founder approval');
@@ -92,13 +100,13 @@ export function adaptV10DecisionForPromptOS(receipt, missionInput = {}) {
     protocols,
     decisionContext: Object.freeze({
       contract: receipt.contract,
-      decisionHash: receipt.decisionHash.toLowerCase(),
+      decisionHash: rawText(receipt.decisionHash).toLowerCase(),
       sourceSystem: 'chief-ai-machine',
       sourceTrust: 'submitted-unverified',
       authorityCeiling: 'reason',
       executionAuthorized: false,
       requiresFounderApproval: true,
-      expectedHeadSha: text(receipt.expectedHeadSha, 40).toLowerCase() || null,
+      expectedHeadSha: rawText(receipt.expectedHeadSha).toLowerCase() || null,
       customerOutcome: text(receipt.customerOutcome),
       bottleneck: text(receipt.bottleneck),
       recommendation: text(receipt.recommendation),
