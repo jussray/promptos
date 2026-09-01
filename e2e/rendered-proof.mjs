@@ -97,7 +97,10 @@ async function proveViewport(browser, {name, width, height}) {
   assert(registry.targetPresent, `${name}: canonical p08 prompt is absent from the runtime registry`);
   assert(registry.cloudflarePresent, `${name}: Cloudflare Agent Setup prompt is absent from the runtime registry`);
   assert(registry.cloudflareCategory === 'cloudflare', `${name}: Cloudflare Agent Setup prompt has the wrong category`);
-  assert(registry.cloudflareChatgpt?.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup prompt is not bound to the official machine instructions`);
+  assert(registry.cloudflareChatgpt?.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup prompt is not bound to the official discovery source reference`);
+  assert(registry.cloudflareChatgpt?.includes('bounded concrete plan'), `${name}: Cloudflare Agent Setup prompt omitted the bounded concrete plan gate`);
+  assert(registry.cloudflareChatgpt?.includes('fresh explicit authorization'), `${name}: Cloudflare Agent Setup prompt omitted fresh explicit authorization`);
+  assert(registry.cloudflareChatgpt?.includes('guidance'), `${name}: Cloudflare Agent Setup prompt did not bound the remote document as guidance`);
 
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered prompt count does not match runtime registry`);
@@ -139,8 +142,11 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator(`[data-open="${CLOUDFLARE_PROMPT_ID}"]`).click();
   await page.locator('#modalWrap.open').waitFor({state: 'visible'});
   assert((await page.locator('#modalWrap h3').textContent())?.includes(CLOUDFLARE_PROMPT), `${name}: Cloudflare Agent Setup modal did not open`);
-  assert((await page.locator('#mBody').textContent())?.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup modal omitted the official setup URL`);
-  assert((await page.locator('#mBody').textContent())?.includes('provider readback verified'), `${name}: Cloudflare Agent Setup modal omitted the provider-readback proof gate`);
+  const cloudflareModalText = (await page.locator('#mBody').textContent()) || '';
+  assert(cloudflareModalText.includes(CLOUDFLARE_AGENT_SETUP_URL), `${name}: Cloudflare Agent Setup modal omitted the official discovery URL`);
+  assert(cloudflareModalText.includes('provider readback verified'), `${name}: Cloudflare Agent Setup modal omitted the provider-readback proof state`);
+  assert(cloudflareModalText.includes('bounded concrete plan'), `${name}: Cloudflare Agent Setup modal omitted bounded planning`);
+  assert(cloudflareModalText.includes('fresh explicit authorization'), `${name}: Cloudflare Agent Setup modal omitted the fresh authorization gate`);
   await page.keyboard.press('Escape');
 
   await page.locator('#themeBtn').click();
@@ -166,8 +172,12 @@ async function proveViewport(browser, {name, width, height}) {
     searchedPromptId: TARGET_PROMPT_ID,
     cloudflarePrompt: CLOUDFLARE_PROMPT,
     cloudflarePromptId: CLOUDFLARE_PROMPT_ID,
-    cloudflareOfficialSourceBound: true,
+    cloudflareProofScope: 'rendering-only',
+    cloudflareOfficialSourceReferenceRendered: true,
     cloudflareModalOpened: true,
+    cloudflareProviderAuthorizationVerified: false,
+    cloudflareProviderToolsCallableVerified: false,
+    cloudflareProviderReadbackVerified: false,
     modalOpened: true,
     themeRoundTrip: true,
     persistenceAuthority,
@@ -193,6 +203,8 @@ try {
     baseUrl: BASE_URL,
     generatedAt: new Date().toISOString(),
     result: 'passed',
+    proofScope: 'rendering-only',
+    providerVerification: 'unverified',
     viewports: results,
   };
   await writeFile(`${OUTPUT_DIR}/receipt.json`, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');
