@@ -114,6 +114,15 @@ test('rejects a decision hash with a valid sha256 prefix plus suffix', () => {
   assert.ok(result.errors.includes('Recursive hardening decisionHash must be sha256'));
 });
 
+test('rejects a base expected-head SHA with a valid 40-hex prefix plus suffix', () => {
+  const malformedDecision = structuredClone(decision);
+  malformedDecision.expectedHeadSha = `${decision.expectedHeadSha}garbage`;
+  const result = validateSubmittedRecursiveHardening(malformedDecision, hardening);
+  assert.equal(result.valid, false);
+  assert.equal(result.authorityEligible, false);
+  assert.ok(result.errors.includes('base decision: Decision receipt expectedHeadSha must be a full Git SHA when present'));
+});
+
 test('requires the complete founder stack including garyvee', () => {
   const incomplete = structuredClone(hardening);
   for (const cycle of incomplete.cycles) {
@@ -166,6 +175,28 @@ test('rejects over-limit final conclusions before identity comparison', () => {
   const result = validateSubmittedRecursiveHardening(decision, candidate);
   assert.equal(result.valid, false);
   assert.ok(result.errors.includes('Recursive hardening final conclusion exceeds 4000 characters'));
+});
+
+test('rejects over-limit observation and orientation narratives before normalization', () => {
+  for (const field of ['observation', 'orientation']) {
+    const candidate = structuredClone(hardening);
+    candidate.cycles[0][field] = `${'n'.repeat(3000)}suffix`;
+    candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+    const result = validateSubmittedRecursiveHardening(decision, candidate);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.includes(`Recursive hardening cycle 1 ${field} exceeds 3000 characters`));
+  }
+});
+
+test('rejects over-limit finding and falsifier narratives before normalization', () => {
+  for (const field of ['finding', 'falsifier']) {
+    const candidate = structuredClone(hardening);
+    candidate.cycles[0].attacks[0][field] = `${'q'.repeat(3000)}suffix`;
+    candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+    const result = validateSubmittedRecursiveHardening(decision, candidate);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.includes(`Recursive hardening cycle 1 attack 1 ${field} exceeds 3000 characters`));
+  }
 });
 
 test('cannot promote recursive reasoning into execution authority', () => {
