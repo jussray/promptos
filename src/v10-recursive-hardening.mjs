@@ -10,7 +10,7 @@ export const RECURSIVE_ATTACK_MODES = Object.freeze([
 ]);
 export const RECURSIVE_REQUIRED_SKILLS = Object.freeze([
   'human', 'me', 'futureyou', 'truthmode', 'confess', 'billgates', 'elonmusk',
-  'ooda', 'redteam', 'lindymode', 'data-analytics', 'product-design',
+  'garyvee', 'ooda', 'redteam', 'lindymode', 'data-analytics', 'product-design',
   'deep-research', 'steal', 'l99', 'ultrathink', 'unlearn', '80-20',
   'antiadvice', 'first-principles', 'ycombinator', 'socrates',
 ]);
@@ -18,13 +18,18 @@ export const RECURSIVE_REQUIRED_SKILLS = Object.freeze([
 const HASH = /^[0-9a-f]{64}$/i;
 const MODE_SET = new Set(RECURSIVE_ATTACK_MODES);
 const DISPOSITIONS = new Set(['survived', 'revised', 'blocked']);
+const CONCLUSION_MAX = 4000;
+
+function rawText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
 
 function text(value, max = 4000) {
-  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+  return rawText(value).slice(0, max);
 }
 
 function hashText(value) {
-  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return rawText(value).toLowerCase();
 }
 
 function list(value, maxItems = 60, max = 1000) {
@@ -59,7 +64,7 @@ function cycle(value = {}) {
       ? item.attacks.map(attack).sort((left, right) => left.mode.localeCompare(right.mode))
       : [],
     decision: text(item.decision, 40).toLowerCase(),
-    outputConclusion: text(item.outputConclusion, 4000),
+    outputConclusion: text(item.outputConclusion, CONCLUSION_MAX),
     outputConclusionHash: hashText(item.outputConclusionHash),
   };
 }
@@ -69,11 +74,11 @@ function normalize(receipt = {}) {
   return {
     contract: RECURSIVE_HARDENING_CONTRACT,
     decisionHash: hashText(value.decisionHash),
-    initialConclusion: text(value.initialConclusion),
+    initialConclusion: text(value.initialConclusion, CONCLUSION_MAX),
     initialConclusionHash: hashText(value.initialConclusionHash),
     attackModes: list(value.attackModes, 10, 80).map((mode) => mode.toLowerCase()),
     cycles: Array.isArray(value.cycles) ? value.cycles.map(cycle) : [],
-    finalConclusion: text(value.finalConclusion),
+    finalConclusion: text(value.finalConclusion, CONCLUSION_MAX),
     finalConclusionHash: hashText(value.finalConclusionHash),
     finalDisposition: text(value.finalDisposition, 40).toLowerCase(),
     skillsCovered: list(value.skillsCovered, 60, 120).map((skill) => skill.toLowerCase()),
@@ -141,14 +146,38 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
     errors.push('Recursive hardening requires exactly four unique declared attack modes');
   }
 
-  const normalized = normalize(hardeningReceipt);
-  if (hardeningReceipt.contract !== RECURSIVE_HARDENING_CONTRACT) errors.push('Unsupported recursive hardening contract');
-  if (normalized.decisionHash !== hashText(decisionReceipt?.decisionHash)) {
+  const rawDecisionHash = hashText(hardeningReceipt.decisionHash);
+  if (!HASH.test(rawDecisionHash)) {
+    errors.push('Recursive hardening decisionHash must be sha256');
+  } else if (rawDecisionHash !== hashText(decisionReceipt?.decisionHash)) {
     errors.push('Recursive hardening decisionHash does not match base decision');
   }
-  if (normalized.initialConclusion !== text(decisionReceipt?.recommendation)) {
+
+  const rawInitialConclusion = rawText(hardeningReceipt.initialConclusion);
+  const rawBaseConclusion = rawText(decisionReceipt?.recommendation);
+  if (rawInitialConclusion.length > CONCLUSION_MAX) {
+    errors.push(`Recursive hardening initial conclusion exceeds ${CONCLUSION_MAX} characters`);
+  }
+  if (rawBaseConclusion.length > CONCLUSION_MAX) {
+    errors.push(`Base decision recommendation exceeds ${CONCLUSION_MAX} characters`);
+  }
+  if (rawInitialConclusion !== rawBaseConclusion) {
     errors.push('Recursive hardening must attack the base decision recommendation');
   }
+
+  const rawCycles = Array.isArray(hardeningReceipt.cycles) ? hardeningReceipt.cycles : [];
+  rawCycles.forEach((entry, index) => {
+    const item = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {};
+    if (rawText(item.outputConclusion).length > CONCLUSION_MAX) {
+      errors.push(`Recursive hardening cycle ${index + 1} output conclusion exceeds ${CONCLUSION_MAX} characters`);
+    }
+  });
+  if (rawText(hardeningReceipt.finalConclusion).length > CONCLUSION_MAX) {
+    errors.push(`Recursive hardening final conclusion exceeds ${CONCLUSION_MAX} characters`);
+  }
+
+  const normalized = normalize(hardeningReceipt);
+  if (hardeningReceipt.contract !== RECURSIVE_HARDENING_CONTRACT) errors.push('Unsupported recursive hardening contract');
   if (!HASH.test(normalized.initialConclusionHash) || normalized.initialConclusionHash !== sha256(normalized.initialConclusion)) {
     errors.push('Recursive hardening initial conclusion hash mismatch');
   }
