@@ -50,6 +50,21 @@ test('preserves the decision as submitted-unverified compiler context', () => {
   assert.ok(REQUIRED_V10_LENSES.every((lens) => adapted.protocols.includes(lens)));
 });
 
+test('rejects expected-head SHA values with a valid prefix plus suffix', () => {
+  const malformed = receipt({ expectedHeadSha: `${'a'.repeat(40)}garbage` });
+  const validation = validateSubmittedV10DecisionReceipt(malformed);
+  assert.equal(validation.valid, false);
+  assert.ok(validation.errors.includes('Decision receipt expectedHeadSha must be a full Git SHA when present'));
+  assert.throws(() => adaptV10DecisionForPromptOS(malformed), /expectedHeadSha must be a full Git SHA/);
+});
+
+test('rejects decision hashes with a valid sha256 prefix plus suffix', () => {
+  const malformed = receipt({ decisionHash: `${'b'.repeat(64)}garbage` });
+  const validation = validateSubmittedV10DecisionReceipt(malformed);
+  assert.equal(validation.valid, false);
+  assert.ok(validation.errors.includes('Decision receipt decisionHash must be sha256'));
+});
+
 test('fails closed when any requested V10 lens is absent', () => {
   const incomplete = receipt({
     lensReports: REQUIRED_V10_LENSES.filter((lens) => lens !== 'product-design').map((lens) => ({ lens })),
