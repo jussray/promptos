@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
@@ -11,6 +12,7 @@ import {
 
 const decision = JSON.parse(readFileSync('testdata/v10-decision-cycle-conformance.json', 'utf8'));
 const hardening = JSON.parse(readFileSync('testdata/v10-recursive-hardening-conformance.json', 'utf8'));
+const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 
 test('accepts exactly four attacks across ten chained OODA cycles', () => {
   assert.deepEqual(validateSubmittedRecursiveHardening(decision, hardening), {
@@ -23,6 +25,7 @@ test('accepts exactly four attacks across ten chained OODA cycles', () => {
     assert.deepEqual(cycle.attacks.map((attack) => attack.mode).sort(), [...RECURSIVE_ATTACK_MODES].sort());
   }
   assert.equal(RECURSIVE_REQUIRED_SKILLS.every((skill) => hardening.skillsCovered.includes(skill)), true);
+  assert.equal(RECURSIVE_REQUIRED_SKILLS.includes('garyvee'), true);
 });
 
 test('preserves hardening as submitted-unverified reasoning context', () => {
@@ -100,6 +103,69 @@ test('rejects hash values that only share a valid sha256 prefix', () => {
   const cycleHashResult = validateSubmittedRecursiveHardening(decision, extendedCycleHash);
   assert.equal(cycleHashResult.valid, false);
   assert.ok(cycleHashResult.errors.includes('Recursive hardening cycle 1 input conclusion is stale'));
+});
+
+test('rejects a decision hash with a valid sha256 prefix plus suffix', () => {
+  const malformed = structuredClone(hardening);
+  malformed.decisionHash = `${hardening.decisionHash}garbage`;
+  malformed.hardeningHash = promptOSRecursiveHardeningHash(malformed);
+  const result = validateSubmittedRecursiveHardening(decision, malformed);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening decisionHash must be sha256'));
+});
+
+test('requires the complete founder stack including garyvee', () => {
+  const incomplete = structuredClone(hardening);
+  for (const cycle of incomplete.cycles) {
+    for (const attack of cycle.attacks) {
+      attack.skills = attack.skills.filter((skill) => skill !== 'garyvee');
+    }
+  }
+  incomplete.skillsCovered = incomplete.skillsCovered.filter((skill) => skill !== 'garyvee');
+  incomplete.hardeningHash = promptOSRecursiveHardeningHash(incomplete);
+  const result = validateSubmittedRecursiveHardening(decision, incomplete);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening missing required skill coverage: garyvee'));
+});
+
+test('rejects over-limit initial conclusions instead of truncating receipt identity', () => {
+  const prefix = 'x'.repeat(4000);
+  const first = structuredClone(hardening);
+  first.initialConclusion = `${prefix}A`;
+  first.initialConclusionHash = sha256(prefix);
+  first.hardeningHash = promptOSRecursiveHardeningHash(first);
+  const second = structuredClone(hardening);
+  second.initialConclusion = `${prefix}B`;
+  second.initialConclusionHash = sha256(prefix);
+  second.hardeningHash = promptOSRecursiveHardeningHash(second);
+
+  for (const candidate of [first, second]) {
+    const result = validateSubmittedRecursiveHardening(decision, candidate);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.includes('Recursive hardening initial conclusion exceeds 4000 characters'));
+  }
+});
+
+test('rejects over-limit cycle conclusions before hashing normalized content', () => {
+  const candidate = structuredClone(hardening);
+  const prefix = 'y'.repeat(4000);
+  candidate.cycles[0].outputConclusion = `${prefix}suffix`;
+  candidate.cycles[0].outputConclusionHash = sha256(prefix);
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening cycle 1 output conclusion exceeds 4000 characters'));
+});
+
+test('rejects over-limit final conclusions before identity comparison', () => {
+  const candidate = structuredClone(hardening);
+  const prefix = 'z'.repeat(4000);
+  candidate.finalConclusion = `${prefix}suffix`;
+  candidate.finalConclusionHash = sha256(prefix);
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening final conclusion exceeds 4000 characters'));
 });
 
 test('cannot promote recursive reasoning into execution authority', () => {
