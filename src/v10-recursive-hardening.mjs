@@ -19,6 +19,7 @@ const HASH = /^[0-9a-f]{64}$/i;
 const MODE_SET = new Set(RECURSIVE_ATTACK_MODES);
 const DISPOSITIONS = new Set(['survived', 'revised', 'blocked']);
 const CONCLUSION_MAX = 4000;
+const NARRATIVE_MAX = 3000;
 
 function rawText(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -45,8 +46,8 @@ function attack(value = {}) {
   const item = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
   return {
     mode: text(item.mode, 80).toLowerCase(),
-    finding: text(item.finding, 3000),
-    falsifier: text(item.falsifier, 3000),
+    finding: text(item.finding, NARRATIVE_MAX),
+    falsifier: text(item.falsifier, NARRATIVE_MAX),
     evidenceRefs: list(item.evidenceRefs, 30),
     skills: list(item.skills, 30, 120).map((skill) => skill.toLowerCase()),
     disposition: text(item.disposition, 40).toLowerCase(),
@@ -58,8 +59,8 @@ function cycle(value = {}) {
   return {
     cycle: Number.isInteger(item.cycle) ? item.cycle : 0,
     inputConclusionHash: hashText(item.inputConclusionHash),
-    observation: text(item.observation, 3000),
-    orientation: text(item.orientation, 3000),
+    observation: text(item.observation, NARRATIVE_MAX),
+    orientation: text(item.orientation, NARRATIVE_MAX),
     attacks: Array.isArray(item.attacks)
       ? item.attacks.map(attack).sort((left, right) => left.mode.localeCompare(right.mode))
       : [],
@@ -168,8 +169,27 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
   const rawCycles = Array.isArray(hardeningReceipt.cycles) ? hardeningReceipt.cycles : [];
   rawCycles.forEach((entry, index) => {
     const item = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : {};
+    const number = index + 1;
+    if (rawText(item.observation).length > NARRATIVE_MAX) {
+      errors.push(`Recursive hardening cycle ${number} observation exceeds ${NARRATIVE_MAX} characters`);
+    }
+    if (rawText(item.orientation).length > NARRATIVE_MAX) {
+      errors.push(`Recursive hardening cycle ${number} orientation exceeds ${NARRATIVE_MAX} characters`);
+    }
+    const rawAttacks = Array.isArray(item.attacks) ? item.attacks : [];
+    rawAttacks.forEach((entryAttack, attackIndex) => {
+      const attackItem = entryAttack && typeof entryAttack === 'object' && !Array.isArray(entryAttack)
+        ? entryAttack
+        : {};
+      if (rawText(attackItem.finding).length > NARRATIVE_MAX) {
+        errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} finding exceeds ${NARRATIVE_MAX} characters`);
+      }
+      if (rawText(attackItem.falsifier).length > NARRATIVE_MAX) {
+        errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} falsifier exceeds ${NARRATIVE_MAX} characters`);
+      }
+    });
     if (rawText(item.outputConclusion).length > CONCLUSION_MAX) {
-      errors.push(`Recursive hardening cycle ${index + 1} output conclusion exceeds ${CONCLUSION_MAX} characters`);
+      errors.push(`Recursive hardening cycle ${number} output conclusion exceeds ${CONCLUSION_MAX} characters`);
     }
   });
   if (rawText(hardeningReceipt.finalConclusion).length > CONCLUSION_MAX) {
