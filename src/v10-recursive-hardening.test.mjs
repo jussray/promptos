@@ -199,6 +199,24 @@ test('rejects over-limit finding and falsifier narratives before normalization',
   }
 });
 
+test('rejects over-limit evidence reference strings before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.cycles[0].attacks[0].evidenceRefs[0] = `${'r'.repeat(1000)}suffix`;
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening cycle 1 attack 1 evidence reference 1 exceeds 1000 characters'));
+});
+
+test('rejects evidence reference lists over 30 items before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.cycles[0].attacks[0].evidenceRefs = Array.from({ length: 31 }, (_, index) => `evidence-${index + 1}`);
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening cycle 1 attack 1 evidence references exceed 30 items'));
+});
+
 test('cannot promote recursive reasoning into execution authority', () => {
   const escalated = structuredClone(hardening);
   escalated.authorityCeiling = 'privileged';
