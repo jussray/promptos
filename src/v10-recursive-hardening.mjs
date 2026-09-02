@@ -20,6 +20,8 @@ const MODE_SET = new Set(RECURSIVE_ATTACK_MODES);
 const DISPOSITIONS = new Set(['survived', 'revised', 'blocked']);
 const CONCLUSION_MAX = 4000;
 const NARRATIVE_MAX = 3000;
+const EVIDENCE_REF_MAX_ITEMS = 30;
+const EVIDENCE_REF_MAX = 1000;
 
 function rawText(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -48,7 +50,7 @@ function attack(value = {}) {
     mode: text(item.mode, 80).toLowerCase(),
     finding: text(item.finding, NARRATIVE_MAX),
     falsifier: text(item.falsifier, NARRATIVE_MAX),
-    evidenceRefs: list(item.evidenceRefs, 30),
+    evidenceRefs: list(item.evidenceRefs, EVIDENCE_REF_MAX_ITEMS, EVIDENCE_REF_MAX),
     skills: list(item.skills, 30, 120).map((skill) => skill.toLowerCase()),
     disposition: text(item.disposition, 40).toLowerCase(),
   };
@@ -187,6 +189,15 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
       if (rawText(attackItem.falsifier).length > NARRATIVE_MAX) {
         errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} falsifier exceeds ${NARRATIVE_MAX} characters`);
       }
+      const rawEvidenceRefs = Array.isArray(attackItem.evidenceRefs) ? attackItem.evidenceRefs : [];
+      if (rawEvidenceRefs.length > EVIDENCE_REF_MAX_ITEMS) {
+        errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} evidence references exceed ${EVIDENCE_REF_MAX_ITEMS} items`);
+      }
+      rawEvidenceRefs.forEach((reference, referenceIndex) => {
+        if (rawText(reference).length > EVIDENCE_REF_MAX) {
+          errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} evidence reference ${referenceIndex + 1} exceeds ${EVIDENCE_REF_MAX} characters`);
+        }
+      });
     });
     if (rawText(item.outputConclusion).length > CONCLUSION_MAX) {
       errors.push(`Recursive hardening cycle ${number} output conclusion exceeds ${CONCLUSION_MAX} characters`);
