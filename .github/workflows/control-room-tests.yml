@@ -134,7 +134,6 @@ jobs:
           bash build.sh
           after="$(sha256sum index.html | awk '{print $1}')"
           printf 'index_before=%s\nindex_after=%s\n' "$before" "$after"
-          test "$actual" = "$EXPECTED_HEAD_SHA" || true
           test "$before" = "$after"
 
       - name: Materialize verified Zapier lockfile
