@@ -90,8 +90,39 @@
       "No command, lens, or prompt pack grants execution, merge, deployment, publication, provider, secret, spending, or destructive authority.",
       "A state or fingerprint change invalidates predecessor proof for the changed subject.",
       "PromptOS does not persist or require private chain-of-thought.",
-      "Runtime skill, plugin, or pack availability must be observed before execution is claimed."
+      "Runtime skill, plugin, or pack availability must be observed before execution is claimed.",
+      "Capability routing selects only an available permitted implementation that satisfies every required capability class within the current authority ceiling; no eligible route means BLOCKED.",
+      "Capability fingerprints and continuity cookies are continuity evidence only and never carry approval or mutation authority."
     ],
+    "capabilityRouting": {
+      "contract": "juss/portable-capability-routing@v1",
+      "continuityContract": "juss/portable-capability-continuity@v1",
+      "canonicalSource": {
+        "repository": "jussray/solcontinuity",
+        "path": ".ai-skills/runtime/capability-routing.mjs",
+        "role": "portable-contract-source"
+      },
+      "selection": "highest-priority-eligible-available-capability-declared-by-policy",
+      "eligibilityRequires": [
+        "available",
+        "permitted",
+        "all-required-capability-classes",
+        "within-authority-ceiling"
+      ],
+      "noEligibleCapabilityResult": "BLOCKED",
+      "fallbackMayWidenAuthority": false,
+      "fallbackMayDowngradeRequiredEvidence": false,
+      "selectedProviderBecomesAuthority": false,
+      "routeFingerprintRequired": true,
+      "continuityCookie": {
+        "browserCookie": false,
+        "authorizing": false,
+        "approvalCarryForward": false,
+        "standingMutationAuthority": false,
+        "founderDecisionRequiredForPrivilegedMutation": true
+      },
+      "reacquireOnRouteFingerprintMovement": true
+    },
     "attackTen": {
       "contract": "promptos/attack-ten@v1",
       "authority": "advisory-only",
