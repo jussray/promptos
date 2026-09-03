@@ -6,9 +6,11 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/control-input.contract.json"
       - ".control-room/creative-studio.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
       - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
@@ -35,9 +37,11 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/control-input.contract.json"
       - ".control-room/creative-studio.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
       - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
@@ -99,6 +103,9 @@ jobs:
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
 
+      - name: Verify internal control-input trust boundary
+        run: node scripts/verify-control-input-contract.mjs
+
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
 
@@ -127,6 +134,7 @@ jobs:
           bash build.sh
           after="$(sha256sum index.html | awk '{print $1}')"
           printf 'index_before=%s\nindex_after=%s\n' "$before" "$after"
+          test "$actual" = "$EXPECTED_HEAD_SHA" || true
           test "$before" = "$after"
 
       - name: Materialize verified Zapier lockfile
