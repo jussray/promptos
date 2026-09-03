@@ -90,6 +90,7 @@ const grammar = productBoundary?.portableGrammar;
 const grammarCommands = Array.isArray(grammar?.commands) ? grammar.commands : [];
 const grammarIds = grammarCommands.map((command) => command?.id);
 const requiredPortableIds = requiredPortableContracts.map(({id}) => id);
+const capabilityRouting = grammar?.capabilityRouting;
 const attackTen = grammar?.attackTen;
 const attackTenAttacks = Array.isArray(attackTen?.attacks) ? attackTen.attacks : [];
 const attackTenIdentity = attackTenAttacks.map((attack) => [attack?.id, attack?.name]);
@@ -115,6 +116,40 @@ const checks = [
     requiredPortableContracts.every(({id, semantics}) => grammarCommands.find((command) => command?.id === id)?.semantics === semantics)],
   ['documented portable semantics match the canonical definitions',
     requiredPortableContracts.every(({documentation}) => entrypoint.includes(documentation))],
+  ['capability routing binds the portable v1 route and continuity contracts',
+    capabilityRouting?.contract === 'juss/portable-capability-routing@v1'
+      && capabilityRouting?.continuityContract === 'juss/portable-capability-continuity@v1'],
+  ['capability routing pins SolContinuity as the portable contract source',
+    capabilityRouting?.canonicalSource?.repository === 'jussray/solcontinuity'
+      && capabilityRouting?.canonicalSource?.path === '.ai-skills/runtime/capability-routing.mjs'
+      && capabilityRouting?.canonicalSource?.role === 'portable-contract-source'],
+  ['capability routing selects only the strongest eligible available policy candidate',
+    capabilityRouting?.selection === 'highest-priority-eligible-available-capability-declared-by-policy'
+      && JSON.stringify(capabilityRouting?.eligibilityRequires) === JSON.stringify([
+        'available',
+        'permitted',
+        'all-required-capability-classes',
+        'within-authority-ceiling',
+      ])],
+  ['capability routing fails closed when no eligible implementation exists',
+    capabilityRouting?.noEligibleCapabilityResult === 'BLOCKED'],
+  ['capability fallback cannot widen authority or weaken evidence',
+    capabilityRouting?.fallbackMayWidenAuthority === false
+      && capabilityRouting?.fallbackMayDowngradeRequiredEvidence === false
+      && capabilityRouting?.selectedProviderBecomesAuthority === false],
+  ['capability routing requires exact route fingerprints and reacquisition on movement',
+    capabilityRouting?.routeFingerprintRequired === true
+      && capabilityRouting?.reacquireOnRouteFingerprintMovement === true],
+  ['capability continuity cookie is non-browser and non-authorizing',
+    capabilityRouting?.continuityCookie?.browserCookie === false
+      && capabilityRouting?.continuityCookie?.authorizing === false
+      && capabilityRouting?.continuityCookie?.approvalCarryForward === false
+      && capabilityRouting?.continuityCookie?.standingMutationAuthority === false
+      && capabilityRouting?.continuityCookie?.founderDecisionRequiredForPrivilegedMutation === true],
+  ['portable grammar rules fail closed on ineligible capability routing',
+    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /no eligible route means BLOCKED/.test(rule))],
+  ['portable grammar rules keep capability fingerprints and cookies non-authorizing',
+    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /never carry approval or mutation authority/.test(rule))],
   ['Attack Ten contract is versioned v1 and advisory only',
     attackTen?.contract === 'promptos/attack-ten@v1' && attackTen?.authority === 'advisory-only'],
   ['Attack Ten exposes exactly the canonical ten dimensions in order',
