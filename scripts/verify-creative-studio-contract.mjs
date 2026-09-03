@@ -34,8 +34,10 @@ for (const variable of ['audience','platform','aspectRatio','mood','style','refe
   fail(Array.isArray(contract.variables?.[variable]?.options) && contract.variables[variable].options.length > 1, `dropdown variable ${variable} is missing options`);
 }
 
-for (const marker of ['CTR','vector','trademark','typeset','Provider capabilities and syntax can change']) {
-  fail((contract.limitations || []).some((item) => String(item).includes(marker)), `limitations must disclose ${marker} boundary`);
+const limitations = (contract.limitations || []).map((item) => String(item));
+fail(limitations.some((item) => item.includes('Click-through rate') || item.includes('CTR')), 'limitations must disclose click-through/CTR boundary');
+for (const marker of ['vector','trademark','typeset','Provider capabilities and syntax can change']) {
+  fail(limitations.some((item) => item.includes(marker)), `limitations must disclose ${marker} boundary`);
 }
 
 const creativePrompts = sandbox.PROMPTS.filter((prompt) => EXPECTED_IDS.includes(prompt?.id));
