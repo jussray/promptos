@@ -34,6 +34,24 @@
         "workflow": ".github/workflows/control-room-tests.yml"
       },
       {
+        "id": "creative-studio-contract",
+        "name": "Creative Studio provider-neutral prompt contract",
+        "kind": "contract",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "node scripts/verify-creative-studio-contract.mjs",
+        "workflow": ".github/workflows/control-room-tests.yml"
+      },
+      {
+        "id": "creative-studio-rendered-proof",
+        "name": "Creative Studio desktop and mobile proof",
+        "kind": "e2e",
+        "signalId": "promptos-control-room-tests",
+        "required": true,
+        "command": "node e2e/creative-studio-proof.mjs",
+        "workflow": ".github/workflows/control-room-tests.yml"
+      },
+      {
         "id": "zapier-sdk-typecheck",
         "name": "Isolated Zapier SDK TypeScript",
         "kind": "typecheck",
@@ -89,6 +107,39 @@
           "path": "index.html",
           "marker": "./parts/p08-cont-redteam.js",
           "description": "The runtime index loads the canonical p08 JavaScript module directly."
+        }
+      ]
+    },
+    {
+      "id": "creative-studio-provider-neutral-design-routing",
+      "description": "Provides ten reusable design modes with one master creative-director router and provider-specific prompt adapters for ChatGPT image generation, Midjourney, Leonardo, Ideogram, and Flux while keeping project brand canon and FCR authority stronger than any generator.",
+      "status": "active",
+      "evidencePaths": [
+        ".control-room/creative-studio.contract.json",
+        "parts/p09-cont-design.js",
+        "scripts/verify-creative-studio-contract.mjs",
+        "e2e/creative-studio-proof.mjs",
+        ".github/workflows/control-room-tests.yml"
+      ],
+      "requiredSignals": ["promptos-control-room-tests"],
+      "usageAssertions": [
+        {
+          "id": "creative-studio-contract-is-provider-neutral",
+          "path": ".control-room/creative-studio.contract.json",
+          "marker": "\"mode\": \"advisory-only\"",
+          "description": "Creative Studio can route and compose prompts but cannot grant provider, publication, or production authority."
+        },
+        {
+          "id": "creative-studio-five-provider-adapters",
+          "path": "parts/p09-cont-design.js",
+          "marker": "['chatgpt-image', 'midjourney', 'leonardo', 'ideogram', 'flux']",
+          "description": "Each Creative Studio prompt exposes the same five provider-specific tabs without making one provider canonical."
+        },
+        {
+          "id": "creative-studio-browser-proof",
+          "path": ".github/workflows/control-room-tests.yml",
+          "marker": "node e2e/creative-studio-proof.mjs",
+          "description": "Desktop and mobile Playwright verify the master router, provider tabs, and provider-specific prompt bodies on the exact head."
         }
       ]
     },
