@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.0",
+  "contractId": "promptos/creative-studio@v1",
+  "name": "Creative Studio",
+  "purpose": "Turn a design brief into a provider-appropriate, reusable image-generation prompt without making any image provider the authority for brand, product, publication, or release truth.",
+  "host": {
+    "promptAuthority": "PromptOS",
+    "libraryModule": "parts/p09-cont-design.js",
+    "portfolioSurface": "jussray/founder-control-room:/design-os",
+    "decisionLayer": "Chief or the active reasoning layer may choose a route, but cannot widen execution authority"
+  },
+  "authority": {
+    "mode": "advisory-only",
+    "providerExecution": "runtime-discovered-and-separately-authorized",
+    "publication": "separate-founder-gate",
+    "brandTruth": "project-local-canon-wins",
+    "productionAssetApproval": "not-granted-by-generation"
+  },
+  "modes": [
+    {"id":"social-graphic","promptId":300,"label":"Social Media Graphic","inputImageRequired":false},
+    {"id":"poster","promptId":301,"label":"Professional Poster","inputImageRequired":false},
+    {"id":"thumbnail","promptId":302,"label":"Thumbnail","inputImageRequired":false},
+    {"id":"brand-identity","promptId":303,"label":"Brand Identity Concepts","inputImageRequired":false},
+    {"id":"image-edit","promptId":304,"label":"Image Editing","inputImageRequired":true},
+    {"id":"product-ad","promptId":305,"label":"Product Advertisement","inputImageRequired":false},
+    {"id":"infographic","promptId":306,"label":"Infographic","inputImageRequired":false},
+    {"id":"presentation-slide","promptId":307,"label":"Presentation Slide","inputImageRequired":false},
+    {"id":"logo-concepts","promptId":308,"label":"Logo Concepts","inputImageRequired":false},
+    {"id":"creative-director","promptId":309,"label":"Complete Design Assistant","inputImageRequired":false}
+  ],
+  "providers": {
+    "chatgpt-image": {
+      "promptShape": "clear natural-language art direction with hierarchy, exact short copy, composition, constraints, and reference-preservation instructions",
+      "textRule": "keep requested visible copy short and explicit; never invent extra marketing copy",
+      "editRule": "when editing, preserve the supplied subject and change only requested regions or properties"
+    },
+    "midjourney": {
+      "promptShape": "compact visual description first, then composition, palette, lighting, short quoted text when essential, and parameters last",
+      "textRule": "short quoted phrases are preferred; typography remains best-effort",
+      "parameterRule": "place --ar and any optional parameters at the end"
+    },
+    "leonardo": {
+      "promptShape": "subject + context + style + composition + lighting, with explicit negative constraints and image guidance when references exist",
+      "textRule": "use short quoted text and descriptive font style rather than claiming an exact named font",
+      "editRule": "use reference or image-guidance workflows when identity, product geometry, or composition continuity matters"
+    },
+    "ideogram": {
+      "promptShape": "text-first art direction with exact visible copy, typography style, placement, hierarchy, then scene and visual treatment",
+      "textRule": "prefer this route when correct short display text is materially important"
+    },
+    "flux": {
+      "promptShape": "descriptive natural-language scene specification emphasizing subject, spatial composition, material, light, color, and negative constraints",
+      "textRule": "treat exact typography as best-effort and reserve clean text zones when copy must be typeset later"
+    }
+  },
+  "variables": {
+    "brand": {"type":"text","required":false,"default":"project canon or none"},
+    "audience": {"type":"enum","options":["kids","teens","parents","general consumers","premium consumers","B2B","founders","investors","custom"]},
+    "platform": {"type":"enum","options":["Instagram","Facebook","LinkedIn","Pinterest","YouTube","TikTok","X","website","email","print","custom"]},
+    "aspectRatio": {"type":"enum","options":["1:1","4:5","9:16","16:9","3:2","2:3","custom"]},
+    "mood": {"type":"enum","options":["premium","editorial","playful","calm","bold","luxurious","technical","warm","minimal","cinematic","custom"]},
+    "style": {"type":"enum","options":["minimal","editorial","studio","lifestyle","cinematic","geometric","organic","3D","photoreal","illustrative","custom"]},
+    "palette": {"type":"text","required":false,"default":"derive 2-3 colors from project canon and mood"},
+    "cta": {"type":"text","required":false,"default":"none unless the asset needs an action"},
+    "visibleText": {"type":"text","required":false,"default":"keep short; exact wording only"},
+    "referenceMode": {"type":"enum","options":["none","style reference","content reference","character reference","product reference","edit supplied image"]},
+    "outputUse": {"type":"enum","options":["concept","social-ready","presentation-ready","web-ready","print-prep concept","handoff for final typesetting"]}
+  },
+  "routing": {
+    "default": "creative-director",
+    "rules": [
+      "Choose the narrowest matching mode before using the master router.",
+      "If an existing project canon exists, load it before choosing palette, typography style, characters, product geometry, or logo direction.",
+      "If the request is an edit, require the actual source image and preserve its identity and proportions unless the brief explicitly changes them.",
+      "If exact long-form typography, editable vectors, production logo files, or dense data layout is required, generate a concept or background and hand off final typesetting/vector construction to a deterministic design tool.",
+      "Do not claim a provider is connected, selected, or executed until runtime state is observed."
+    ]
+  },
+  "qualityGate": [
+    "One dominant visual idea; no decorative clutter without purpose.",
+    "Hierarchy is legible at the target viewing size.",
+    "Visible copy is concise and matches the brief exactly.",
+    "Palette and style follow project canon when one exists.",
+    "Safe margins and negative space leave room for platform cropping and UI overlays.",
+    "Product, character, or supplied-image identity is preserved when continuity is required.",
+    "The prompt never promises CTR, conversion lift, award quality, exact font reproduction, trademark clearance, or vector production fidelity.",
+    "Model limitations are surfaced instead of hidden behind confident language."
+  ],
+  "limitations": [
+    "Image generators can produce strong typography but exact spelling, kerning, line breaks, and placement are not universally deterministic.",
+    "Named commercial fonts should be treated as style references unless a deterministic design tool applies the actual font.",
+    "Logo generations are concepts, not trademark clearance or production-ready vector masters.",
+    "Infographics and presentation slides with dense factual text should use generated visuals as components, then typeset verified copy and data deterministically.",
+    "Click-through rate and conversion performance cannot be guaranteed from visual design alone.",
+    "Provider capabilities and syntax can change; runtime/provider documentation wins over this adapter when they conflict."
+  ],
+  "rollback": {
+    "sourceOnly": true,
+    "path": "remove this contract and prompt IDs 300-309 from parts/p09-cont-design.js",
+    "providerRollbackRequired": false
+  }
+}
