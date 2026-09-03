@@ -61,6 +61,21 @@
         ]
       },
       {
+        "id": "creative-studio-contract",
+        "name": "Creative Studio provider-neutral prompt contract",
+        "kind": "contract",
+        "command": "node scripts/verify-creative-studio-contract.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          ".control-room/creative-studio.contract.json",
+          "parts/p09-cont-design.js",
+          "scripts/verify-creative-studio-contract.mjs",
+          "e2e/creative-studio-proof.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
         "id": "browser-reality-contract",
         "name": "Portable read-only browser reality contract",
         "kind": "contract",
@@ -105,6 +120,20 @@
         ]
       },
       {
+        "id": "creative-studio-rendered-proof",
+        "name": "Creative Studio desktop and mobile browser proof",
+        "kind": "e2e",
+        "command": "node e2e/creative-studio-proof.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "index.html",
+          "parts/p09-cont-design.js",
+          "e2e/creative-studio-proof.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
         "id": "public-pages-deploy-identity",
         "name": "PromptOS public Pages deploy and runtime-identity proof",
         "kind": "deployment",
@@ -128,9 +157,10 @@
     "proofRefs": [
       ".github/workflows/assemble.yml",
       ".github/workflows/control-room-tests.yml",
-      ".github/workflows/zapier-sdk-tooling.yml",
       "scripts/verify-control-room-tests.mjs",
+      "scripts/verify-creative-studio-contract.mjs",
       "e2e/rendered-proof.mjs",
+      "e2e/creative-studio-proof.mjs",
       "index.html",
       "parts"
     ]
@@ -144,5 +174,5 @@
       "Production or external provider mutation remains a separate founder gate"
     ]
   },
-  "nextGate": "Pass exact-head non-mutating source authority, Zapier typecheck, and desktop/mobile rendered proof; then refresh the evidence pointer only after current-main proof exists."
+  "nextGate": "Pass exact-head non-mutating source authority, Creative Studio contract/browser proof, Zapier typecheck, and desktop/mobile rendered proof; then refresh the evidence pointer only after current-main proof exists."
 }
