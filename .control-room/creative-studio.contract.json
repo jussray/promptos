@@ -6,8 +6,14 @@
   "host": {
     "promptAuthority": "PromptOS",
     "libraryModule": "parts/p09-cont-design.js",
-    "portfolioSurface": "jussray/founder-control-room:/design-os",
+    "intendedPortfolioSurface": "jussray/founder-control-room:/design-os",
     "decisionLayer": "Chief or the active reasoning layer may choose a route, but cannot widen execution authority"
+  },
+  "integration": {
+    "promptosRuntime": "connected-and-browser-proven",
+    "founderControlRoomDesignOs": "not-connected",
+    "founderControlRoomEvidence": "PromptOS may expose sanitized manifest evidence, but FCR current Design OS registry is static and does not consume this Creative Studio contract",
+    "providerExecution": "not-verified"
   },
   "authority": {
     "mode": "advisory-only",
@@ -73,7 +79,8 @@
       "If an existing project canon exists, load it before choosing palette, typography style, characters, product geometry, or logo direction.",
       "If the request is an edit, require the actual source image and preserve its identity and proportions unless the brief explicitly changes them.",
       "If exact long-form typography, editable vectors, production logo files, or dense data layout is required, generate a concept or background and hand off final typesetting/vector construction to a deterministic design tool.",
-      "Do not claim a provider is connected, selected, or executed until runtime state is observed."
+      "Do not claim a provider is connected, selected, or executed until runtime state is observed.",
+      "Do not claim Founder Control Room consumes this contract until an FCR exact-head source and browser path proves that integration."
     ]
   },
   "qualityGate": [
