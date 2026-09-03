@@ -43,6 +43,20 @@ function list(value, maxItems = 60, max = 1000) {
   return [...new Set(value.map((item) => text(item, max)).filter(Boolean))].sort().slice(0, maxItems);
 }
 
+function validateRawListEntries(value, label, errors, { caseInsensitive = false } = {}) {
+  if (!Array.isArray(value)) return;
+  const seen = new Set();
+  value.forEach((entry, index) => {
+    if (typeof entry !== 'string' || !entry.trim()) {
+      errors.push(`${label} entry ${index + 1} must be a non-empty string`);
+      return;
+    }
+    const canonical = caseInsensitive ? entry.trim().toLowerCase() : entry.trim();
+    if (seen.has(canonical)) errors.push(`${label} entries must be unique`);
+    seen.add(canonical);
+  });
+}
+
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -193,6 +207,11 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
         errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} falsifier exceeds ${NARRATIVE_MAX} characters`);
       }
       const rawEvidenceRefs = Array.isArray(attackItem.evidenceRefs) ? attackItem.evidenceRefs : [];
+      validateRawListEntries(
+        rawEvidenceRefs,
+        `Recursive hardening cycle ${number} attack ${attackIndex + 1} evidenceRefs`,
+        errors,
+      );
       if (rawEvidenceRefs.length > EVIDENCE_REF_MAX_ITEMS) {
         errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} evidence references exceed ${EVIDENCE_REF_MAX_ITEMS} items`);
       }
@@ -202,6 +221,12 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
         }
       });
       const rawSkills = Array.isArray(attackItem.skills) ? attackItem.skills : [];
+      validateRawListEntries(
+        rawSkills,
+        `Recursive hardening cycle ${number} attack ${attackIndex + 1} skills`,
+        errors,
+        { caseInsensitive: true },
+      );
       if (rawSkills.length > ATTACK_SKILL_MAX_ITEMS) {
         errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} skills exceed ${ATTACK_SKILL_MAX_ITEMS} items`);
       }
@@ -219,6 +244,7 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
     errors.push(`Recursive hardening final conclusion exceeds ${CONCLUSION_MAX} characters`);
   }
   const rawSkillsCovered = Array.isArray(hardeningReceipt.skillsCovered) ? hardeningReceipt.skillsCovered : [];
+  validateRawListEntries(rawSkillsCovered, 'Recursive hardening skillsCovered', errors, { caseInsensitive: true });
   if (rawSkillsCovered.length > RECEIPT_SKILL_MAX_ITEMS) {
     errors.push(`Recursive hardening skillsCovered exceeds ${RECEIPT_SKILL_MAX_ITEMS} items`);
   }
