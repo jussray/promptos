@@ -22,6 +22,9 @@ const CONCLUSION_MAX = 4000;
 const NARRATIVE_MAX = 3000;
 const EVIDENCE_REF_MAX_ITEMS = 30;
 const EVIDENCE_REF_MAX = 1000;
+const ATTACK_SKILL_MAX_ITEMS = 30;
+const RECEIPT_SKILL_MAX_ITEMS = 60;
+const SKILL_MAX = 120;
 
 function rawText(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -51,7 +54,7 @@ function attack(value = {}) {
     finding: text(item.finding, NARRATIVE_MAX),
     falsifier: text(item.falsifier, NARRATIVE_MAX),
     evidenceRefs: list(item.evidenceRefs, EVIDENCE_REF_MAX_ITEMS, EVIDENCE_REF_MAX),
-    skills: list(item.skills, 30, 120).map((skill) => skill.toLowerCase()),
+    skills: list(item.skills, ATTACK_SKILL_MAX_ITEMS, SKILL_MAX).map((skill) => skill.toLowerCase()),
     disposition: text(item.disposition, 40).toLowerCase(),
   };
 }
@@ -84,7 +87,7 @@ function normalize(receipt = {}) {
     finalConclusion: text(value.finalConclusion, CONCLUSION_MAX),
     finalConclusionHash: hashText(value.finalConclusionHash),
     finalDisposition: text(value.finalDisposition, 40).toLowerCase(),
-    skillsCovered: list(value.skillsCovered, 60, 120).map((skill) => skill.toLowerCase()),
+    skillsCovered: list(value.skillsCovered, RECEIPT_SKILL_MAX_ITEMS, SKILL_MAX).map((skill) => skill.toLowerCase()),
     authorityCeiling: 'reason',
     requiresFounderApproval: true,
     executionAuthorized: false,
@@ -198,6 +201,15 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
           errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} evidence reference ${referenceIndex + 1} exceeds ${EVIDENCE_REF_MAX} characters`);
         }
       });
+      const rawSkills = Array.isArray(attackItem.skills) ? attackItem.skills : [];
+      if (rawSkills.length > ATTACK_SKILL_MAX_ITEMS) {
+        errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} skills exceed ${ATTACK_SKILL_MAX_ITEMS} items`);
+      }
+      rawSkills.forEach((skill, skillIndex) => {
+        if (rawText(skill).length > SKILL_MAX) {
+          errors.push(`Recursive hardening cycle ${number} attack ${attackIndex + 1} skill ${skillIndex + 1} exceeds ${SKILL_MAX} characters`);
+        }
+      });
     });
     if (rawText(item.outputConclusion).length > CONCLUSION_MAX) {
       errors.push(`Recursive hardening cycle ${number} output conclusion exceeds ${CONCLUSION_MAX} characters`);
@@ -206,6 +218,15 @@ export function validateSubmittedRecursiveHardening(decisionReceipt, hardeningRe
   if (rawText(hardeningReceipt.finalConclusion).length > CONCLUSION_MAX) {
     errors.push(`Recursive hardening final conclusion exceeds ${CONCLUSION_MAX} characters`);
   }
+  const rawSkillsCovered = Array.isArray(hardeningReceipt.skillsCovered) ? hardeningReceipt.skillsCovered : [];
+  if (rawSkillsCovered.length > RECEIPT_SKILL_MAX_ITEMS) {
+    errors.push(`Recursive hardening skillsCovered exceeds ${RECEIPT_SKILL_MAX_ITEMS} items`);
+  }
+  rawSkillsCovered.forEach((skill, skillIndex) => {
+    if (rawText(skill).length > SKILL_MAX) {
+      errors.push(`Recursive hardening skillsCovered entry ${skillIndex + 1} exceeds ${SKILL_MAX} characters`);
+    }
+  });
 
   const normalized = normalize(hardeningReceipt);
   if (hardeningReceipt.contract !== RECURSIVE_HARDENING_CONTRACT) errors.push('Unsupported recursive hardening contract');
