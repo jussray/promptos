@@ -217,6 +217,42 @@ test('rejects evidence reference lists over 30 items before normalization', () =
   assert.ok(result.errors.includes('Recursive hardening cycle 1 attack 1 evidence references exceed 30 items'));
 });
 
+test('rejects over-limit attack skill names before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.cycles[0].attacks[0].skills[0] = `${'s'.repeat(120)}suffix`;
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening cycle 1 attack 1 skill 1 exceeds 120 characters'));
+});
+
+test('rejects attack skill lists over 30 items before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.cycles[0].attacks[0].skills = Array.from({ length: 31 }, (_, index) => `skill-${index + 1}`);
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening cycle 1 attack 1 skills exceed 30 items'));
+});
+
+test('rejects over-limit top-level skill names before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.skillsCovered[0] = `${'t'.repeat(120)}suffix`;
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening skillsCovered entry 1 exceeds 120 characters'));
+});
+
+test('rejects top-level skill lists over 60 items before normalization', () => {
+  const candidate = structuredClone(hardening);
+  candidate.skillsCovered = Array.from({ length: 61 }, (_, index) => `skill-${index + 1}`);
+  candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+  const result = validateSubmittedRecursiveHardening(decision, candidate);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes('Recursive hardening skillsCovered exceeds 60 items'));
+});
+
 test('cannot promote recursive reasoning into execution authority', () => {
   const escalated = structuredClone(hardening);
   escalated.authorityCeiling = 'privileged';
