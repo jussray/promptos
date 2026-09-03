@@ -21,6 +21,12 @@ fail(contract.contractId === 'promptos/creative-studio@v1', 'creative studio con
 fail(contract.authority?.mode === 'advisory-only', 'creative studio must remain advisory-only');
 fail(contract.authority?.publication === 'separate-founder-gate', 'publication must remain separately founder-gated');
 fail(contract.authority?.brandTruth === 'project-local-canon-wins', 'project-local brand canon must remain stronger authority');
+fail(contract.host?.intendedPortfolioSurface === 'jussray/founder-control-room:/design-os', 'intended FCR Design OS surface drifted');
+fail(contract.integration?.promptosRuntime === 'connected-and-browser-proven', 'PromptOS Creative Studio runtime must be browser-proven');
+fail(contract.integration?.founderControlRoomDesignOs === 'not-connected', 'FCR Design OS integration must stay not-connected until separately proven');
+fail(contract.integration?.providerExecution === 'not-verified', 'provider execution must remain unverified');
+fail(String(contract.integration?.founderControlRoomEvidence || '').includes('static') && String(contract.integration?.founderControlRoomEvidence || '').includes('does not consume'), 'contract must disclose that current FCR Design OS does not consume Creative Studio');
+fail((contract.routing?.rules || []).some((rule) => String(rule).includes('Do not claim Founder Control Room consumes this contract')), 'routing must forbid claiming unproven FCR consumption');
 
 const modes = Array.isArray(contract.modes) ? contract.modes : [];
 fail(modes.length === EXPECTED_IDS.length, 'contract must declare exactly ten creative modes');
@@ -95,5 +101,8 @@ console.log(JSON.stringify({
   contractId: contract.contractId,
   promptIds: EXPECTED_IDS,
   providers: EXPECTED_PROVIDERS,
+  promptosRuntime: contract.integration.promptosRuntime,
+  founderControlRoomDesignOs: contract.integration.founderControlRoomDesignOs,
+  providerExecution: contract.integration.providerExecution,
   status: 'passed'
 }));
