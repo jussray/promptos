@@ -253,6 +253,33 @@ test('rejects top-level skill lists over 60 items before normalization', () => {
   assert.ok(result.errors.includes('Recursive hardening skillsCovered exceeds 60 items'));
 });
 
+test('rejects null, blank, and duplicate raw list entries before normalization', () => {
+  const cases = [
+    ['attack skills null', (candidate) => candidate.cycles[0].attacks[0].skills.push(null)],
+    ['attack skills blank', (candidate) => candidate.cycles[0].attacks[0].skills.push('   ')],
+    ['attack skills duplicate', (candidate) => candidate.cycles[0].attacks[0].skills.push(candidate.cycles[0].attacks[0].skills[0])],
+    ['evidenceRefs null', (candidate) => candidate.cycles[0].attacks[0].evidenceRefs.push(null)],
+    ['evidenceRefs blank', (candidate) => candidate.cycles[0].attacks[0].evidenceRefs.push('   ')],
+    ['evidenceRefs duplicate', (candidate) => candidate.cycles[0].attacks[0].evidenceRefs.push(candidate.cycles[0].attacks[0].evidenceRefs[0])],
+    ['skillsCovered null', (candidate) => candidate.skillsCovered.push(null)],
+    ['skillsCovered blank', (candidate) => candidate.skillsCovered.push('   ')],
+    ['skillsCovered duplicate', (candidate) => candidate.skillsCovered.push(candidate.skillsCovered[0])],
+  ];
+
+  for (const [label, mutate] of cases) {
+    const candidate = structuredClone(hardening);
+    mutate(candidate);
+    candidate.hardeningHash = promptOSRecursiveHardeningHash(candidate);
+    const result = validateSubmittedRecursiveHardening(decision, candidate);
+    assert.equal(result.valid, false, label);
+    assert.equal(result.authorityEligible, false, label);
+    assert.ok(
+      result.errors.some((error) => error.includes('must be a non-empty string') || error.includes('entries must be unique')),
+      label,
+    );
+  }
+});
+
 test('cannot promote recursive reasoning into execution authority', () => {
   const escalated = structuredClone(hardening);
   escalated.authorityCeiling = 'privileged';
