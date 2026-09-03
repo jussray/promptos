@@ -1,0 +1,58 @@
+name: PromptOS Provider Merge Membrane
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  TARGET_BRANCH: main
+  REQUIRED_CHECK: Verify PromptOS control room tests
+  PROVIDER_MERGE_MEMBRANE_RECEIPT: artifacts/provider-merge-membrane.json
+
+jobs:
+  provider-governance:
+    name: Verify PromptOS provider merge membrane
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Attack provider membrane classifier
+        run: node --test scripts/verify-provider-merge-membrane.test.mjs
+
+      - name: Observe live GitHub merge membrane
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-provider-merge-membrane.mjs
+
+      - name: Retain provider-governance receipt
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: promptos-provider-merge-membrane-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/provider-merge-membrane.json
+          if-no-files-found: error
+          retention-days: 14
