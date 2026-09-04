@@ -11,6 +11,7 @@ function goodRuleset(overrides = {}) {
     target: 'branch',
     enforcement: 'active',
     bypass_actors: [],
+    current_user_can_bypass: 'never',
     conditions: { ref_name: { include: ['~DEFAULT_BRANCH'], exclude: [] } },
     rules: [
       { type: 'deletion' },
@@ -18,15 +19,24 @@ function goodRuleset(overrides = {}) {
       {
         type: 'pull_request',
         parameters: {
-          required_approving_review_count: 1,
+          required_approving_review_count: 0,
           dismiss_stale_reviews_on_push: true,
+          require_code_owner_review: false,
+          require_last_push_approval: false,
           required_review_thread_resolution: true,
         },
       },
       {
         type: 'required_status_checks',
         parameters: {
+          strict_required_status_checks_policy: true,
           required_status_checks: [{ context: REQUIRED_CHECK }],
+        },
+      },
+      {
+        type: 'code_scanning',
+        parameters: {
+          code_scanning_tools: [{ tool: 'CodeQL', security_alerts_threshold: 'high_or_higher', alerts_threshold: 'errors' }],
         },
       },
     ],
@@ -34,9 +44,10 @@ function goodRuleset(overrides = {}) {
   };
 }
 
-test('VERIFIED only when the active main ruleset enforces the complete merge membrane', () => {
+test('VERIFIED only when active main governance matches the founder-only membrane', () => {
   const receipt = classifyProviderMergeMembrane([goodRuleset()]);
   assert.equal(receipt.state, 'VERIFIED');
+  assert.equal(receipt.governancePhase, 'founder-only');
   assert.deepEqual(receipt.failed, []);
   assert.equal(receipt.authority.authorizesMerge, false);
 });
@@ -53,7 +64,7 @@ test('evaluate-only rulesets do not satisfy provider enforcement', () => {
   assert.ok(receipt.failed.includes('activeRulesetAppliesToMain'));
 });
 
-test('approval must be fresh and review threads resolved', () => {
+test('founder-only phase rejects inherited independent-review requirements', () => {
   const ruleset = goodRuleset();
   ruleset.rules = ruleset.rules.map((rule) =>
     rule.type === 'pull_request'
@@ -61,30 +72,54 @@ test('approval must be fresh and review threads resolved', () => {
           ...rule,
           parameters: {
             ...rule.parameters,
-            dismiss_stale_reviews_on_push: false,
-            required_review_thread_resolution: false,
+            required_approving_review_count: 1,
+            require_code_owner_review: true,
+            require_last_push_approval: true,
           },
         }
       : rule,
   );
   const receipt = classifyProviderMergeMembrane([ruleset]);
   assert.equal(receipt.state, 'BLOCKED');
-  assert.ok(receipt.failed.includes('pullRequestRequiredWithFreshApproval'));
+  assert.ok(receipt.failed.includes('founderOnlyPullRequestGate'));
 });
 
-test('the proven exact-head Control Room check must be required by provider policy', () => {
+test('review threads remain load-bearing even with zero native approval dependency', () => {
+  const ruleset = goodRuleset();
+  ruleset.rules = ruleset.rules.map((rule) =>
+    rule.type === 'pull_request'
+      ? { ...rule, parameters: { ...rule.parameters, required_review_thread_resolution: false } }
+      : rule,
+  );
+  const receipt = classifyProviderMergeMembrane([ruleset]);
+  assert.equal(receipt.state, 'BLOCKED');
+  assert.ok(receipt.failed.includes('founderOnlyPullRequestGate'));
+});
+
+test('the proven exact-head Control Room check must be strict and required', () => {
   const ruleset = goodRuleset();
   ruleset.rules = ruleset.rules.map((rule) =>
     rule.type === 'required_status_checks'
       ? {
           ...rule,
-          parameters: { required_status_checks: [{ context: 'Some other check' }] },
+          parameters: {
+            strict_required_status_checks_policy: false,
+            required_status_checks: [{ context: REQUIRED_CHECK }],
+          },
         }
       : rule,
   );
   const receipt = classifyProviderMergeMembrane([ruleset]);
   assert.equal(receipt.state, 'BLOCKED');
-  assert.ok(receipt.failed.includes('exactHeadControlRoomCheckRequired'));
+  assert.ok(receipt.failed.includes('strictExactHeadControlRoomCheckRequired'));
+});
+
+test('CodeQL remains required in founder-only phase', () => {
+  const ruleset = goodRuleset();
+  ruleset.rules = ruleset.rules.filter((rule) => rule.type !== 'code_scanning');
+  const receipt = classifyProviderMergeMembrane([ruleset]);
+  assert.equal(receipt.state, 'BLOCKED');
+  assert.ok(receipt.failed.includes('codeQlRequired'));
 });
 
 test('deletion and non-fast-forward rules are independently load-bearing', () => {
@@ -96,13 +131,21 @@ test('deletion and non-fast-forward rules are independently load-bearing', () =>
   assert.ok(receipt.failed.includes('nonFastForwardBlocked'));
 });
 
-test('caller-shaped or missing bypass metadata never counts as explicit provider policy', () => {
-  const receipt = classifyProviderMergeMembrane([goodRuleset({ bypass_actors: undefined })]);
+test('bypass actors remain forbidden in the founder-only provider membrane', () => {
+  const receipt = classifyProviderMergeMembrane([
+    goodRuleset({ bypass_actors: [{ actor_type: 'RepositoryRole', actor_id: 5, bypass_mode: 'always' }] }),
+  ]);
   assert.equal(receipt.state, 'BLOCKED');
-  assert.ok(receipt.failed.includes('bypassActorsAndModesExplicit'));
+  assert.ok(receipt.failed.includes('zeroBypassPolicy'));
 });
 
-test('multiple active rulesets may compose the complete membrane', () => {
+test('current-user always-bypass capability remains forbidden', () => {
+  const receipt = classifyProviderMergeMembrane([goodRuleset({ current_user_can_bypass: 'always' })]);
+  assert.equal(receipt.state, 'BLOCKED');
+  assert.ok(receipt.failed.includes('zeroBypassPolicy'));
+});
+
+test('multiple active rulesets may compose the complete membrane only when each has zero bypass', () => {
   const base = goodRuleset();
   const left = { ...base, id: 201, rules: base.rules.slice(0, 2) };
   const right = { ...base, id: 202, rules: base.rules.slice(2) };
