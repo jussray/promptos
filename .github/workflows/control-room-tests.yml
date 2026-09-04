@@ -12,6 +12,7 @@ on:
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-humanizer-selection.mjs"
       - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
@@ -23,6 +24,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/humanizer/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -43,6 +45,7 @@ on:
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-humanizer-selection.mjs"
       - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
@@ -54,6 +57,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/humanizer/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -108,6 +112,9 @@ jobs:
 
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
+
+      - name: Verify Humanizer selection contract
+        run: node scripts/verify-humanizer-selection.mjs
 
       - name: Verify Creative Studio prompt contract
         run: node scripts/verify-creative-studio-contract.mjs
