@@ -85,7 +85,7 @@ const attacks = [
     assert.equal(requestedUrl.href, 'https://example.test/state');
   }],
   ['09 authorization is callback-supplied rather than configured as a stored value', () => {
-    assert.match(adapterSource, /getAthorizationHeader callback is required/);
+    assert.match(adapterSource, /getAuthorizationHeader callback is required/);
     assert.equal(adapterSource.includes('token:'), false);
   }],
   ['10 remote state requires schemaVersion 1', () => {
@@ -140,8 +140,8 @@ const attacks = [
     assert.equal(wranglerSource.includes('kv_namespaces'), false);
   }],
   ['18 worker uses a Durable Object state binding', () => {
-    assert.match(workerSource, /PROMPTOS_STATE\.idFromName\('primary'\)\)/);
-    assert.match(wranglerSource, /\[\durable_objects\.bindings\]\]/);
+    assert.match(workerSource, /PROMPTOS_STATE\.idFromName\('primary'\)/);
+    assert.match(wranglerSource, /\[\[durable_objects\.bindings\]\]/);
   }],
   ['19 Durable Object storage is declared sqlite', () => {
     assert.match(wranglerSource, /\[exports\.PromptOSStateStore\][\s\S]*storage = "sqlite"/);
