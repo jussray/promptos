@@ -2,7 +2,7 @@
 
 Status: **STAGED / DISABLED / NOT CONNECTED**.
 
-Founder Control Room remains PromptOS's canonical runtime persistence authority. This change adds a schema-bound adapter and a Cloudflare Worker implementation for proof, but it does not load the adapter in `index.html`, does not change the browser persistence truth in `parts/auth.js`, and does not deploy or enable remote sync.
+Founder Control Room remains PromptOS's canonical runtime persistence authority. This change adds a schema-bound adapter and a Cloudflare Worker implementation for proof, but it does not load the adapter in `index.html`, does not change the browser persistence truth preserved in `parts/auth-core.js`, and does not deploy or enable remote sync. `parts/auth.js` is only the parser bootstrap that loads the hash-pinned donor catalog and then that unchanged auth core.
 
 ## State contract
 
@@ -67,4 +67,4 @@ Only after those gates pass may a successor change on the same lineage load the 
 
 ## Rollback
 
-Before enablement, rollback is source-only: revert the remote adapter, shared schema, Worker/config, tests, and this document. No remote state migration is required because this staged slice has no deploy authority and no browser integration.
+Before enablement, rollback is source-only: revert the remote adapter, shared schema, Worker/config, tests, catalog/bootstrap changes, and this document. Delete any locally generated `parts/p04-donor-missing.js`; no remote state migration is required because this staged slice has no deploy authority and no browser persistence integration.
