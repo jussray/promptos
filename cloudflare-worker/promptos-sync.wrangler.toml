@@ -4,6 +4,9 @@ compatibility_date = "2026-09-04"
 
 [vars]
 PROMPTOS_ALLOWED_ORIGIN = "https://jussray.github.io"
+# PROMPTOS_EXPECTED_SOURCE_SHA is release-specific and intentionally omitted here.
+# The provider/deploy layer must set an exact 40-character runtime SHA; state routes
+# fail closed until it is configured and read back.
 
 [secrets]
 required = ["PROMPTOS_SYNC_SECRET"]

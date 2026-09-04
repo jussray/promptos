@@ -24,6 +24,11 @@ function etagFor(record) {
   return `"promptos-v${record.revision}-${record.fingerprint}"`;
 }
 
+function configuredSourceSha(env) {
+  const value = env?.PROMPTOS_EXPECTED_SOURCE_SHA;
+  return typeof value === 'string' && SOURCE_SHA_RE.test(value) ? value : null;
+}
+
 async function bearerAuthorized(request, expectedSecret) {
   if (typeof expectedSecret !== 'string' || expectedSecret.length < 16) return false;
   const supplied = request.headers.get('authorization');
@@ -68,13 +73,17 @@ function withCors(response, origin) {
 }
 
 export class PromptOSStateStore {
-  constructor(ctx) {
+  constructor(ctx, env) {
     this.ctx = ctx;
+    this.env = env;
   }
 
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname !== '/state') return json({error: 'not_found'}, 404);
+
+    const expectedSourceSha = configuredSourceSha(this.env);
+    if (!expectedSourceSha) return json({error: 'provider_source_sha_not_configured'}, 503);
 
     if (request.method === 'GET') {
       const record = await this.ctx.storage.get(STATE_KEY);
@@ -103,6 +112,7 @@ export class PromptOSStateStore {
 
       const sourceSha = request.headers.get('x-promptos-source-sha');
       if (!SOURCE_SHA_RE.test(sourceSha || '')) return json({error: 'invalid_source_sha'}, 400, {'ETag': expectedEtag});
+      if (sourceSha !== expectedSourceSha) return json({error: 'source_sha_mismatch'}, 409, {'ETag': expectedEtag});
 
       const body = await request.text();
       if (new TextEncoder().encode(body).byteLength > PROMPTOS_STATE_POLICY.maxBytes) {
@@ -145,6 +155,7 @@ export default {
         ok: true,
         schemaVersion: PROMPTOS_STATE_POLICY.schemaVersion,
         persistence: 'staged-disabled-until-proof',
+        sourceShaConfigured: configuredSourceSha(env) !== null,
       });
     }
 
@@ -152,6 +163,8 @@ export default {
 
     const origin = allowedOrigin(env);
     if (!origin) return json({error: 'provider_origin_not_configured'}, 503);
+    const expectedSourceSha = configuredSourceSha(env);
+    if (!expectedSourceSha) return withCors(json({error: 'provider_source_sha_not_configured'}, 503), origin);
     const requestOrigin = request.headers.get('origin');
     if (requestOrigin && requestOrigin !== origin) return json({error: 'origin_denied'}, 403);
 

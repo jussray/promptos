@@ -22,6 +22,16 @@ Remote state uses schema version `1` only and is bounded by `src/promptos-state-
 
 The browser adapter reuses the existing import validator before any remote write and validates every pulled state before returning it to a caller. A pull does not apply state automatically.
 
+## Endpoint and credential boundary
+
+`parts/remote-persistence.js` accepts authorization only through a caller-supplied callback. It does not implement a durable browser credential store and is not loaded by the current product surface.
+
+The adapter accepts HTTPS endpoints only, rejects embedded credentials/query/fragment material, constructs `/state` by mutating the configured URL pathname, and verifies that the resulting state endpoint remains on the configured origin. This prevents a root endpoint such as `https://host.example/` from becoming a protocol-relative `//state` URL and sending a Bearer credential to another host.
+
+`cloudflare-worker/promptos-sync.wrangler.toml` declares `PROMPTOS_SYNC_SECRET` as a required encrypted Worker secret. No secret value belongs in repository source or Wrangler vars.
+
+The previously disclosed sync credential must be considered invalid. It must be invalidated and replaced at the provider before any sync path is enabled. Provider-side rotation is not proven by repository code.
+
 ## Conflict and evidence model
 
 Remote writes are conditional:
@@ -30,29 +40,29 @@ Remote writes are conditional:
 2. review the state;
 3. validate the local state against schema version 1;
 4. write with `If-Match` and an exact lowercase 40-character PromptOS source SHA;
-5. the Worker validates again and writes through a single SQLite-backed Durable Object;
-6. the response returns a new ETag, monotonic revision, state SHA-256 fingerprint, and source SHA.
+5. the Worker requires `PROMPTOS_EXPECTED_SOURCE_SHA` to be configured by the provider and rejects writes whose source SHA does not exactly match it;
+6. the Worker validates again and writes through a single SQLite-backed Durable Object;
+7. the response returns a new ETag, monotonic revision, state SHA-256 fingerprint, and source SHA;
+8. the browser recomputes the canonical state SHA-256 and rejects any pull or push receipt whose fingerprint, source SHA, revision, or ETag binding is inconsistent.
 
-A stale ETag returns `412`. A missing precondition returns `428`. The adapter does not merge or retry conflicts automatically.
+A stale ETag returns `412`. A missing precondition returns `428`. A source SHA mismatch returns `409`. If the provider has not configured a valid `PROMPTOS_EXPECTED_SOURCE_SHA`, state routes fail closed with `503`.
 
-## Credential boundary
+`PROMPTOS_EXPECTED_SOURCE_SHA` is intentionally not hard-coded in the checked-in Wrangler file because it is release-specific. The deploy/provider layer must set it to the exact authorized PromptOS runtime SHA, and provider readback must prove that exact value before enablement.
 
-`parts/remote-persistence.js` accepts authorization only through a caller-supplied callback. It does not implement a durable browser credential store and is not loaded by the current product surface.
-
-`cloudflare-worker/promptos-sync.wrangler.toml` declares `PROMPTOS_SYNC_SECRET` as a required encrypted Worker secret. No secret value belongs in repository source or Wrangler vars.
-
-The previously disclosed sync credential must be considered invalid. It must be invalidated and replaced at the provider before any sync path is enabled. Provider-side rotation is not proven by repository code.
+The adapter does not merge or retry conflicts automatically.
 
 ## Provider storage
 
 The staged Worker uses a SQLite-backed Durable Object, not Workers KV. The state document is intentionally one founder-controlled logical object in this first slice. There is no multi-tenant claim.
+
+The Worker uses Cloudflare's declarative Durable Object `exports` configuration with `storage = "sqlite"`. Cloudflare documents `exports` as the current declarative lifecycle mechanism for Durable Object classes; the class remains bound through `[[durable_objects.bindings]]`.
 
 ## Enablement gate
 
 Remote sync must remain disabled until all of the following are true on one exact PR head:
 
 1. state-schema unit tests are green;
-2. Attack-20 remote-persistence tests are green;
+2. Attack-20 remote-persistence tests are green, including root-endpoint same-origin and forged-receipt rejection;
 3. donor catalog recovery tests are green;
 4. PromptOS rendered desktop Playwright is green;
 5. PromptOS rendered mobile Playwright is green;
@@ -60,8 +70,9 @@ Remote sync must remain disabled until all of the following are true on one exac
 7. exact-head CI identity is green;
 8. the disclosed provider secret is invalidated and a replacement secret is proven configured by provider readback;
 9. the Worker binding/origin/class configuration is proven by provider readback;
-10. a fresh semantic/security review approves loading the adapter;
-11. the provider merge membrane is green.
+10. provider readback proves `PROMPTOS_EXPECTED_SOURCE_SHA` equals the exact authorized PromptOS runtime SHA;
+11. a fresh semantic/security review approves loading the adapter;
+12. the provider merge membrane is green.
 
 Only after those gates pass may a successor change on the same lineage load the adapter and truthfully change `runtimePersistence` away from `not-connected`.
 
