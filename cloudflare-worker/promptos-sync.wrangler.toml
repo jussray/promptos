@@ -1,0 +1,17 @@
+name = "promptos-sync-worker"
+main = "promptos-sync.js"
+compatibility_date = "2026-09-04"
+
+[vars]
+PROMPTOS_ALLOWED_ORIGIN = "https://jussray.github.io"
+
+[secrets]
+required = ["PROMPTOS_SYNC_SECRET"]
+
+[[durable_objects.bindings]]
+name = "PROMPTOS_STATE"
+class_name = "PromptOSStateStore"
+
+[exports.PromptOSStateStore]
+type = "durable-object"
+storage = "sqlite"
