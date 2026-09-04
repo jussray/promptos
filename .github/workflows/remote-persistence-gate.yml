@@ -5,7 +5,10 @@ on:
     paths:
       - "archive/promptos-donor-175.html"
       - "scripts/materialize-donor-prompts.mjs"
+      - "scripts/verify-control-room-tests.mjs"
       - "src/promptos-state-schema.mjs"
+      - "parts/auth.js"
+      - "parts/auth-core.js"
       - "parts/p04-donor-missing.js"
       - "parts/remote-persistence.js"
       - "cloudflare-worker/promptos-sync.js"
@@ -15,7 +18,6 @@ on:
       - "test/remote-persistence.attack20.test.mjs"
       - "docs/PROMPT_CATALOG_RECOVERY.md"
       - "docs/REMOTE_PERSISTENCE.md"
-      - "parts/auth.js"
       - "parts/app.js"
       - "index.html"
       - "e2e/rendered-proof.mjs"
@@ -57,7 +59,7 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Materialize exact missing donor module
+      - name: Materialize exact hash-pinned donor module
         run: node scripts/materialize-donor-prompts.mjs --write
 
       - name: Prove generated donor set and schema-bound persistence contracts
@@ -67,7 +69,7 @@ jobs:
           test/promptos-state-schema.test.mjs
           test/remote-persistence.attack20.test.mjs
 
-      - name: Retain generated donor module for reviewed source integration
+      - name: Retain generated donor module for evidence
         uses: actions/upload-artifact@v4
         with:
           name: promptos-donor-module-${{ env.EXPECTED_HEAD_SHA }}
@@ -80,9 +82,12 @@ jobs:
         run: |
           set -euo pipefail
           ! grep -Fq './parts/remote-persistence.js' index.html
-          grep -Fq "runtimePersistence: 'not-connected'" parts/auth.js
+          grep -Fq "runtimePersistence: 'not-connected'" parts/auth-core.js
           grep -Fq "enabledByDefault:false" parts/remote-persistence.js
           grep -Fq 'staged-disabled-until-proof' cloudflare-worker/promptos-sync.js
+
+      - name: Verify canonical source contract with generated donor
+        run: node scripts/verify-control-room-tests.mjs
 
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
@@ -102,7 +107,7 @@ jobs:
           cat /tmp/promptos-remote-server.log
           exit 1
 
-      - name: Prove rendered desktop and mobile PromptOS remains unchanged
+      - name: Prove rendered desktop and mobile PromptOS catalog
         run: node e2e/rendered-proof.mjs
 
       - name: Prove imported state membrane desktop and mobile

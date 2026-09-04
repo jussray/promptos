@@ -1,9 +1,11 @@
+import {createHash} from 'node:crypto';
 import vm from 'node:vm';
 import {readFile, writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 
 export const DONOR_PATH = 'archive/promptos-donor-175.html';
 export const OUTPUT_PATH = 'parts/p04-donor-missing.js';
+export const EXPECTED_OUTPUT_SHA256 = '196b4958508f5b096d610b0110e5c1e39d74a2fe3f3eb52b20ff18161a87da0d';
 export const MISSING_DONOR_IDS = Object.freeze([
   ...Array.from({length: 63}, (_, index) => index + 1),
   ...Array.from({length: 24}, (_, index) => index + 95),
@@ -63,10 +65,13 @@ export async function materializeMissingDonorPrompts({write = false} = {}) {
   const source = await readFile(DONOR_PATH, 'utf8');
   const additions = extractMissingDonorPrompts(source);
   const moduleSource = renderMissingPromptModule(additions);
+  const outputSha256 = createHash('sha256').update(moduleSource, 'utf8').digest('hex');
+  assert(outputSha256 === EXPECTED_OUTPUT_SHA256, `generated artifact fingerprint drifted: ${outputSha256}`);
   if (write) await writeFile(OUTPUT_PATH, moduleSource, 'utf8');
   return Object.freeze({
     donorPath: DONOR_PATH,
     outputPath: OUTPUT_PATH,
+    outputSha256,
     count: additions.length,
     ids: additions.map((prompt) => prompt.id),
     moduleSource,
@@ -80,6 +85,7 @@ if (isCli) {
   console.log(JSON.stringify({
     donorPath: result.donorPath,
     outputPath: result.outputPath,
+    outputSha256: result.outputSha256,
     count: result.count,
     firstId: result.ids[0],
     lastId: result.ids[result.ids.length - 1],

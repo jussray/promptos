@@ -5,6 +5,13 @@ const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
 const TARGET_PROMPT = 'Jailbreak Pack Review';
 const TARGET_PROMPT_ID = 64;
+const DONOR_PROMPT = 'Repo Audit First';
+const DONOR_PROMPT_ID = 1;
+const DONOR_EXPECTED_IDS = Object.freeze([
+  ...Array.from({length: 63}, (_, index) => index + 1),
+  ...Array.from({length: 24}, (_, index) => index + 95),
+  ...Array.from({length: 39}, (_, index) => index + 121),
+]);
 const CLOUDFLARE_PROMPT = 'Cloudflare Agent Setup';
 const CLOUDFLARE_PROMPT_ID = 220;
 const CLOUDFLARE_AGENT_SETUP_URL = 'https://developers.cloudflare.com/agent-setup/prompt.md';
@@ -68,19 +75,30 @@ async function proveViewport(browser, {name, width, height}) {
   assert(persistenceAuthority?.browserGitHubTokenAccepted === false, `${name}: browser GitHub token acceptance is not explicitly disabled`);
   assert(Array.isArray(persistenceAuthority?.recovery) && persistenceAuthority.recovery.join(',') === 'export,import', `${name}: explicit export/import recovery contract is missing`);
 
+  const generatedDonor = await page.evaluate(() => window.__PROMPTOS_GENERATED_DONOR__);
+  assert(generatedDonor?.path === 'parts/p04-donor-missing.js', `${name}: generated donor path contract is missing`);
+  assert(generatedDonor?.source === 'archive/promptos-donor-175.html', `${name}: generated donor provenance is missing`);
+  assert(generatedDonor?.count === 126, `${name}: generated donor contract count is not 126`);
+  assert(generatedDonor?.sha256 === '196b4958508f5b096d610b0110e5c1e39d74a2fe3f3eb52b20ff18161a87da0d', `${name}: generated donor fingerprint drifted`);
+
   const initialTheme = await page.locator('html').getAttribute('data-theme');
   assert(initialTheme === 'dark', `${name}: expected dark initial theme, got ${initialTheme}`);
 
-  const registry = await page.evaluate(({targetId, targetTitle, cloudflareId, cloudflareTitle}) => {
+  const registry = await page.evaluate(({targetId, targetTitle, donorId, donorTitle, donorExpectedIds, cloudflareId, cloudflareTitle}) => {
     const prompts = typeof PROMPTS !== 'undefined' && Array.isArray(PROMPTS) ? PROMPTS : [];
     const ids = prompts.map((prompt) => prompt?.id);
+    const idSet = new Set(ids);
     const target = prompts.find((prompt) => prompt?.id === targetId);
+    const donor = prompts.find((prompt) => prompt?.id === donorId);
     const cloudflare = prompts.find((prompt) => prompt?.id === cloudflareId);
     return {
       count: prompts.length,
-      uniqueIds: new Set(ids).size,
+      uniqueIds: idSet.size,
       targetTitle: target?.title ?? null,
       targetPresent: target?.title === targetTitle,
+      donorTitle: donor?.title ?? null,
+      donorPresent: donor?.title === donorTitle,
+      donorRecoveredCount: donorExpectedIds.filter((id) => idSet.has(id)).length,
       cloudflareTitle: cloudflare?.title ?? null,
       cloudflarePresent: cloudflare?.title === cloudflareTitle,
       cloudflareCategory: cloudflare?.cat ?? null,
@@ -89,11 +107,16 @@ async function proveViewport(browser, {name, width, height}) {
   }, {
     targetId: TARGET_PROMPT_ID,
     targetTitle: TARGET_PROMPT,
+    donorId: DONOR_PROMPT_ID,
+    donorTitle: DONOR_PROMPT,
+    donorExpectedIds: DONOR_EXPECTED_IDS,
     cloudflareId: CLOUDFLARE_PROMPT_ID,
     cloudflareTitle: CLOUDFLARE_PROMPT,
   });
   assert(registry.count > 0, `${name}: prompt registry is empty`);
   assert(registry.uniqueIds === registry.count, `${name}: prompt registry contains duplicate IDs`);
+  assert(registry.donorPresent, `${name}: recovered donor prompt is absent from the runtime registry`);
+  assert(registry.donorRecoveredCount === 126, `${name}: expected 126 recovered donor IDs, got ${registry.donorRecoveredCount}`);
   assert(registry.targetPresent, `${name}: canonical p08 prompt is absent from the runtime registry`);
   assert(registry.cloudflarePresent, `${name}: Cloudflare Agent Setup prompt is absent from the runtime registry`);
   assert(registry.cloudflareCategory === 'cloudflare', `${name}: Cloudflare Agent Setup prompt has the wrong category`);
@@ -112,6 +135,7 @@ async function proveViewport(browser, {name, width, height}) {
     .filter((pathname) => pathname.startsWith('/parts/')));
   for (const required of [
     '/parts/auth.js',
+    '/parts/p04-donor-missing.js',
     '/parts/p05-new-prompts.js',
     '/parts/p06-gap-prompts.js',
     '/parts/p07-ship-ultrathink-skills.js',
@@ -133,6 +157,15 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator(`[data-open="${TARGET_PROMPT_ID}"]`).click();
   await page.locator('#modalWrap.open').waitFor({state: 'visible'});
   assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: prompt modal did not open the searched item`);
+  await page.keyboard.press('Escape');
+
+  await search.fill(DONOR_PROMPT);
+  await matchingCards.first().waitFor({state: 'visible'});
+  assert(await matchingCards.count() === 1, `${name}: donor prompt search did not narrow to exactly one prompt`);
+  assert((await matchingCards.locator('h3').textContent())?.trim() === DONOR_PROMPT, `${name}: donor prompt did not render`);
+  await page.locator(`[data-open="${DONOR_PROMPT_ID}"]`).click();
+  await page.locator('#modalWrap.open').waitFor({state: 'visible'});
+  assert((await page.locator('#modalWrap h3').textContent())?.includes(DONOR_PROMPT), `${name}: donor prompt modal did not open`);
   await page.keyboard.press('Escape');
 
   await search.fill(CLOUDFLARE_PROMPT);
@@ -168,6 +201,10 @@ async function proveViewport(browser, {name, width, height}) {
     viewport: {width, height},
     totalPrompts,
     registryUniqueIds: registry.uniqueIds,
+    donorRecoveredCount: registry.donorRecoveredCount,
+    donorPrompt: DONOR_PROMPT,
+    donorPromptId: DONOR_PROMPT_ID,
+    generatedDonor,
     searchedPrompt: TARGET_PROMPT,
     searchedPromptId: TARGET_PROMPT_ID,
     cloudflarePrompt: CLOUDFLARE_PROMPT,
