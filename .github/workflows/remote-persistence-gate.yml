@@ -6,6 +6,7 @@ on:
       - "archive/promptos-donor-175.html"
       - "scripts/materialize-donor-prompts.mjs"
       - "src/promptos-state-schema.mjs"
+      - "parts/p04-donor-missing.js"
       - "parts/remote-persistence.js"
       - "cloudflare-worker/promptos-sync.js"
       - "cloudflare-worker/promptos-sync.wrangler.toml"
@@ -56,15 +57,23 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Prove donor reconciliation without mutating the worktree
-        run: node scripts/materialize-donor-prompts.mjs
+      - name: Materialize exact missing donor module
+        run: node scripts/materialize-donor-prompts.mjs --write
 
-      - name: Run state-schema unit and Attack-20 gates
+      - name: Prove generated donor set and schema-bound persistence contracts
         run: >-
           node --test
           test/donor-materializer.test.mjs
           test/promptos-state-schema.test.mjs
           test/remote-persistence.attack20.test.mjs
+
+      - name: Retain generated donor module for reviewed source integration
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-donor-module-${{ env.EXPECTED_HEAD_SHA }}
+          path: parts/p04-donor-missing.js
+          if-no-files-found: error
+          retention-days: 2
 
       - name: Assert remote adapter remains disabled and unloaded
         shell: bash
