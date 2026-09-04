@@ -278,19 +278,19 @@ var BUILDER_TEMPLATES = {
   },
   research: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a founder-grade research analyst.\n\nScope: '+r+'\nResearch goal: '+task+'\nConstraints: '+constraints+'\nReturn: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nFounder-grade research analyst\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nScope: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nFounder-grade research analyst\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nScope: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
   },
   redteam: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a red-team security auditor.\n\nTarget system: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nRed-team security auditor\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nTarget: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nRed-team security auditor\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nTarget: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
   },
   system: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a platform architect.\n\nSystem: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nPlatform architect\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nSystem: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nPlatform architect\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nSystem: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
   },
   design: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a product designer.\n\nProject: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nProduct designer\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nProject: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nProduct designer\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nProject: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
   }
 };
 
