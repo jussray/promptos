@@ -40,8 +40,8 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Attack provider membrane classifier
-        run: node --test scripts/verify-provider-merge-membrane.test.mjs
+      - name: Attack provider membrane and reconciler contracts
+        run: node --test scripts/verify-provider-merge-membrane.test.mjs scripts/reconcile-provider-governance.test.mjs
 
       - name: Observe live GitHub merge membrane
         env:

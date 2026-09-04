@@ -1,0 +1,71 @@
+name: Reconcile PromptOS Provider Governance
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type APPLY_FOUNDER_ONLY_RULESET to reconcile the PromptOS main ruleset'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      EXPECTED_HEAD_SHA: ${{ github.sha }}
+      TARGET_BRANCH: main
+      REQUIRED_CHECK: Verify PromptOS control room tests
+      PROVIDER_GOVERNANCE_RECEIPT: artifacts/provider-governance-reconcile.json
+      PROVIDER_MERGE_MEMBRANE_RECEIPT: artifacts/provider-merge-membrane.json
+      PROMPTOS_RULESET_ADMIN_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
+    steps:
+      - name: Require explicit founder confirmation
+        shell: bash
+        run: test "${{ inputs.confirmation }}" = "APPLY_FOUNDER_ONLY_RULESET"
+
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Verify exact immutable head
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Verify reconciler contract
+        run: node --test scripts/verify-provider-merge-membrane.test.mjs scripts/reconcile-provider-governance.test.mjs
+
+      - name: Require separately provisioned admin credential
+        shell: bash
+        run: test -n "$PROMPTOS_RULESET_ADMIN_TOKEN"
+
+      - name: Reconcile founder-only main ruleset
+        run: node scripts/reconcile-provider-governance.mjs
+
+      - name: Verify live provider membrane after mutation
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
+        run: node scripts/verify-provider-merge-membrane.mjs
+
+      - name: Retain governance receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: promptos-provider-governance-${{ github.sha }}
+          path: |
+            artifacts/provider-governance-reconcile.json
+            artifacts/provider-merge-membrane.json
+          if-no-files-found: error
+          retention-days: 14
