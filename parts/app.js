@@ -16,8 +16,21 @@ var STATE = {
   search: ''
 };
 
+var IMPORT_POLICY = Object.freeze({
+  schemaVersion: 1,
+  legacySchemaVersion: 0,
+  maxBytes: 524288,
+  maxStars: 500,
+  maxCustomPrompts: 100,
+  maxTitleLength: 120,
+  maxSubLength: 240,
+  maxBodyLength: 20000,
+  maxPlatforms: 8
+});
+window.__PROMPTOS_IMPORT_POLICY__ = IMPORT_POLICY;
+
 function serializeState(){
-  return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
+  return JSON.stringify({ schemaVersion: IMPORT_POLICY.schemaVersion, stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
 }
 
 /* ── 2. BENCH DATA ────────────────────────────────────────────────── */
@@ -265,19 +278,19 @@ var BUILDER_TEMPLATES = {
   },
   research: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a founder-grade research analyst.\n\nScope: '+r+'\nResearch goal: '+task+'\nConstraints: '+constraints+'\nReturn: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nFounder-grade research analyst\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nScope: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nFounder-grade research analyst\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nScope: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
   },
   redteam: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a red-team security auditor.\n\nTarget system: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nRed-team security auditor\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nTarget: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nRed-team security auditor\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nTarget: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
   },
   system: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a platform architect.\n\nSystem: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nPlatform architect\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nSystem: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nPlatform architect\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nSystem: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
   },
   design: {
     chatgpt: function(r,task,constraints,fmt){ return 'You are a product designer.\n\nProject: '+r+'\nTask: '+task+'\nConstraints: '+constraints+'\nOutput: '+fmt; },
-    claude: function(r,task,constraints,fmt){ return '<role>\nProduct designer\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nProject: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'</output_format>'; }
+    claude: function(r,task,constraints,fmt){ return '<role>\nProduct designer\n</role>\n\n<objective>'+task+'</objective>\n\n<context>\nProject: '+r+'\n</context>\n\n<constraints>'+constraints+'</constraints>\n\n<output_format>'+fmt+'\n</output_format>'; }
   }
 };
 
@@ -396,15 +409,126 @@ function exportState(){
   toast('State exported');
 }
 
+var IMPORT_ALLOWED_TOP_LEVEL = ['schemaVersion','stars','custom','theme','_v'];
+var IMPORT_DANGEROUS_KEYS = ['__proto__','prototype','constructor'];
+var IMPORT_ALLOWED_CATS = ['coding','research','redteam','system','design','ecom','cloudflare','learning','growth','ops','custom','debug','security','review','plan','copy','data'];
+
+function importReject(message){
+  throw new Error(message);
+}
+
+function isPlainObject(value){
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function rejectDangerousKeys(value, path){
+  if (!value || typeof value !== 'object') return;
+  Object.keys(value).forEach(function(key){
+    if (IMPORT_DANGEROUS_KEYS.indexOf(key) !== -1) importReject(path + ' contains forbidden key ' + key);
+    rejectDangerousKeys(value[key], path + '.' + key);
+  });
+}
+
+function requireBoundedString(value, label, min, max){
+  if (typeof value !== 'string') importReject(label + ' must be a string');
+  if (value.length < min || value.length > max) importReject(label + ' length must be ' + min + '-' + max);
+  return value;
+}
+
+function validateImportedState(json){
+  if (typeof json !== 'string') importReject('payload must be text');
+  if (new Blob([json]).size > IMPORT_POLICY.maxBytes) importReject('payload exceeds ' + IMPORT_POLICY.maxBytes + ' bytes');
+
+  var data;
+  try { data = JSON.parse(json); }
+  catch(e) { importReject('invalid JSON'); }
+
+  if (!isPlainObject(data)) importReject('root must be an object');
+  rejectDangerousKeys(data, 'root');
+
+  Object.keys(data).forEach(function(key){
+    if (IMPORT_ALLOWED_TOP_LEVEL.indexOf(key) === -1) importReject('unknown top-level key ' + key);
+  });
+
+  var schemaVersion = data.schemaVersion == null ? IMPORT_POLICY.legacySchemaVersion : data.schemaVersion;
+  if (schemaVersion !== IMPORT_POLICY.schemaVersion && schemaVersion !== IMPORT_POLICY.legacySchemaVersion) {
+    importReject('unsupported schemaVersion ' + schemaVersion);
+  }
+
+  var next = { stars: {}, custom: [], theme: 'dark' };
+
+  if (data.stars != null) {
+    if (!isPlainObject(data.stars)) importReject('stars must be an object');
+    var starKeys = Object.keys(data.stars);
+    if (starKeys.length > IMPORT_POLICY.maxStars) importReject('too many starred prompts');
+    starKeys.forEach(function(key){
+      if (key.length > 80 || !/^[A-Za-z0-9_-]+$/.test(key)) importReject('invalid star id ' + key);
+      if (data.stars[key] !== true) importReject('star values must be true');
+      next.stars[key] = true;
+    });
+  }
+
+  if (data.theme != null) {
+    if (data.theme !== 'dark' && data.theme !== 'light') importReject('theme must be dark or light');
+    next.theme = data.theme;
+  }
+
+  if (data.custom != null) {
+    if (!Array.isArray(data.custom)) importReject('custom must be an array');
+    if (data.custom.length > IMPORT_POLICY.maxCustomPrompts) importReject('too many custom prompts');
+    var ids = Object.create(null);
+    next.custom = data.custom.map(function(prompt, index){
+      var label = 'custom[' + index + ']';
+      if (!isPlainObject(prompt)) importReject(label + ' must be an object');
+      var allowed = ['id','emoji','title','sub','cat','platforms','body','ts'];
+      Object.keys(prompt).forEach(function(key){ if (allowed.indexOf(key) === -1) importReject(label + ' contains unknown key ' + key); });
+
+      var id = requireBoundedString(prompt.id, label + '.id', 1, 80);
+      if (!/^[A-Za-z0-9_-]+$/.test(id)) importReject(label + '.id contains invalid characters');
+      if (ids[id]) importReject('duplicate custom id ' + id);
+      ids[id] = true;
+
+      var title = requireBoundedString(prompt.title, label + '.title', 1, IMPORT_POLICY.maxTitleLength);
+      var sub = prompt.sub == null ? '' : requireBoundedString(prompt.sub, label + '.sub', 0, IMPORT_POLICY.maxSubLength);
+      var cat = prompt.cat == null ? 'custom' : requireBoundedString(prompt.cat, label + '.cat', 1, 32);
+      if (IMPORT_ALLOWED_CATS.indexOf(cat) === -1) importReject(label + '.cat is unsupported');
+      var emoji = prompt.emoji == null ? '✨' : requireBoundedString(prompt.emoji, label + '.emoji', 0, 16);
+      var body = requireBoundedString(prompt.body, label + '.body', 1, IMPORT_POLICY.maxBodyLength);
+
+      if (!Array.isArray(prompt.platforms) || prompt.platforms.length < 1 || prompt.platforms.length > IMPORT_POLICY.maxPlatforms) {
+        importReject(label + '.platforms must contain 1-' + IMPORT_POLICY.maxPlatforms + ' entries');
+      }
+      var platforms = prompt.platforms.map(function(platform, platformIndex){
+        var normalized = requireBoundedString(platform, label + '.platforms[' + platformIndex + ']', 1, 32).trim();
+        if (!/^[A-Za-z0-9._ -]+$/.test(normalized)) importReject(label + '.platforms[' + platformIndex + '] contains invalid characters');
+        return normalized;
+      });
+
+      var ts = prompt.ts == null ? Date.now() : prompt.ts;
+      if (!Number.isSafeInteger(ts) || ts < 0) importReject(label + '.ts must be a non-negative integer');
+
+      return { id: id, emoji: emoji, title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: ts };
+    });
+  }
+
+  return Object.freeze({ schemaVersion: schemaVersion, state: next });
+}
+window.__promptosValidateImport = validateImportedState;
+
 function importState(json){
   try {
-    var data = JSON.parse(json);
-    if (data.stars) STATE.stars = data.stars;
-    if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (Array.isArray(data.custom)) STATE.custom = data.custom;
+    var validated = validateImportedState(json);
+    STATE.stars = validated.state.stars;
+    STATE.custom = validated.state.custom;
+    STATE.theme = validated.state.theme;
+    applyTheme(STATE.theme);
     renderAll();
     toast('State imported');
-  } catch(e) { toast('Invalid JSON'); }
+    return true;
+  } catch(e) {
+    toast('Import rejected: ' + e.message, 3600);
+    return false;
+  }
 }
 
 /* ── 13. NAV / PAGE SWITCHING ─────────────────────────────────────── */
@@ -543,8 +667,14 @@ function boot(){
   qs('#importBtn').addEventListener('click', function(){ qs('#importFile').click(); });
   qs('#importFile').addEventListener('change', function(e){
     var file = e.target.files[0]; if (!file) return;
+    if (file.size > IMPORT_POLICY.maxBytes) {
+      toast('Import rejected: file exceeds ' + IMPORT_POLICY.maxBytes + ' bytes', 3600);
+      e.target.value = '';
+      return;
+    }
     var r = new FileReader();
     r.onload = function(ev){ importState(ev.target.result); };
+    r.onerror = function(){ toast('Import rejected: file could not be read', 3600); };
     r.readAsText(file);
     e.target.value = '';
   });
