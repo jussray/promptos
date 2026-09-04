@@ -48,13 +48,18 @@ function statusContexts(rule) {
     .filter(Boolean);
 }
 
-function bypassPolicyIsExplicit(ruleset) {
-  if (!Array.isArray(ruleset?.bypass_actors)) return false;
-  return ruleset.bypass_actors.every((actor) => {
-    const mode = actor?.bypass_mode;
-    const type = actor?.actor_type;
-    return typeof type === 'string' && type.length > 0 && (mode === 'always' || mode === 'pull_request');
-  });
+function codeQlIsRequired(rule) {
+  if (rule?.type !== 'code_scanning') return false;
+  const tools = ruleParameters(rule).code_scanning_tools;
+  return Array.isArray(tools) && tools.some((tool) => tool?.tool === 'CodeQL');
+}
+
+function zeroBypassPolicy(ruleset) {
+  return (
+    Array.isArray(ruleset?.bypass_actors) &&
+    ruleset.bypass_actors.length === 0 &&
+    ruleset?.current_user_can_bypass !== 'always'
+  );
 }
 
 export function classifyProviderMergeMembrane(
@@ -66,29 +71,39 @@ export function classifyProviderMergeMembrane(
   const rules = applicable.flatMap((ruleset) => (Array.isArray(ruleset?.rules) ? ruleset.rules : []));
 
   const pullRequestRules = rules.filter((rule) => rule?.type === 'pull_request');
-  const pullRequestGate = pullRequestRules.some((rule) => {
+  const founderOnlyPullRequestGate = pullRequestRules.some((rule) => {
     const parameters = ruleParameters(rule);
     return (
-      Number(parameters.required_approving_review_count || 0) >= 1 &&
+      Number(parameters.required_approving_review_count || 0) === 0 &&
       parameters.dismiss_stale_reviews_on_push === true &&
+      parameters.require_code_owner_review === false &&
+      parameters.require_last_push_approval === false &&
       parameters.required_review_thread_resolution === true
     );
   });
 
   const deletionBlocked = rules.some((rule) => rule?.type === 'deletion');
   const nonFastForwardBlocked = rules.some((rule) => rule?.type === 'non_fast_forward');
-  const requiredCheckBound = rules
+  const strictRequiredCheckBound = rules
     .filter((rule) => rule?.type === 'required_status_checks')
-    .some((rule) => statusContexts(rule).includes(requiredCheck));
-  const bypassPolicyExplicit = applicable.length > 0 && applicable.every(bypassPolicyIsExplicit);
+    .some((rule) => {
+      const parameters = ruleParameters(rule);
+      return (
+        parameters.strict_required_status_checks_policy === true &&
+        statusContexts(rule).includes(requiredCheck)
+      );
+    });
+  const codeQlRequired = rules.some(codeQlIsRequired);
+  const zeroBypass = applicable.length > 0 && applicable.every(zeroBypassPolicy);
 
   const checks = {
     activeRulesetAppliesToMain: applicable.length > 0,
-    pullRequestRequiredWithFreshApproval: pullRequestGate,
+    founderOnlyPullRequestGate,
     deletionBlocked,
     nonFastForwardBlocked,
-    exactHeadControlRoomCheckRequired: requiredCheckBound,
-    bypassActorsAndModesExplicit: bypassPolicyExplicit,
+    strictExactHeadControlRoomCheckRequired: strictRequiredCheckBound,
+    codeQlRequired,
+    zeroBypassPolicy: zeroBypass,
   };
 
   const failed = Object.entries(checks)
@@ -98,6 +113,7 @@ export function classifyProviderMergeMembrane(
   return {
     schemaVersion: 1,
     contract: 'promptos/provider-merge-membrane@v1',
+    governancePhase: 'founder-only',
     state: failed.length === 0 ? 'VERIFIED' : 'BLOCKED',
     targetBranch: branch,
     requiredCheck,
@@ -107,6 +123,7 @@ export function classifyProviderMergeMembrane(
       id: ruleset.id ?? null,
       name: ruleset.name ?? null,
       enforcement: ruleset.enforcement ?? null,
+      currentUserCanBypass: ruleset.current_user_can_bypass ?? null,
       bypassActors: Array.isArray(ruleset.bypass_actors)
         ? ruleset.bypass_actors.map((actor) => ({
             actorType: actor?.actor_type ?? null,
@@ -119,7 +136,7 @@ export function classifyProviderMergeMembrane(
       authorizesMerge: false,
       authorizesProviderMutation: false,
       authorizesBypass: false,
-      note: 'This receipt observes provider governance only. It never grants merge, mutation, or bypass authority.',
+      note: 'This receipt observes provider governance only. Founder-only means zero native review dependency, not weaker machine evidence.',
     },
   };
 }
@@ -192,6 +209,7 @@ async function main() {
     receipt = {
       schemaVersion: 1,
       contract: 'promptos/provider-merge-membrane@v1',
+      governancePhase: 'founder-only',
       state: 'BLOCKED',
       repository,
       targetBranch: branch,
