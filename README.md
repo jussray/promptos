@@ -41,12 +41,17 @@ current main -> executable contract -> exact-head checks -> provider/runtime evi
 
 Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful repository check proves only the boundary it actually executed.
 
+## PR continuity
+
+`docs/PR_CONTINUITY.md` and `.github/workflows/pr-continuity.yml` enforce `juss/pr-continuity@v1`. When `main` moves, existing same-repository PRs are rolled forward only through conflict-free provider updates. The successor head is always a new proof subject: predecessor CI, review, provider/runtime, artifact, and Playwright evidence expires. Continuity never grants merge or deploy authority.
+
 ## Key surfaces
 
 - `AGENTS.md` — repository operating contract
 - `AGENTS_FOUNDER_INTELLIGENCE.md` — founder-intelligence execution boundary
 - `docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md` — governance constitution
 - `docs/HUMAN_SAFE_BUILD_CONTRACT.md` — bounded build contract
+- `docs/PR_CONTINUITY.md` — main-to-PR rollover, proof expiry, and fail-closed continuity contract
 - `.control-room/plugin-management.json` — plugin-management declaration
 - `.control-room/product-boundary.json` — PromptOS/Chief product boundary
 - `control-room.manifest.json` — Control Room capability manifest

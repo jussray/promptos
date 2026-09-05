@@ -10,6 +10,7 @@ const commands = [
   '/truthmode',
   '/confess',
   '/redteam',
+  '/attackten',
   '/lindymode',
   '/ooda',
   '/visualize',
@@ -72,10 +73,27 @@ const requiredPortableContracts = [
   },
 ];
 
+const requiredAttackTen = [
+  ['AT01', 'authority-source-of-truth'],
+  ['AT02', 'stale-state-toctou'],
+  ['AT03', 'hidden-dependencies-transitive-capability'],
+  ['AT04', 'security-privacy'],
+  ['AT05', 'continuity-data-loss'],
+  ['AT06', 'provider-lock-in-portability'],
+  ['AT07', 'rollback-reversibility'],
+  ['AT08', 'source-runtime-equivalence'],
+  ['AT09', 'test-evidence-quality'],
+  ['AT10', 'founder-product-value'],
+];
+
 const grammar = productBoundary?.portableGrammar;
 const grammarCommands = Array.isArray(grammar?.commands) ? grammar.commands : [];
 const grammarIds = grammarCommands.map((command) => command?.id);
 const requiredPortableIds = requiredPortableContracts.map(({id}) => id);
+const capabilityRouting = grammar?.capabilityRouting;
+const attackTen = grammar?.attackTen;
+const attackTenAttacks = Array.isArray(attackTen?.attacks) ? attackTen.attacks : [];
+const attackTenIdentity = attackTenAttacks.map((attack) => [attack?.id, attack?.name]);
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -98,8 +116,60 @@ const checks = [
     requiredPortableContracts.every(({id, semantics}) => grammarCommands.find((command) => command?.id === id)?.semantics === semantics)],
   ['documented portable semantics match the canonical definitions',
     requiredPortableContracts.every(({documentation}) => entrypoint.includes(documentation))],
+  ['capability routing binds the portable v1 route and continuity contracts',
+    capabilityRouting?.contract === 'juss/portable-capability-routing@v1'
+      && capabilityRouting?.continuityContract === 'juss/portable-capability-continuity@v1'],
+  ['capability routing pins SolContinuity as the portable contract source',
+    capabilityRouting?.canonicalSource?.repository === 'jussray/solcontinuity'
+      && capabilityRouting?.canonicalSource?.path === '.ai-skills/runtime/capability-routing.mjs'
+      && capabilityRouting?.canonicalSource?.role === 'portable-contract-source'],
+  ['capability routing selects only the strongest eligible available policy candidate',
+    capabilityRouting?.selection === 'highest-priority-eligible-available-capability-declared-by-policy'
+      && JSON.stringify(capabilityRouting?.eligibilityRequires) === JSON.stringify([
+        'available',
+        'permitted',
+        'all-required-capability-classes',
+        'within-authority-ceiling',
+      ])],
+  ['capability routing fails closed when no eligible implementation exists',
+    capabilityRouting?.noEligibleCapabilityResult === 'BLOCKED'],
+  ['capability fallback cannot widen authority or weaken evidence',
+    capabilityRouting?.fallbackMayWidenAuthority === false
+      && capabilityRouting?.fallbackMayDowngradeRequiredEvidence === false
+      && capabilityRouting?.selectedProviderBecomesAuthority === false],
+  ['capability routing requires exact route fingerprints and reacquisition on movement',
+    capabilityRouting?.routeFingerprintRequired === true
+      && capabilityRouting?.reacquireOnRouteFingerprintMovement === true],
+  ['capability continuity cookie is non-browser and non-authorizing',
+    capabilityRouting?.continuityCookie?.browserCookie === false
+      && capabilityRouting?.continuityCookie?.authorizing === false
+      && capabilityRouting?.continuityCookie?.approvalCarryForward === false
+      && capabilityRouting?.continuityCookie?.standingMutationAuthority === false
+      && capabilityRouting?.continuityCookie?.founderDecisionRequiredForPrivilegedMutation === true],
+  ['portable grammar rules fail closed on ineligible capability routing',
+    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /no eligible route means BLOCKED/.test(rule))],
+  ['portable grammar rules keep capability fingerprints and cookies non-authorizing',
+    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /never carry approval or mutation authority/.test(rule))],
+  ['Attack Ten contract is versioned v1 and advisory only',
+    attackTen?.contract === 'promptos/attack-ten@v1' && attackTen?.authority === 'advisory-only'],
+  ['Attack Ten exposes exactly the canonical ten dimensions in order',
+    JSON.stringify(attackTenIdentity) === JSON.stringify(requiredAttackTen)],
+  ['Attack Ten classifications are fail-closed and canonical',
+    JSON.stringify(attackTen?.classifications) === JSON.stringify(['PASS', 'FAIL', 'BLOCKED', 'NOT_APPLICABLE'])],
+  ['Attack Ten completion rule prevents clean readiness on failure or block',
+    /FAIL or BLOCKED prevents a clean readiness claim/.test(attackTen?.completionRule || '')],
+  ['Attack Ten scope rule forbids authority widening and unrelated refactors',
+    /cannot widen execution authority/.test(attackTen?.scopeRule || '') && /unrelated refactors/.test(attackTen?.scopeRule || '')],
+  ['Attack Ten privacy rule forbids private chain-of-thought persistence',
+    /do not require or persist private chain-of-thought/.test(attackTen?.reasoningPrivacyRule || '')],
+  ['Attack Ten is documented as a completion membrane',
+    /Attack Ten completion membrane/.test(entrypoint) && /FAIL[\s\S]+BLOCKED[\s\S]+prevents a clean/.test(entrypoint)],
+  ['Attack Ten documents all ten canonical IDs',
+    requiredAttackTen.every(([id, name]) => entrypoint.includes(`\`${id} ${name}\``))],
+  ['Attack Ten remains smallest-blocker focused',
+    /Attack Ten must locate the smallest real blocker/.test(entrypoint)],
   ['reasoning lenses are declared as examples',
-    Array.isArray(grammar?.reasoningLensExamples) && grammar.reasoningLensExamples.includes('ultrathink') && grammar.reasoningLensExamples.includes('ooda')],
+    Array.isArray(grammar?.reasoningLensExamples) && grammar.reasoningLensExamples.includes('ultrathink') && grammar.reasoningLensExamples.includes('attack-ten') && grammar.reasoningLensExamples.includes('ooda')],
   ['prompt pack classes are data declarations',
     Array.isArray(grammar?.promptPackClasses) && grammar.promptPackClasses.includes('social-strategy') && grammar.promptPackClasses.includes('website-workflow')],
   ['portable commands are reasoning/planning/routing only', /reasoning, planning, and routing modes only/.test(entrypoint)],

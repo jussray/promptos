@@ -6,9 +6,14 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/control-input.contract.json"
+      - ".control-room/creative-studio.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-humanizer-selection.mjs"
+      - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -19,6 +24,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/humanizer/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -33,9 +39,14 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/control-input.contract.json"
+      - ".control-room/creative-studio.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
+      - "scripts/verify-control-input-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-humanizer-selection.mjs"
+      - "scripts/verify-creative-studio-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -46,6 +57,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/humanizer/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -65,6 +77,7 @@ env:
   CONTROL_ROOM_TEST_REPORT_PATH: artifacts/control-room-tests.json
   PROMPTOS_BASE_URL: http://127.0.0.1:4173
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
+  PROMPTOS_CREATIVE_STUDIO_PROOF_DIR: artifacts/creative-studio-proof
   PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
 
 jobs:
@@ -94,8 +107,17 @@ jobs:
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
 
+      - name: Verify internal control-input trust boundary
+        run: node scripts/verify-control-input-contract.mjs
+
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
+
+      - name: Verify Humanizer selection contract
+        run: node scripts/verify-humanizer-selection.mjs
+
+      - name: Verify Creative Studio prompt contract
+        run: node scripts/verify-creative-studio-contract.mjs
 
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
@@ -151,6 +173,12 @@ jobs:
       - name: Prove rendered desktop and mobile PromptOS paths
         run: node e2e/rendered-proof.mjs
 
+      - name: Prove imported state membrane desktop and mobile
+        run: node e2e/import-boundary-proof.mjs
+
+      - name: Prove Creative Studio desktop and mobile paths
+        run: node e2e/creative-studio-proof.mjs
+
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
 
@@ -167,6 +195,7 @@ jobs:
           path: |
             artifacts/control-room-tests.json
             artifacts/promptos-rendered-proof
+            artifacts/creative-studio-proof
             artifacts/promptos-founder-os-proof
           if-no-files-found: error
           retention-days: 14

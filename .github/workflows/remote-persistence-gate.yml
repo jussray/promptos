@@ -1,0 +1,128 @@
+name: PromptOS Remote Persistence Exact-Head Gate
+
+on:
+  pull_request:
+    paths:
+      - "archive/promptos-donor-175.html"
+      - "scripts/materialize-donor-prompts.mjs"
+      - "scripts/verify-control-room-tests.mjs"
+      - "src/promptos-state-schema.mjs"
+      - "parts/auth.js"
+      - "parts/auth-core.js"
+      - "parts/p04-donor-missing.js"
+      - "parts/remote-persistence.js"
+      - "cloudflare-worker/promptos-sync.js"
+      - "cloudflare-worker/promptos-sync.wrangler.toml"
+      - "test/donor-materializer.test.mjs"
+      - "test/promptos-state-schema.test.mjs"
+      - "test/remote-persistence.attack20.test.mjs"
+      - "docs/PROMPT_CATALOG_RECOVERY.md"
+      - "docs/REMOTE_PERSISTENCE.md"
+      - "parts/app.js"
+      - "index.html"
+      - "e2e/rendered-proof.mjs"
+      - "e2e/import-boundary-proof.mjs"
+      - ".github/workflows/remote-persistence-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  PROMPTOS_BASE_URL: http://127.0.0.1:4173
+  PROMPTOS_PROOF_DIR: artifacts/promptos-remote-persistence-rendered-proof
+
+jobs:
+  exact-head-gate:
+    name: Unit + Attack-20 + desktop/mobile proof
+    runs-on: ubuntu-22.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact immutable head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Materialize exact hash-pinned donor module
+        run: node scripts/materialize-donor-prompts.mjs --write
+
+      - name: Prove generated donor set and schema-bound persistence contracts
+        run: >-
+          node --test
+          test/donor-materializer.test.mjs
+          test/promptos-state-schema.test.mjs
+          test/remote-persistence.attack20.test.mjs
+
+      - name: Retain generated donor module for evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-donor-module-${{ env.EXPECTED_HEAD_SHA }}
+          path: parts/p04-donor-missing.js
+          if-no-files-found: error
+          retention-days: 2
+
+      - name: Assert remote adapter remains disabled and unloaded
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Fq './parts/remote-persistence.js' index.html
+          grep -Fq "runtimePersistence: 'not-connected'" parts/auth-core.js
+          grep -Fq "enabledByDefault:false" parts/remote-persistence.js
+          grep -Fq 'staged-disabled-until-proof' cloudflare-worker/promptos-sync.js
+
+      - name: Verify canonical source contract with generated donor
+        run: node scripts/verify-control-room-tests.mjs
+
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start static PromptOS server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 > /tmp/promptos-remote-server.log 2>&1 &
+          echo $! > /tmp/promptos-remote-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent "$PROMPTOS_BASE_URL/" >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-remote-server.log
+          exit 1
+
+      - name: Prove rendered desktop and mobile PromptOS catalog
+        run: node e2e/rendered-proof.mjs
+
+      - name: Prove imported state membrane desktop and mobile
+        run: node e2e/import-boundary-proof.mjs
+
+      - name: Stop static PromptOS server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-remote-server.pid || kill "$(cat /tmp/promptos-remote-server.pid)" || true
+
+      - name: Retain exact-head browser proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-remote-persistence-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-remote-persistence-rendered-proof
+          if-no-files-found: error
+          retention-days: 14

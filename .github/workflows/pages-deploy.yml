@@ -82,7 +82,7 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Verify non-mutating source authority, prompt syntax, and catalog
+      - name: Verify source authority and materialize hash-pinned donor catalog
         run: node scripts/verify-control-room-tests.mjs
 
       - name: Enforce public browser credential-capability absence
@@ -90,8 +90,8 @@ jobs:
         run: |
           set -euo pipefail
           forbidden='GIST_FILENAME|gistHeaders|gistPush|gistPull|gistFindOrCreate|syncToken|syncConnect|syncPush|syncPull|api\.github\.com/gists|Token needs.*gist.*scope'
-          if grep -En "$forbidden" parts/app.js; then
-            echo 'public deployment blocked: legacy browser GitHub/Gist credential capability is still shipped in parts/app.js' >&2
+          if grep -En "$forbidden" parts/app.js parts/auth.js parts/auth-core.js; then
+            echo 'public deployment blocked: legacy browser credential capability is still shipped' >&2
             exit 1
           fi
 
@@ -124,22 +124,18 @@ jobs:
         shell: bash
         run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
 
-      # Only the public human-facing surface is staged: the checked-in index.html
-      # and the exact canonical parts/*.js it declares (the same list
-      # scripts/verify-control-room-tests.mjs holds source authority over).
-      # Governance/control-room manifests, AGENTS*.md, cloudflare-worker/,
-      # tools/, src/, docs/, scripts/, e2e/, and testdata/ are never copied in.
+      # Only the public human-facing surface is staged. p04 is a deterministic,
+      # hash-pinned generated part materialized from the immutable donor archive.
+      # The archive, materializer, governance, Worker, and persistence sources stay private.
       - name: Stage public site
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p _site/parts
           cp index.html _site/index.html
-          for part in auth.js p05-new-prompts.js p06-gap-prompts.js p07-ship-ultrathink-skills.js p08-cont-redteam.js p09-cont-design.js p10-cont-ops-growth.js app.js; do
+          for part in auth.js auth-core.js p04-donor-missing.js p05-new-prompts.js p06-gap-prompts.js p07-ship-ultrathink-skills.js p08-cont-redteam.js p09-cont-design.js p10-cont-ops-growth.js app.js; do
             cp "parts/$part" "_site/parts/$part"
           done
-          # Stamp deployed runtime identity onto the staged copy only. The
-          # checked-in index.html in the repository is never modified.
           sed -i "s#</head>#  <meta name=\"promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\">\n</head>#" _site/index.html
           grep -q "promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\"" _site/index.html
 
