@@ -7,30 +7,28 @@ on:
         description: 'Type APPLY_FOUNDER_ONLY_RULESET to reconcile the PromptOS main ruleset'
         required: true
         type: string
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+  push:
+    branches:
+      - 'feat/v10-recursive-hardening-c31bbb7'
     paths:
       - '.control-room/provider-governance.approval.json'
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   reconcile:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner) ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.number == 24 &&
-       github.event.pull_request.user.login == github.repository_owner &&
-       github.event.pull_request.head.repo.full_name == github.repository)
+      (github.event_name == 'push' &&
+       github.actor == github.repository_owner &&
+       github.ref == 'refs/heads/feat/v10-recursive-hardening-c31bbb7')
     runs-on: ubuntu-22.04
     timeout-minutes: 5
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      EXPECTED_HEAD_SHA: ${{ github.sha }}
       TARGET_BRANCH: main
       REQUIRED_CHECK: Verify PromptOS control room tests
       PROVIDER_GOVERNANCE_RECEIPT: artifacts/provider-governance-reconcile.json
@@ -53,13 +51,15 @@ jobs:
         run: test "${{ inputs.confirmation }}" = "APPLY_FOUNDER_ONLY_RULESET"
 
       - name: Verify approval-only bootstrap commit
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
         shell: bash
         env:
           APPROVAL_PATH: .control-room/provider-governance.approval.json
           DESIRED_PATH: .control-room/provider-governance.desired.json
           EXPECTED_REPOSITORY: ${{ github.repository }}
-          EXPECTED_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_PR_NUMBER: '24'
+          EXPECTED_BRANCH: feat/v10-recursive-hardening-c31bbb7
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -73,6 +73,7 @@ jobs:
           const expectedHead = process.env.EXPECTED_HEAD_SHA;
           const expectedRepository = process.env.EXPECTED_REPOSITORY;
           const expectedPrNumber = Number(process.env.EXPECTED_PR_NUMBER);
+          const expectedBranch = process.env.EXPECTED_BRANCH;
 
           const fail = (message) => { throw new Error(`PromptOS provider approval: ${message}`); };
           if (approval?.schemaVersion !== 1) fail('schemaVersion must be 1');
@@ -96,9 +97,21 @@ jobs:
           const desired = await readFile(desiredPath);
           const digest = createHash('sha256').update(desired).digest('hex');
           if (digest !== approval.desiredStateSha256) fail(`desired-state digest mismatch: ${digest}`);
+
+          const raw = execFileSync('gh', ['api', `repos/${expectedRepository}/pulls/${expectedPrNumber}`], {
+            encoding: 'utf8',
+            env: process.env,
+          });
+          const pr = JSON.parse(raw);
+          if (pr?.state !== 'open') fail(`PR #${expectedPrNumber} must remain open`);
+          if (pr?.head?.sha !== expectedHead) fail(`PR head mismatch: ${pr?.head?.sha || 'missing'}`);
+          if (pr?.head?.ref !== expectedBranch) fail(`PR branch mismatch: ${pr?.head?.ref || 'missing'}`);
+          if (pr?.head?.repo?.full_name !== expectedRepository) fail('PR head repository mismatch');
+
           console.log(`approval_reference=${approval.approvalReference}`);
           console.log(`approved_parent=${parent}`);
           console.log(`desired_sha256=${digest}`);
+          console.log(`pr_head=${pr.head.sha}`);
           NODE
 
       - name: Set up Node
