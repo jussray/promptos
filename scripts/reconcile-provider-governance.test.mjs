@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { reconcileProviderGovernance } from './reconcile-provider-governance.mjs';
 
 const desired = JSON.parse(await readFile('.control-room/provider-governance.desired.json', 'utf8'));
+const workflow = await readFile('.github/workflows/reconcile-provider-governance.yml', 'utf8');
 
 function detailed(id = 101) {
   return {
@@ -63,4 +64,29 @@ test('desired state cannot gain bypass actors', async () => {
     reconcileProviderGovernance({repository:'jussray/promptos', token:'x'.repeat(40), desired:widened, request:async()=>[]}),
     /zero bypass actors/,
   );
+});
+
+test('privileged workflow binds manual dispatch to live main and scopes the admin secret', () => {
+  assert.match(
+    workflow,
+    /github\.event_name == 'workflow_dispatch'[\s\S]*?github\.ref == 'refs\/heads\/main'/,
+  );
+
+  const beforeSteps = workflow.split('\n    steps:')[0];
+  assert.doesNotMatch(beforeSteps, /PROMPTOS_RULESET_ADMIN_TOKEN/);
+
+  const secretRefs = workflow.match(/secrets\.PROMPTOS_RULESET_ADMIN_TOKEN/g) || [];
+  assert.equal(secretRefs.length, 2);
+  assert.match(
+    workflow,
+    /- name: Reconcile founder-only main ruleset\n\s+env:\n\s+PROMPTOS_RULESET_ADMIN_TOKEN: \$\{\{ secrets\.PROMPTOS_RULESET_ADMIN_TOKEN \}\}/,
+  );
+  assert.match(
+    workflow,
+    /- name: Verify live provider membrane after mutation\n\s+env:\n\s+GITHUB_TOKEN: \$\{\{ secrets\.PROMPTOS_RULESET_ADMIN_TOKEN \}\}/,
+  );
+
+  assert.match(workflow, /- name: Verify manual dispatch is live main head/);
+  assert.match(workflow, /git\/ref\/heads\/main/);
+  assert.match(workflow, /- name: Revalidate trusted execution target before privileged steps/);
 });
