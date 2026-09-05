@@ -6,9 +6,11 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/evidence-decision-loop.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-evidence-decision-loop.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -19,6 +21,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/evidence-decision-loop/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -33,9 +36,11 @@ on:
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/evidence-decision-loop.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-evidence-decision-loop.mjs"
       - "src/browser-reality-receipt.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -46,6 +51,7 @@ on:
       - ".control-room/plugin-management.json"
       - ".control-room/founder-control.contract.json"
       - "skills/browser-reality-inspector/SKILL.md"
+      - "skills/evidence-decision-loop/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
       - "index.html"
@@ -96,6 +102,9 @@ jobs:
 
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
+
+      - name: Verify evidence decision loop contract
+        run: node scripts/verify-evidence-decision-loop.mjs
 
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs

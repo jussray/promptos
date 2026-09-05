@@ -73,6 +73,13 @@ PromptOS may preserve compact decisions and evidence references, but it does not
 - **Boundary:** read-only navigation and evidence capture only; login/authentication steps, CAPTCHA, permission prompts, provider boundaries, mutation, and scope expansion stop the run.
 - **Privacy:** browser-managed first-party session cookies may remain in an already-authenticated browser but may never be inspected or exported; evidence fingerprints bind sanitized receipts and never identify people/devices or correlate activity across sites.
 
-The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins.
+### `evidence-decision-loop`
+
+- **File:** [`skills/evidence-decision-loop/SKILL.md`](skills/evidence-decision-loop/SKILL.md)
+- **Load when:** a conclusion, experiment result, performance call, merge/release review, or cross-repository recommendation depends on mixed evidence.
+- **Boundary:** decision support only. It separates source, execution, and outcome truth; secondary signals cannot declare primary success; changed fingerprints invalidate predecessor proof.
+- **Authority:** the skill may recommend a next gate but cannot grant merge, deploy, publish, send, spend, delete, permission, or production authority.
+
+The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command or skill conflicts with a stricter PromptOS rule, the stricter rule wins.
 
 This entrypoint supplements repository-local agent instructions and never weakens privacy, safety, approval, rollback, evidence, or non-deletion rules.
