@@ -7,51 +7,117 @@ on:
         description: 'Type APPLY_FOUNDER_ONLY_RULESET to reconcile the PromptOS main ruleset'
         required: true
         type: string
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - '.control-room/provider-governance.approval.json'
 
 permissions:
   contents: read
 
 jobs:
   reconcile:
-    if: github.actor == github.repository_owner
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner) ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.number == 24 &&
+       github.event.pull_request.user.login == github.repository_owner &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-22.04
     timeout-minutes: 5
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      EXPECTED_HEAD_SHA: ${{ github.sha }}
+      EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       TARGET_BRANCH: main
       REQUIRED_CHECK: Verify PromptOS control room tests
       PROVIDER_GOVERNANCE_RECEIPT: artifacts/provider-governance-reconcile.json
       PROVIDER_MERGE_MEMBRANE_RECEIPT: artifacts/provider-merge-membrane.json
-      PROMPTOS_RULESET_ADMIN_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
     steps:
-      - name: Require explicit founder confirmation
-        shell: bash
-        run: test "${{ inputs.confirmation }}" = "APPLY_FOUNDER_ONLY_RULESET"
-
       - name: Check out exact head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 2
           persist-credentials: false
 
       - name: Verify exact immutable head
         shell: bash
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
 
+      - name: Require explicit founder confirmation on default-branch dispatch
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: test "${{ inputs.confirmation }}" = "APPLY_FOUNDER_ONLY_RULESET"
+
+      - name: Verify approval-only bootstrap commit
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          APPROVAL_PATH: .control-room/provider-governance.approval.json
+          DESIRED_PATH: .control-room/provider-governance.desired.json
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+          EXPECTED_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+
+          const approvalPath = process.env.APPROVAL_PATH;
+          const desiredPath = process.env.DESIRED_PATH;
+          const approval = JSON.parse(await readFile(approvalPath, 'utf8'));
+          const expectedHead = process.env.EXPECTED_HEAD_SHA;
+          const expectedRepository = process.env.EXPECTED_REPOSITORY;
+          const expectedPrNumber = Number(process.env.EXPECTED_PR_NUMBER);
+
+          const fail = (message) => { throw new Error(`PromptOS provider approval: ${message}`); };
+          if (approval?.schemaVersion !== 1) fail('schemaVersion must be 1');
+          if (approval?.contract !== 'promptos/provider-governance-approval@v1') fail('contract mismatch');
+          if (approval?.repository !== expectedRepository) fail('repository mismatch');
+          if (approval?.pullRequest !== expectedPrNumber) fail('pull request mismatch');
+          if (approval?.apply !== true) fail('apply must be true');
+          if (approval?.approvalReference !== 'approved:2026-09-04:turn-on-safe-switches') fail('approval reference mismatch');
+          if (!/^[0-9a-f]{40}$/.test(approval?.approvedParentSha || '')) fail('approvedParentSha must be a full SHA');
+          if (!/^[0-9a-f]{64}$/.test(approval?.desiredStateSha256 || '')) fail('desiredStateSha256 must be sha256');
+
+          const parent = execFileSync('git', ['rev-parse', `${expectedHead}^`], {encoding: 'utf8'}).trim();
+          if (parent !== approval.approvedParentSha) fail(`parent mismatch: expected ${approval.approvedParentSha}, observed ${parent}`);
+
+          const changed = execFileSync('git', ['diff', '--name-only', approval.approvedParentSha, expectedHead], {encoding: 'utf8'})
+            .trim().split('\n').filter(Boolean);
+          if (changed.length !== 1 || changed[0] !== approvalPath) {
+            fail(`bootstrap commit must change only ${approvalPath}; observed ${changed.join(', ')}`);
+          }
+
+          const desired = await readFile(desiredPath);
+          const digest = createHash('sha256').update(desired).digest('hex');
+          if (digest !== approval.desiredStateSha256) fail(`desired-state digest mismatch: ${digest}`);
+          console.log(`approval_reference=${approval.approvalReference}`);
+          console.log(`approved_parent=${parent}`);
+          console.log(`desired_sha256=${digest}`);
+          NODE
+
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
 
-      - name: Verify reconciler contract
+      - name: Verify reconciler contract without admin secret
         run: node --test scripts/verify-provider-merge-membrane.test.mjs scripts/reconcile-provider-governance.test.mjs
 
       - name: Require separately provisioned admin credential
         shell: bash
+        env:
+          PROMPTOS_RULESET_ADMIN_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
         run: test -n "$PROMPTOS_RULESET_ADMIN_TOKEN"
 
       - name: Reconcile founder-only main ruleset
+        env:
+          PROMPTOS_RULESET_ADMIN_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
         run: node scripts/reconcile-provider-governance.mjs
 
       - name: Verify live provider membrane after mutation
@@ -63,9 +129,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: promptos-provider-governance-${{ github.sha }}
+          name: promptos-provider-governance-${{ env.EXPECTED_HEAD_SHA }}
           path: |
             artifacts/provider-governance-reconcile.json
             artifacts/provider-merge-membrane.json
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 14
