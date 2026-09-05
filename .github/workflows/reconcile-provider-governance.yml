@@ -20,7 +20,9 @@ permissions:
 jobs:
   reconcile:
     if: >-
-      (github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner) ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.actor == github.repository_owner &&
+       github.ref == 'refs/heads/main') ||
       (github.event_name == 'push' &&
        github.actor == github.repository_owner &&
        github.ref == 'refs/heads/feat/v10-recursive-hardening-c31bbb7')
@@ -44,6 +46,17 @@ jobs:
       - name: Verify exact immutable head
         shell: bash
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+
+      - name: Verify manual dispatch is live main head
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          live_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          test "$live_main" = "$EXPECTED_HEAD_SHA"
 
       - name: Require explicit founder confirmation on default-branch dispatch
         if: github.event_name == 'workflow_dispatch'
@@ -122,11 +135,26 @@ jobs:
       - name: Verify reconciler contract without admin secret
         run: node --test scripts/verify-provider-merge-membrane.test.mjs scripts/reconcile-provider-governance.test.mjs
 
-      - name: Require separately provisioned admin credential
+      - name: Revalidate trusted execution target before privileged steps
         shell: bash
         env:
-          PROMPTOS_RULESET_ADMIN_TOKEN: ${{ secrets.PROMPTOS_RULESET_ADMIN_TOKEN }}
-        run: test -n "$PROMPTOS_RULESET_ADMIN_TOKEN"
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_PR_NUMBER: '24'
+          EXPECTED_BRANCH: feat/v10-recursive-hardening-c31bbb7
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            test "$GITHUB_REF" = "refs/heads/main"
+            live_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+            test "$live_main" = "$EXPECTED_HEAD_SHA"
+          else
+            live_pr_head="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$EXPECTED_PR_NUMBER" --jq '.head.sha')"
+            live_pr_ref="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$EXPECTED_PR_NUMBER" --jq '.head.ref')"
+            live_pr_repo="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$EXPECTED_PR_NUMBER" --jq '.head.repo.full_name')"
+            test "$live_pr_head" = "$EXPECTED_HEAD_SHA"
+            test "$live_pr_ref" = "$EXPECTED_BRANCH"
+            test "$live_pr_repo" = "$GITHUB_REPOSITORY"
+          fi
 
       - name: Reconcile founder-only main ruleset
         env:
