@@ -5,7 +5,7 @@
   "pullRequest": 24,
   "apply": true,
   "approvalReference": "approved:2026-09-04:turn-on-safe-switches",
-  "approvedParentSha": "3201617de6d7a64da352549ee82d4c02647f5d2a",
+  "approvedParentSha": "7a9e67076e9730820ad6e2f0fde7ed6e12f675f0",
   "desiredStateSha256": "180cc948f9ba7f0483e5cef8febb7be047aaa1ecb6f28aaf369d55cb7aecf872",
   "authority": {
     "authorizesProviderGovernanceReconciliation": true,
