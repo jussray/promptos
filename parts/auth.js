@@ -6,17 +6,39 @@
  *   • Google sign-in is optional (topbar chip shows “Sign in” button).
  *   • Signing in upgrades the session in-place.
  *
- * Persistence authority:
- *   • Current browser state is session-only.
+ * Persistence authority (app state — stars, custom prompts, theme):
+ *   • Current browser app state is session-only.
  *   • Founder Control Room is the canonical runtime persistence authority.
  *   • FCR runtime persistence is not connected from this browser product yet.
  *   • Browser GitHub/Gist credentials are not accepted or implemented.
  *   • JSON Export / Import remains explicit backup and recovery.
+ *   This is unrelated to visitor analytics identification below — a device
+ *   returning tomorrow keeps its analytics identity even though its star
+ *   list did not survive the reload.
  *
- * Analytics (no personal data stored):
+ * Visitor identification (separate from app-state persistence above):
+ *   • Gated behind an explicit accept/decline consent banner shown once.
+ *   • On accept: a cryptographically-random id is stored in a first-party
+ *     cookie (`promptos_vid`, 400-day max per browser policy) so a
+ *     returning visitor can be recognized across sessions. No canvas,
+ *     WebGL, audio, font, or hardware/user-agent signal is collected —
+ *     .control-room/browser-reality.contract.json (added to this repo for
+ *     a separate read-only URL-inspection skill) explicitly lists those
+ *     as prohibited signals, and its own pseudonymousId clause describes
+ *     this exact pattern instead: cryptographically-random, first-party,
+ *     disclosed, resettable, no cross-site correlation.
+ *   • On decline: no cookie is set; every event carries visitor_id: null.
+ *   • The identifier is pseudonymous but is still personal data under
+ *     GDPR/CCPA (it can single out a device across visits), so it is
+ *     opt-in, not silent, and a decline is honored and not re-prompted.
+ *
+ * Analytics:
  *   • guest_session_started  — every cold page load
  *   • google_signin_success  — Google OAuth completes
  *   • guest_to_google_upgrade — user was guest, then signed in
+ *   • consent_accepted / consent_declined — visitor-identification choice
+ *   • Every event payload carries visitor_id (string once consented, else
+ *     null). No name, email, or other directly-identifying field is sent.
  *
  * Authorized JS origin: https://jussray.github.io
  * Client ID: 813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com
@@ -90,7 +112,7 @@
   function qs(s) { return document.querySelector(s); }
 
   function logEvent(name) {
-    var payload = JSON.stringify({ event: name, ts: Date.now() });
+    var payload = JSON.stringify({ event: name, ts: Date.now(), visitor_id: VISITOR_ID });
     console.info('[PromptOS analytics]', name);
     if (!ANALYTICS_ENDPOINT) return;
     try {
@@ -105,6 +127,112 @@
       }
     } catch (e) {
       console.warn('[PromptOS analytics] beacon failed', e);
+    }
+  }
+
+  /* ── VISITOR IDENTIFICATION: consent gate + device fingerprint + cookie ──
+   * See file header. Independent of the app-state persistence authority
+   * above — this identifies a returning browser for analytics only.
+   */
+  var CONSENT_COOKIE = 'promptos_consent';
+  var VISITOR_COOKIE = 'promptos_vid';
+  var VISITOR_COOKIE_DAYS = 400; /* Chrome's own max cookie lifetime cap */
+  var VISITOR_ID = null;
+
+  function getCookie(name) {
+    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function setCookie(name, value, days) {
+    var expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires +
+      '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+  }
+
+  /* Cryptographically-random id — no canvas/WebGL/audio/font/hardware
+     signal collection. .control-room/browser-reality.contract.json
+     (added to this repo for a separate read-only URL-inspection skill)
+     explicitly lists canvas-readback, user-agent-entropy-collection, and
+     device-hardware-signal-aggregation as prohibited signals; its own
+     pseudonymousId clause describes exactly this pattern instead —
+     cryptographically-random, first-party, disclosed, resettable, no
+     cross-site correlation — so that is what this uses. */
+  function randomId() {
+    if (window.crypto && crypto.getRandomValues) {
+      var bytes = crypto.getRandomValues(new Uint8Array(16));
+      return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
+    /* Fallback for a browser without crypto.getRandomValues (none expected
+       in a modern evergreen browser, but never leave this unset). */
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+  }
+
+  function ensureVisitorId() {
+    var existing = getCookie(VISITOR_COOKIE);
+    if (existing) {
+      VISITOR_ID = existing;
+      return existing;
+    }
+    var id = randomId();
+    setCookie(VISITOR_COOKIE, id, VISITOR_COOKIE_DAYS);
+    VISITOR_ID = id;
+    return id;
+  }
+
+  function hideConsentBanner() {
+    var el = document.getElementById('cookieConsent');
+    if (el) el.remove();
+  }
+
+  function grantConsent() {
+    setCookie(CONSENT_COOKIE, 'accepted', VISITOR_COOKIE_DAYS);
+    ensureVisitorId();
+    hideConsentBanner();
+    logEvent('consent_accepted');
+  }
+
+  function declineConsent() {
+    setCookie(CONSENT_COOKIE, 'declined', VISITOR_COOKIE_DAYS);
+    hideConsentBanner();
+    logEvent('consent_declined');
+  }
+
+  function renderConsentBanner() {
+    if (document.getElementById('cookieConsent')) return;
+    /* Normal document flow, not position:fixed — inserted as the very
+       first element in <body> so it occupies its own space above
+       #appShell / #onboarding and can never overlay (and so never
+       intercept clicks on) any real page content, in any viewport. */
+    var el = document.createElement('div');
+    el.id = 'cookieConsent';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Cookie and visitor identification consent');
+    el.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;' +
+      'background:var(--surface,#161513);color:var(--text,#e8e6e3);border-bottom:1px solid var(--border,rgba(255,255,255,.08));' +
+      'padding:10px 16px;font-family:var(--sans,system-ui,sans-serif);font-size:12.5px;line-height:1.5';
+    el.innerHTML =
+      '<div style="flex:1;min-width:220px">PromptOS sets a cookie with a random id to recognize you as a returning visitor. ' +
+      'It does not read your device or browser to build a fingerprint. This is separate from your prompt library, which stays session-only either way.</div>' +
+      '<div style="display:flex;gap:8px;flex-shrink:0">' +
+      '<button id="cookieDecline" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:8px;' +
+      'border:1px solid rgba(255,255,255,.14);background:transparent;color:inherit;cursor:pointer">Decline</button>' +
+      '<button id="cookieAccept" style="font-family:inherit;font-size:12px;font-weight:600;padding:6px 14px;' +
+      'border-radius:8px;border:none;background:#4f98a3;color:#fff;cursor:pointer">Accept</button>' +
+      '</div>';
+    document.body.insertBefore(el, document.body.firstChild);
+    document.getElementById('cookieAccept').addEventListener('click', grantConsent);
+    document.getElementById('cookieDecline').addEventListener('click', declineConsent);
+  }
+
+  function initVisitorIdentification() {
+    var consent = getCookie(CONSENT_COOKIE);
+    if (consent === 'accepted') {
+      ensureVisitorId();
+    } else if (consent === 'declined') {
+      VISITOR_ID = null;
+    } else {
+      renderConsentBanner();
     }
   }
 
@@ -285,6 +413,7 @@
   window.promptOSSession = SESSION;
 
   function boot() {
+    initVisitorIdentification();
     bootAsGuest();
     renderPersistenceAuthority();
     loadGIS();
