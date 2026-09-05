@@ -80,6 +80,6 @@ PromptOS may preserve compact decisions and evidence references, but it does not
 - **Boundary:** decision support only. It separates source, execution, and outcome truth; secondary signals cannot declare primary success; changed fingerprints invalidate predecessor proof.
 - **Authority:** the skill may recommend a next gate but cannot grant merge, deploy, publish, send, spend, delete, permission, or production authority.
 
-The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command or skill conflicts with a stricter PromptOS rule, the stricter rule wins.
+The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins. Governed skills follow the same precedence and cannot weaken a stricter repository rule.
 
 This entrypoint supplements repository-local agent instructions and never weakens privacy, safety, approval, rollback, evidence, or non-deletion rules.
