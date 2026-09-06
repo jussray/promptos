@@ -6,11 +6,24 @@ canonical_branch: main
 authority_repository: jussray/founder-control-room
 site_identity_status: unverified
 site_origin: null
+account_owner: unverified
+chatgpt_site_url: null
+custom_domain: null
+control_room_link: null
+last_verified: null
+verification_source: null
+continuity_status: UNKNOWN
 ---
 
 # ChatGPT Sites repository binding — PromptOS
 
 This file defines the repository-side contract for a ChatGPT `@Sites` surface representing PromptOS. It does not create a Site, prove a Site is connected, or prove publication.
+
+## Cross-account continuity
+
+The frontmatter is the repository-side continuity record for this Site. `account_owner` identifies only a verified editor-account binding and must not expose private account-holder identity. `chatgpt_site_url`, `custom_domain`, `control_room_link`, `last_verified`, and `verification_source` must come from the authority that can actually observe them. `continuity_status` is one of `VERIFIED`, `UNKNOWN`, `STALE`, or `SUPERSEDED`.
+
+Unknown stays unknown. Chat memory, another phone/account, a naming convention, DNS intent, or a repository guess must never upgrade an unverified field. The Site editor/account is authoritative for Site identity/publication, the canonical repository for project/source truth, Cloudflare for DNS/deployment truth, and Founder Control Room for cross-project authority/evidence registry truth.
 
 ## Canonical source
 
@@ -46,7 +59,7 @@ A repository write never silently authorizes merge, GitHub Pages publication, Ch
 
 PromptOS already has a separate founder-gated GitHub Pages publication capability. That existing deployment path remains independent of ChatGPT Sites and must not be confused with a Sites publish result.
 
-The ChatGPT Site identity for PromptOS is currently `UNVERIFIED` in repository evidence. No slug, hostname, project ID, or generated Site URL may be guessed. Until the runtime exposes and verifies that identity, hold live Site publication.
+The ChatGPT Site identity for PromptOS is currently `UNVERIFIED` in repository evidence. No slug, hostname, project ID, custom domain, account binding, or generated Site URL may be guessed. Until the runtime exposes and verifies that identity, hold live Site publication.
 
 After Site identity verification, a Sites publish must bind to the intended exact repository state, re-read this Markdown authority chain, exclude governance/private surfaces from public output, and capture an observable Site artifact. Editor save, commit, PR, merge, CI, or another provider's deployment is not Sites publication proof.
 
