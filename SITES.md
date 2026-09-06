@@ -43,6 +43,14 @@ Before material planning, editing, automation, publication, deployment, or cross
 
 Stricter repository-local rules always win.
 
+## Public-face source
+
+For a public PromptOS explanation, use `PUBLIC_FACE.md` as the canonical public copy source and `public-face.html` as the crawlable reference rendering. These files are deliberately narrower than the full browser prompt library and repository governance surface.
+
+Do not expose raw private prompts, private model responses, private workflow logs, provider credentials, proprietary prompt content, or governance-only material through a public Site simply because those assets are available to PromptOS.
+
+Until a ChatGPT Site identity is independently verified, the public face must not invent a ChatGPT Site URL, custom domain, slug, publication state, or provider equivalence. The canonical source CTA may point to the public repository while Sites identity remains `UNKNOWN`.
+
 ## Read contract
 
 A Site may render public-safe PromptOS state from the canonical repository only after resolving the current head and authority files. It must preserve provenance, distinguish source/test/browser/deployment/runtime truth, and fail closed on stale or conflicting evidence.
