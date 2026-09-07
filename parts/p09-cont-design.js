@@ -169,3 +169,21 @@ Layer name | Current placeholder | Real copy | Length flag
   ];
   additions.forEach(function(p){ if (!existing.has(p.id)) PROMPTS.push(p); });
 })();
+
+/* Load browser-only PromptOS extensions after the core mission workspace exists. */
+(function(){
+  if (typeof document === 'undefined') return;
+  function loadMakeUI(){
+    if (document.querySelector('script[data-promptos-make-ui]')) return;
+    var script = document.createElement('script');
+    script.type = 'module';
+    script.src = './parts/p11-make-ui.mjs';
+    script.setAttribute('data-promptos-make-ui', '1');
+    document.head.appendChild(script);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadMakeUI, {once:true});
+  } else {
+    loadMakeUI();
+  }
+})();
