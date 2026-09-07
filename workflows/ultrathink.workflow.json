@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactType": "promptos-workflow",
   "id": "ultrathink",
-  "version": "1.0",
+  "version": "1.1",
   "title": "ULTRATHINK default operating mode",
   "status": "approved",
   "registrationAuthority": "founder-approved",
@@ -32,6 +32,9 @@
     "Verify reality using the cheapest valid test first, escalating through focused tests, integration checks, and real browser/runtime evidence; UI or runtime work requires Playwright proof.",
     "Separate truth planes: source truth, CI truth, provider truth, deployment truth, runtime truth, publication truth, and human outcome truth are not interchangeable.",
     "Never inherit stale green: relevant head, base, runtime, authority, provider, or evidence movement expires predecessor proof until reacquired.",
+    "Bind every participating repository main to a main fingerprint + continuity cookie over repository, branch, and exact SHA; main movement expires predecessor continuity before any inherited proof is reused.",
+    "Bind ChatGPT/operator work across observed mains to an assistant continuity cookie over the sorted current-main receipts; any bound main movement expires it and requires reacquisition.",
+    "Continuity fingerprints and cookies are non-secret correlation markers: they never become browser cookies, never grant authority, never fingerprint devices or personal data, and never carry approval forward.",
     "Do not fake completion: UNKNOWN stays UNKNOWN and BLOCKED stays BLOCKED; a tool call, build, merge, deployment, or provider receipt does not prove the final intended outcome.",
     "Preserve founder authority: do not merge, deploy, publish, spend, delete, mutate consequential provider state, or cross another authority boundary without the required authorization.",
     "Stop when the goal is proven and do not keep expanding the task after the smallest verified solution has been reached."

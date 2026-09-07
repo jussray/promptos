@@ -1,3 +1,4 @@
+import '../workflows/continuity/verify.mjs';
 import {readFile} from 'node:fs/promises';
 
 const WORKFLOW_PATH = '.github/workflows/control-room-tests.yml';
@@ -6,6 +7,7 @@ const VERIFIER_PATH = 'scripts/verify-control-room-workflow-contract.mjs';
 const WORKFLOW_ARTIFACT_PATH = 'src/workflow-artifact.mjs';
 const WORKFLOW_REGISTRY_GLOB = 'workflows/**';
 const WORKFLOW_MAKER_PATH = 'scripts/make-workflow.mjs';
+const CONTINUITY_VERIFIER_PATH = 'workflows/continuity/verify.mjs';
 
 const workflow = await readFile(WORKFLOW_PATH, 'utf8');
 const errors = [];
@@ -49,4 +51,5 @@ console.log(JSON.stringify({
   workflowArtifactPath: WORKFLOW_ARTIFACT_PATH,
   workflowRegistryGlob: WORKFLOW_REGISTRY_GLOB,
   workflowMakerPath: WORKFLOW_MAKER_PATH,
+  continuityVerifierPath: CONTINUITY_VERIFIER_PATH,
 }));

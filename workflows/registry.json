@@ -5,7 +5,7 @@
   "workflows": [
     {
       "id": "ultrathink",
-      "version": "1.0",
+      "version": "1.1",
       "status": "approved",
       "path": "workflows/ultrathink.workflow.json"
     }
