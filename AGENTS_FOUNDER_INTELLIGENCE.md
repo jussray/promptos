@@ -27,7 +27,7 @@ PromptOS exposes provider-neutral workflow semantics. These names describe reusa
 
 ```text
 /goalfix /ultrathink /truthmode /confess /redteam /lindymode /ooda /visualize
-/plan /goal /loop /resume /compact /btw /effort /lens /pack
+/plan /goal /make /loop /resume /compact /btw /effort /lens /pack
 ```
 
 Existing reasoning modes:
@@ -45,6 +45,7 @@ Portable workflow semantics:
 
 - `/plan`: produce a bounded plan with dependencies, proof, rollback, stop conditions, and a next gate. Planning is not execution.
 - `/goal`: normalize intent into a goal, constraints, definition of done, evidence requirements, and an authority ceiling.
+- `/make`: compile a current founder intent or repeated approved pattern into a reusable versioned workflow draft using the current mission contract; preserve the intent and authority ceiling, preview before registration, and require explicit founder approval before registry promotion.
 - `/loop`: re-observe current state, compare expected and observed state, adapt the next bounded move, and invalidate stale evidence after state movement.
 - `/resume`: reacquire current fingerprints and continuity evidence before continuing prior work. Prior proof never carries across changed state.
 - `/compact`: compress working context while preserving decisions, exact fingerprints, evidence, blockers, authority boundaries, rollback, and unresolved unknowns.
@@ -52,6 +53,8 @@ Portable workflow semantics:
 - `/effort`: declare requested reasoning depth, time, or cost budget as planning metadata. More effort may deepen analysis but cannot widen authority.
 - `/lens`: request a named reasoning lens as advisory metadata. Return conclusions, evidence, tradeoffs, and decisions; do not require private chain-of-thought and do not impersonate a named person.
 - `/pack`: invoke a declared, versioned prompt pack by identifier. A pack cannot widen authority and cannot be described as installed or executed until runtime availability is observed.
+
+`/make` is the reusable-workflow seam over the existing Founder OS mission compiler. A newly compiled workflow remains `draft`, cannot self-register, and cannot silently replace founder intent. Source-controlled approved workflows are listed in `workflows/registry.json`; changing a workflow from draft to approved is a founder authority event, not an inference from reuse or successful tests.
 
 Named reasoning lenses may include ULTRATHINK, ATTACK TEN, L99, Lindy, OODA, First Principles, Anti-Advice, Socratic challenge, FutureYOU, 80/20, Unlearn, Human, and truth-oriented passes. A lens changes the requested analysis frame, not execution authority.
 

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "authority": "source-controlled-approved-workflows",
+  "registrationRule": "A compiled workflow remains draft until explicit founder approval changes its registry status to approved.",
+  "workflows": [
+    {
+      "id": "ultrathink",
+      "version": "1.0",
+      "status": "approved",
+      "path": "workflows/ultrathink.workflow.json"
+    }
+  ]
+}

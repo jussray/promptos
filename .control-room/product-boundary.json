@@ -32,6 +32,10 @@
         "semantics": "Normalize intent into a goal, constraints, definition of done, evidence requirements, and authority ceiling."
       },
       {
+        "id": "make",
+        "semantics": "Compile a current founder intent or repeated approved pattern into a reusable versioned workflow draft using the current mission contract; preserve the intent and authority ceiling, preview before registration, and require explicit founder approval before registry promotion."
+      },
+      {
         "id": "loop",
         "semantics": "Re-observe current state, compare it with the expected state, adapt the next bounded move, and invalidate stale evidence after state movement."
       },
@@ -88,6 +92,7 @@
     "rules": [
       "Portable semantics describe intent and workflow behavior, not vendor-native command availability.",
       "No command, lens, or prompt pack grants execution, merge, deployment, publication, provider, secret, spending, or destructive authority.",
+      "Compiled workflows remain draft and cannot self-register; registry promotion requires explicit founder approval.",
       "A state or fingerprint change invalidates predecessor proof for the changed subject.",
       "PromptOS does not persist or require private chain-of-thought.",
       "Runtime skill, plugin, or pack availability must be observed before execution is claimed."
