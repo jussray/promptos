@@ -4,20 +4,24 @@ PromptOS is Juss Ray's governed prompt and founder-intent operating system. It s
 
 ## Product boundary
 
-PromptOS and Chief AI Machine are complementary, not interchangeable.
+PromptOS, Chief AI Machine, and Founder Control Room are complementary, not interchangeable.
 
 - **PromptOS is the human-AI operating layer.** It structures founder intent, context, constraints, reusable workflows, and human-reviewed learning.
-- **Chief AI Machine is the governed AI execution layer.** It owns bounded system execution, authority checks, verification, and execution receipts.
-- PromptOS may hand Chief AI a structured execution request, but a PromptOS artifact is advisory input. It cannot widen Chief AI authority or prove execution, deployment, provider state, or publication.
+- **Chief AI Machine is the governed cognition and proposal layer.** It may interpret bounded requests, reason, plan, compose capability proposals, and produce evidence-shaped handoffs, but it does not self-authorize consequential execution.
+- **Founder Control Room is the founder-decision, execution-authority, and evidence plane.** When work crosses into consequential execution, FCR re-observes current truth, checks the applicable authority, governs the execution boundary, and records outcome evidence.
+- A PromptOS artifact or Chief output is advisory input. Neither can widen execution authority or prove deployment, provider state, publication, or external outcome by itself.
 
 The machine-readable contract lives at `.control-room/product-boundary.json` and is enforced by `scripts/verify-product-boundary.mjs`.
 
 ```text
 PromptOS
-intent -> context -> workflow -> execution request -> learning
+intent -> context -> workflow -> proposal request -> learning
 
 Chief AI Machine
-request -> authority boundary -> execution -> verification -> receipt
+request -> reasoning -> proposal -> evidence handoff
+
+Founder Control Room
+current truth -> authority decision -> governed execution -> independent verification -> receipt
 ```
 
 ## What exists now
@@ -31,7 +35,7 @@ request -> authority boundary -> execution -> verification -> receipt
 
 ## Truth boundary
 
-PromptOS compiles and governs instructions; it does **not** turn an audit, prompt, plugin declaration, or generated mission into deployment or production authority.
+PromptOS compiles and governs instructions; it does **not** turn an audit, prompt, plugin declaration, generated mission, or Chief proposal into deployment or production authority.
 
 Use this order when making a material claim:
 
@@ -48,10 +52,10 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md` — governance constitution
 - `docs/HUMAN_SAFE_BUILD_CONTRACT.md` — bounded build contract
 - `.control-room/plugin-management.json` — plugin-management declaration
-- `.control-room/product-boundary.json` — PromptOS/Chief product boundary
+- `.control-room/product-boundary.json` — PromptOS/Chief/FCR product boundary
 - `control-room.manifest.json` — Control Room capability manifest
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
-- `scripts/verify-product-boundary.mjs` — PromptOS/Chief boundary proof
+- `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR boundary proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
 - `.github/workflows/pages-deploy.yml` — founder-gated, `workflow_dispatch`-only publication of `index.html` and its canonical `parts/*.js` to GitHub Pages

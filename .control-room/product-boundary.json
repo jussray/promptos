@@ -100,16 +100,24 @@
   },
   "chiefAI": {
     "repository": "jussray/chief-ai-machine",
-    "role": "governed-ai-execution-layer",
-    "coreQuestion": "How do systems safely execute AI actions?"
+    "role": "governed-ai-cognition-proposal-layer",
+    "coreQuestion": "How do systems reason about bounded AI actions without self-authorizing them?"
+  },
+  "founderControlRoom": {
+    "repository": "jussray/founder-control-room",
+    "role": "founder-decision-execution-authority-evidence-plane",
+    "coreQuestion": "What is currently true, what is authorized, and what evidence proves the outcome?"
   },
   "handoff": {
     "fromPromptOS": "structured intent plus context plus constraints plus requested verification",
-    "toChiefAI": "bounded execution request",
-    "authorityRule": "A PromptOS artifact is advisory input. It cannot widen Chief AI authority or prove execution, deployment, provider state, or publication."
+    "toChiefAI": "bounded reasoning and proposal request",
+    "fromChiefAI": "evidence-shaped proposal plus requested capability and verification",
+    "toFounderControlRoom": "current-truth and authority evaluation",
+    "authorityRule": "A PromptOS artifact or Chief output is advisory input. Neither can widen execution authority or prove execution, deployment, provider state, publication, or external outcome. Founder Control Room may govern execution only under separately current authority and evidence gates."
   },
   "contentFingerprint": {
-    "PromptOS": "intent -> context -> workflow -> execution request -> learning",
-    "ChiefAI": "request -> authority boundary -> execution -> verification -> receipt"
+    "PromptOS": "intent -> context -> workflow -> proposal request -> learning",
+    "ChiefAI": "request -> reasoning -> proposal -> evidence handoff",
+    "FounderControlRoom": "current truth -> authority decision -> governed execution -> independent verification -> receipt"
   }
 }

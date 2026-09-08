@@ -11,8 +11,18 @@ assert.equal(contract.role, 'human-ai-operating-layer');
 assert.equal(contract.coreQuestion, 'How do humans structure repeatable AI work?');
 
 assert.equal(contract.chiefAI.repository, 'jussray/chief-ai-machine');
-assert.equal(contract.chiefAI.role, 'governed-ai-execution-layer');
-assert.equal(contract.chiefAI.coreQuestion, 'How do systems safely execute AI actions?');
+assert.equal(contract.chiefAI.role, 'governed-ai-cognition-proposal-layer');
+assert.equal(
+  contract.chiefAI.coreQuestion,
+  'How do systems reason about bounded AI actions without self-authorizing them?',
+);
+
+assert.equal(contract.founderControlRoom.repository, 'jussray/founder-control-room');
+assert.equal(contract.founderControlRoom.role, 'founder-decision-execution-authority-evidence-plane');
+assert.equal(
+  contract.founderControlRoom.coreQuestion,
+  'What is currently true, what is authorized, and what evidence proves the outcome?',
+);
 
 const requiredPromptOSOwnership = [
   'founder intent capture',
@@ -53,16 +63,26 @@ assert.equal(
 );
 assert.equal(
   contract.handoff.toChiefAI,
-  'bounded execution request',
-  'Chief AI handoff target must remain a bounded execution request',
+  'bounded reasoning and proposal request',
+  'PromptOS must hand Chief a bounded reasoning/proposal request rather than execution authority',
+);
+assert.equal(
+  contract.handoff.fromChiefAI,
+  'evidence-shaped proposal plus requested capability and verification',
+  'Chief output must remain an evidence-shaped proposal',
+);
+assert.equal(
+  contract.handoff.toFounderControlRoom,
+  'current-truth and authority evaluation',
+  'consequential handoff must terminate at Founder Control Room truth and authority evaluation',
 );
 assert.equal(
   contract.handoff.authorityRule,
-  'A PromptOS artifact is advisory input. It cannot widen Chief AI authority or prove execution, deployment, provider state, or publication.',
-  'handoff authority rule must deny authority widening and every prohibited proof target',
+  'A PromptOS artifact or Chief output is advisory input. Neither can widen execution authority or prove execution, deployment, provider state, publication, or external outcome. Founder Control Room may govern execution only under separately current authority and evidence gates.',
+  'handoff authority rule must deny self-authorization and preserve the FCR authority gate',
 );
 
-for (const prohibitedProofTarget of ['execution', 'deployment', 'provider state', 'publication']) {
+for (const prohibitedProofTarget of ['execution', 'deployment', 'provider state', 'publication', 'external outcome']) {
   assert.ok(
     contract.handoff.authorityRule.includes(prohibitedProofTarget),
     `handoff authority rule must explicitly deny proof of ${prohibitedProofTarget}`,
@@ -71,11 +91,15 @@ for (const prohibitedProofTarget of ['execution', 'deployment', 'provider state'
 
 assert.equal(
   contract.contentFingerprint.PromptOS,
-  'intent -> context -> workflow -> execution request -> learning',
+  'intent -> context -> workflow -> proposal request -> learning',
 );
 assert.equal(
   contract.contentFingerprint.ChiefAI,
-  'request -> authority boundary -> execution -> verification -> receipt',
+  'request -> reasoning -> proposal -> evidence handoff',
+);
+assert.equal(
+  contract.contentFingerprint.FounderControlRoom,
+  'current truth -> authority decision -> governed execution -> independent verification -> receipt',
 );
 
-console.log('PromptOS/Chief product boundary contract verified.');
+console.log('PromptOS/Chief/FCR product boundary contract verified.');
