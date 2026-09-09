@@ -66,6 +66,23 @@ A changed repository head, provider state, proposal fingerprint, or other bound 
 
 PromptOS may preserve compact decisions and evidence references, but it does not persist or require private chain-of-thought.
 
+## Human voice and prose integrity
+
+When PromptOS composes or revises founder-facing, public-facing, or authored prose, optimize for truthful voice and useful writing, not detector evasion.
+
+Use a density-based voice audit:
+
+- Treat AI-associated wording and rhetorical patterns as a density signal, never as proof of AI authorship.
+- Do not use banned-word or banned-punctuation lists. Preserve correct punctuation, ordinary compounds, and precise vocabulary when they serve the sentence.
+- Review clustered repetition such as canned signposting, repeated copula avoidance, negative parallelism, padded lists of three, synonym cycling, shallow `-ing` analysis, vague authority, ornamental scope ranges, and repeated chatbot closers. A single occurrence is not a failure.
+- Prefer concrete facts, source-backed authority, specific judgment, and information that belongs to the author over generic fluency or decorative gravitas.
+- Vague authority must receive a real source, be explicitly qualified, or be removed.
+- When authentic author samples are supplied and relevant, use them to preserve vocabulary, rhythm, sentence length, humor, and structure. Do not flatten the voice into generic "humanized" prose.
+- Do not invent personal experience, personal opinion, certainty, or emotional texture merely to make generated text appear human.
+- Self-audit after drafting, then rewrite only the spans that create a synthetic cluster or weaken truth. Preserve unaffected language.
+
+This audit is a writing-quality control, not an AI detector. It must never be used to accuse a person of AI authorship from style alone.
+
 ## Governed portable skills
 
 ### `browser-reality-inspector`
