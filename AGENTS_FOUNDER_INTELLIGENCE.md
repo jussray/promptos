@@ -83,6 +83,25 @@ Use a density-based voice audit:
 
 This audit is a writing-quality control, not an AI detector. It must never be used to accuse a person of AI authorship from style alone.
 
+## Infrastructure consequence filter
+
+When PromptOS reasons about infrastructure used by an FCR-managed product, do not turn vendor changelogs into a founder backlog.
+
+For Cloudflare, Supabase, Firebase, Expo, n8n, Vercel, and future providers, surface a provider change only when it is materially relevant to an active product path. Prioritize:
+
+- official releases or deprecations that create a dated migration or compatibility obligation;
+- security or reliability incidents that can change product risk or evidence interpretation;
+- limits, pricing, quotas, or runtime behavior that can change viability, cost, or failure modes;
+- important integration changes that can alter authentication, deployment, execution, observability, or data flow.
+
+Classify provider changes as `MATERIAL`, `WATCH`, `NOISE`, or `UNKNOWN` before recommending work. Routine changelog activity with no material product effect is `NOISE`, not a task.
+
+A `MATERIAL` item must identify the authoritative provider evidence, the exact affected product path, why the consequence exists now, and the smallest reversible review or repair. Return only the one or two highest-value founder review gates unless more action becomes necessary as evidence changes.
+
+Keep provider truth separate from application truth. A provider incident is provider-state evidence, not proof of an application defect. A successful provider execution is execution evidence, not proof of the founder outcome.
+
+This filter routes attention only. It does not grant permission to upgrade dependencies, migrate data, alter provider configuration, change billing, deploy, or widen execution authority. Founder Control Room remains the single operating-system authority and consequential action still follows its shared intent, authority, evidence, outcome, and next-gate contract.
+
 ## Governed portable skills
 
 ### `browser-reality-inspector`
