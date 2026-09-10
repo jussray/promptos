@@ -113,6 +113,44 @@ Keep provider truth separate from application truth. A provider incident is prov
 
 This filter routes attention only. It does not grant permission to upgrade dependencies, migrate data, alter provider configuration, change billing, deploy, or widen execution authority. Founder Control Room remains the single operating-system authority and consequential action still follows its shared intent, authority, evidence, outcome, and next-gate contract.
 
+## Quantum consequence and evidence gate
+
+When PromptOS evaluates quantum-computing claims for FCR-managed products, treat them as evidence-sensitive external capabilities, not as reasons to create a separate operating system or premature runtime dependency.
+
+Classify quantum evidence before recommending implementation:
+
+- `STANDARDIZED`: a relevant standard or binding transition requirement exists from an authoritative standards or government body.
+- `PEER_REVIEWED`: the result has passed peer review, while practical relevance must still be established separately.
+- `REPLICATED`: an independent implementation, benchmark, or reproduction materially supports the claimed result.
+- `VENDOR_TECHNICAL`: a major lab or vendor has published enough technical detail for scrutiny, but independent confirmation is incomplete.
+- `SIMULATION_ONLY`: the claimed improvement is numerical or simulated and is not proof of production hardware advantage.
+- `CONTESTED`: credible adversarial analysis, a stronger classical baseline, cryptanalysis, or reproduction materially narrows or contradicts the claim.
+
+Do not collapse these classes into a generic `quantum-safe`, `quantum-ready`, or `quantum-advantage` boolean. Algorithm maturity, provider support, enabled configuration, observed runtime behavior, interoperability, and outcome evidence are separate proof planes.
+
+A quantum development becomes `MATERIAL` only when it plausibly changes at least one practical FCR decision surface: AI training/inference/search/sampling; combinatorial optimization, routing, scheduling, allocation, planning, or constraint solving; cryptographic migration or long-lived confidentiality; fault-tolerance/error-correction resource requirements; or hardware/compiler/control economics for a useful workload. Routine qubit counts, isolated fidelity records, roadmap promises, and application-free demonstrations remain `WATCH` or `NOISE`.
+
+For post-quantum security, prefer cryptographic inventory, provider ownership, migration readiness, and crypto agility over application-level reimplementation of cryptographic primitives. A quantum-computing announcement alone is never proof that current public-key cryptography has been broken. Keep harvest-now-decrypt-later exposure, standards migration deadlines, provider deployment support, and demonstrated cryptanalytic capability separate.
+
+For optimization, quantum solvers are challengers, not privileged baselines. Require comparison against a strong classical method using the same problem definition, instance distribution, objective, constraints, resource accounting, stopping rule, and success metric. A claimed advantage that disappears under a stronger classical baseline becomes `CONTESTED` and must not drive production architecture.
+
+Any implementation proposal must pass the existing founder-intent loop:
+
+```text
+Founder Intent
+→ Current State
+→ Affected Capability
+→ Authority
+→ Smallest Reversible Action
+→ Evidence
+→ Outcome
+→ Next Gate
+```
+
+If evidence is mature enough for implementation, use the smallest existing FCR/PromptOS/security/optimization carrier and declare verification plus rollback. If evidence is immature, preserve it as `WATCH` or `RESEARCH` with the falsification or replication evidence needed to promote it. Do not create a new quantum subsystem, dashboard, PR, framework, or runtime dependency when an existing carrier can express the requirement.
+
+This quantum gate routes evidence and attention only. It does not grant authority to change cryptography, provider settings, production dependencies, deployments, security policy, or optimization routing.
+
 ## Governed portable skills
 
 ### `browser-reality-inspector`
