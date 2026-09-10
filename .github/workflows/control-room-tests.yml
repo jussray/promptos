@@ -2,37 +2,6 @@ name: PromptOS Control Room Tests
 
 on:
   pull_request:
-    paths:
-      - "AGENTS.md"
-      - "AGENTS_FOUNDER_INTELLIGENCE.md"
-      - ".control-room/browser-reality.contract.json"
-      - ".control-room/evidence-decision-loop.contract.json"
-      - ".control-room/product-boundary.json"
-      - "scripts/verify-juss-os-command-contract.mjs"
-      - "scripts/verify-browser-reality-contract.mjs"
-      - "scripts/verify-evidence-decision-loop.mjs"
-      - "src/browser-reality-receipt.mjs"
-      - "src/workflow-artifact.mjs"
-      - "workflows/**"
-      - "scripts/verify-plugin-management-contract.mjs"
-      - "scripts/verify-founder-os-mission-compiler.mjs"
-      - "scripts/make-workflow.mjs"
-      - "scripts/verify-product-boundary.mjs"
-      - "scripts/verify-control-room-workflow-contract.mjs"
-      - "control-room.manifest.json"
-      - ".control-room/repository.manifest.json"
-      - ".control-room/plugin-management.json"
-      - ".control-room/founder-control.contract.json"
-      - "skills/browser-reality-inspector/SKILL.md"
-      - "skills/evidence-decision-loop/SKILL.md"
-      - "scripts/verify-control-room-tests.mjs"
-      - "parts/**"
-      - "index.html"
-      - "build.sh"
-      - "e2e/**"
-      - "tools/zapier/**"
-      - ".github/workflows/assemble.yml"
-      - ".github/workflows/control-room-tests.yml"
   push:
     branches: [main]
     paths:
