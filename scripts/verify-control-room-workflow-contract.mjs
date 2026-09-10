@@ -12,22 +12,37 @@ const CONTINUITY_VERIFIER_PATH = 'workflows/continuity/verify.mjs';
 const workflow = await readFile(WORKFLOW_PATH, 'utf8');
 const errors = [];
 
-function countOccurrences(text, needle) {
-  return text.split(needle).length - 1;
+const pullRequestStart = workflow.indexOf('  pull_request:\n');
+const pushStart = workflow.indexOf('  push:\n');
+const workflowDispatchStart = workflow.indexOf('  workflow_dispatch:\n');
+
+if (pullRequestStart === -1 || pushStart === -1 || pullRequestStart > pushStart) {
+  errors.push('control-room workflow must declare pull_request before push');
 }
 
-function requireBothFilters(path) {
+const pullRequestBlock = pullRequestStart === -1 || pushStart === -1
+  ? ''
+  : workflow.slice(pullRequestStart, pushStart).trim();
+if (pullRequestBlock !== 'pull_request:') {
+  errors.push('pull_request trigger must remain unconditional so required checks cannot be skipped by path filters');
+}
+
+const pushBlock = pushStart === -1
+  ? ''
+  : workflow.slice(pushStart, workflowDispatchStart === -1 ? workflow.length : workflowDispatchStart);
+
+function requirePushFilter(path) {
   const line = `      - "${path}"`;
-  if (countOccurrences(workflow, line) !== 2) {
-    errors.push(`${path} must be watched by both pull_request and push path filters`);
+  if (!pushBlock.includes(line)) {
+    errors.push(`${path} must remain watched by the main push path filter`);
   }
 }
 
-requireBothFilters(FOUNDER_CONTROL_CONTRACT);
-requireBothFilters(VERIFIER_PATH);
-requireBothFilters(WORKFLOW_ARTIFACT_PATH);
-requireBothFilters(WORKFLOW_REGISTRY_GLOB);
-requireBothFilters(WORKFLOW_MAKER_PATH);
+requirePushFilter(FOUNDER_CONTROL_CONTRACT);
+requirePushFilter(VERIFIER_PATH);
+requirePushFilter(WORKFLOW_ARTIFACT_PATH);
+requirePushFilter(WORKFLOW_REGISTRY_GLOB);
+requirePushFilter(WORKFLOW_MAKER_PATH);
 
 if (!workflow.includes(`run: node ${VERIFIER_PATH}`)) {
   errors.push(`${VERIFIER_PATH} must run in the PromptOS control-room verification job`);
@@ -52,4 +67,6 @@ console.log(JSON.stringify({
   workflowRegistryGlob: WORKFLOW_REGISTRY_GLOB,
   workflowMakerPath: WORKFLOW_MAKER_PATH,
   continuityVerifierPath: CONTINUITY_VERIFIER_PATH,
+  pullRequestUnconditional: true,
+  pushPathFiltersRetained: true,
 }));
