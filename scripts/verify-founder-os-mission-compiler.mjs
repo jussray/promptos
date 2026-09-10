@@ -106,14 +106,14 @@ if (typeof sandbox.window.compilePromptOSMission !== 'function') {
     project: 'jussray/Sekret-Bip',
     intent: 'Merge the verified focused fix after exact-head proof',
   });
-  if (mergeMission.authorityCeiling !== 'L5') failures.push(`merge mission authority should be L5, got ${mergeMission.authorityCeiling}`);
+  if (mergeMission.authorityCeiling !== 'L5') failures.push(`merge mission authority should stay L5, got ${mergeMission.authorityCeiling}`);
 
   const prodMission = sandbox.window.compilePromptOSMission({
     project: 'jussray/Sekret-Bip',
     intent: 'Repair production Cloudflare routing and deploy the verified release',
     providers: 'cloudflare, github',
   });
-  if (prodMission.authorityCeiling !== 'L6') failures.push(`production mission authority should be L6, got ${prodMission.authorityCeiling}`);
+  if (prodMission.authorityCeiling !== 'L6') failures.push(`production mission authority should stay L6, got ${prodMission.authorityCeiling}`);
   for (const proof of ['provider-readback', 'rollback-path', 'production-readback']) {
     if (!prodMission.requiredEvidence.includes(proof)) failures.push(`production mission missing proof ${proof}`);
   }
@@ -139,14 +139,19 @@ if (ultrathinkEntry?.path !== 'workflows/ultrathink.workflow.json') failures.pus
 
 if (ultrathinkWorkflow.id !== 'ultrathink' || ultrathinkWorkflow.status !== 'approved') failures.push('ULTRATHINK workflow identity/status invalid');
 if (ultrathinkWorkflow.registrationAuthority !== 'founder-approved') failures.push('ULTRATHINK approval provenance is missing');
+if (ultrathinkEntry?.version !== ultrathinkWorkflow.version) failures.push('ULTRATHINK registry/workflow version drifted');
 for (const token of [
   'Reacquire reality first',
   'Understand the founder\'s actual intention',
+  'ULTRATHINK:',
   'Challenge the premise',
   'Use existing work',
   'Find the root cause',
   'smallest reversible implementation',
+  'Lindy mode:',
+  'L99:',
   'Red-team the result',
+  'OODA:',
   'UI or runtime work requires Playwright proof',
   'Separate truth planes',
   'Never inherit stale green',
@@ -164,8 +169,9 @@ for (const stage of ['OBSERVE', 'ORIENT', 'CHALLENGE', 'DECIDE', 'ACT', 'VERIFY'
 for (const section of ['REALITY', 'FIX', 'PROOF', 'RISK', 'ROLLBACK', 'NEXT GATE']) {
   if (!ultrathinkWorkflow.report?.includes(section)) failures.push(`ULTRATHINK report missing ${section}`);
 }
-for (const component of ['goalfix', 'lindymode', 'redteam-1', 'l99', 'redteam-2', 'ooda', 'proofmode']) {
-  if (!ultrathinkWorkflow.engineeringStack?.includes(component)) failures.push(`ULTRATHINK engineering stack missing ${component}`);
+const expectedEngineeringStack = ['ultrathink', 'redteam-1', 'lindymode', 'l99', 'redteam-2', 'ooda', 'proofmode'];
+if (JSON.stringify(ultrathinkWorkflow.engineeringStack) !== JSON.stringify(expectedEngineeringStack)) {
+  failures.push(`ULTRATHINK engineering stack order drifted: expected ${expectedEngineeringStack.join(' -> ')}`);
 }
 
 if (failures.length) {
