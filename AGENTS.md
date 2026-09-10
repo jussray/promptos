@@ -8,6 +8,7 @@ Before material planning, implementation, review, automation, publication, deplo
 
 - [`AGENTS_FOUNDER_INTELLIGENCE.md`](AGENTS_FOUNDER_INTELLIGENCE.md)
 - [`docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md`](docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md)
+- [`docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md`](docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md) when evaluating or integrating managed agent runtimes such as OpenAI Frontier
 
 Use the complete remembrance loop:
 
@@ -123,6 +124,7 @@ If those conditions are not met, keep working or leave the PR open with the exac
 - Codex: code edits, tests, Playwright, CI triage, and repository operations. Keep patches focused and evidence-backed. Use the Codex provider baseline above when local model-provider configuration is needed.
 - ChatGPT: reasoning, review, debugging, threat modeling, data analysis, and founder-readable decisions. Separate fact, inference, and action.
 - Perplexity: current public research and source discovery. It is not private repository, account, Supabase, Cloudflare, or production truth unless those systems are explicitly connected and inspected.
+- Managed agent runtimes such as OpenAI Frontier: eligible only as bounded execution substrates under Founder Control Room. Their identity, permission, tool, event, observability, and evaluation capabilities must be observed rather than assumed, and their execution receipts never self-promote into founder outcome truth.
 
 ## Separate gates
 
