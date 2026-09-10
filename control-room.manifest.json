@@ -123,26 +123,25 @@
   },
   "evidence": {
     "status": "at-risk",
-    "commit": "c9d109adb17af75305fd57ee28e382dcfefff40d",
-    "observedAt": "2026-08-04",
+    "commit": "a840893b1cd702587c275a86276236c8c52c3b32",
+    "observedAt": "2026-09-10T04:34:01Z",
     "proofRefs": [
       ".github/workflows/assemble.yml",
       ".github/workflows/control-room-tests.yml",
       ".github/workflows/zapier-sdk-tooling.yml",
       "scripts/verify-control-room-tests.mjs",
       "e2e/rendered-proof.mjs",
-      "index.html",
-      "parts"
+      "e2e/founder-os-mission-compiler.mjs"
     ]
   },
   "risk": {
     "level": "medium",
     "blockers": [
-      "The repaired source graph and rendered browser gate are not proven until the exact-head PromptOS Control Room Tests signal succeeds",
-      "The Control Room evidence pointer must not advance until current-main exact-head proof exists",
-      "A catalog entry is not a pass until its exact-head runner produces evidence",
-      "Production or external provider mutation remains a separate founder gate"
+      "The predecessor exact-head Control Room Tests run on a840893b1cd702587c275a86276236c8c52c3b32 passed source authority, prompt syntax, isolated Zapier typecheck, rendered desktop/mobile PromptOS proof, and Founder OS compiler desktop/mobile proof.",
+      "This documentation and contract update moves main, so predecessor evidence is historical; the new head must reacquire exact-head proof before this pointer can be treated as current.",
+      "Founder-gated public Pages deployment and live external provider/runtime state were not exercised by the predecessor run.",
+      "Production or external provider mutation remains a separate founder gate."
     ]
   },
-  "nextGate": "Pass exact-head non-mutating source authority, Zapier typecheck, and desktop/mobile rendered proof; then refresh the evidence pointer only after current-main proof exists."
+  "nextGate": "Run exact-head Control Room Tests on the new head; if green, update this pointer only to that verified head. If public release is requested, run the founder-gated Pages workflow and its deployed identity/browser proof."
 }

@@ -37,6 +37,33 @@ Every reusable prompt or skill must preserve purpose, assumptions, inputs, outpu
 
 Evidence outranks eloquence. A plausible response is not proof. Separate prompt quality, test output, tool execution, provider behavior, runtime behavior, and user outcome.
 
+## Red-team pass one — premise
+
+Before selecting a fix or implementation, attack the request itself:
+
+- Is there a current, authoritative defect, or only stale prose, memory, or evidence?
+- Does the requested change serve the founder's intended outcome, or merely satisfy its wording?
+- Is the proposed scope and authority necessary, or can an existing carrier or smaller repair solve it?
+- What observation would disprove the premise?
+
+If the premise or evidence is not established, classify it as `UNKNOWN` or `BLOCKED`, restate the goal, or stop. Do not let implementation momentum manufacture a defect.
+
+## /lindymode
+
+Lindy mode is durability discipline, not worship of age. Prefer existing verified carriers, stable interfaces, simple platform primitives, reversible changes, low dependency coupling, and explicit rollback. Keep an older component only when it remains fit; replace it when evidence shows it fails. Do not globalize an unproven pattern or add a framework, agent, provider, or abstraction because it sounds scalable.
+
+## Red-team pass two — implementation
+
+After choosing a patch, attack the selected implementation:
+
+- Can it widen authority, cross a project boundary, or turn a receipt into outcome truth?
+- Does it bind the exact subject/head and invalidate stale evidence after movement?
+- Could it create a misleading success state, privacy/security exposure, regression, unsafe retry, or hidden dependency?
+- Are the required tests, browser/runtime proof, recovery behavior, and rollback path real and applicable?
+- What is the cheapest focused test that could disprove the patch?
+
+If the implementation fails this pass, narrow or revise it before verification. Tests are evidence about a boundary, not absolution for an unsound premise.
+
 ## /confess
 
 State what is known, inferred, assumed, unknown, blocked, and still needing verification. Never hide uncertainty behind fluent language.

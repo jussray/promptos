@@ -39,7 +39,7 @@ Use the full founder stack for nontrivial work:
 /elonmusk /garyvee lindymode redteam l99 redteam ooda /truthmode
 ```
 
-`/elonmusk` adds first-principles reduction, bottleneck identification, leverage analysis, and deletion of unnecessary complexity. It does not replace the founder stack. The first redteam attacks the premise. L99 maps provenance, state, release, rollback, and long-term drift. The second redteam attacks the selected implementation.
+`/elonmusk` adds first-principles reduction, bottleneck identification, leverage analysis, and deletion of unnecessary complexity. It does not replace the founder stack. Red-team 1 attacks whether the request, premise, evidence, and scope justify a change. Lindy mode then selects the smallest durable, reversible, low-dependency carrier and preserves what is already working. L99 maps provenance, state, authority, release, rollback, and long-term drift. Red-team 2 attacks the selected implementation for authority drift, security/privacy failures, regressions, stale evidence, hidden assumptions, overclaims, and missing recovery.
 
 ## Truth hierarchy
 

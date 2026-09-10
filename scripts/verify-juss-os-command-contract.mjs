@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises';
 const entrypoint = await readFile('AGENTS_FOUNDER_INTELLIGENCE.md', 'utf8');
 const rootAgents = await readFile('AGENTS.md', 'utf8');
 const externalAgentContract = await readFile('docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md', 'utf8');
+const constitution = await readFile('docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md', 'utf8');
+const ultrathinkWorkflow = JSON.parse(await readFile('workflows/ultrathink.workflow.json', 'utf8'));
 const productBoundary = JSON.parse(await readFile('.control-room/product-boundary.json', 'utf8'));
 
 const commands = [
@@ -149,6 +151,10 @@ const checks = [
     Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /No command, lens, or prompt pack grants execution/.test(rule))],
   ['grammar rules require observed runtime availability',
     Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /availability must be observed before execution is claimed/.test(rule))],
+  ['red-team 1 premise gate is documented', entrypoint.includes('Red-team 1 attacks the premise') && constitution.includes('## Red-team pass one — premise')],
+  ['Lindy mode selects durable existing carriers', entrypoint.includes('prefer existing verified carriers') && constitution.includes('## /lindymode')],
+  ['red-team 2 implementation gate is documented', entrypoint.includes('Red-team 2 attacks the selected implementation') && constitution.includes('## Red-team pass two — implementation')],
+  ['workflow encodes red-team 1, Lindy, and red-team 2', ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Red-team 1 — premise:')) && ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Lindy mode:')) && ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Red-team 2 — implementation:'))],
   ['stricter PromptOS authority wins', /If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins/.test(entrypoint)],
   ['remembrance loop remains intact', /\/human[\s\S]+\/futureyou[\s\S]+\/truthmode[\s\S]+\/confess[\s\S]+\/billgates[\s\S]+\/elonmusk/.test(entrypoint)],
   ['root agent entrypoint still requires Founder Intelligence', /AGENTS_FOUNDER_INTELLIGENCE\.md/.test(rootAgents)],

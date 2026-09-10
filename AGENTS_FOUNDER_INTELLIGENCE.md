@@ -36,8 +36,8 @@ Existing reasoning modes:
 - `/ultrathink`: expand the option space, reconcile constraints, and select the highest-leverage evidence-backed path.
 - `/truthmode`: separate `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` claims against inspected evidence.
 - `/confess`: expose unsupported assumptions, stale evidence, missing inspection, and overclaimed certainty.
-- `/redteam`: challenge the premise, proposed change, authority boundary, and selected implementation for failure modes.
-- `/lindymode`: prefer durable, reversible, low-dependency primitives over novelty and brittle coupling.
+- `/redteam`: run two bounded passes. Red-team 1 attacks the premise, current evidence, scope, and whether the change should exist; Red-team 2 attacks the selected implementation for authority drift, security/privacy failures, regressions, stale proof, hidden assumptions, overclaims, and rollback gaps.
+- `/lindymode`: prefer existing verified carriers and durable, reversible, low-dependency primitives; do not preserve age for its own sake or add novelty before a real need and proof.
 - `/ooda`: observe, orient, decide, act within current authority, verify, and define the next loop.
 - `/visualize`: translate verified state into a diagram, plan, or explanation only; it does not mutate PromptOS, providers, infrastructure, or production state.
 
@@ -55,6 +55,17 @@ Portable workflow semantics:
 - `/pack`: invoke a declared, versioned prompt pack by identifier. A pack cannot widen authority and cannot be described as installed or executed until runtime availability is observed.
 
 `/make` is the reusable-workflow seam over the existing Founder OS mission compiler. A newly compiled workflow remains `draft`, cannot self-register, and cannot silently replace founder intent. Source-controlled approved workflows are listed in `workflows/registry.json`; changing a workflow from draft to approved is a founder authority event, not an inference from reuse or successful tests.
+
+### Two-pass red-team order
+
+For nontrivial work, apply the challenge stack in this order:
+
+1. **Red-team 1 — premise:** test whether the requested change should exist, whether current authoritative evidence establishes a real defect, and whether the proposed scope serves the founder's intended outcome.
+2. **Lindy mode:** choose the smallest durable, reversible, low-dependency carrier; preserve existing verified work and stable interfaces, but replace an older choice when evidence shows it no longer fits.
+3. **L99:** bind provenance, state, authority, release, rollback, and long-term drift so the selected path remains legible.
+4. **Red-team 2 — implementation:** attack the chosen patch for authority drift, stale evidence, security/privacy failures, regressions, hidden assumptions, overclaims, missing recovery, and unsafe retry or escalation.
+
+A failed pass changes the goal, narrows the patch, or stops the run; it is not papered over by a successful test.
 
 Named reasoning lenses may include ULTRATHINK, ATTACK TEN, L99, Lindy, OODA, First Principles, Anti-Advice, Socratic challenge, FutureYOU, 80/20, Unlearn, Human, and truth-oriented passes. A lens changes the requested analysis frame, not execution authority.
 

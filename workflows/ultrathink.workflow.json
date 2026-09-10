@@ -6,7 +6,10 @@
   "title": "ULTRATHINK default operating mode",
   "status": "approved",
   "registrationAuthority": "founder-approved",
-  "aliases": ["/ULTRATHINK", "ULTRATHINK"],
+  "aliases": [
+    "/ULTRATHINK",
+    "ULTRATHINK"
+  ],
   "intent": "Use deeper internal reasoning, tighter execution, stronger evidence, and the smallest durable path from founder intention to verified reality for every meaningful task.",
   "appliesTo": [
     "inspect",
@@ -24,11 +27,12 @@
   "operatingPrinciples": [
     "Reacquire reality first: inspect the authoritative source, current state, branch/head, evidence, constraints, and existing work before acting.",
     "Understand the founder's actual intention and optimize for the intended outcome, not merely the literal wording.",
-    "Challenge the premise and test whether the requested change should exist or whether a smaller, safer, more durable solution is available.",
+    "Red-team 1 — premise: challenge whether the requested change should exist, whether current evidence establishes a real defect, and whether the proposed scope and authority serve the intended outcome.",
     "Use existing work: preserve current carriers, branches, PRs, architecture, workflows, and approved assets; do not create duplicate systems when the capability already exists.",
     "Find the root cause and repair one real cause before treating many symptoms.",
     "Build the smallest reversible implementation and avoid unrelated refactors, speculative architecture, destructive changes, and unnecessary new PRs.",
-    "Red-team the result for authority drift, stale evidence, security failures, hidden assumptions, regressions, overclaims, and failure modes.",
+    "Lindy mode: prefer existing verified carriers, stable interfaces, simple platform primitives, reversible changes, and low-dependency coupling; do not preserve or globalize a choice without current evidence.",
+    "Red-team 2 — implementation: attack the selected patch for authority drift, stale evidence, security/privacy failures, regressions, hidden assumptions, overclaims, missing recovery, and unsafe failure modes.",
     "Verify reality using the cheapest valid test first, escalating through focused tests, integration checks, and real browser/runtime evidence; UI or runtime work requires Playwright proof.",
     "Separate truth planes: source truth, CI truth, provider truth, deployment truth, runtime truth, publication truth, and human outcome truth are not interchangeable.",
     "Never inherit stale green: relevant head, base, runtime, authority, provider, or evidence movement expires predecessor proof until reacquired.",
@@ -39,10 +43,40 @@
     "Preserve founder authority: do not merge, deploy, publish, spend, delete, mutate consequential provider state, or cross another authority boundary without the required authorization.",
     "Stop when the goal is proven and do not keep expanding the task after the smallest verified solution has been reached."
   ],
-  "engineeringStack": ["goalfix", "lindymode", "redteam-1", "l99", "redteam-2", "ooda", "proofmode"],
-  "executionLoop": ["OBSERVE", "ORIENT", "CHALLENGE", "DECIDE", "ACT", "VERIFY", "RED-TEAM", "REACQUIRE", "STOP"],
-  "truthStates": ["VERIFIED", "INFERRED", "UNKNOWN", "BLOCKED"],
-  "report": ["REALITY", "FIX", "PROOF", "RISK", "ROLLBACK", "NEXT GATE"],
+  "engineeringStack": [
+    "goalfix",
+    "lindymode",
+    "redteam-1",
+    "l99",
+    "redteam-2",
+    "ooda",
+    "proofmode"
+  ],
+  "executionLoop": [
+    "OBSERVE",
+    "ORIENT",
+    "CHALLENGE",
+    "DECIDE",
+    "ACT",
+    "VERIFY",
+    "RED-TEAM",
+    "REACQUIRE",
+    "STOP"
+  ],
+  "truthStates": [
+    "VERIFIED",
+    "INFERRED",
+    "UNKNOWN",
+    "BLOCKED"
+  ],
+  "report": [
+    "REALITY",
+    "FIX",
+    "PROOF",
+    "RISK",
+    "ROLLBACK",
+    "NEXT GATE"
+  ],
   "authorityBoundary": "ULTRATHINK can deepen reasoning and narrow execution, but it cannot widen execution, merge, deployment, publication, spending, deletion, provider, secret, or production authority.",
   "stopCondition": "Stop when the founder's intended outcome is proven at the required truth plane or when a real authority/evidence blocker prevents the next safe action."
 }
