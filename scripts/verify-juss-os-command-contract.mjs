@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 
 const entrypoint = await readFile('AGENTS_FOUNDER_INTELLIGENCE.md', 'utf8');
 const rootAgents = await readFile('AGENTS.md', 'utf8');
+const externalAgentContract = await readFile('docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md', 'utf8');
 const productBoundary = JSON.parse(await readFile('.control-room/product-boundary.json', 'utf8'));
 
 const commands = [
@@ -137,6 +138,13 @@ const checks = [
   ['infrastructure filter caps founder review gates', entrypoint.includes('one or two highest-value founder review gates')],
   ['infrastructure filter cannot widen mutation authority', entrypoint.includes('It does not grant permission to upgrade dependencies, migrate data, alter provider configuration, change billing, deploy, or widen execution authority.')],
   ['infrastructure filter keeps FCR as OS authority', entrypoint.includes('Founder Control Room remains the single operating-system authority')],
+  ['managed agent runtime contract is loaded from root instructions', rootAgents.includes('docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md')],
+  ['managed agent runtimes remain underneath FCR', externalAgentContract.includes('bounded execution infrastructure underneath Founder Control Room') && externalAgentContract.includes('They do not become a second operating system')],
+  ['external execution evidence cannot self-promote into outcome truth', externalAgentContract.includes('They do not by themselves prove that the founder\'s intended external outcome exists.') && externalAgentContract.includes('the executor never promotes its own receipt into final outcome truth')],
+  ['ambiguous consequential writes reconcile before retry', externalAgentContract.includes('classify the execution state as `UNKNOWN` / `RECONCILE_REQUIRED`') && externalAgentContract.includes('Do not automatically retry an ambiguous mutation.')],
+  ['external runtime cannot widen its own authority', externalAgentContract.includes('widen its own permissions') && externalAgentContract.includes('reuse stale authority or evidence after the bound target/fingerprint changes')],
+  ['Frontier capabilities must be observed, not assumed', externalAgentContract.includes('Until those capabilities are directly observed in the authorized environment, classify them as `UNKNOWN`, not assumed product behavior.')],
+  ['Supabase stays provider neutral by default', externalAgentContract.includes('Do not create a Frontier-specific database silo by default.') && externalAgentContract.includes('A schema migration is justified only when current storage cannot durably bind a required field or invariant.')],
   ['grammar rules forbid authority widening',
     Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /No command, lens, or prompt pack grants execution/.test(rule))],
   ['grammar rules require observed runtime availability',
