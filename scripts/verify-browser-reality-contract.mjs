@@ -492,11 +492,24 @@ requireMembers(catalogEntry?.evidencePaths, [
   WORKFLOW_PATH,
 ], 'control-room browser reality evidencePaths');
 
+const pullRequestStart = workflow.indexOf('  pull_request:\n');
+const pushStart = workflow.indexOf('  push:\n');
+const workflowDispatchStart = workflow.indexOf('  workflow_dispatch:\n');
+const pullRequestBlock = pullRequestStart === -1 || pushStart === -1
+  ? ''
+  : workflow.slice(pullRequestStart, pushStart).trim();
+requireCondition(
+  pullRequestBlock === 'pull_request:',
+  'control-room pull_request verification must remain unconditional',
+);
+const pushBlock = pushStart === -1
+  ? ''
+  : workflow.slice(pushStart, workflowDispatchStart === -1 ? workflow.length : workflowDispatchStart);
 for (const guardedPath of [CONTRACT_PATH, SKILL_PATH, RECEIPT_IMPLEMENTATION_PATH, VERIFIER_PATH]) {
   const pathLine = `      - "${guardedPath}"`;
   requireCondition(
-    countOccurrences(workflow, pathLine) === 2,
-    `${guardedPath} must be watched by pull_request and push filters`,
+    pushBlock.includes(pathLine),
+    `${guardedPath} must remain watched by the main push filter`,
   );
 }
 requireCondition(
