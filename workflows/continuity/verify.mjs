@@ -95,7 +95,17 @@ for (const token of [
 ]) {
   if (!protocol.includes(token)) failures.push(`continuity protocol missing: ${token}`);
 }
-if (workflow.split('      - "workflows/**"').length - 1 !== 2) failures.push('workflows/** must remain watched by PR and main-push verification');
+const pullRequestStart = workflow.indexOf('  pull_request:\n');
+const pushStart = workflow.indexOf('  push:\n');
+const workflowDispatchStart = workflow.indexOf('  workflow_dispatch:\n');
+const pullRequestBlock = pullRequestStart === -1 || pushStart === -1
+  ? ''
+  : workflow.slice(pullRequestStart, pushStart).trim();
+if (pullRequestBlock !== 'pull_request:') failures.push('PR verification must remain unconditional for continuity checks');
+const pushBlock = pushStart === -1
+  ? ''
+  : workflow.slice(pushStart, workflowDispatchStart === -1 ? workflow.length : workflowDispatchStart);
+if (!pushBlock.includes('      - "workflows/**"')) failures.push('workflows/** must remain watched by main-push verification');
 for (const token of [
   'main fingerprint + continuity cookie',
   'assistant continuity cookie',
