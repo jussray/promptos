@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactType": "promptos-workflow",
   "id": "ultrathink",
-  "version": "1.2",
+  "version": "1.3",
   "title": "ULTRATHINK default operating mode",
   "status": "approved",
   "registrationAuthority": "founder-approved",
@@ -36,6 +36,11 @@
     "L99: bind the selected path to current subject fingerprints, provenance, state, scoped authority, evidence requirements, rollback, continuity, and drift so the decision remains legible later.",
     "Red-team 2 — implementation: Red-team the result by attacking the selected patch for authority drift, stale evidence, security/privacy failures, regressions, hidden assumptions, overclaims, missing recovery, and unsafe failure modes.",
     "OODA: observe the exact current state, orient to the active project boundary, decide one bounded action, act only within existing authority, then re-observe and verify before continuing.",
+    "Canonical capability identity: every executable capability must resolve to one unambiguous provider.domain.action identity; friendly labels, MCP tool names, plugin names, aliases, or agent names never substitute for the canonical internal identity.",
+    "Exact-action approval: consequential execution requires an FCR-owned authority envelope bound to the current intent, canonical capability identity, proposal hash, arguments hash, state fingerprint, consequence class, tool-call identity, approval subject, expiry, and idempotency key.",
+    "Validate twice: validate the proposed action before founder approval and reacquire capability, arguments, state, authority scope, and expiry immediately before execution; any drift invalidates predecessor approval.",
+    "Approval is not portable authority: nested agents, MCP servers, models, plugins, workflows, and providers may request or transport authority evidence but cannot manufacture, inherit, widen, or replay FCR execution authority.",
+    "Unknown execution state must reconcile before retry: do not blindly replay state-changing actions after timeouts, transport failures, or ambiguous provider responses; use the idempotency key and current provider evidence to distinguish retry-safe from already-executed state.",
     "Verify reality using the cheapest valid test first, escalating through focused tests, integration checks, and real browser/runtime evidence; UI or runtime work requires Playwright proof.",
     "Separate truth planes: source truth, CI truth, provider truth, deployment truth, runtime truth, publication truth, and human outcome truth are not interchangeable.",
     "Never inherit stale green: relevant head, base, runtime, authority, provider, or evidence movement expires predecessor proof until reacquired.",
@@ -60,6 +65,9 @@
     "ORIENT",
     "CHALLENGE",
     "DECIDE",
+    "PRE-APPROVAL-VALIDATE",
+    "APPROVE",
+    "REACQUIRE-AUTHORITY",
     "ACT",
     "VERIFY",
     "RED-TEAM",
@@ -80,6 +88,6 @@
     "ROLLBACK",
     "NEXT GATE"
   ],
-  "authorityBoundary": "ULTRATHINK can deepen reasoning and narrow execution, but it cannot widen execution, merge, deployment, publication, spending, deletion, provider, secret, or production authority.",
+  "authorityBoundary": "ULTRATHINK can deepen reasoning and narrow execution, but it cannot widen execution, merge, deployment, publication, spending, deletion, provider, secret, or production authority. FCR remains the sole execution-authority owner; Chief, PromptOS, MCP, agents, models, plugins, and providers remain subordinate capability and evidence planes.",
   "stopCondition": "Stop when the founder's intended outcome is proven at the required truth plane or when a real authority/evidence blocker prevents the next safe action."
 }
