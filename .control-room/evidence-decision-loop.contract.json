@@ -1,0 +1,24 @@
+{
+  "contract": "juss/evidence-decision-loop@v1",
+  "authority": "decision_support_only",
+  "truth_planes": ["source", "execution", "outcome"],
+  "claim_states": ["VERIFIED", "OBSERVED", "INFERRED", "UNKNOWN", "BLOCKED"],
+  "stages": ["observe", "orient", "redteam", "decide", "act", "verify", "report"],
+  "invariants": {
+    "execution_is_not_outcome": true,
+    "secondary_signal_cannot_win_alone": true,
+    "changed_fingerprint_invalidates_prior_proof": true,
+    "analysis_never_widens_authority": true,
+    "provider_acceptance_is_not_user_outcome": true,
+    "historical_receipts_do_not_become_fresh_proof": true
+  },
+  "decision_rules": {
+    "execution_green_outcome_unknown": "MEASURE",
+    "secondary_green_primary_unknown": "MEASURE",
+    "verified_primary_outcome_improved": "PROPOSE_KEEP",
+    "verified_primary_outcome_degraded": "PROPOSE_TUNE_OR_STOP",
+    "stale_or_mismatched_fingerprint": "REOBSERVE",
+    "missing_authority": "HOLD_OR_REVIEW"
+  },
+  "required_report_fields": ["reality", "bound", "decision", "proof", "risk", "rollback", "next_gate"]
+}

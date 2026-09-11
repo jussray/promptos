@@ -2,6 +2,9 @@ import { readFile } from 'node:fs/promises';
 
 const entrypoint = await readFile('AGENTS_FOUNDER_INTELLIGENCE.md', 'utf8');
 const rootAgents = await readFile('AGENTS.md', 'utf8');
+const externalAgentContract = await readFile('docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md', 'utf8');
+const constitution = await readFile('docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md', 'utf8');
+const ultrathinkWorkflow = JSON.parse(await readFile('workflows/ultrathink.workflow.json', 'utf8'));
 const productBoundary = JSON.parse(await readFile('.control-room/product-boundary.json', 'utf8'));
 
 const commands = [
@@ -10,12 +13,12 @@ const commands = [
   '/truthmode',
   '/confess',
   '/redteam',
-  '/attackten',
   '/lindymode',
   '/ooda',
   '/visualize',
   '/plan',
   '/goal',
+  '/make',
   '/loop',
   '/resume',
   '/compact',
@@ -35,6 +38,11 @@ const requiredPortableContracts = [
     id: 'goal',
     semantics: 'Normalize intent into a goal, constraints, definition of done, evidence requirements, and authority ceiling.',
     documentation: '- `/goal`: normalize intent into a goal, constraints, definition of done, evidence requirements, and an authority ceiling.',
+  },
+  {
+    id: 'make',
+    semantics: 'Compile a current founder intent or repeated approved pattern into a reusable versioned workflow draft using the current mission contract; preserve the intent and authority ceiling, preview before registration, and require explicit founder approval before registry promotion.',
+    documentation: '- `/make`: compile a current founder intent or repeated approved pattern into a reusable versioned workflow draft using the current mission contract; preserve the intent and authority ceiling, preview before registration, and require explicit founder approval before registry promotion.',
   },
   {
     id: 'loop',
@@ -73,27 +81,10 @@ const requiredPortableContracts = [
   },
 ];
 
-const requiredAttackTen = [
-  ['AT01', 'authority-source-of-truth'],
-  ['AT02', 'stale-state-toctou'],
-  ['AT03', 'hidden-dependencies-transitive-capability'],
-  ['AT04', 'security-privacy'],
-  ['AT05', 'continuity-data-loss'],
-  ['AT06', 'provider-lock-in-portability'],
-  ['AT07', 'rollback-reversibility'],
-  ['AT08', 'source-runtime-equivalence'],
-  ['AT09', 'test-evidence-quality'],
-  ['AT10', 'founder-product-value'],
-];
-
 const grammar = productBoundary?.portableGrammar;
 const grammarCommands = Array.isArray(grammar?.commands) ? grammar.commands : [];
 const grammarIds = grammarCommands.map((command) => command?.id);
 const requiredPortableIds = requiredPortableContracts.map(({id}) => id);
-const capabilityRouting = grammar?.capabilityRouting;
-const attackTen = grammar?.attackTen;
-const attackTenAttacks = Array.isArray(attackTen?.attacks) ? attackTen.attacks : [];
-const attackTenIdentity = attackTenAttacks.map((attack) => [attack?.id, attack?.name]);
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -116,66 +107,18 @@ const checks = [
     requiredPortableContracts.every(({id, semantics}) => grammarCommands.find((command) => command?.id === id)?.semantics === semantics)],
   ['documented portable semantics match the canonical definitions',
     requiredPortableContracts.every(({documentation}) => entrypoint.includes(documentation))],
-  ['capability routing binds the portable v1 route and continuity contracts',
-    capabilityRouting?.contract === 'juss/portable-capability-routing@v1'
-      && capabilityRouting?.continuityContract === 'juss/portable-capability-continuity@v1'],
-  ['capability routing pins SolContinuity as the portable contract source',
-    capabilityRouting?.canonicalSource?.repository === 'jussray/solcontinuity'
-      && capabilityRouting?.canonicalSource?.path === '.ai-skills/runtime/capability-routing.mjs'
-      && capabilityRouting?.canonicalSource?.role === 'portable-contract-source'],
-  ['capability routing selects only the strongest eligible available policy candidate',
-    capabilityRouting?.selection === 'highest-priority-eligible-available-capability-declared-by-policy'
-      && JSON.stringify(capabilityRouting?.eligibilityRequires) === JSON.stringify([
-        'available',
-        'permitted',
-        'all-required-capability-classes',
-        'within-authority-ceiling',
-      ])],
-  ['capability routing fails closed when no eligible implementation exists',
-    capabilityRouting?.noEligibleCapabilityResult === 'BLOCKED'],
-  ['capability fallback cannot widen authority or weaken evidence',
-    capabilityRouting?.fallbackMayWidenAuthority === false
-      && capabilityRouting?.fallbackMayDowngradeRequiredEvidence === false
-      && capabilityRouting?.selectedProviderBecomesAuthority === false],
-  ['capability routing requires exact route fingerprints and reacquisition on movement',
-    capabilityRouting?.routeFingerprintRequired === true
-      && capabilityRouting?.reacquireOnRouteFingerprintMovement === true],
-  ['capability continuity cookie is non-browser and non-authorizing',
-    capabilityRouting?.continuityCookie?.browserCookie === false
-      && capabilityRouting?.continuityCookie?.authorizing === false
-      && capabilityRouting?.continuityCookie?.approvalCarryForward === false
-      && capabilityRouting?.continuityCookie?.standingMutationAuthority === false
-      && capabilityRouting?.continuityCookie?.founderDecisionRequiredForPrivilegedMutation === true],
-  ['portable grammar rules fail closed on ineligible capability routing',
-    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /no eligible route means BLOCKED/.test(rule))],
-  ['portable grammar rules keep capability fingerprints and cookies non-authorizing',
-    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /never carry approval or mutation authority/.test(rule))],
-  ['Attack Ten contract is versioned v1 and advisory only',
-    attackTen?.contract === 'promptos/attack-ten@v1' && attackTen?.authority === 'advisory-only'],
-  ['Attack Ten exposes exactly the canonical ten dimensions in order',
-    JSON.stringify(attackTenIdentity) === JSON.stringify(requiredAttackTen)],
-  ['Attack Ten classifications are fail-closed and canonical',
-    JSON.stringify(attackTen?.classifications) === JSON.stringify(['PASS', 'FAIL', 'BLOCKED', 'NOT_APPLICABLE'])],
-  ['Attack Ten completion rule prevents clean readiness on failure or block',
-    /FAIL or BLOCKED prevents a clean readiness claim/.test(attackTen?.completionRule || '')],
-  ['Attack Ten scope rule forbids authority widening and unrelated refactors',
-    /cannot widen execution authority/.test(attackTen?.scopeRule || '') && /unrelated refactors/.test(attackTen?.scopeRule || '')],
-  ['Attack Ten privacy rule forbids private chain-of-thought persistence',
-    /do not require or persist private chain-of-thought/.test(attackTen?.reasoningPrivacyRule || '')],
-  ['Attack Ten is documented as a completion membrane',
-    /Attack Ten completion membrane/.test(entrypoint) && /FAIL[\s\S]+BLOCKED[\s\S]+prevents a clean/.test(entrypoint)],
-  ['Attack Ten documents all ten canonical IDs',
-    requiredAttackTen.every(([id, name]) => entrypoint.includes(`\`${id} ${name}\``))],
-  ['Attack Ten remains smallest-blocker focused',
-    /Attack Ten must locate the smallest real blocker/.test(entrypoint)],
   ['reasoning lenses are declared as examples',
-    Array.isArray(grammar?.reasoningLensExamples) && grammar.reasoningLensExamples.includes('ultrathink') && grammar.reasoningLensExamples.includes('attack-ten') && grammar.reasoningLensExamples.includes('ooda')],
+    Array.isArray(grammar?.reasoningLensExamples) && grammar.reasoningLensExamples.includes('ultrathink') && grammar.reasoningLensExamples.includes('ooda')],
   ['prompt pack classes are data declarations',
     Array.isArray(grammar?.promptPackClasses) && grammar.promptPackClasses.includes('social-strategy') && grammar.promptPackClasses.includes('website-workflow')],
   ['portable commands are reasoning/planning/routing only', /reasoning, planning, and routing modes only/.test(entrypoint)],
   ['portable commands cannot grant privileged execution', /do not grant authority to execute, merge, deploy, publish, send externally/.test(entrypoint)],
   ['provider-neutral semantics do not claim vendor-native slash commands', /do not claim that Anthropic, OpenAI, or another provider implements a native slash command/.test(entrypoint)],
   ['visualize remains non-mutating', /\/visualize[\s\S]+does not mutate PromptOS, providers, infrastructure, or production state/.test(entrypoint)],
+  ['make preserves founder intent and approval gate', /\/make[\s\S]+preserve the intent and authority ceiling[\s\S]+explicit founder approval before registry promotion/.test(entrypoint)],
+  ['make cannot self-register', /newly compiled workflow remains `draft`, cannot self-register/.test(entrypoint)],
+  ['machine-readable grammar blocks workflow self-registration',
+    Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /cannot self-register/.test(rule) && /explicit founder approval/.test(rule))],
   ['btw preserves the active goal and authority', /\/btw[\s\S]+cannot silently change the active goal, plan, authority, or continuity state/.test(entrypoint)],
   ['effort cannot widen authority', /\/effort[\s\S]+cannot widen authority/.test(entrypoint)],
   ['resume requires current fingerprints', /\/resume[\s\S]+reacquire current fingerprints/.test(entrypoint)],
@@ -183,10 +126,42 @@ const checks = [
   ['pack requires observed runtime availability', /\/pack[\s\S]+until runtime availability is observed/.test(entrypoint)],
   ['state movement invalidates predecessor proof', /changed repository head, provider state, proposal fingerprint[\s\S]+invalidates predecessor proof/.test(entrypoint)],
   ['PromptOS does not persist private chain-of-thought', /does not persist or require private chain-of-thought/.test(entrypoint)],
+  ['human voice audit is density based', entrypoint.includes('Use a density-based voice audit:')],
+  ['human voice audit does not infer authorship from style', entrypoint.includes('density signal, never as proof of AI authorship')],
+  ['human voice audit forbids blacklist heuristics', entrypoint.includes('Do not use banned-word or banned-punctuation lists.')],
+  ['human voice audit requires epistemic cleanup', entrypoint.includes('Vague authority must receive a real source, be explicitly qualified, or be removed.')],
+  ['human voice audit forbids fabricated humanity', entrypoint.includes('Do not invent personal experience, personal opinion, certainty, or emotional texture')],
+  ['human voice audit preserves unaffected voice', entrypoint.includes('rewrite only the spans that create a synthetic cluster or weaken truth')],
+  ['human voice audit is explicitly not a detector', entrypoint.includes('This audit is a writing-quality control, not an AI detector.')],
+  ['infrastructure filter is consequence only', entrypoint.includes('## Infrastructure consequence filter') && entrypoint.includes('do not turn vendor changelogs into a founder backlog')],
+  ['infrastructure filter uses materiality classes', ['MATERIAL', 'WATCH', 'NOISE', 'UNKNOWN'].every((classification) => entrypoint.includes(`\`${classification}\``))],
+  ['infrastructure filter rejects routine changelog work', entrypoint.includes('Routine changelog activity with no material product effect is `NOISE`, not a task.')],
+  ['infrastructure filter separates provider truth from app truth', entrypoint.includes('A provider incident is provider-state evidence, not proof of an application defect.')],
+  ['infrastructure filter caps founder review gates', entrypoint.includes('one or two highest-value founder review gates')],
+  ['infrastructure filter cannot widen mutation authority', entrypoint.includes('It does not grant permission to upgrade dependencies, migrate data, alter provider configuration, change billing, deploy, or widen execution authority.')],
+  ['infrastructure filter keeps FCR as OS authority', entrypoint.includes('Founder Control Room remains the single operating-system authority')],
+  ['quantum consequence gate is documented', entrypoint.includes('## Quantum consequence and evidence gate')],
+  ['quantum evidence classes are explicit', ['STANDARDIZED', 'PEER_REVIEWED', 'REPLICATED', 'VENDOR_TECHNICAL', 'SIMULATION_ONLY', 'CONTESTED'].every((classification) => entrypoint.includes(`\`${classification}\``))],
+  ['quantum gate rejects false binary safety claims', entrypoint.includes('Do not collapse these classes into a generic `quantum-safe`, `quantum-ready`, or `quantum-advantage` boolean.')],
+  ['quantum security separates migration from cryptanalytic break', entrypoint.includes('A quantum-computing announcement alone is never proof that current public-key cryptography has been broken.')],
+  ['quantum optimization requires equal classical challenge', entrypoint.includes('quantum solvers are challengers, not privileged baselines') && entrypoint.includes('same problem definition, instance distribution, objective, constraints, resource accounting, stopping rule, and success metric')],
+  ['quantum findings stay inside existing FCR carriers', entrypoint.includes('Do not create a new quantum subsystem, dashboard, PR, framework, or runtime dependency when an existing carrier can express the requirement.')],
+  ['quantum gate cannot widen mutation authority', entrypoint.includes('This quantum gate routes evidence and attention only.') && entrypoint.includes('It does not grant authority to change cryptography, provider settings, production dependencies, deployments, security policy, or optimization routing.')],
+  ['managed agent runtime contract is loaded from root instructions', rootAgents.includes('docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md')],
+  ['managed agent runtimes remain underneath FCR', externalAgentContract.includes('bounded execution infrastructure underneath Founder Control Room') && externalAgentContract.includes('They do not become a second operating system')],
+  ['external execution evidence cannot self-promote into outcome truth', externalAgentContract.includes('They do not by themselves prove that the founder\'s intended external outcome exists.') && externalAgentContract.includes('the executor never promotes its own receipt into final outcome truth')],
+  ['ambiguous consequential writes reconcile before retry', externalAgentContract.includes('classify the execution state as `UNKNOWN` / `RECONCILE_REQUIRED`') && externalAgentContract.includes('Do not automatically retry an ambiguous mutation.')],
+  ['external runtime cannot widen its own authority', externalAgentContract.includes('widen its own permissions') && externalAgentContract.includes('reuse stale authority or evidence after the bound target/fingerprint changes')],
+  ['Frontier capabilities must be observed, not assumed', externalAgentContract.includes('Until those capabilities are directly observed in the authorized environment, classify them as `UNKNOWN`, not assumed product behavior.')],
+  ['Supabase stays provider neutral by default', externalAgentContract.includes('Do not create a Frontier-specific database silo by default.') && externalAgentContract.includes('A schema migration is justified only when current storage cannot durably bind a required field or invariant.')],
   ['grammar rules forbid authority widening',
     Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /No command, lens, or prompt pack grants execution/.test(rule))],
   ['grammar rules require observed runtime availability',
     Array.isArray(grammar?.rules) && grammar.rules.some((rule) => /availability must be observed before execution is claimed/.test(rule))],
+  ['red-team 1 premise gate is documented', entrypoint.includes('Red-team 1 attacks the premise') && constitution.includes('## Red-team pass one — premise')],
+  ['Lindy mode selects durable existing carriers', entrypoint.includes('prefer existing verified carriers') && constitution.includes('## /lindymode')],
+  ['red-team 2 implementation gate is documented', entrypoint.includes('Red-team 2 attacks the selected implementation') && constitution.includes('## Red-team pass two — implementation')],
+  ['workflow encodes red-team 1, Lindy, and red-team 2', ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Red-team 1 — premise:')) && ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Lindy mode:')) && ultrathinkWorkflow.operatingPrinciples.some((principle) => principle.startsWith('Red-team 2 — implementation:'))],
   ['stricter PromptOS authority wins', /If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins/.test(entrypoint)],
   ['remembrance loop remains intact', /\/human[\s\S]+\/futureyou[\s\S]+\/truthmode[\s\S]+\/confess[\s\S]+\/billgates[\s\S]+\/elonmusk/.test(entrypoint)],
   ['root agent entrypoint still requires Founder Intelligence', /AGENTS_FOUNDER_INTELLIGENCE\.md/.test(rootAgents)],
