@@ -8,6 +8,7 @@ Before material planning, implementation, review, automation, publication, deplo
 
 - [`AGENTS_FOUNDER_INTELLIGENCE.md`](AGENTS_FOUNDER_INTELLIGENCE.md)
 - [`docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md`](docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md)
+- [`.control-room/necessary-fix-policy.json`](.control-room/necessary-fix-policy.json)
 - [`docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md`](docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md) when evaluating or integrating managed agent runtimes such as OpenAI Frontier
 
 Use the complete remembrance loop:
@@ -73,6 +74,17 @@ Cloudflare build or deploy success is separate from GitHub Actions success. GitH
 Continue working the requested task until it is done or until a real blocker is reached. Do not stop at a plan when a focused implementation, verification, or documentation update is available.
 
 Every handoff must state what was changed, what was verified, what remains blocked, and the next gate.
+
+## Necessary-fix execution default
+
+Apply `policyId: necessary-fix-execution-default` from `.control-room/necessary-fix-policy.json` before returning a repair or implementation step as founder homework.
+
+- Use `execute-now` when the fix is necessary, reversible, inside the current approved scope, and current authority plus applicable evidence/exact-head requirements are satisfied.
+- Use `proof-gated` when the action is reversible but the repository requires proof before integration; collect the proof and continue through the existing gate rather than asking the founder to perform automatable verification.
+- Use `founder-required` for scope expansion, external publication or communication, spending, destructive or irreversible changes, authority expansion, or any stricter PromptOS/FCR boundary.
+- Bidirectional fingerprints/cookies may be updated or invalidated by evidence, but they never grant authority. Provider acceptance is not outcome proof. Verify the outcome, emit/update receipts and continuity markers, then identify the next gate.
+
+This default does not widen tool, merge, deployment, publication, provider, secret, billing, destructive-write, or authority permissions.
 
 ## Codex provider baseline
 
