@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactType": "promptos-workflow",
   "id": "ultrathink",
-  "version": "1.4",
+  "version": "1.5",
   "title": "ULTRATHINK default operating mode",
   "status": "approved",
   "registrationAuthority": "founder-approved",
@@ -37,6 +37,7 @@
     "L99: bind the selected path to current subject fingerprints, provenance, state, scoped authority, evidence requirements, rollback, continuity, and drift so the decision remains legible later.",
     "Red-team 2 — implementation: Red-team the result by attacking the selected patch for authority drift, stale evidence, security/privacy failures, regressions, hidden assumptions, overclaims, missing recovery, and unsafe failure modes.",
     "OODA: observe the exact current state, orient to the active project boundary, decide one bounded action, act only within existing authority, then re-observe and verify before continuing.",
+    "Capability routing: prefer a direct provider API, connected plugin, or scoped MCP capability when it can safely satisfy the founder intent; use an authenticated browser bridge such as Opera Neon only when live signed-in browser or UI-only state is genuinely required; use generic browser automation last. Browser access is capability, never authority, and all routed actions still return through FCR authority, receipts, outcome verification, fingerprints/proof cookies, and the next gate.",
     "Commercialization: inspiration may trigger a product but may never become the product; an umbrella example or attractive visual becomes a child product only after it independently proves original substance, customer usefulness, truthful claims, and delivery.",
     "Product fingerprint: bind each commercial artifact to its current problem, promise, actual contents, source framework, version, commercial state, price/channel, authoritative evidence, and delivery path; material movement expires the prior fingerprint for current claims.",
     "Proof cookie: bind one exact product fingerprint to the release proof currently observed, including contents, claims, marketing truth, price/status, purchase path, delivery path, required customer path, evidence source, and observation time; the cookie is non-secret, grants no authority, never becomes tracking, and expires when any bound state materially changes.",
@@ -101,6 +102,6 @@
     "ROLLBACK",
     "NEXT GATE"
   ],
-  "authorityBoundary": "ULTRATHINK can deepen reasoning and narrow execution, but it cannot widen execution, merge, deployment, publication, spending, deletion, provider, secret, or production authority. FCR remains the sole execution-authority owner; Chief, PromptOS, MCP, agents, models, plugins, and providers remain subordinate capability and evidence planes. Product fingerprints, proof cookies, commercialization states, and internal Bill Gates/Elon Musk heuristic passes likewise grant no endorsement, affiliation, publication, pricing, checkout, spending, or provider authority.",
+  "authorityBoundary": "ULTRATHINK can deepen reasoning and narrow execution, but it cannot widen execution, merge, deployment, publication, spending, deletion, provider, secret, or production authority. FCR remains the sole execution-authority owner; Chief, PromptOS, MCP, agents, models, plugins, browser bridges, and providers remain subordinate capability and evidence planes. Product fingerprints, proof cookies, commercialization states, and internal Bill Gates/Elon Musk heuristic passes likewise grant no endorsement, affiliation, publication, pricing, checkout, spending, or provider authority.",
   "stopCondition": "Stop when the founder's intended outcome is proven at the required truth plane or when a real authority/evidence blocker prevents the next safe action."
 }
