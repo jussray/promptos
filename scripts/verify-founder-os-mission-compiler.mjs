@@ -152,6 +152,10 @@ for (const token of [
   'L99:',
   'Red-team the result',
   'OODA:',
+  'Commercialization:',
+  'Product fingerprint:',
+  'Proof cookie:',
+  'Marketing truth:',
   'UI or runtime work requires Playwright proof',
   'Separate truth planes',
   'Never inherit stale green',
@@ -166,12 +170,19 @@ for (const token of [
 for (const stage of ['OBSERVE', 'ORIENT', 'CHALLENGE', 'DECIDE', 'ACT', 'VERIFY', 'RED-TEAM', 'REACQUIRE', 'STOP']) {
   if (!ultrathinkWorkflow.executionLoop?.includes(stage)) failures.push(`ULTRATHINK execution loop missing ${stage}`);
 }
+const expectedCommercializationLoop = ['INSPIRED', 'TRANSFORMED', 'ORIGINAL', 'USEFUL', 'VERIFIED', 'SELL'];
+if (JSON.stringify(ultrathinkWorkflow.commercializationLoop) !== JSON.stringify(expectedCommercializationLoop)) {
+  failures.push(`ULTRATHINK commercialization loop drifted: expected ${expectedCommercializationLoop.join(' -> ')}`);
+}
 for (const section of ['REALITY', 'FIX', 'PROOF', 'RISK', 'ROLLBACK', 'NEXT GATE']) {
   if (!ultrathinkWorkflow.report?.includes(section)) failures.push(`ULTRATHINK report missing ${section}`);
 }
 const expectedEngineeringStack = ['ultrathink', 'redteam-1', 'lindymode', 'l99', 'redteam-2', 'ooda', 'proofmode'];
 if (JSON.stringify(ultrathinkWorkflow.engineeringStack) !== JSON.stringify(expectedEngineeringStack)) {
   failures.push(`ULTRATHINK engineering stack order drifted: expected ${expectedEngineeringStack.join(' -> ')}`);
+}
+if (!/Product fingerprints, proof cookies/.test(ultrathinkWorkflow.authorityBoundary || '')) {
+  failures.push('ULTRATHINK authority boundary must keep commercial continuity markers non-authoritative');
 }
 
 if (failures.length) {
@@ -189,6 +200,7 @@ console.log(JSON.stringify({
   registeredWorkflows: workflowRegistry.workflows.map((entry) => `${entry.id}@${entry.version}`),
   productDesignGate: true,
   dataAnalyticsGate: true,
+  commercialProductGraduation: true,
   mainAuditDoesNotEscalateAuthority: true,
   mergeEscalatesToL5: true,
 }));
