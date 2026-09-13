@@ -113,9 +113,11 @@ For UI, route, browser, release, onboarding, checkout, auth-flow, or runtime beh
 
 ## Merge authority
 
-Agents may merge when the merge is the correct evidence-backed integration step, not merely because a PR exists or a badge looks green.
+`merge_authority: true` means the repository's merge capability is available. It does **not** mean a specific candidate is approved.
 
-A merge is safe only when:
+Before every merge, require fresh explicit founder approval bound to the exact repository, PR number, current base SHA, and current head SHA. If that approval is absent, ambiguous, or stale, ask the founder and stop. Review, implementation, green checks, mergeability, continuity markers, broad `approved`, `cont`, `continue`, or approval of a predecessor candidate do not authorize the merge. Any base/head movement expires approval and requires a new ask.
+
+After exact candidate approval exists, a merge is safe only when:
 
 - repository, target branch, PR, and exact head SHA are verified;
 - the scope is focused and no unrelated work is hidden in the diff;
@@ -128,7 +130,7 @@ A merge is safe only when:
 - rollback or safe forward-fix is understood;
 - the merge itself does not silently perform deployment, migration, auth/RLS changes, billing/spending, external publication, destructive deletion, credential movement, or other separately gated action.
 
-If those conditions are not met, keep working or leave the PR open with the exact blocker.
+If those conditions are not met, keep working or leave the PR open with the exact blocker. If the evidence conditions are met but fresh exact-candidate founder approval is missing, ask the founder and stop.
 
 ## Provider roles
 
