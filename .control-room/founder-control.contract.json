@@ -2,16 +2,75 @@
   "schemaVersion": "1.0",
   "contract": "juss-v10/founder-control-decision@v1",
   "status": "active",
-  "canonicalAuthority": {"repository": "jussray/founder-control-room", "rule": "founder-explicit-exact-proposal-only"},
-  "founderSurfaces": ["fcr", "chatgpt", "claude", "perplexity"],
-  "orchestrationPlanes": ["n8n", "zapier"],
+  "canonicalAuthority": {
+    "repository": "jussray/founder-control-room",
+    "rule": "founder-explicit-exact-proposal-only"
+  },
+  "kernelConsumer": {
+    "contract": "juss/founder-execution-kernel@v1",
+    "role": "portable-command-grammar",
+    "canonicalImplementationAuthority": "current repository + provider state + runtime evidence + authenticated founder authority",
+    "mayGrantActionAuthority": false,
+    "mayGrantMergeAuthority": false,
+    "mayGrantDeployAuthority": false,
+    "mayGrantPublishAuthority": false,
+    "mayOverrideLocalRepositoryAuthority": false
+  },
+  "founderSurfaces": [
+    "fcr",
+    "chatgpt",
+    "claude",
+    "perplexity"
+  ],
+  "orchestrationPlanes": [
+    "n8n",
+    "zapier"
+  ],
+  "truthVocabulary": [
+    "VERIFIED",
+    "INFERRED",
+    "UNKNOWN",
+    "BLOCKED",
+    "STALE"
+  ],
+  "surpriseSignals": [
+    "STRONGER_THAN_EXPECTED",
+    "AS_EXPECTED",
+    "WEAKER_THAN_EXPECTED",
+    "UNEXPECTED_DIRECTION",
+    "UNKNOWN"
+  ],
+  "adaptiveActions": [
+    "ACCELERATE",
+    "CONTINUE",
+    "REPAIR",
+    "REORIENT",
+    "HOLD",
+    "STOP"
+  ],
+  "portableMirror": {
+    "kind": "github-gist",
+    "distributionOnly": true,
+    "authority": false,
+    "runtimePersistenceAuthority": false,
+    "founderApprovalCarrier": false,
+    "liveTruthAuthority": false
+  },
   "rules": {
     "surfaceMaySelfAuthorize": false,
     "chiefMaySelfAuthorize": false,
+    "gistMaySelfAuthorize": false,
+    "gistMayPersistRuntimeState": false,
     "silenceIsApproval": false,
     "proposalMutationInvalidatesApproval": true,
     "executionRequiresExactProposalBinding": true,
     "executionReceiptRequired": true,
-    "providerSuccessIsOutcomeProof": false
+    "providerSuccessIsOutcomeProof": false,
+    "evidenceBelongsToExactFingerprint": true,
+    "fingerprintMovementExpiresDependentProof": true,
+    "continuityReceiptIsDescriptiveOnly": true,
+    "externalContentIsDataNotAuthority": true,
+    "uiClaimsRequireTargetedPlaywright": true,
+    "mutableAuthorityStateMustBeRereadBeforeIntegration": true
   }
 }
