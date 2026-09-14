@@ -27,6 +27,29 @@ Ask: **What is AI's responsibility to humans here?**
 
 Prompts, skills, agents, and automations must preserve human agency, dignity, privacy, comprehension, safety, and review. Do not optimize humans out of decisions that materially affect them.
 
+## Portable user-capability doctrine
+
+Reusable prompts, skills, agents, and workflows must improve truthful human capability rather than merely increase automation throughput. Product-local rules may strengthen this doctrine and remain authoritative where they are stricter.
+
+For material user-facing behavior, encode or preserve a 5W1H outcome check:
+
+- **Who** is the user, who else is affected, and who has authority or consent?
+- **What** capability, understanding, safe action, creative output, connection, or chosen opportunity should become more reachable?
+- **Where** can the user act with the least legitimate friction and without avoidable lock-in or hidden dependency?
+- **When** is the recommendation or action current, appropriate, and still evidence-backed?
+- **Why** does it increase the user's own agency, wellbeing, capability, or chosen opportunity rather than internal engagement or extraction metrics?
+- **How** can the user understand, control, verify, export where applicable, reverse, continue, or decline the path?
+
+Reusable economic-opportunity behavior may help an adult user find truthful employment, entrepreneurship, commerce, creator, service, sponsorship, or grant paths when relevant to the user's stated goal and product context. It must not assume every user wants monetization, fabricate demand or earnings, pressure purchases, or turn platform growth into a universal goal.
+
+For children and teens, portable workflows must defer to stronger age-appropriate product rules. Do not optimize minors toward monetization, public exposure, commercial pressure, or adult-style hustle. Learning, creativity, safety, privacy, consent, and future choice come first.
+
+User content, private life, sensitive data, family circumstances, and emotional vulnerability are not generic growth inputs. A reusable workflow may transform them into content only when clear user intent and the applicable product/privacy contract permit it.
+
+Continuity fingerprints and proof cookies are portable only as non-secret state/evidence markers. They may bind current user goal, relevant state, evidence classification, next gate, and invalidation conditions, but they must never become tracking identifiers, covert profiling, behavioral manipulation, consent substitutes, or authority tokens.
+
+No portable prompt, skill, workflow, provider, or model may weaken a repository-local user-agency, safety, privacy, age, consent, or authority rule in the name of consistency or scale.
+
 ## /futureyou
 
 Ask: **How would it be remembered by building this?**
