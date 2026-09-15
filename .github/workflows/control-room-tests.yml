@@ -16,6 +16,7 @@ on:
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
       - "workflows/**"
+      - "scripts/verify-ai-mastery-v6.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
       - "scripts/make-workflow.mjs"
@@ -74,6 +75,9 @@ jobs:
 
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
+
+      - name: Verify AI Mastery V6 execution contract
+        run: node scripts/verify-ai-mastery-v6.mjs
 
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
