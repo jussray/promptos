@@ -8,6 +8,12 @@
       "version": "1.5",
       "status": "approved",
       "path": "workflows/ultrathink.workflow.json"
+    },
+    {
+      "id": "ai-mastery-v6",
+      "version": "6.0",
+      "status": "approved",
+      "path": "workflows/ai-mastery-v6.workflow.json"
     }
   ]
 }
