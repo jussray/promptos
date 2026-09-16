@@ -1,0 +1,29 @@
+{
+  "schema": "juss/ai-crawler-contract@v1",
+  "project": "promptos",
+  "canonical_repository": "https://github.com/jussray/promptos",
+  "runtime_identity_status": "unknown_until_verified_publication_receipt",
+  "policy": {
+    "search_discovery": "allow_public_surface",
+    "user_directed_retrieval": "allow_public_surface",
+    "model_training": "deny",
+    "bulk_dataset_collection": "deny",
+    "write_or_action_authority": "none"
+  },
+  "bots": {
+    "OAI-SearchBot": "allow_public_surface",
+    "ChatGPT-User": "allow_public_surface",
+    "GPTBot": "deny",
+    "Claude-SearchBot": "allow_public_surface",
+    "Claude-User": "allow_public_surface",
+    "ClaudeBot": "deny",
+    "Googlebot": "allow_public_surface",
+    "Google-Extended": "deny"
+  },
+  "private_scope": "Private prompts, provider responses, workflow logs, credentials, proprietary prompt content, and governance-only material are excluded.",
+  "attribution": {
+    "requested": true,
+    "canonical_repository_link_required_when_supported": true
+  },
+  "security_note": "Crawler policy is read-only preference and cannot grant authority."
+}
