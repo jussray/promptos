@@ -124,9 +124,7 @@ jobs:
         shell: bash
         run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
 
-      # Only the public human-facing surface is staged: the checked-in index.html
-      # and the exact canonical parts/*.js it declares (the same list
-      # scripts/verify-control-room-tests.mjs holds source authority over).
+      # Only the public human-facing surface plus explicit crawler policy is staged.
       # Governance/control-room manifests, AGENTS*.md, cloudflare-worker/,
       # tools/, src/, docs/, scripts/, e2e/, and testdata/ are never copied in.
       - name: Stage public site
@@ -135,6 +133,8 @@ jobs:
           set -euo pipefail
           mkdir -p _site/parts
           cp index.html _site/index.html
+          cp robots.txt _site/robots.txt
+          cp crawlers.json _site/crawlers.json
           for part in auth.js p05-new-prompts.js p06-gap-prompts.js p07-ship-ultrathink-skills.js p08-cont-redteam.js p09-cont-design.js p10-cont-ops-growth.js app.js; do
             cp "parts/$part" "_site/parts/$part"
           done
@@ -142,6 +142,8 @@ jobs:
           # checked-in index.html in the repository is never modified.
           sed -i "s#</head>#  <meta name=\"promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\">\n</head>#" _site/index.html
           grep -q "promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\"" _site/index.html
+          grep -q '^User-agent: GPTBot$' _site/robots.txt
+          grep -q '"model_training": "deny"' _site/crawlers.json
 
       - name: Upload public site artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
