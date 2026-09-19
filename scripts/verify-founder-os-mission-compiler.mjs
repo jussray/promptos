@@ -152,6 +152,7 @@ for (const token of [
   'L99:',
   'Red-team the result',
   'OODA:',
+  'Video production:',
   'Commercialization:',
   'Product fingerprint:',
   'Proof cookie:',
@@ -185,6 +186,26 @@ if (!/Product fingerprints, proof cookies/.test(ultrathinkWorkflow.authorityBoun
   failures.push('ULTRATHINK authority boundary must keep commercial continuity markers non-authoritative');
 }
 
+const videoPolicy = ultrathinkWorkflow.videoWorkflowPolicy;
+if (!videoPolicy || videoPolicy.workflow !== 'LEEVIZE') failures.push('ULTRATHINK video policy must route through LEEVIZE');
+if (videoPolicy?.shotContract !== 'shot-dna@v1') failures.push('ULTRATHINK video policy must use shot-dna@v1');
+if (JSON.stringify(videoPolicy?.compileOrder) !== JSON.stringify(['director-brief', 'model-neutral-shot-spec', 'renderer-adapter'])) {
+  failures.push('ULTRATHINK video compile order drifted');
+}
+if (videoPolicy?.openSourceFirst !== true) failures.push('ULTRATHINK video policy must stay open-source-first');
+if (JSON.stringify(videoPolicy?.deterministicPostTools) !== JSON.stringify(['ffmpeg', 'ffprobe'])) failures.push('ULTRATHINK deterministic video post must use ffmpeg + ffprobe');
+if (videoPolicy?.candidateAvailabilityIsRuntimeFact !== true) failures.push('ULTRATHINK video candidate availability must be runtime-discovered');
+if (videoPolicy?.openSourceLabelDoesNotProveLicenseOrCommercialUse !== true) failures.push('open-source label must not prove license/commercial-use');
+if (videoPolicy?.unknownLicenseClassifyAs !== 'BLOCKED_LICENSE_REVIEW') failures.push('unknown video license must fail closed');
+if (videoPolicy?.rendererAdaptersReplaceable !== true) failures.push('video renderer adapters must remain replaceable');
+if (videoPolicy?.generatedUiMayProveProductBehavior !== false) failures.push('generated UI may not prove product behavior');
+if (videoPolicy?.realProductCaptureRequiresPlaywright !== true) failures.push('real product capture must require Playwright');
+if (videoPolicy?.finalAudioPrecedesCaptionTiming !== true) failures.push('final audio must precede caption timing');
+if (videoPolicy?.attack6000?.reasoningPressureBudget !== 6000) failures.push('ATTACK6000 video budget must equal 6000');
+if (videoPolicy?.attack6000?.externalTestCountClaimed !== false) failures.push('ATTACK6000 must not claim 6000 external tests');
+if (videoPolicy?.attack6000?.deduplicateFailureClasses !== true) failures.push('ATTACK6000 must deduplicate failure classes');
+if (!/routing preference/i.test(videoPolicy?.authorityBoundary || '')) failures.push('open-source-first video policy must remain non-authorizing');
+
 if (failures.length) {
   console.error('Founder OS mission compiler verification failed:');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -201,6 +222,7 @@ console.log(JSON.stringify({
   productDesignGate: true,
   dataAnalyticsGate: true,
   commercialProductGraduation: true,
+  videoWorkflowPolicy: 'LEEVIZE/shot-dna@v1/open-source-first',
   mainAuditDoesNotEscalateAuthority: true,
   mergeEscalatesToL5: true,
 }));
