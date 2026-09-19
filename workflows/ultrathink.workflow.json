@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactType": "promptos-workflow",
   "id": "ultrathink",
-  "version": "1.5",
+  "version": "1.6",
   "title": "ULTRATHINK default operating mode",
   "status": "approved",
   "registrationAuthority": "founder-approved",
@@ -38,6 +38,7 @@
     "Red-team 2 — implementation: Red-team the result by attacking the selected patch for authority drift, stale evidence, security/privacy failures, regressions, hidden assumptions, overclaims, missing recovery, and unsafe failure modes.",
     "OODA: observe the exact current state, orient to the active project boundary, decide one bounded action, act only within existing authority, then re-observe and verify before continuing.",
     "Capability routing: prefer a direct provider API, connected plugin, or scoped MCP capability when it can safely satisfy the founder intent; use an authenticated browser bridge such as Opera Neon only when live signed-in browser or UI-only state is genuinely required; use generic browser automation last. Browser access is capability, never authority, and all routed actions still return through FCR authority, receipts, outcome verification, fingerprints/proof cookies, and the next gate.",
+    "Video production: route moving media through LEEVIZE Shot DNA before any renderer, prefer verified open-source and deterministic production tools when they satisfy the shot, keep renderer adapters replaceable, verify license/commercial-use and runtime availability separately, use real Playwright capture for product proof, derive captions from final audio, and run ATTACK6000 as deduplicated failure-class pressure rather than a claim of 6000 external tests.",
     "Commercialization: inspiration may trigger a product but may never become the product; an umbrella example or attractive visual becomes a child product only after it independently proves original substance, customer usefulness, truthful claims, and delivery.",
     "Product fingerprint: bind each commercial artifact to its current problem, promise, actual contents, source framework, version, commercial state, price/channel, authoritative evidence, and delivery path; material movement expires the prior fingerprint for current claims.",
     "Proof cookie: bind one exact product fingerprint to the release proof currently observed, including contents, claims, marketing truth, price/status, purchase path, delivery path, required customer path, evidence source, and observation time; the cookie is non-secret, grants no authority, never becomes tracking, and expires when any bound state materially changes.",
@@ -88,6 +89,28 @@
     "VERIFIED",
     "SELL"
   ],
+  "videoWorkflowPolicy": {
+    "workflow": "LEEVIZE",
+    "shotContract": "shot-dna@v1",
+    "compileOrder": ["director-brief", "model-neutral-shot-spec", "renderer-adapter"],
+    "openSourceFirst": true,
+    "deterministicPostTools": ["ffmpeg", "ffprobe"],
+    "optionalOpenSourceCandidates": ["remotion", "comfyui", "whisper-compatible"],
+    "candidateAvailabilityIsRuntimeFact": true,
+    "openSourceLabelDoesNotProveLicenseOrCommercialUse": true,
+    "unknownLicenseClassifyAs": "BLOCKED_LICENSE_REVIEW",
+    "rendererAdaptersReplaceable": true,
+    "generatedUiMayProveProductBehavior": false,
+    "realProductCaptureRequiresPlaywright": true,
+    "finalAudioPrecedesCaptionTiming": true,
+    "attack6000": {
+      "reasoningPressureBudget": 6000,
+      "externalTestCountClaimed": false,
+      "deduplicateFailureClasses": true,
+      "families": ["story", "continuity", "camera", "physics", "product-truth", "evidence", "pacing", "audio", "voice", "lip-sync", "captions", "brand", "accessibility", "platform", "model-fit", "cost", "provenance", "release"]
+    },
+    "authorityBoundary": "Open-source-first is a routing preference. It cannot prove runtime availability, license/commercial-use rights, privacy fitness, product truth, release readiness, publishing authority, or provider execution."
+  },
   "truthStates": [
     "VERIFIED",
     "INFERRED",
