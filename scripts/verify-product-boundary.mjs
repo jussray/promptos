@@ -56,6 +56,74 @@ for (const capability of requiredPromptOSOwnership) {
   assert.ok(!contract.doesNotOwn.includes(capability), `PromptOS doesNotOwn must not contradict owned capability: ${capability}`);
 }
 
+const codexAdapter = contract.providerAdapters?.codex;
+assert.ok(codexAdapter, 'PromptOS must preserve the Codex provider adapter');
+assert.equal(codexAdapter.contract, 'promptos/provider-adapter/codex@v1');
+assert.equal(codexAdapter.authority, 'advisory-routing-only');
+assert.equal(codexAdapter.availabilitySource, 'live-runtime-palette-and-current-official-codex-behavior');
+assertExactUniqueSet(codexAdapter.requiredPreflightIfAvailable, ['/status', '/permissions'], 'Codex preflight');
+assertExactUniqueSet(codexAdapter.goalPlanningIfAvailable, ['/goal', '/plan'], 'Codex goal/planning commands');
+assertExactUniqueSet(codexAdapter.capabilityDiscoveryIfAvailable, ['/skills', '/mcp'], 'Codex capability discovery commands');
+assertExactUniqueSet(codexAdapter.verificationIfAvailable, ['/review'], 'Codex verification commands');
+assertExactUniqueSet(codexAdapter.continuityIfAvailable, ['/resume', '/compact'], 'Codex continuity commands');
+assertExactUniqueSet(codexAdapter.contextSplitIfAvailable, ['/fork', '/side'], 'Codex context split commands');
+assertExactUniqueSet(
+  codexAdapter.executionLane,
+  [
+    'observe-current-runtime-command-availability',
+    'status',
+    'permissions',
+    'bind-goal-and-stop-condition',
+    'plan-nontrivial-change',
+    'discover-relevant-skills-and-mcp',
+    'inspect-authoritative-repository-state',
+    'implement-smallest-valid-change',
+    'run-focused-tests-and-playwright-when-applicable',
+    'review-current-diff',
+    'persist-exact-head-receipts-rollback-and-unknowns',
+    'compact-only-after-durable-receipts',
+  ],
+  'Codex execution lane',
+);
+assertExactUniqueSet(
+  codexAdapter.attackChecks,
+  [
+    'host-version-command-drift',
+    'permissions-mistaken-for-authority',
+    'mcp-or-skill-availability-mistaken-for-authority',
+    'review-mistaken-for-merge-or-runtime-proof',
+    'context-split-or-resume-carries-stale-proof',
+    'compact-drops-load-bearing-state',
+    'model-or-fast-mode-changes-cost-or-behavior-without-reverification',
+    'generated-or-remembered-instructions-outrank-checked-in-policy',
+  ],
+  'Codex attack checks',
+);
+
+const codexRules = Array.isArray(codexAdapter.rules) ? codexAdapter.rules : [];
+for (const invariant of [
+  'missing commands are not simulated',
+  'availability is not authorization',
+  '/review is review evidence only',
+  'must reacquire repository/provider fingerprints',
+  '/resume requires current repository, branch/head, provider, review, and runtime state',
+  '/compact is allowed only after durable decisions, exact fingerprints, evidence IDs, blockers, rollback, and unresolved unknowns',
+  '/init must not overwrite governed AGENTS.md instructions',
+  'checked-in AGENTS.md, skills, tests, and current provider evidence remain policy authority',
+]) {
+  assert.ok(
+    codexRules.some((rule) => rule.includes(invariant)),
+    `Codex adapter must preserve invariant: ${invariant}`,
+  );
+}
+
+for (const forbiddenAuthority of ['merge', 'deployment', 'spending', 'publication', 'destructive authority']) {
+  assert.ok(
+    codexRules.some((rule) => rule.includes('/permissions') && rule.includes(forbiddenAuthority)),
+    `Codex /permissions rule must not widen ${forbiddenAuthority}`,
+  );
+}
+
 assert.equal(
   contract.handoff.fromPromptOS,
   'structured intent plus context plus constraints plus requested verification',
