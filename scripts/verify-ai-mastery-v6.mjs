@@ -1,5 +1,9 @@
 import {readFile} from 'node:fs/promises';
-import {AI_MASTERY_V6_PROTOCOL_STACK} from '../src/ai-mastery-v6.mjs';
+import {
+  AI_MASTERY_V6_PROTOCOL_STACK,
+  CHALLENGE_LENS_SEMANTICS,
+  compileV6Prompt,
+} from '../src/ai-mastery-v6.mjs';
 
 const workflow = JSON.parse(await readFile('workflows/ai-mastery-v6.workflow.json', 'utf8'));
 const registry = JSON.parse(await readFile('workflows/registry.json', 'utf8'));
@@ -32,6 +36,47 @@ if (!workflow.operatingPrinciples?.some((p) => /may never be overwritten by mode
 if (!workflow.operatingPrinciples?.some((p) => /Playwright evidence/i.test(p))) failures.push('real-path Playwright requirement missing');
 if (!workflow.operatingPrinciples?.some((p) => /Never inherit stale green/i.test(p))) failures.push('stale-proof invalidation missing');
 
+const bill = CHALLENGE_LENS_SEMANTICS.billgates;
+const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
+if (bill?.objective !== 'durable_growth' || bill?.role !== 'durable-leverage') failures.push('Bill Gates lens identity drift');
+if (elon?.objective !== 'upside_growth' || elon?.role !== 'first-principles-execution') failures.push('Elon Musk lens identity drift');
+if (bill?.authorityEffect !== 'none' || elon?.authorityEffect !== 'none') failures.push('challenge lenses must not create authority');
+for (const behavior of [
+  'identify-the-bottleneck-and-highest-leverage-point',
+  'prefer-stable-options-and-reversible-changes',
+  'prefer-generated-docs-shared-fixtures-and-reusable-artifacts',
+  'standardize-a-proven-path-before-scaling',
+  'do-not-scale-an-unproven-path',
+]) {
+  if (!bill?.behaviors?.includes(behavior)) failures.push(`Bill Gates semantic missing: ${behavior}`);
+}
+for (const behavior of [
+  'question-requirements-before-accepting-them',
+  'delete-before-optimizing',
+  'simplify-from-first-principles',
+  'prefer-fast-small-reversible-experiments',
+  'accelerate-feedback-and-automate-last',
+]) {
+  if (!elon?.behaviors?.includes(behavior)) failures.push(`Elon Musk semantic missing: ${behavior}`);
+}
+
+const compiled = compileV6Prompt({
+  source: 'founder',
+  target: 'promptos',
+  intent: 'optimize workflow',
+  goal: 'remove the highest-leverage bottleneck without widening authority',
+  evidenceClass: 'verified',
+  authority: 'founder:audit',
+  approved: true,
+  requestedMode: 'workflow-optimizer',
+});
+if (!compiled.selected || !compiled.prompt) failures.push('canonical V6 prompt did not compile');
+if (!/BILLGATES lens \(durable_growth\)/.test(compiled.prompt || '')) failures.push('compiled prompt does not pin Bill Gates semantics');
+if (!/standardize proven paths before scaling and do not scale unproven paths/i.test(compiled.prompt || '')) failures.push('compiled prompt lost Bill Gates scale boundary');
+if (!/ELONMUSK lens \(upside_growth\)/.test(compiled.prompt || '')) failures.push('compiled prompt does not pin Elon Musk semantics');
+if (!/question requirements; delete before optimizing; simplify from first principles/i.test(compiled.prompt || '')) failures.push('compiled prompt lost Elon Musk first-principles sequence');
+if (!/Authority effect: none/i.test(compiled.prompt || '')) failures.push('compiled challenge lens authority boundary missing');
+
 const entry = registry.workflows?.find((item) => item.id === workflow.id);
 if (!entry) failures.push('workflow missing from registry');
 if (entry?.version !== workflow.version || entry?.status !== 'approved' || entry?.path !== 'workflows/ai-mastery-v6.workflow.json') failures.push('registry/workflow drift');
@@ -43,4 +88,14 @@ if (failures.length) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-console.log(JSON.stringify({status:'passed', id:workflow.id, version:workflow.version, registered:true, protocolStack:expectedStack, chiefSignal:true, fcrReceiveBoundary:true, authorityPreserved:true}));
+console.log(JSON.stringify({
+  status:'passed',
+  id:workflow.id,
+  version:workflow.version,
+  registered:true,
+  protocolStack:expectedStack,
+  challengeLenses:{billgates:bill.objective,elonmusk:elon.objective},
+  chiefSignal:true,
+  fcrReceiveBoundary:true,
+  authorityPreserved:true,
+}));
