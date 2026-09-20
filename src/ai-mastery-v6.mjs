@@ -34,6 +34,35 @@ export const AI_MASTERY_V6_PROTOCOL_STACK = Object.freeze([
   'continuity',
 ]);
 
+export const REPAIR_OS_SEQUENCE = Object.freeze([
+  'lindymode',
+  'redteam-1',
+  'attack-ten',
+  'ooda-observe',
+  'ooda-orient',
+  'ooda-decide',
+  'l99-authority',
+  'act',
+  'redteam-2',
+  'recursive-hardening',
+  'verify',
+  'loop',
+]);
+
+export const ATTACK_WORKFLOWS = Object.freeze({
+  premise: 'attack-ten',
+  implementation: 'recursive-hardening',
+  recursiveContract: 'juss-v10/recursive-hardening@v1',
+  requiredCycles: 10,
+  modes: Object.freeze([
+    'authority-inversion',
+    'evidence-falsification',
+    'human-outcome',
+    'temporal-race',
+  ]),
+  authorityEffect: 'none',
+});
+
 const MODE_SET = new Set(MODES);
 const TRUST = new Set(['verified', 'inferred', 'unknown', 'blocked']);
 const SOURCES = new Set(['fcr', 'chief', 'promptos', 'founder']);
@@ -68,6 +97,21 @@ const PROTOCOL_LABELS = Object.freeze({
   continuity: 'CONTINUITY',
 });
 
+const REPAIR_OS_LABELS = Object.freeze({
+  lindymode: 'LINDY',
+  'redteam-1': 'REDTEAM I',
+  'attack-ten': 'ATTACK TEN',
+  'ooda-observe': 'OODA OBSERVE',
+  'ooda-orient': 'OODA ORIENT',
+  'ooda-decide': 'OODA DECIDE',
+  'l99-authority': 'L99 AUTHORITY',
+  act: 'ACT',
+  'redteam-2': 'REDTEAM II',
+  'recursive-hardening': 'RECURSIVE HARDENING',
+  verify: 'VERIFY',
+  loop: 'LOOP',
+});
+
 function clean(value, max = 2000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
@@ -82,6 +126,10 @@ function kernelOrderText() {
   }
   labels.push('NEXT GATE');
   return labels.join(' -> ');
+}
+
+function repairOSOrderText() {
+  return REPAIR_OS_SEQUENCE.map((step) => REPAIR_OS_LABELS[step] ?? step.toUpperCase()).join(' -> ');
 }
 
 export function normalizeFounderSignal(input = {}) {
@@ -148,6 +196,11 @@ export function compileV6Prompt(input) {
     `AI MASTERY V6 :: ${mode}`,
     `Goal: ${signal.goal || signal.intent}`,
     `Kernel order: ${kernelOrderText()}.`,
+    `Repair OS: ${repairOSOrderText()}.`,
+    `Attack workflows: ATTACK TEN challenges the premise before action; ${ATTACK_WORKFLOWS.requiredCycles}-cycle RECURSIVE HARDENING attacks authority inversion, evidence falsification, human-outcome failure, and temporal races after implementation.`,
+    'Lindy chooses the durable carrier; Red Team I attacks whether the repair should exist; OODA reacquires current reality before deciding; L99 verifies subject, authority, evidence, rollback, and consequence before ACT.',
+    'Red Team II and recursive hardening attack the implemented result. Verification must use the highest relevant truth plane, then LOOP only if the goal is still unproven and authority remains valid.',
+    'Attack, OODA, Lindy, Red Team, and L99 outputs are reasoning/evidence only. They never create, renew, widen, or transport execution authority.',
     'Classify material claims VERIFIED / INFERRED / UNKNOWN / BLOCKED. Keep independent failures as separate receipts.',
     'Evidence may update or invalidate fingerprints/proof cookies but never creates or renews authority.',
     'Do not claim execution, outcome, verification, merge, publication, or external mutation without matching evidence and authority.',
