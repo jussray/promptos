@@ -15,7 +15,17 @@ on:
       - "scripts/verify-evidence-decision-loop.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
+      - "src/ai-mastery-v6.mjs"
+      - "src/ai-mastery-v6.test.mjs"
+      - "src/catalog-runtime/**"
+      - "src/catalog-ui.js"
+      - "styles/catalog.css"
       - "workflows/**"
+      - "scripts/verify-ai-mastery-v6.mjs"
+      - "scripts/verify-catalog-runtime.mjs"
+      - "scripts/generate-catalog.mjs"
+      - "scripts/stage-public-site.mjs"
+      - "scripts/verify-stage-public-site-safety.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
       - "scripts/make-workflow.mjs"
@@ -34,6 +44,7 @@ on:
       - "e2e/**"
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
+      - ".github/workflows/pages-deploy.yml"
       - ".github/workflows/control-room-tests.yml"
   workflow_dispatch:
 
@@ -48,6 +59,10 @@ env:
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
   PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
 
+concurrency:
+  group: promptos-control-room-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Verify PromptOS control room tests
@@ -59,43 +74,38 @@ jobs:
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
           persist-credentials: false
-
       - name: Record and verify exact head
         shell: bash
         run: |
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
-
+      - name: Verify AI Mastery V6 execution contract
+        run: node scripts/verify-ai-mastery-v6.mjs
+      - name: Verify migrated PromptOS catalog runtime
+        run: node scripts/verify-catalog-runtime.mjs
+      - name: Generate PromptOS catalog quality receipt
+        run: node scripts/generate-catalog.mjs
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
-
       - name: Verify evidence decision loop contract
         run: node scripts/verify-evidence-decision-loop.mjs
-
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
-
       - name: Verify Founder OS mission compiler contract
         run: node scripts/verify-founder-os-mission-compiler.mjs
-
       - name: Verify PromptOS and Chief product boundary
         run: node scripts/verify-product-boundary.mjs
-
       - name: Verify control-room workflow trigger contract
         run: node scripts/verify-control-room-workflow-contract.mjs
-
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
-
       - name: Verify legacy build entrypoint is non-mutating
         shell: bash
         run: |
@@ -104,23 +114,19 @@ jobs:
           after="$(sha256sum index.html | awk '{print $1}')"
           printf 'index_before=%s\nindex_after=%s\n' "$before" "$after"
           test "$before" = "$after"
-
       - name: Materialize verified Zapier lockfile
         run: node tools/zapier/scripts/sync-lockfile.mjs
-
       - name: Install isolated Zapier tooling
         run: npm ci --prefix tools/zapier --ignore-scripts --no-audit --no-fund
-
       - name: Typecheck isolated Zapier tooling
         run: npm --prefix tools/zapier run typecheck
-
+      - name: Verify public staging path cannot erase sources
+        run: node scripts/verify-stage-public-site-safety.mjs
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
-      - name: Start static PromptOS server
+      - name: Start static PromptOS source server
         shell: bash
         run: |
           python3 -m http.server 4173 > /tmp/promptos-server.log 2>&1 &
@@ -131,18 +137,38 @@ jobs:
           done
           cat /tmp/promptos-server.log
           exit 1
-
-      - name: Prove rendered desktop and mobile PromptOS paths
+      - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
-
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
-
-      - name: Stop static PromptOS server
+      - name: Stop static source server
         if: always()
         shell: bash
         run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
-
+      - name: Stage exact public-site candidate with leakage guard
+        env:
+          PROMPTOS_PUBLIC_SITE_DIR: _site
+        run: node scripts/stage-public-site.mjs
+      - name: Start staged public-site server
+        shell: bash
+        run: |
+          python3 -m http.server 4174 --directory _site > /tmp/promptos-staged-server.log 2>&1 &
+          echo $! > /tmp/promptos-staged-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-staged-server.log
+          exit 1
+      - name: Prove staged public artifact desktop and mobile
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
+        run: node e2e/rendered-proof.mjs
+      - name: Stop staged public-site server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-staged-server.pid || kill "$(cat /tmp/promptos-staged-server.pid)" || true
       - name: Retain sanitized PromptOS test receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -150,7 +176,9 @@ jobs:
           name: promptos-control-room-tests-${{ env.EXPECTED_HEAD_SHA }}
           path: |
             artifacts/control-room-tests.json
+            artifacts/promptos/catalog-quality-report.json
             artifacts/promptos-rendered-proof
             artifacts/promptos-founder-os-proof
+            artifacts/promptos-staged-proof
           if-no-files-found: error
           retention-days: 14

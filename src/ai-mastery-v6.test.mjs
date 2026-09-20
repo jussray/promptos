@@ -1,12 +1,32 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildPromptOSSignal, compileV6Prompt, selectPromptMode, validateFounderSignal } from './ai-mastery-v6.mjs';
+import {
+  AI_MASTERY_V6_PROTOCOL_STACK,
+  ATTACK_WORKFLOWS,
+  CHALLENGE_LENS_SEMANTICS,
+  REPAIR_OS_SEQUENCE,
+  buildPromptOSSignal,
+  compileV6Prompt,
+  selectPromptMode,
+  validateFounderSignal,
+} from './ai-mastery-v6.mjs';
 
 const inbound = (overrides = {}) => ({
   source: 'fcr', target: 'promptos', intent: 'prioritize founder work', goal: 'choose the highest leverage next action',
   evidenceClass: 'verified', evidenceRefs: ['receipt:fcr:123'], authority: 'founder:approval:123', approved: true,
   fingerprint: 'fp:123', proofCookie: 'proof:123', correlationId: 'mission:123', ...overrides,
 });
+
+const EXPECTED_PROTOCOL_STACK = [
+  'truthmode', 'confess', '5w1h', 'billgates', 'elonmusk', 'garyvee', 'ultrathink',
+  'redteam-1', 'redteam-twin', 'lindymode', 'l99', 'redteam-2', 'ooda', 'goalfix',
+  'attack-ten', 'proofmode', 'continuity',
+];
+
+const EXPECTED_REPAIR_OS = [
+  'lindymode', 'redteam-1', 'attack-ten', 'ooda-observe', 'ooda-orient', 'ooda-decide',
+  'l99-authority', 'act', 'redteam-2', 'recursive-hardening', 'verify', 'loop',
+];
 
 test('FCR signal selects task prioritizer', () => {
   const route = selectPromptMode(inbound());
@@ -32,10 +52,61 @@ test('approval without authority is rejected', () => {
   assert.match(result.errors.join(' '), /approval requires/i);
 });
 
-test('compiled prompt preserves V6 kernel order and separate receipts', () => {
+test('V6 protocol stack preserves founder challenge order exactly', () => {
+  assert.deepEqual([...AI_MASTERY_V6_PROTOCOL_STACK], EXPECTED_PROTOCOL_STACK);
+  assert.equal(new Set(AI_MASTERY_V6_PROTOCOL_STACK).size, AI_MASTERY_V6_PROTOCOL_STACK.length);
+});
+
+test('Bill Gates and Elon Musk lenses have canonical semantics without authority', () => {
+  assert.equal(CHALLENGE_LENS_SEMANTICS.billgates.role, 'durable-leverage');
+  assert.equal(CHALLENGE_LENS_SEMANTICS.billgates.objective, 'durable_growth');
+  assert.equal(CHALLENGE_LENS_SEMANTICS.billgates.authorityEffect, 'none');
+  assert.deepEqual([...CHALLENGE_LENS_SEMANTICS.billgates.behaviors], [
+    'identify-the-bottleneck-and-highest-leverage-point',
+    'prefer-stable-options-and-reversible-changes',
+    'prefer-generated-docs-shared-fixtures-and-reusable-artifacts',
+    'standardize-a-proven-path-before-scaling',
+    'do-not-scale-an-unproven-path',
+  ]);
+
+  assert.equal(CHALLENGE_LENS_SEMANTICS.elonmusk.role, 'first-principles-execution');
+  assert.equal(CHALLENGE_LENS_SEMANTICS.elonmusk.objective, 'upside_growth');
+  assert.equal(CHALLENGE_LENS_SEMANTICS.elonmusk.authorityEffect, 'none');
+  assert.deepEqual([...CHALLENGE_LENS_SEMANTICS.elonmusk.behaviors], [
+    'question-requirements-before-accepting-them',
+    'delete-before-optimizing',
+    'simplify-from-first-principles',
+    'prefer-fast-small-reversible-experiments',
+    'accelerate-feedback-and-automate-last',
+  ]);
+});
+
+test('repair OS fuses Lindy Red Team attack OODA L99 action and verification', () => {
+  assert.deepEqual([...REPAIR_OS_SEQUENCE], EXPECTED_REPAIR_OS);
+  assert.equal(new Set(REPAIR_OS_SEQUENCE).size, REPAIR_OS_SEQUENCE.length);
+  assert.equal(ATTACK_WORKFLOWS.premise, 'attack-ten');
+  assert.equal(ATTACK_WORKFLOWS.implementation, 'recursive-hardening');
+  assert.equal(ATTACK_WORKFLOWS.recursiveContract, 'juss-v10/recursive-hardening@v1');
+  assert.equal(ATTACK_WORKFLOWS.requiredCycles, 10);
+  assert.deepEqual([...ATTACK_WORKFLOWS.modes], [
+    'authority-inversion', 'evidence-falsification', 'human-outcome', 'temporal-race',
+  ]);
+  assert.equal(ATTACK_WORKFLOWS.authorityEffect, 'none');
+});
+
+test('compiled prompt preserves V6 kernel order, canonical challenge lenses, and separate receipts', () => {
   const result = compileV6Prompt(inbound({ requestedMode: 'workflow-optimizer' }));
   assert.equal(result.selected, true);
-  assert.match(result.prompt, /CONFESS\/TRUTHMODE -> ULTRATHINK -> REDTEAM I -> LINDY -> L99 -> REDTEAM TWIN -> OODA -> GOALFIX/);
+  assert.match(result.prompt, /TRUTHMODE -> CONFESS -> 5W1H -> BILLGATES -> ELONMUSK -> GARYVEE -> ULTRATHINK -> REDTEAM I -> REDTEAM TWIN -> LINDY -> L99 -> REDTEAM II -> OODA -> GOALFIX -> ATTACK TEN -> ACTION -> PROOF -> CONTINUITY -> NEXT GATE/);
+  assert.match(result.prompt, /Repair OS: LINDY -> REDTEAM I -> ATTACK TEN -> OODA OBSERVE -> OODA ORIENT -> OODA DECIDE -> L99 AUTHORITY -> ACT -> REDTEAM II -> RECURSIVE HARDENING -> VERIFY -> LOOP/);
+  assert.match(result.prompt, /BILLGATES lens \(durable_growth\)/);
+  assert.match(result.prompt, /standardize proven paths before scaling and do not scale unproven paths/i);
+  assert.match(result.prompt, /ELONMUSK lens \(upside_growth\)/);
+  assert.match(result.prompt, /question requirements; delete before optimizing; simplify from first principles/i);
+  assert.match(result.prompt, /Authority effect: none/);
+  assert.match(result.prompt, /10-cycle RECURSIVE HARDENING/);
+  assert.match(result.prompt, /authority inversion, evidence falsification, human-outcome failure, and temporal races/);
+  assert.match(result.prompt, /never create, renew, widen, or transport execution authority/);
   assert.match(result.prompt, /independent failures as separate receipts/);
   assert.match(result.prompt, /never creates or renews authority/);
 });

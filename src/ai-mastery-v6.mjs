@@ -14,6 +14,82 @@ export const MODES = Object.freeze([
   'daily-progress-review',
 ]);
 
+export const AI_MASTERY_V6_PROTOCOL_STACK = Object.freeze([
+  'truthmode',
+  'confess',
+  '5w1h',
+  'billgates',
+  'elonmusk',
+  'garyvee',
+  'ultrathink',
+  'redteam-1',
+  'redteam-twin',
+  'lindymode',
+  'l99',
+  'redteam-2',
+  'ooda',
+  'goalfix',
+  'attack-ten',
+  'proofmode',
+  'continuity',
+]);
+
+export const REPAIR_OS_SEQUENCE = Object.freeze([
+  'lindymode',
+  'redteam-1',
+  'attack-ten',
+  'ooda-observe',
+  'ooda-orient',
+  'ooda-decide',
+  'l99-authority',
+  'act',
+  'redteam-2',
+  'recursive-hardening',
+  'verify',
+  'loop',
+]);
+
+export const ATTACK_WORKFLOWS = Object.freeze({
+  premise: 'attack-ten',
+  implementation: 'recursive-hardening',
+  recursiveContract: 'juss-v10/recursive-hardening@v1',
+  requiredCycles: 10,
+  modes: Object.freeze([
+    'authority-inversion',
+    'evidence-falsification',
+    'human-outcome',
+    'temporal-race',
+  ]),
+  authorityEffect: 'none',
+});
+
+export const CHALLENGE_LENS_SEMANTICS = Object.freeze({
+  billgates: Object.freeze({
+    role: 'durable-leverage',
+    objective: 'durable_growth',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'identify-the-bottleneck-and-highest-leverage-point',
+      'prefer-stable-options-and-reversible-changes',
+      'prefer-generated-docs-shared-fixtures-and-reusable-artifacts',
+      'standardize-a-proven-path-before-scaling',
+      'do-not-scale-an-unproven-path',
+    ]),
+  }),
+  elonmusk: Object.freeze({
+    role: 'first-principles-execution',
+    objective: 'upside_growth',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'question-requirements-before-accepting-them',
+      'delete-before-optimizing',
+      'simplify-from-first-principles',
+      'prefer-fast-small-reversible-experiments',
+      'accelerate-feedback-and-automate-last',
+    ]),
+  }),
+});
+
 const MODE_SET = new Set(MODES);
 const TRUST = new Set(['verified', 'inferred', 'unknown', 'blocked']);
 const SOURCES = new Set(['fcr', 'chief', 'promptos', 'founder']);
@@ -28,11 +104,69 @@ const INTENT_TO_MODE = Object.freeze({
   review: 'daily-progress-review', progress: 'daily-progress-review', retrospective: 'daily-progress-review',
 });
 
+const PROTOCOL_LABELS = Object.freeze({
+  truthmode: 'TRUTHMODE',
+  confess: 'CONFESS',
+  '5w1h': '5W1H',
+  billgates: 'BILLGATES',
+  elonmusk: 'ELONMUSK',
+  garyvee: 'GARYVEE',
+  ultrathink: 'ULTRATHINK',
+  'redteam-1': 'REDTEAM I',
+  'redteam-twin': 'REDTEAM TWIN',
+  lindymode: 'LINDY',
+  l99: 'L99',
+  'redteam-2': 'REDTEAM II',
+  ooda: 'OODA',
+  goalfix: 'GOALFIX',
+  'attack-ten': 'ATTACK TEN',
+  proofmode: 'PROOF',
+  continuity: 'CONTINUITY',
+});
+
+const REPAIR_OS_LABELS = Object.freeze({
+  lindymode: 'LINDY',
+  'redteam-1': 'REDTEAM I',
+  'attack-ten': 'ATTACK TEN',
+  'ooda-observe': 'OODA OBSERVE',
+  'ooda-orient': 'OODA ORIENT',
+  'ooda-decide': 'OODA DECIDE',
+  'l99-authority': 'L99 AUTHORITY',
+  act: 'ACT',
+  'redteam-2': 'REDTEAM II',
+  'recursive-hardening': 'RECURSIVE HARDENING',
+  verify: 'VERIFY',
+  loop: 'LOOP',
+});
+
 function clean(value, max = 2000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
 function sha(value) { return createHash('sha256').update(value).digest('hex'); }
 function uniq(values = []) { return [...new Set(Array.isArray(values) ? values.map(v => clean(v, 200)).filter(Boolean) : [])]; }
+
+function kernelOrderText() {
+  const labels = [];
+  for (const step of AI_MASTERY_V6_PROTOCOL_STACK) {
+    if (step === 'proofmode') labels.push('ACTION');
+    labels.push(PROTOCOL_LABELS[step] ?? step.toUpperCase());
+  }
+  labels.push('NEXT GATE');
+  return labels.join(' -> ');
+}
+
+function repairOSOrderText() {
+  return REPAIR_OS_SEQUENCE.map((step) => REPAIR_OS_LABELS[step] ?? step.toUpperCase()).join(' -> ');
+}
+
+function challengeLensText() {
+  const bill = CHALLENGE_LENS_SEMANTICS.billgates;
+  const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
+  return [
+    `BILLGATES lens (${bill.objective}): identify the bottleneck and highest-leverage point; prefer stable options, reversible changes, generated docs, shared fixtures, and reusable artifacts; standardize proven paths before scaling and do not scale unproven paths. Authority effect: ${bill.authorityEffect}.`,
+    `ELONMUSK lens (${elon.objective}): question requirements; delete before optimizing; simplify from first principles; prefer fast small reversible experiments; accelerate feedback and automate last. Authority effect: ${elon.authorityEffect}.`,
+  ];
+}
 
 export function normalizeFounderSignal(input = {}) {
   const signal = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
@@ -97,7 +231,13 @@ export function compileV6Prompt(input) {
   const prompt = [
     `AI MASTERY V6 :: ${mode}`,
     `Goal: ${signal.goal || signal.intent}`,
-    'Kernel order: CONFESS/TRUTHMODE -> ULTRATHINK -> REDTEAM I -> LINDY -> L99 -> REDTEAM TWIN -> OODA -> GOALFIX -> ACTION -> PROOF -> CONTINUITY -> NEXT GATE.',
+    `Kernel order: ${kernelOrderText()}.`,
+    `Repair OS: ${repairOSOrderText()}.`,
+    ...challengeLensText(),
+    `Attack workflows: ATTACK TEN challenges the premise before action; ${ATTACK_WORKFLOWS.requiredCycles}-cycle RECURSIVE HARDENING attacks authority inversion, evidence falsification, human-outcome failure, and temporal races after implementation.`,
+    'Lindy chooses the durable carrier; Red Team I attacks whether the repair should exist; OODA reacquires current reality before deciding; L99 verifies subject, authority, evidence, rollback, and consequence before ACT.',
+    'Red Team II and recursive hardening attack the implemented result. Verification must use the highest relevant truth plane, then LOOP only if the goal is still unproven and authority remains valid.',
+    'Attack, OODA, Lindy, Red Team, Bill Gates, Elon Musk, and L99 outputs are reasoning/evidence only. They never create, renew, widen, or transport execution authority.',
     'Classify material claims VERIFIED / INFERRED / UNKNOWN / BLOCKED. Keep independent failures as separate receipts.',
     'Evidence may update or invalidate fingerprints/proof cookies but never creates or renews authority.',
     'Do not claim execution, outcome, verification, merge, publication, or external mutation without matching evidence and authority.',

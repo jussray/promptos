@@ -559,3 +559,7 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else boot();
 
 })();
+
+import('../src/catalog-ui.js').catch(function(error){
+  console.error('[PromptOS catalog] failed to load', error);
+});

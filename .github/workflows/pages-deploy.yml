@@ -28,7 +28,7 @@ jobs:
   verify-and-build:
     name: Verify exact current main and stage public site
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
       - name: Enforce founder and main dispatch authority
         shell: bash
@@ -101,7 +101,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Start static PromptOS server
+      - name: Start source PromptOS server
         shell: bash
         run: |
           python3 -m http.server 4173 > /tmp/promptos-server.log 2>&1 &
@@ -113,35 +113,53 @@ jobs:
           cat /tmp/promptos-server.log
           exit 1
 
-      - name: Pre-flight rendered desktop and mobile proof (pre-publish)
+      - name: Pre-flight rendered desktop and mobile source proof
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4173
           PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
         run: node e2e/rendered-proof.mjs
 
-      - name: Stop static PromptOS server
+      - name: Stop source PromptOS server
         if: always()
         shell: bash
         run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
 
-      # Only the public human-facing surface is staged: the checked-in index.html
-      # and the exact canonical parts/*.js it declares (the same list
-      # scripts/verify-control-room-tests.mjs holds source authority over).
-      # Governance/control-room manifests, AGENTS*.md, cloudflare-worker/,
-      # tools/, src/, docs/, scripts/, e2e/, and testdata/ are never copied in.
-      - name: Stage public site
+      - name: Stage exact public site with explicit allowlist and leakage guard
+        env:
+          PROMPTOS_PUBLIC_SITE_DIR: _site
+        run: node scripts/stage-public-site.mjs
+
+      - name: Start staged public-site server
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p _site/parts
-          cp index.html _site/index.html
-          for part in auth.js p05-new-prompts.js p06-gap-prompts.js p07-ship-ultrathink-skills.js p08-cont-redteam.js p09-cont-design.js p10-cont-ops-growth.js app.js; do
-            cp "parts/$part" "_site/parts/$part"
+          python3 -m http.server 4174 --directory _site > /tmp/promptos-staged-server.log 2>&1 &
+          echo $! > /tmp/promptos-staged-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
           done
-          # Stamp deployed runtime identity onto the staged copy only. The
-          # checked-in index.html in the repository is never modified.
-          sed -i "s#</head>#  <meta name=\"promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\">\n</head>#" _site/index.html
-          grep -q "promptos-deploy-sha\" content=\"${EXPECTED_HEAD_SHA}\"" _site/index.html
+          cat /tmp/promptos-staged-server.log
+          exit 1
+
+      - name: Prove staged deploy artifact desktop and mobile before publication
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
+        run: node e2e/rendered-proof.mjs
+
+      - name: Stop staged public-site server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-staged-server.pid || kill "$(cat /tmp/promptos-staged-server.pid)" || true
+
+      - name: Retain pre-publish staged proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: promptos-staged-public-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-staged-proof
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Upload public site artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
@@ -206,7 +224,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Prove public deploy identity, no login wall, and primary CTA
+      - name: Prove public deploy identity, no login wall, legacy CTA, and Catalog compile
         env:
           PROMPTOS_BASE_URL: ${{ needs.deploy.outputs.page_url }}
           PROMPTOS_EXPECTED_SHA: ${{ env.EXPECTED_HEAD_SHA }}
