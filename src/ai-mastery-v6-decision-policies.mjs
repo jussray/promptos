@@ -41,6 +41,7 @@ export const DECISION_PROOF_KINDS = Object.freeze([
 const POLICY_IDS = new Set(Object.keys(FOUNDER_DECISION_POLICIES));
 const PROOF_KIND_SET = new Set(DECISION_PROOF_KINDS);
 const EVIDENCE_FIELDS = Object.freeze(['growth', 'drawdown', 'speed', 'risk']);
+const MAX_METRIC = Number.MAX_VALUE / 4;
 
 function evidenceFingerprint(evidence) {
   return createHash('sha256')
@@ -54,16 +55,24 @@ export function validateDecisionEvidence(input = {}) {
   const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
 
   for (const field of EVIDENCE_FIELDS) {
-    const value = Number(source[field]);
-    if (!Number.isFinite(value)) {
+    const raw = source[field];
+    if (typeof raw !== 'number') {
+      errors.push(`${field} must be a number`);
+      continue;
+    }
+    if (!Number.isFinite(raw)) {
       errors.push(`${field} must be finite`);
       continue;
     }
-    if (value < 0) {
+    if (raw < 0) {
       errors.push(`${field} must be non-negative`);
       continue;
     }
-    evidence[field] = value;
+    if (raw > MAX_METRIC) {
+      errors.push(`${field} exceeds safe scoring range`);
+      continue;
+    }
+    evidence[field] = raw;
   }
 
   if (errors.length) return { valid: false, errors, evidence: null, fingerprint: null };
@@ -95,9 +104,19 @@ function validateProofRequirements(requiredProofs) {
   }
   const proofs = [...new Set(requiredProofs)];
   const errors = proofs
-    .filter((kind) => !PROOF_KIND_SET.has(kind))
-    .map((kind) => `unsupported proof kind: ${kind}`);
-  return { valid: errors.length === 0, errors, proofs };
+    .filter((kind) => typeof kind !== 'string' || !PROOF_KIND_SET.has(kind))
+    .map((kind) => `unsupported proof kind: ${String(kind)}`);
+  return { valid: errors.length === 0, errors, proofs: errors.length ? [] : proofs };
+}
+
+function blocked(base, reasons) {
+  return {
+    ...base,
+    allow: false,
+    reasons,
+    winner: null,
+    scores: null,
+  };
 }
 
 /**
@@ -109,6 +128,7 @@ export function evaluateDecisionTournament({ evidence, gates = {}, requiredProof
   const reasons = [];
   const checkedEvidence = validateDecisionEvidence(evidence);
   const checkedProofs = validateProofRequirements(requiredProofs);
+  const gateState = gates && typeof gates === 'object' && !Array.isArray(gates) ? gates : {};
 
   if (!checkedEvidence.valid) {
     for (const error of checkedEvidence.errors) reasons.push(`invalid_evidence:${error}`);
@@ -117,13 +137,15 @@ export function evaluateDecisionTournament({ evidence, gates = {}, requiredProof
     for (const error of checkedProofs.errors) reasons.push(`invalid_proof_requirement:${error}`);
   }
 
-  if (gates.truthmodeApproved !== true) reasons.push('truthmode_block');
-  if (gates.redteamVeto === true || gates.redteamPassed !== true) reasons.push('redteam_block');
-  if (gates.lindyPassed !== true) reasons.push('lindy_block');
-  if (gates.ultrathinkPassed !== true) reasons.push('ultrathink_block');
+  if (gateState.truthmodeApproved !== true) reasons.push('truthmode_block');
+  if (gateState.redteamVeto === true || gateState.redteamPassed !== true) reasons.push('redteam_block');
+  if (gateState.lindyPassed !== true) reasons.push('lindy_block');
+  if (gateState.ultrathinkPassed !== true) reasons.push('ultrathink_block');
 
   if (checkedProofs.valid) {
-    const proofs = gates.proofs && typeof gates.proofs === 'object' ? gates.proofs : {};
+    const proofs = gateState.proofs && typeof gateState.proofs === 'object' && !Array.isArray(gateState.proofs)
+      ? gateState.proofs
+      : {};
     for (const kind of checkedProofs.proofs) {
       if (proofs[kind] !== true) reasons.push(`proof_block:${kind}`);
     }
@@ -138,18 +160,17 @@ export function evaluateDecisionTournament({ evidence, gates = {}, requiredProof
     humanDecisionRequired: true,
   };
 
-  if (reasons.length) {
-    return {
-      ...base,
-      allow: false,
-      reasons,
-      winner: null,
-      scores: null,
-    };
+  if (reasons.length) return blocked(base, reasons);
+
+  let billgates;
+  let elonmusk;
+  try {
+    billgates = scoreDecisionPolicy('billgates', checkedEvidence.evidence);
+    elonmusk = scoreDecisionPolicy('elonmusk', checkedEvidence.evidence);
+  } catch (error) {
+    return blocked(base, [`score_block:${error instanceof Error ? error.message : 'unknown scoring failure'}`]);
   }
 
-  const billgates = scoreDecisionPolicy('billgates', checkedEvidence.evidence);
-  const elonmusk = scoreDecisionPolicy('elonmusk', checkedEvidence.evidence);
   const winner = billgates > elonmusk
     ? 'billgates'
     : elonmusk > billgates
