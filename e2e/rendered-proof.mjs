@@ -31,18 +31,14 @@ async function proveViewport(browser, {name, width, height}) {
   });
   page.on('response', (response) => {
     const url = new URL(response.url());
-    if (url.origin === origin && response.status() >= 400) {
-      localFailures.push(`${response.status()} ${url.pathname}`);
-    }
+    if (url.origin === origin && response.status() >= 400) localFailures.push(`${response.status()} ${url.pathname}`);
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   await page.locator('#appShell').waitFor({state: 'visible'});
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
-  const persistenceSelector = width <= 900
-    ? '#persistenceAuthorityMobileStatus'
-    : '#persistenceAuthorityStatus';
+  const persistenceSelector = width <= 900 ? '#persistenceAuthorityMobileStatus' : '#persistenceAuthorityStatus';
   const persistenceStatus = page.locator(persistenceSelector);
   if (width > 900) await persistenceStatus.scrollIntoViewIfNeeded();
   await persistenceStatus.waitFor({state: 'visible'});
@@ -72,12 +68,7 @@ async function proveViewport(browser, {name, width, height}) {
     const prompts = typeof PROMPTS !== 'undefined' && Array.isArray(PROMPTS) ? PROMPTS : [];
     const ids = prompts.map((prompt) => prompt?.id);
     const target = prompts.find((prompt) => prompt?.id === targetId);
-    return {
-      count: prompts.length,
-      uniqueIds: new Set(ids).size,
-      targetTitle: target?.title ?? null,
-      targetPresent: target?.title === targetTitle,
-    };
+    return {count: prompts.length, uniqueIds: new Set(ids).size, targetTitle: target?.title ?? null, targetPresent: target?.title === targetTitle};
   }, {targetId: TARGET_PROMPT_ID, targetTitle: TARGET_PROMPT});
   assert(registry.count > 0, `${name}: prompt registry is empty`);
   assert(registry.uniqueIds === registry.count, `${name}: prompt registry contains duplicate IDs`);
@@ -86,21 +77,8 @@ async function proveViewport(browser, {name, width, height}) {
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered prompt count does not match runtime registry`);
 
-  const scriptPaths = await page.evaluate(() => Array.from(document.scripts)
-    .map((script) => script.src)
-    .filter(Boolean)
-    .map((src) => new URL(src).pathname)
-    .filter((pathname) => pathname.startsWith('/parts/')));
-  for (const required of [
-    '/parts/auth.js',
-    '/parts/p05-new-prompts.js',
-    '/parts/p06-gap-prompts.js',
-    '/parts/p07-ship-ultrathink-skills.js',
-    '/parts/p08-cont-redteam.js',
-    '/parts/p09-cont-design.js',
-    '/parts/p10-cont-ops-growth.js',
-    '/parts/app.js',
-  ]) {
+  const scriptPaths = await page.evaluate(() => Array.from(document.scripts).map((script) => script.src).filter(Boolean).map((src) => new URL(src).pathname).filter((pathname) => pathname.startsWith('/parts/')));
+  for (const required of ['/parts/auth.js','/parts/p05-new-prompts.js','/parts/p06-gap-prompts.js','/parts/p07-ship-ultrathink-skills.js','/parts/p08-cont-redteam.js','/parts/p09-cont-design.js','/parts/p10-cont-ops-growth.js','/parts/app.js']) {
     assert(scriptPaths.includes(required), `${name}: missing rendered script ${required}`);
   }
 
@@ -110,16 +88,50 @@ async function proveViewport(browser, {name, width, height}) {
   await matchingCards.first().waitFor({state: 'visible'});
   assert(await matchingCards.count() === 1, `${name}: search did not narrow to exactly one prompt`);
   assert((await matchingCards.locator('h3').textContent())?.trim() === TARGET_PROMPT, `${name}: p08 prompt did not render`);
-
   await page.locator(`[data-open="${TARGET_PROMPT_ID}"]`).click();
   await page.locator('#modalWrap.open').waitFor({state: 'visible'});
   assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: prompt modal did not open the searched item`);
-
   await page.keyboard.press('Escape');
+
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'light', `${name}: theme toggle did not switch to light`);
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'dark', `${name}: theme toggle did not return to dark`);
+
+  const catalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  await catalogNav.waitFor({state: 'visible'});
+  await catalogNav.click();
+  await page.locator('#page-catalog.on').waitFor({state: 'visible'});
+  const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
+  const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
+  assert(selectedRecipes === 5000, `${name}: catalog selected recipe count drifted: ${selectedRecipes}`);
+  assert(candidateRecipes === 5400, `${name}: catalog candidate count drifted: ${candidateRecipes}`);
+
+  await page.locator('#catalogFamily').selectOption('repo.audit.first');
+  await page.locator('#catalogPlatform').selectOption('chatgpt');
+  await page.locator('#catalogStage').selectOption('audit');
+  const catalogCards = page.locator('#catalogGrid .promptos-card');
+  await catalogCards.first().waitFor({state: 'visible'});
+  assert(await catalogCards.count() > 0, `${name}: canonical repo audit filter returned no recipes`);
+  await catalogCards.first().click();
+  await page.locator('#catalogDialog').waitFor({state: 'visible'});
+  const familyId = (await page.locator('#catalogDialogFamily').textContent())?.trim();
+  assert(familyId === 'repo.audit.first', `${name}: wrong catalog family opened: ${familyId}`);
+
+  const controls = page.locator('#catalogInputs [data-catalog-input]');
+  const controlCount = await controls.count();
+  assert(controlCount > 0, `${name}: catalog recipe rendered no concrete inputs`);
+  for (let i = 0; i < controlCount; i += 1) {
+    const control = controls.nth(i);
+    const key = await control.getAttribute('data-catalog-input');
+    await control.fill(`proof-${key}`);
+  }
+  await page.locator('#catalogCompile').click();
+  await page.locator('#catalogReadiness[data-state="ready"]').waitFor({state: 'visible'});
+  const compiledOutput = (await page.locator('#catalogOutput').textContent()) || '';
+  assert(compiledOutput.includes('FOUNDER INPUT CONTEXT'), `${name}: compiled catalog output omitted founder input context`);
+  assert(compiledOutput.includes('proof-repoName'), `${name}: compiled catalog output did not bind supplied context`);
+  await page.keyboard.press('Escape');
 
   await mkdir(OUTPUT_DIR, {recursive: true});
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
@@ -139,6 +151,7 @@ async function proveViewport(browser, {name, width, height}) {
     searchedPromptId: TARGET_PROMPT_ID,
     modalOpened: true,
     themeRoundTrip: true,
+    catalog: {selectedRecipes, candidateRecipes, familyId, concreteInputCount: controlCount, compiledReady: true},
     persistenceAuthority,
     persistenceText,
     gistRequests,
@@ -157,13 +170,7 @@ try {
   const results = [];
   results.push(await proveViewport(browser, {name: 'desktop', width: 1440, height: 1000}));
   results.push(await proveViewport(browser, {name: 'mobile', width: 390, height: 844}));
-  const receipt = {
-    schemaVersion: 1,
-    baseUrl: BASE_URL,
-    generatedAt: new Date().toISOString(),
-    result: 'passed',
-    viewports: results,
-  };
+  const receipt = {schemaVersion: 1, baseUrl: BASE_URL, generatedAt: new Date().toISOString(), result: 'passed', viewports: results};
   await writeFile(`${OUTPUT_DIR}/receipt.json`, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');
   console.log(JSON.stringify(receipt));
 } finally {
