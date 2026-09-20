@@ -113,6 +113,12 @@ const negativeSpeed = validateDecisionEvidence({growth:1, drawdown:1, speed:-1, 
 if (negativeSpeed.valid) fail('negative speed must fail closed before Bill Gates stability division');
 const nonFinite = validateDecisionEvidence({growth:1, drawdown:1, speed:Number.POSITIVE_INFINITY, risk:1});
 if (nonFinite.valid) fail('non-finite decision evidence must fail closed');
+const tooLarge = validateDecisionEvidence({growth:Number.MAX_VALUE, drawdown:1, speed:1, risk:1});
+if (tooLarge.valid) fail('unsafe scoring range must fail closed');
+for (const impostor of [null, '', false, [], {}]) {
+  const confused = validateDecisionEvidence({growth:impostor, drawdown:1, speed:1, risk:1});
+  if (confused.valid) fail(`type-confused evidence must fail closed: ${Object.prototype.toString.call(impostor)}`);
+}
 
 const missingProofPolicy = evaluateDecisionTournament({
   evidence: canonicalEvidence,
@@ -120,6 +126,20 @@ const missingProofPolicy = evaluateDecisionTournament({
   requiredProofs: [],
 });
 if (missingProofPolicy.allow || missingProofPolicy.executionAuthorized !== false || missingProofPolicy.winner !== null) fail('missing project-specific proof requirements must fail closed');
+
+const nullGatePolicy = evaluateDecisionTournament({
+  evidence: canonicalEvidence,
+  gates: null,
+  requiredProofs: ['source'],
+});
+if (nullGatePolicy.allow || nullGatePolicy.winner !== null || nullGatePolicy.executionAuthorized !== false) fail('null gate state must fail closed without throwing');
+
+const arrayProofPolicy = evaluateDecisionTournament({
+  evidence: canonicalEvidence,
+  gates: {truthmodeApproved:true, redteamPassed:true, lindyPassed:true, ultrathinkPassed:true, proofs:[]},
+  requiredProofs: ['source'],
+});
+if (arrayProofPolicy.allow || !arrayProofPolicy.reasons?.includes('proof_block:source')) fail('array proof state must not satisfy project proof');
 
 let rng = 0x5eed6000;
 function randomUnit() {
@@ -223,6 +243,7 @@ console.log(JSON.stringify({
     billgates:{role:billPolicy.role,objective:billPolicy.objective},
     elonmusk:{role:elonPolicy.role,objective:elonPolicy.objective},
     sameEvidence:true,
+    strictNumericEvidence:true,
     projectSpecificProofRequired:true,
     executionAuthorized:false,
   },
