@@ -17,7 +17,9 @@ const publicFiles = [
   'parts/p08-cont-redteam.js',
   'parts/p09-cont-design.js',
   'parts/p10-cont-ops-growth.js',
+  'parts/p11-make-ui.mjs',
   'parts/app.js',
+  'src/workflow-artifact.mjs',
   'src/catalog-ui.js',
   'src/catalog-runtime/index.js',
   'src/catalog-runtime/openPromptCard.js',
@@ -87,7 +89,7 @@ const forbiddenContentPatterns = [
   /\bBearer\s+[A-Za-z0-9._-]{20,}\b/i,
 ];
 for (const file of actualFiles) {
-  if (!/\.(?:html|js|css)$/i.test(file)) continue;
+  if (!/\.(?:html|js|mjs|css)$/i.test(file)) continue;
   const text = await readFile(path.join(outputDir, file), 'utf8');
   for (const pattern of forbiddenContentPatterns) {
     if (pattern.test(text)) throw new Error(`secret-like material detected in staged public file: ${file}`);
