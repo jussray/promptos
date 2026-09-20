@@ -98,6 +98,87 @@
       "Runtime skill, plugin, or pack availability must be observed before execution is claimed."
     ]
   },
+  "providerAdapters": {
+    "codex": {
+      "contract": "promptos/provider-adapter/codex@v1",
+      "authority": "advisory-routing-only",
+      "availabilitySource": "live-runtime-palette-and-current-official-codex-behavior",
+      "requiredPreflightIfAvailable": [
+        "/status",
+        "/permissions"
+      ],
+      "goalPlanningIfAvailable": [
+        "/goal",
+        "/plan"
+      ],
+      "capabilityDiscoveryIfAvailable": [
+        "/skills",
+        "/mcp"
+      ],
+      "verificationIfAvailable": [
+        "/review"
+      ],
+      "continuityIfAvailable": [
+        "/resume",
+        "/compact"
+      ],
+      "contextSplitIfAvailable": [
+        "/fork",
+        "/side"
+      ],
+      "utilityIfAvailable": [
+        "/init",
+        "/model",
+        "/fast",
+        "/memories",
+        "/rename",
+        "/new",
+        "/archive",
+        "/status",
+        "/usage",
+        "/pets"
+      ],
+      "executionLane": [
+        "observe-current-runtime-command-availability",
+        "status",
+        "permissions",
+        "bind-goal-and-stop-condition",
+        "plan-nontrivial-change",
+        "discover-relevant-skills-and-mcp",
+        "inspect-authoritative-repository-state",
+        "implement-smallest-valid-change",
+        "run-focused-tests-and-playwright-when-applicable",
+        "review-current-diff",
+        "persist-exact-head-receipts-rollback-and-unknowns",
+        "compact-only-after-durable-receipts"
+      ],
+      "attackChecks": [
+        "host-version-command-drift",
+        "permissions-mistaken-for-authority",
+        "mcp-or-skill-availability-mistaken-for-authority",
+        "review-mistaken-for-merge-or-runtime-proof",
+        "context-split-or-resume-carries-stale-proof",
+        "compact-drops-load-bearing-state",
+        "model-or-fast-mode-changes-cost-or-behavior-without-reverification",
+        "generated-or-remembered-instructions-outrank-checked-in-policy"
+      ],
+      "rules": [
+        "Native Codex commands are used only when the current host exposes them; missing commands are not simulated.",
+        "/status is session-configuration evidence, not repository, provider, deployment, or product truth.",
+        "/permissions may narrow Codex capability but never widens repository, Founder Control Room, founder, provider, merge, deployment, spending, publication, or destructive authority.",
+        "/goal and /plan preserve the checked-in goal, stop condition, proof requirements, rollback, and authority ceiling when present.",
+        "/skills and /mcp reveal capability availability only; availability is not authorization.",
+        "/model and /fast may change execution characteristics but never reduce evidence requirements or widen authority.",
+        "/review is review evidence only and never merge, deployment, publication, production, or outcome authority.",
+        "/fork and /side create context branches that must reacquire repository/provider fingerprints before consequential action.",
+        "/resume requires current repository, branch/head, provider, review, and runtime state to be reacquired before consequential action.",
+        "/compact is allowed only after durable decisions, exact fingerprints, evidence IDs, blockers, rollback, and unresolved unknowns are persisted outside compressed context.",
+        "/init must not overwrite governed AGENTS.md instructions without explicit review.",
+        "/memories may assist continuity but checked-in AGENTS.md, skills, tests, and current provider evidence remain policy authority.",
+        "Session utilities such as /usage, /rename, /new, /archive, and /pets never grant execution authority."
+      ]
+    }
+  },
   "chiefAI": {
     "repository": "jussray/chief-ai-machine",
     "role": "governed-ai-cognition-proposal-layer",
