@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   AI_MASTERY_V6_PROTOCOL_STACK,
+  ATTACK_WORKFLOWS,
+  REPAIR_OS_SEQUENCE,
   buildPromptOSSignal,
   compileV6Prompt,
   selectPromptMode,
@@ -18,6 +20,11 @@ const EXPECTED_PROTOCOL_STACK = [
   'truthmode', 'confess', '5w1h', 'billgates', 'elonmusk', 'garyvee', 'ultrathink',
   'redteam-1', 'redteam-twin', 'lindymode', 'l99', 'redteam-2', 'ooda', 'goalfix',
   'attack-ten', 'proofmode', 'continuity',
+];
+
+const EXPECTED_REPAIR_OS = [
+  'lindymode', 'redteam-1', 'attack-ten', 'ooda-observe', 'ooda-orient', 'ooda-decide',
+  'l99-authority', 'act', 'redteam-2', 'recursive-hardening', 'verify', 'loop',
 ];
 
 test('FCR signal selects task prioritizer', () => {
@@ -49,10 +56,27 @@ test('V6 protocol stack preserves founder challenge order exactly', () => {
   assert.equal(new Set(AI_MASTERY_V6_PROTOCOL_STACK).size, AI_MASTERY_V6_PROTOCOL_STACK.length);
 });
 
+test('repair OS fuses Lindy Red Team attack OODA L99 action and verification', () => {
+  assert.deepEqual([...REPAIR_OS_SEQUENCE], EXPECTED_REPAIR_OS);
+  assert.equal(new Set(REPAIR_OS_SEQUENCE).size, REPAIR_OS_SEQUENCE.length);
+  assert.equal(ATTACK_WORKFLOWS.premise, 'attack-ten');
+  assert.equal(ATTACK_WORKFLOWS.implementation, 'recursive-hardening');
+  assert.equal(ATTACK_WORKFLOWS.recursiveContract, 'juss-v10/recursive-hardening@v1');
+  assert.equal(ATTACK_WORKFLOWS.requiredCycles, 10);
+  assert.deepEqual([...ATTACK_WORKFLOWS.modes], [
+    'authority-inversion', 'evidence-falsification', 'human-outcome', 'temporal-race',
+  ]);
+  assert.equal(ATTACK_WORKFLOWS.authorityEffect, 'none');
+});
+
 test('compiled prompt preserves V6 kernel order and separate receipts', () => {
   const result = compileV6Prompt(inbound({ requestedMode: 'workflow-optimizer' }));
   assert.equal(result.selected, true);
   assert.match(result.prompt, /TRUTHMODE -> CONFESS -> 5W1H -> BILLGATES -> ELONMUSK -> GARYVEE -> ULTRATHINK -> REDTEAM I -> REDTEAM TWIN -> LINDY -> L99 -> REDTEAM II -> OODA -> GOALFIX -> ATTACK TEN -> ACTION -> PROOF -> CONTINUITY -> NEXT GATE/);
+  assert.match(result.prompt, /Repair OS: LINDY -> REDTEAM I -> ATTACK TEN -> OODA OBSERVE -> OODA ORIENT -> OODA DECIDE -> L99 AUTHORITY -> ACT -> REDTEAM II -> RECURSIVE HARDENING -> VERIFY -> LOOP/);
+  assert.match(result.prompt, /10-cycle RECURSIVE HARDENING/);
+  assert.match(result.prompt, /authority inversion, evidence falsification, human-outcome failure, and temporal races/);
+  assert.match(result.prompt, /never create, renew, widen, or transport execution authority/);
   assert.match(result.prompt, /independent failures as separate receipts/);
   assert.match(result.prompt, /never creates or renews authority/);
 });
