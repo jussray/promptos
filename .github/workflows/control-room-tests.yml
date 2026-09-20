@@ -25,6 +25,7 @@ on:
       - "scripts/verify-catalog-runtime.mjs"
       - "scripts/generate-catalog.mjs"
       - "scripts/stage-public-site.mjs"
+      - "scripts/verify-stage-public-site-safety.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
       - "scripts/make-workflow.mjs"
@@ -119,6 +120,8 @@ jobs:
         run: npm ci --prefix tools/zapier --ignore-scripts --no-audit --no-fund
       - name: Typecheck isolated Zapier tooling
         run: npm --prefix tools/zapier run typecheck
+      - name: Verify public staging path cannot erase sources
+        run: node scripts/verify-stage-public-site-safety.mjs
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
       - name: Install Chromium
