@@ -1,9 +1,15 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const outputDir = process.env.PROMPTOS_PUBLIC_SITE_DIR || '_site';
+const requestedOutputDir = process.env.PROMPTOS_PUBLIC_SITE_DIR || '_site';
+const repositoryRoot = path.resolve(process.cwd());
+const outputDir = path.resolve(repositoryRoot, requestedOutputDir);
+const canonicalOutputDir = path.join(repositoryRoot, '_site');
 const expectedHead = process.env.EXPECTED_HEAD_SHA || '';
 
+if (outputDir !== canonicalOutputDir) {
+  throw new Error('unsafe public staging directory: PromptOS public staging may only use the repository-local _site directory');
+}
 if (!/^[0-9a-f]{40}$/.test(expectedHead)) {
   throw new Error('EXPECTED_HEAD_SHA must be an exact lowercase 40-character SHA');
 }
@@ -98,7 +104,7 @@ for (const file of actualFiles) {
 
 console.log(JSON.stringify({
   status: 'passed',
-  outputDir,
+  outputDir: '_site',
   expectedHead,
   fileCount: actualFiles.length,
   files: actualFiles,
