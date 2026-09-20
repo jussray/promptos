@@ -15,8 +15,11 @@ on:
       - "scripts/verify-evidence-decision-loop.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
+      - "src/catalog-runtime/**"
       - "workflows/**"
       - "scripts/verify-ai-mastery-v6.mjs"
+      - "scripts/verify-catalog-runtime.mjs"
+      - "scripts/generate-catalog.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
       - "scripts/make-workflow.mjs"
@@ -60,46 +63,38 @@ jobs:
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
           persist-credentials: false
-
       - name: Record and verify exact head
         shell: bash
         run: |
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
-
       - name: Verify AI Mastery V6 execution contract
         run: node scripts/verify-ai-mastery-v6.mjs
-
+      - name: Verify migrated PromptOS catalog runtime
+        run: node scripts/verify-catalog-runtime.mjs
+      - name: Generate PromptOS catalog quality receipt
+        run: node scripts/generate-catalog.mjs
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
-
       - name: Verify evidence decision loop contract
         run: node scripts/verify-evidence-decision-loop.mjs
-
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
-
       - name: Verify Founder OS mission compiler contract
         run: node scripts/verify-founder-os-mission-compiler.mjs
-
       - name: Verify PromptOS and Chief product boundary
         run: node scripts/verify-product-boundary.mjs
-
       - name: Verify control-room workflow trigger contract
         run: node scripts/verify-control-room-workflow-contract.mjs
-
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
-
       - name: Verify legacy build entrypoint is non-mutating
         shell: bash
         run: |
@@ -108,22 +103,16 @@ jobs:
           after="$(sha256sum index.html | awk '{print $1}')"
           printf 'index_before=%s\nindex_after=%s\n' "$before" "$after"
           test "$before" = "$after"
-
       - name: Materialize verified Zapier lockfile
         run: node tools/zapier/scripts/sync-lockfile.mjs
-
       - name: Install isolated Zapier tooling
         run: npm ci --prefix tools/zapier --ignore-scripts --no-audit --no-fund
-
       - name: Typecheck isolated Zapier tooling
         run: npm --prefix tools/zapier run typecheck
-
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
       - name: Start static PromptOS server
         shell: bash
         run: |
@@ -135,18 +124,14 @@ jobs:
           done
           cat /tmp/promptos-server.log
           exit 1
-
       - name: Prove rendered desktop and mobile PromptOS paths
         run: node e2e/rendered-proof.mjs
-
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
-
       - name: Stop static PromptOS server
         if: always()
         shell: bash
         run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
-
       - name: Retain sanitized PromptOS test receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -154,6 +139,7 @@ jobs:
           name: promptos-control-room-tests-${{ env.EXPECTED_HEAD_SHA }}
           path: |
             artifacts/control-room-tests.json
+            artifacts/promptos/catalog-quality-report.json
             artifacts/promptos-rendered-proof
             artifacts/promptos-founder-os-proof
           if-no-files-found: error
