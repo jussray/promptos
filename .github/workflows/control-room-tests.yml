@@ -56,6 +56,10 @@ env:
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
   PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
 
+concurrency:
+  group: promptos-control-room-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Verify PromptOS control room tests
