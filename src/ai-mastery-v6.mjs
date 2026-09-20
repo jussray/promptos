@@ -63,6 +63,33 @@ export const ATTACK_WORKFLOWS = Object.freeze({
   authorityEffect: 'none',
 });
 
+export const CHALLENGE_LENS_SEMANTICS = Object.freeze({
+  billgates: Object.freeze({
+    role: 'durable-leverage',
+    objective: 'durable_growth',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'identify-the-bottleneck-and-highest-leverage-point',
+      'prefer-stable-options-and-reversible-changes',
+      'prefer-generated-docs-shared-fixtures-and-reusable-artifacts',
+      'standardize-a-proven-path-before-scaling',
+      'do-not-scale-an-unproven-path',
+    ]),
+  }),
+  elonmusk: Object.freeze({
+    role: 'first-principles-execution',
+    objective: 'upside_growth',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'question-requirements-before-accepting-them',
+      'delete-before-optimizing',
+      'simplify-from-first-principles',
+      'prefer-fast-small-reversible-experiments',
+      'accelerate-feedback-and-automate-last',
+    ]),
+  }),
+});
+
 const MODE_SET = new Set(MODES);
 const TRUST = new Set(['verified', 'inferred', 'unknown', 'blocked']);
 const SOURCES = new Set(['fcr', 'chief', 'promptos', 'founder']);
@@ -132,6 +159,15 @@ function repairOSOrderText() {
   return REPAIR_OS_SEQUENCE.map((step) => REPAIR_OS_LABELS[step] ?? step.toUpperCase()).join(' -> ');
 }
 
+function challengeLensText() {
+  const bill = CHALLENGE_LENS_SEMANTICS.billgates;
+  const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
+  return [
+    `BILLGATES lens (${bill.objective}): identify the bottleneck and highest-leverage point; prefer stable options, reversible changes, generated docs, shared fixtures, and reusable artifacts; standardize proven paths before scaling and do not scale unproven paths. Authority effect: ${bill.authorityEffect}.`,
+    `ELONMUSK lens (${elon.objective}): question requirements; delete before optimizing; simplify from first principles; prefer fast small reversible experiments; accelerate feedback and automate last. Authority effect: ${elon.authorityEffect}.`,
+  ];
+}
+
 export function normalizeFounderSignal(input = {}) {
   const signal = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   return {
@@ -197,10 +233,11 @@ export function compileV6Prompt(input) {
     `Goal: ${signal.goal || signal.intent}`,
     `Kernel order: ${kernelOrderText()}.`,
     `Repair OS: ${repairOSOrderText()}.`,
+    ...challengeLensText(),
     `Attack workflows: ATTACK TEN challenges the premise before action; ${ATTACK_WORKFLOWS.requiredCycles}-cycle RECURSIVE HARDENING attacks authority inversion, evidence falsification, human-outcome failure, and temporal races after implementation.`,
     'Lindy chooses the durable carrier; Red Team I attacks whether the repair should exist; OODA reacquires current reality before deciding; L99 verifies subject, authority, evidence, rollback, and consequence before ACT.',
     'Red Team II and recursive hardening attack the implemented result. Verification must use the highest relevant truth plane, then LOOP only if the goal is still unproven and authority remains valid.',
-    'Attack, OODA, Lindy, Red Team, and L99 outputs are reasoning/evidence only. They never create, renew, widen, or transport execution authority.',
+    'Attack, OODA, Lindy, Red Team, Bill Gates, Elon Musk, and L99 outputs are reasoning/evidence only. They never create, renew, widen, or transport execution authority.',
     'Classify material claims VERIFIED / INFERRED / UNKNOWN / BLOCKED. Keep independent failures as separate receipts.',
     'Evidence may update or invalidate fingerprints/proof cookies but never creates or renews authority.',
     'Do not claim execution, outcome, verification, merge, publication, or external mutation without matching evidence and authority.',
