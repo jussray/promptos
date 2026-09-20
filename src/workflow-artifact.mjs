@@ -40,6 +40,9 @@ export function compileWorkflowArtifact(mission, options = {}) {
   const stopConditions = copyStrings(mission.stopConditions);
   if (!stopConditions.length) throw new Error('A workflow requires at least one stop condition.');
 
+  const project = text(mission.project) || null;
+  const shellId = project ? `project:${slug(project)}` : null;
+
   return Object.freeze({
     schemaVersion: 1,
     artifactType: 'promptos-workflow',
@@ -51,7 +54,7 @@ export function compileWorkflowArtifact(mission, options = {}) {
     sourceMission: Object.freeze({
       version: text(mission.version) || 'unknown',
       intent,
-      project: text(mission.project) || null,
+      project,
       risk: text(mission.risk) || 'unknown',
       authorityCeiling,
     }),
@@ -61,6 +64,20 @@ export function compileWorkflowArtifact(mission, options = {}) {
     inputs: copyStrings(options.inputs),
     protocols,
     providers,
+    executionBoundary: Object.freeze({
+      authority: 'proposal-only',
+      projectId: project,
+      shellId,
+      credentialLane: project ? 'project' : 'unbound',
+      credentialProjectId: project,
+      allowedProviderIds: Object.freeze([...providers]),
+      providerFallback: 'deny',
+      networkMode: 'deny-all',
+      allowedEgressHosts: Object.freeze([]),
+      blockPrivateNetworks: true,
+      humanFinalAuthorizationRequired: true,
+      fcrLeaseRequired: true,
+    }),
     requiredEvidence,
     stopConditions,
     verification: Object.freeze({
@@ -90,6 +107,30 @@ export function validateWorkflowArtifact(workflow) {
   if (!Array.isArray(workflow.stopConditions) || !workflow.stopConditions.length) errors.push('stopConditions are required');
   if (!Array.isArray(workflow.requiredEvidence)) errors.push('requiredEvidence must be an array');
   if (!Array.isArray(workflow.outputContract) || !workflow.outputContract.length) errors.push('outputContract is required');
+
+  const boundary = workflow.executionBoundary;
+  if (!boundary || typeof boundary !== 'object') errors.push('executionBoundary is required');
+  else {
+    if (boundary.authority !== 'proposal-only') errors.push('PromptOS execution boundary must remain proposal-only');
+    if (boundary.providerFallback !== 'deny') errors.push('provider fallback must be denied');
+    if (boundary.networkMode !== 'deny-all') errors.push('compiled workflows must default to deny-all network access');
+    if (!Array.isArray(boundary.allowedEgressHosts) || boundary.allowedEgressHosts.length !== 0) errors.push('compiled workflows cannot self-grant egress');
+    if (boundary.blockPrivateNetworks !== true) errors.push('private-network blocking must remain required');
+    if (boundary.humanFinalAuthorizationRequired !== true) errors.push('human final authorization must remain required');
+    if (boundary.fcrLeaseRequired !== true) errors.push('FCR lease must remain required');
+    if (boundary.projectId) {
+      if (boundary.credentialLane !== 'project') errors.push('project workflows must use the project credential lane');
+      if (boundary.credentialProjectId !== boundary.projectId) errors.push('credential project binding must match workflow project');
+      if (!text(boundary.shellId)) errors.push('project workflows require a shellId');
+    } else if (boundary.credentialLane !== 'unbound') {
+      errors.push('unbound workflows cannot claim a credential lane');
+    }
+    if (!Array.isArray(boundary.allowedProviderIds)) errors.push('allowedProviderIds must be an array');
+    else if (JSON.stringify([...boundary.allowedProviderIds].sort()) !== JSON.stringify([...copyStrings(workflow.providers)].sort())) {
+      errors.push('execution provider allowlist must match declared workflow providers');
+    }
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
