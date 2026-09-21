@@ -1,0 +1,64 @@
+name: PromptOS GitHub App Tests
+
+on:
+  pull_request:
+    paths:
+      - "github-app/**"
+      - "scripts/verify-github-app-contract.mjs"
+      - "e2e/github-app-runtime.mjs"
+      - ".github/workflows/github-app-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "github-app/**"
+      - "scripts/verify-github-app-contract.mjs"
+      - "e2e/github-app-runtime.mjs"
+      - ".github/workflows/github-app-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: promptos-github-app-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify PromptOS GitHub App exact head
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+      - name: Record and verify exact head
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify GitHub App source contract
+        run: node scripts/verify-github-app-contract.mjs
+      - name: Install isolated Playwright request client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+      - name: Prove signed webhook and installation-token path with Playwright
+        run: node e2e/github-app-runtime.mjs
+      - name: Retain sanitized GitHub App proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-github-app-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-github-app-proof.json
+          if-no-files-found: error
+          retention-days: 14

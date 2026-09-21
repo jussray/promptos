@@ -1,0 +1,36 @@
+{
+  "contract": "promptos/github-app@v1",
+  "name": "PromptOS",
+  "homepage_url": "https://github.com/jussray/promptos",
+  "webhook_url_template": "{{PROMPTOS_GITHUB_APP_ORIGIN}}/github/webhook",
+  "setup_url_template": "{{PROMPTOS_GITHUB_APP_ORIGIN}}/github/setup",
+  "public": false,
+  "permissions": {
+    "actions": "read",
+    "contents": "read",
+    "issues": "write",
+    "pull_requests": "read"
+  },
+  "events": [
+    "issue_comment",
+    "pull_request",
+    "workflow_run"
+  ],
+  "required_runtime_secrets": [
+    "GITHUB_APP_ID",
+    "GITHUB_APP_PRIVATE_KEY",
+    "GITHUB_WEBHOOK_SECRET"
+  ],
+  "optional_runtime_flags": {
+    "PROMPTOS_COMMENT_ON_FAILURES": "false by default; set to true only after a signed command receipt is proven"
+  },
+  "explicitly_not_granted": [
+    "contents:write",
+    "pull_requests:write",
+    "actions:write",
+    "workflows:write",
+    "administration",
+    "secrets",
+    "deployments"
+  ]
+}
