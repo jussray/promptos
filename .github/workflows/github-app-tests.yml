@@ -8,7 +8,6 @@ on:
       - "e2e/github-app-runtime.mjs"
       - ".github/workflows/github-app-tests.yml"
   push:
-    branches: [main]
     paths:
       - "github-app/**"
       - "scripts/verify-github-app-contract.mjs"
