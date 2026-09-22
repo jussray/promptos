@@ -1,4 +1,5 @@
 import { canonicalFamilies } from './families.js';
+import { builderPrompts } from './builderPrompts.js';
 import { validateRecipeSpec } from './compatibility.js';
 
 export const CATALOG_TARGET = 5000;
@@ -26,6 +27,7 @@ function descriptionFor(family, spec) {
 export function candidateSpecs() {
   const out = [];
   for (const family of Object.values(canonicalFamilies)) {
+    if (family.seedOnly) continue;
     for (const platform of family.allowedPlatforms) {
       for (const stage of family.allowedStages) {
         for (const mode of family.allowedModes) {
@@ -64,9 +66,24 @@ export function recipeFromSpec(spec) {
   };
 }
 
+function validatedBuilderPrompts(rejected) {
+  const valid = [];
+  for (const recipe of builderPrompts) {
+    const check = validateRecipeSpec(recipe);
+    if (!check.valid) {
+      rejected.push({ spec: recipe, reason: check.errors.join('; ') });
+      continue;
+    }
+    valid.push(recipe);
+  }
+  return valid;
+}
+
 export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
   const valid = [];
   const rejected = [];
+  const curated = validatedBuilderPrompts(rejected);
+
   for (const spec of candidateSpecs()) {
     const result = recipeFromSpec(spec);
     if (!result.ok) {
@@ -75,13 +92,30 @@ export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
     }
     valid.push(result.recipe);
   }
-  if (valid.length < target) throw new Error(`Only ${valid.length}/${target} valid recipes are available.`);
+
+  if (curated.length > target) throw new Error(`Curated recipes exceed catalog target: ${curated.length}/${target}.`);
+  if (valid.length + curated.length < target) throw new Error(`Only ${valid.length + curated.length}/${target} valid recipes are available.`);
+
   valid.sort((a, b) => {
     const rankDelta = stableRank(a.id) - stableRank(b.id);
     return rankDelta || a.id.localeCompare(b.id);
   });
-  const selected = valid.slice(0, target);
+
+  const curatedIds = new Set(curated.map((recipe) => recipe.id));
+  if (curatedIds.size !== curated.length) throw new Error('Curated builder recipe ids are not unique.');
+
+  const selected = [
+    ...curated,
+    ...valid.filter((recipe) => !curatedIds.has(recipe.id)).slice(0, target - curated.length),
+  ];
+
   const ids = new Set(selected.map((recipe) => recipe.id));
   if (ids.size !== selected.length) throw new Error('Catalog recipe ids are not unique.');
-  return { recipes: selected, rejected, candidateCount: valid.length };
+
+  return {
+    recipes: selected,
+    rejected,
+    candidateCount: valid.length + curated.length,
+    curatedCount: curated.length,
+  };
 }

@@ -52,5 +52,12 @@ export const canonicalFamilies = {
     allowedPlatforms: ['chatgpt','claude','perplexity'], allowedStages: ['audit','plan','launch','test'], allowedModes: ALL_MODES, allowedRiskLenses: ALL_RISK_LENSES,
     requiredInputs: ['repoName','surface','regulatoryContext','goal'],
     baseClauseIds: ['role.compliance-sentinel',...CORE_CLAUSES,'method.compliance-sweep','output.compliance-report']
+  },
+  'application.builder': {
+    id: 'application.builder', title: 'Application Builder', pack: 'builder-starter',
+    allowedPlatforms: ['chatgpt','claude','shopify'], allowedStages: ['plan','build','test','polish','launch'], allowedModes: ALL_MODES, allowedRiskLenses: ALL_RISK_LENSES,
+    requiredInputs: ['projectName','goal','stack','constraints'],
+    baseClauseIds: [...CORE_CLAUSES],
+    seedOnly: true
   }
 };

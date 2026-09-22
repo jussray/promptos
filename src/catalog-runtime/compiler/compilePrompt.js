@@ -33,8 +33,10 @@ export function compilePrompt(recipe, input = {}, appContext = {}) {
   const unresolvedClauseIds = appliedClauseIds.filter((id) => !clauses[id]);
   if (unresolvedClauseIds.length) return { ok:false, readyToCopy:false, errors:[`Missing clauses: ${unresolvedClauseIds.join(', ')}`], prompt:'', missingInputs:missing, provenance:null };
   const adapter = getPlatformAdapter(recipe.platform);
+  const recipeInstructions = String(recipe.instructions ?? '').trim();
+  const instructionBody = recipeInstructions ? `RECIPE BUILD BRIEF\n${readTemplate(recipeInstructions, input)}` : '';
   const clauseBody = appliedClauseIds.map((id) => readTemplate(clauses[id].body, input)).filter(Boolean).join('\n\n');
-  const body = `${inputContext(requiredInputs, input)}\n\n${clauseBody}`;
+  const body = [inputContext(requiredInputs, input), instructionBody, clauseBody].filter(Boolean).join('\n\n');
   const prompt = adapter.wrap({ title:recipe.title, body, input });
   return { ok:true, readyToCopy:missing.length === 0, prompt, missingInputs:missing, errors:[], provenance:{ recipeId:recipe.id, canonicalFamilyId:family.id, appliedClauseIds, platform:recipe.platform, generatorVersion:recipe.version, compiledAt:input.__compiledAt ?? null } };
 }
