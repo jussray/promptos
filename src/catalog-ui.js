@@ -78,7 +78,7 @@ function createPage() {
     <div class="promptos-stats" aria-label="PromptOS catalog summary">
       <div class="stat"><div class="n" id="catalogTotal">5,000</div><div class="l">Selected recipes</div></div>
       <div class="stat"><div class="n" id="catalogCandidateTotal">5,400</div><div class="l">Valid candidates</div></div>
-      <div class="stat"><div class="n">8</div><div class="l">Canonical families</div></div>
+      <div class="stat"><div class="n" id="catalogFamilyTotal">8</div><div class="l">Canonical families</div></div>
       <div class="stat"><div class="n">On demand</div><div class="l">Prompt compilation</div></div>
     </div>
     <div class="promptos-toolbar" aria-label="PromptOS catalog filters">
@@ -193,6 +193,7 @@ export function mountPromptOSCatalog() {
     recipes = built.recipes;
     page.querySelector('#catalogTotal').textContent = recipes.length.toLocaleString();
     page.querySelector('#catalogCandidateTotal').textContent = built.candidateCount.toLocaleString();
+    page.querySelector('#catalogFamilyTotal').textContent = Object.keys(canonicalFamilies).length.toLocaleString();
 
     const search = page.querySelector('#catalogSearch');
     const family = page.querySelector('#catalogFamily');
