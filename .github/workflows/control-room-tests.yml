@@ -58,6 +58,7 @@ env:
   PROMPTOS_BASE_URL: http://127.0.0.1:4173
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
   PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
+  PROMPTOS_IMPLICIT_PROOF_DIR: artifacts/promptos-implicit-workflow-proof
 
 concurrency:
   group: promptos-control-room-${{ github.event.pull_request.number || github.ref }}
@@ -139,6 +140,8 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove implicit workflow triggers in source UI
+        run: node e2e/implicit-workflow-proof.mjs
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
       - name: Stop static source server
@@ -165,6 +168,11 @@ jobs:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
         run: node e2e/rendered-proof.mjs
+      - name: Prove implicit workflow triggers in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_IMPLICIT_PROOF_DIR: artifacts/promptos-staged-implicit-workflow-proof
+        run: node e2e/implicit-workflow-proof.mjs
       - name: Stop staged public-site server
         if: always()
         shell: bash
@@ -178,7 +186,9 @@ jobs:
             artifacts/control-room-tests.json
             artifacts/promptos/catalog-quality-report.json
             artifacts/promptos-rendered-proof
+            artifacts/promptos-implicit-workflow-proof
             artifacts/promptos-founder-os-proof
             artifacts/promptos-staged-proof
+            artifacts/promptos-staged-implicit-workflow-proof
           if-no-files-found: error
           retention-days: 14
