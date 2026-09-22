@@ -1,5 +1,6 @@
 import { canonicalFamilies } from './families.js';
 import { builderPrompts } from './builderPrompts.js';
+import { workflowPrompts } from './workflowPrompts.js';
 import { validateRecipeSpec } from './compatibility.js';
 
 export const CATALOG_TARGET = 5000;
@@ -66,9 +67,9 @@ export function recipeFromSpec(spec) {
   };
 }
 
-function validatedBuilderPrompts(rejected) {
+function validatedCuratedPrompts(rejected) {
   const valid = [];
-  for (const recipe of builderPrompts) {
+  for (const recipe of [...builderPrompts, ...workflowPrompts]) {
     const check = validateRecipeSpec(recipe);
     if (!check.valid) {
       rejected.push({ spec: recipe, reason: check.errors.join('; ') });
@@ -82,7 +83,7 @@ function validatedBuilderPrompts(rejected) {
 export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
   const valid = [];
   const rejected = [];
-  const curated = validatedBuilderPrompts(rejected);
+  const curated = validatedCuratedPrompts(rejected);
 
   for (const spec of candidateSpecs()) {
     const result = recipeFromSpec(spec);
@@ -102,7 +103,7 @@ export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
   });
 
   const curatedIds = new Set(curated.map((recipe) => recipe.id));
-  if (curatedIds.size !== curated.length) throw new Error('Curated builder recipe ids are not unique.');
+  if (curatedIds.size !== curated.length) throw new Error('Curated recipe ids are not unique.');
 
   const selected = [
     ...curated,
@@ -117,5 +118,7 @@ export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
     rejected,
     candidateCount: valid.length + curated.length,
     curatedCount: curated.length,
+    curatedBuilderCount: builderPrompts.length,
+    curatedWorkflowCount: workflowPrompts.length,
   };
 }
