@@ -38,5 +38,20 @@ export function compilePrompt(recipe, input = {}, appContext = {}) {
   const clauseBody = appliedClauseIds.map((id) => readTemplate(clauses[id].body, input)).filter(Boolean).join('\n\n');
   const body = [inputContext(requiredInputs, input), instructionBody, clauseBody].filter(Boolean).join('\n\n');
   const prompt = adapter.wrap({ title:recipe.title, body, input });
-  return { ok:true, readyToCopy:missing.length === 0, prompt, missingInputs:missing, errors:[], provenance:{ recipeId:recipe.id, canonicalFamilyId:family.id, appliedClauseIds, platform:recipe.platform, generatorVersion:recipe.version, compiledAt:input.__compiledAt ?? null } };
+  return {
+    ok:true,
+    readyToCopy:missing.length === 0,
+    prompt,
+    missingInputs:missing,
+    errors:[],
+    provenance:{
+      recipeId:recipe.id,
+      canonicalFamilyId:family.id,
+      appliedClauseIds,
+      platform:recipe.platform,
+      generatorVersion:recipe.version,
+      workflowLineage:[...(recipe.workflowLineage ?? [])],
+      compiledAt:input.__compiledAt ?? null,
+    },
+  };
 }
