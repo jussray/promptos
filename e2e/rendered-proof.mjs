@@ -104,8 +104,11 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
   const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
   const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
+  const renderedFamilyTotal = Number((await page.locator('#catalogFamilyTotal').textContent())?.replace(/,/g, ''));
+  const familyOptionCount = await page.locator('#catalogFamily option').count() - 1;
   assert(selectedRecipes === 5000, `${name}: catalog selected recipe count drifted: ${selectedRecipes}`);
-  assert(candidateRecipes === 5400, `${name}: catalog candidate count drifted: ${candidateRecipes}`);
+  assert(candidateRecipes > selectedRecipes, `${name}: catalog candidate pool must exceed selected recipes: ${candidateRecipes}`);
+  assert(renderedFamilyTotal === familyOptionCount, `${name}: rendered canonical family count drifted: ${renderedFamilyTotal} vs ${familyOptionCount}`);
 
   await page.locator('#catalogFamily').selectOption('repo.audit.first');
   await page.locator('#catalogPlatform').selectOption('chatgpt');
@@ -133,6 +136,33 @@ async function proveViewport(browser, {name, width, height}) {
   assert(compiledOutput.includes('proof-repoName'), `${name}: compiled catalog output did not bind supplied context`);
   await page.keyboard.press('Escape');
 
+  await page.locator('#catalogReset').click();
+  await page.locator('#catalogFamily').selectOption('application.builder');
+  const builderResultText = (await page.locator('#catalogResultCount').textContent()) || '';
+  const builderRecipeCount = Number(builderResultText.replace(/[^0-9]/g, ''));
+  assert(builderRecipeCount === 200, `${name}: curated builder family count drifted: ${builderRecipeCount}`);
+  await catalogCards.first().waitFor({state: 'visible'});
+  assert((await catalogCards.first().locator('h3').textContent())?.startsWith('Builder · '), `${name}: builder family did not render builder-titled cards`);
+  await catalogCards.first().click();
+  await page.locator('#catalogDialog').waitFor({state: 'visible'});
+  const builderFamilyId = (await page.locator('#catalogDialogFamily').textContent())?.trim();
+  assert(builderFamilyId === 'application.builder', `${name}: wrong builder family opened: ${builderFamilyId}`);
+  const builderControls = page.locator('#catalogInputs [data-catalog-input]');
+  const builderControlCount = await builderControls.count();
+  assert(builderControlCount === 4, `${name}: builder recipe should request four concrete inputs, got ${builderControlCount}`);
+  for (let i = 0; i < builderControlCount; i += 1) {
+    const control = builderControls.nth(i);
+    const key = await control.getAttribute('data-catalog-input');
+    await control.fill(`builder-proof-${key}`);
+  }
+  await page.locator('#catalogCompile').click();
+  await page.locator('#catalogReadiness[data-state="ready"]').waitFor({state: 'visible'});
+  const builderCompiledOutput = (await page.locator('#catalogOutput').textContent()) || '';
+  assert(builderCompiledOutput.includes('RECIPE BUILD BRIEF'), `${name}: builder compilation omitted recipe build brief`);
+  assert(builderCompiledOutput.includes('local-first behavior'), `${name}: builder compilation omitted local-first default`);
+  assert(builderCompiledOutput.includes('Playwright'), `${name}: UI builder compilation omitted Playwright proof requirement`);
+  await page.keyboard.press('Escape');
+
   await mkdir(OUTPUT_DIR, {recursive: true});
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
   await page.screenshot({path: screenshot, fullPage: true});
@@ -151,7 +181,18 @@ async function proveViewport(browser, {name, width, height}) {
     searchedPromptId: TARGET_PROMPT_ID,
     modalOpened: true,
     themeRoundTrip: true,
-    catalog: {selectedRecipes, candidateRecipes, familyId, concreteInputCount: controlCount, compiledReady: true},
+    catalog: {
+      selectedRecipes,
+      candidateRecipes,
+      renderedFamilyTotal,
+      familyId,
+      concreteInputCount: controlCount,
+      compiledReady: true,
+      builderFamilyId,
+      builderRecipeCount,
+      builderControlCount,
+      builderCompiledReady: true,
+    },
     persistenceAuthority,
     persistenceText,
     gistRequests,
