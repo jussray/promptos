@@ -26,6 +26,8 @@ const publicFiles = [
   'parts/p11-make-ui.mjs',
   'parts/app.js',
   'src/workflow-artifact.mjs',
+  'src/prompt-memory.js',
+  'src/prompt-memory-ui.js',
   'src/catalog-ui.js',
   'src/catalog-runtime/index.js',
   'src/catalog-runtime/openPromptCard.js',

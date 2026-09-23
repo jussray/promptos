@@ -1,3 +1,4 @@
+import '../src/prompt-memory-ui.js';
 import {compileWorkflowArtifact, validateWorkflowArtifact} from '../src/workflow-artifact.mjs';
 
 const MAKE_UI_VERSION = 'promptos-make-ui-v1';
