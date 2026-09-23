@@ -33,6 +33,23 @@ function stringList(values, maxItems = 20) {
   return [...new Set(values.map((value) => safeToken(value)).filter(Boolean))].slice(0, maxItems);
 }
 
+function textList(values, maxItems = 20, maxLength = 500) {
+  if (!Array.isArray(values)) return [];
+  return [...new Set(values.map((value) => normalizeText(value, maxLength)).filter(Boolean))].slice(0, maxItems);
+}
+
+function intentFingerprintPayload(contract) {
+  return {
+    laneId: contract.laneId,
+    workflowId: contract.workflowId,
+    founderIntent: contract.founderIntent,
+    hypothesis: contract.hypothesis,
+    northStar: contract.northStar,
+    metrics: contract.metrics,
+    acceptanceCriteria: contract.acceptanceCriteria,
+  };
+}
+
 export function createExperimentIntentContract(input = {}, now = new Date()) {
   const founderIntent = normalizeText(input.founderIntent);
   const hypothesis = normalizeText(input.hypothesis);
@@ -41,12 +58,27 @@ export function createExperimentIntentContract(input = {}, now = new Date()) {
   if (!founderIntent) throw new Error('Experiment intent requires founderIntent.');
   if (!hypothesis) throw new Error('Experiment intent requires hypothesis.');
 
-  const northStar = resolveNorthStar(laneId, input.northStarMetric || input.successMetric || '');
+  const northStarMetric = resolveNorthStar(laneId, input.northStarMetric || input.successMetric || '');
+  const northStar = Object.freeze({
+    metric: northStarMetric,
+    target: normalizeText(input.target, 500) || null,
+  });
   const requestedMetrics = stringList(input.metrics);
   const allowedMetrics = LANE_REGISTRY[laneId].metrics;
-  const metrics = [...new Set([northStar, ...requestedMetrics.filter((metric) => allowedMetrics.includes(metric))])];
+  const metrics = [...new Set([northStarMetric, ...requestedMetrics.filter((metric) => allowedMetrics.includes(metric))])];
+  const acceptanceCriteria = textList(input.acceptanceCriteria);
   const route = recommendedRoute(laneId, input.channel || '');
   const contentSpecies = safeToken(input.contentSpecies || 'other');
+  const fingerprintSource = {
+    laneId,
+    workflowId,
+    founderIntent,
+    hypothesis,
+    northStar,
+    metrics,
+    acceptanceCriteria,
+  };
+  const intentFingerprint = stableHash(JSON.stringify(fingerprintSource));
 
   return Object.freeze({
     schema: EXPERIMENT_INTENT_CONTRACT,
@@ -55,11 +87,16 @@ export function createExperimentIntentContract(input = {}, now = new Date()) {
     workflowId,
     founderIntent,
     hypothesis,
-    northStar: {
-      metric: northStar,
-      target: normalizeText(input.target, 500) || null,
-    },
+    intentFingerprint,
+    northStar,
     metrics,
+    acceptanceCriteria: Object.freeze([...acceptanceCriteria]),
+    proofPolicy: Object.freeze({
+      executionProofIsNotCompletion: true,
+      completionRequiresOutcomeEvidence: true,
+      outcomeEvidenceMustBindIntentFingerprint: true,
+      completionRequiresAcceptanceCriteriaWhenProvided: true,
+    }),
     channel: normalizeText(input.channel, 120) || null,
     contentSpecies: CONTENT_SPECIES.has(contentSpecies) ? contentSpecies : 'other',
     variables: {
@@ -89,6 +126,17 @@ export function validateExperimentIntentContract(contract) {
   if (!normalizeText(contract.founderIntent)) errors.push('Missing founder intent.');
   if (!normalizeText(contract.hypothesis)) errors.push('Missing hypothesis.');
   if (!Array.isArray(contract.metrics) || !contract.metrics.includes(contract.northStar?.metric)) errors.push('North Star must be included in metrics.');
+  if (!Array.isArray(contract.acceptanceCriteria)) errors.push('Acceptance criteria must be an array.');
+  if (!normalizeText(contract.intentFingerprint, 120)) {
+    errors.push('Missing intent fingerprint.');
+  } else {
+    const expectedFingerprint = stableHash(JSON.stringify(intentFingerprintPayload(contract)));
+    if (contract.intentFingerprint !== expectedFingerprint) errors.push('Intent fingerprint does not match the experiment contract.');
+  }
+  if (contract.proofPolicy?.executionProofIsNotCompletion !== true) errors.push('Execution proof cannot satisfy task completion.');
+  if (contract.proofPolicy?.completionRequiresOutcomeEvidence !== true) errors.push('Outcome evidence is required for completion.');
+  if (contract.proofPolicy?.outcomeEvidenceMustBindIntentFingerprint !== true) errors.push('Outcome evidence must bind the experiment intent fingerprint.');
+  if (contract.proofPolicy?.completionRequiresAcceptanceCriteriaWhenProvided !== true) errors.push('Acceptance criteria proof gate cannot be removed.');
   if (contract.route?.executionAuthority !== 'advisory-only') errors.push('Experiment intent cannot grant execution authority.');
   if (contract.route?.publicationRequiresApproval !== true) errors.push('Publication approval gate cannot be removed.');
   return { valid: errors.length === 0, errors };
