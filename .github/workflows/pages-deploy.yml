@@ -2,14 +2,14 @@ name: PromptOS Public Pages Deploy
 
 # Founder-gated: manual only. This workflow is the sole path that publishes
 # PromptOS externally, so it never runs on push or pull_request. Publication
-# is restricted to founder-triggered, exact-current-main releases. Enabling
-# GitHub Pages with "GitHub Actions" as its source remains a one-time human
-# repository-admin action this workflow cannot perform on its own.
+# is restricted to founder-triggered exact deployment candidates whose lease
+# remains valid against live main. GitHub Pages with "GitHub Actions" as its
+# source remains a one-time repository-admin action this workflow cannot perform.
 on:
   workflow_dispatch:
     inputs:
       expected_head_sha:
-        description: Exact 40-character current-main commit SHA to publish
+        description: Exact 40-character deployment candidate SHA to publish
         required: true
         type: string
 
@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   verify-and-build:
-    name: Verify exact current main and stage public site
+    name: Verify deployment candidate lease and stage public site
     runs-on: ubuntu-22.04
     timeout-minutes: 18
     steps:
@@ -52,30 +52,34 @@ jobs:
             *) echo 'expected_head_sha must be an exact lowercase 40-character SHA' >&2; exit 2 ;;
           esac
 
-      - name: Bind requested SHA to live current main before checkout
-        shell: bash
-        run: |
-          set -euo pipefail
-          remote_main="$(git ls-remote https://github.com/jussray/promptos.git refs/heads/main | awk '{print $1}')"
-          case "$remote_main" in
-            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
-            *) echo 'could not resolve an exact current-main SHA' >&2; exit 3 ;;
-          esac
-          printf 'expected=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$remote_main"
-          test "$remote_main" = "$EXPECTED_HEAD_SHA"
-
-      - name: Check out exact head
+      - name: Check out exact candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify immutable head
+      - name: Verify immutable candidate
         shell: bash
         run: |
+          set -euo pipefail
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Verify deployment candidate lease against live current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          current_main="$(git rev-parse refs/remotes/origin/main)"
+          printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
+          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+
+      - name: Attack deployment candidate lease before build
+        run: |
+          python3 -m py_compile scripts/deploy_candidate_guard.py scripts/test_deploy_candidate_guard.py
+          python3 scripts/test_deploy_candidate_guard.py
 
       - name: Set up Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -172,6 +176,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -180,7 +185,14 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Revalidate founder and current main immediately before Pages mutation
+      - name: Check out exact candidate for final authority readback
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Revalidate founder and candidate lease immediately before Pages mutation
         shell: bash
         env:
           DISPATCH_ACTOR: ${{ github.actor }}
@@ -191,9 +203,12 @@ jobs:
           test "$DISPATCH_ACTOR" = "jussray"
           test "$TRIGGERING_ACTOR" = "jussray"
           test "$DISPATCH_REF" = "refs/heads/main"
-          remote_main="$(git ls-remote https://github.com/jussray/promptos.git refs/heads/main | awk '{print $1}')"
-          printf 'expected=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$remote_main"
-          test "$remote_main" = "$EXPECTED_HEAD_SHA"
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          current_main="$(git rev-parse refs/remotes/origin/main)"
+          printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
+          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
 
       - name: Deploy to GitHub Pages
         id: deployment
