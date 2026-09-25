@@ -31,22 +31,33 @@ def main() -> None:
         run(repo, "git", "config", "user.email", "lease@example.invalid")
         run(repo, "git", "config", "user.name", "PromptOS Lease Test")
         (repo / "parts").mkdir()
+        (repo / "receipts").mkdir()
         (repo / "docs").mkdir()
         (repo / "parts" / "app.js").write_text("export const runtime = 1;\n", encoding="utf-8")
-        (repo / "docs" / "receipt.md").write_text("baseline\n", encoding="utf-8")
+        (repo / "receipts" / "proof.md").write_text("baseline\n", encoding="utf-8")
+        (repo / "docs" / "FOUNDER_INTELLIGENCE_CONSTITUTION.md").write_text("authority v1\n", encoding="utf-8")
         (repo / ".deployment-authority.json").write_text(POLICY.read_text(encoding="utf-8"), encoding="utf-8")
         run(repo, "git", "add", ".")
         run(repo, "git", "commit", "-qm", "candidate")
         candidate = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
 
-        (repo / "docs" / "receipt.md").write_text("baseline\nsafe receipt\n", encoding="utf-8")
-        run(repo, "git", "add", "docs/receipt.md")
-        run(repo, "git", "commit", "-qm", "safe docs drift")
-        docs_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
-        safe = run(repo, sys.executable, str(GUARD), candidate, docs_head, check=False)
+        (repo / "receipts" / "proof.md").write_text("baseline\nsafe evidence\n", encoding="utf-8")
+        run(repo, "git", "add", "receipts/proof.md")
+        run(repo, "git", "commit", "-qm", "safe evidence drift")
+        evidence_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
+        safe = run(repo, sys.executable, str(GUARD), candidate, evidence_head, check=False)
         if safe.returncode != 0:
-            fail("docs-only drift incorrectly revoked candidate:\n" + safe.stdout + safe.stderr)
+            fail("evidence-only drift incorrectly revoked candidate:\n" + safe.stdout + safe.stderr)
 
+        (repo / "docs" / "FOUNDER_INTELLIGENCE_CONSTITUTION.md").write_text("authority v2\n", encoding="utf-8")
+        run(repo, "git", "add", "docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md")
+        run(repo, "git", "commit", "-qm", "authority drift")
+        authority_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
+        authority = run(repo, sys.executable, str(GUARD), candidate, authority_head, check=False)
+        if authority.returncode == 0:
+            fail("governance document drift incorrectly preserved candidate")
+
+        run(repo, "git", "reset", "--hard", evidence_head)
         (repo / "parts" / "app.js").write_text("export const runtime = 2;\n", encoding="utf-8")
         run(repo, "git", "add", "parts/app.js")
         run(repo, "git", "commit", "-qm", "runtime drift")
@@ -55,7 +66,7 @@ def main() -> None:
         if unsafe.returncode == 0:
             fail("staged runtime drift incorrectly preserved candidate")
 
-    print("PROMPTOS LEASE TEST PASS: safe docs drift leases; staged runtime drift revokes")
+    print("PROMPTOS LEASE TEST PASS: evidence-only drift leases; governance/runtime drift revokes")
 
 
 if __name__ == "__main__":
