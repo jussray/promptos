@@ -24,6 +24,10 @@ def run(cwd: pathlib.Path, *args: str, check: bool = True) -> subprocess.Complet
     return result
 
 
+def guard(repo: pathlib.Path, candidate: str, current: str) -> subprocess.CompletedProcess[str]:
+    return run(repo, sys.executable, str(GUARD), candidate, current, check=False)
+
+
 def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         repo = pathlib.Path(tmp)
@@ -41,32 +45,50 @@ def main() -> None:
         run(repo, "git", "commit", "-qm", "candidate")
         candidate = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
 
-        (repo / "receipts" / "proof.md").write_text("baseline\nsafe evidence\n", encoding="utf-8")
-        run(repo, "git", "add", "receipts/proof.md")
-        run(repo, "git", "commit", "-qm", "safe evidence drift")
+        # Unicode evidence path must remain exact and safe.
+        unicode_receipt = repo / "receipts" / "café.md"
+        unicode_receipt.write_text("safe evidence\n", encoding="utf-8")
+        run(repo, "git", "add", "receipts/café.md")
+        run(repo, "git", "commit", "-qm", "safe unicode evidence drift")
         evidence_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
-        safe = run(repo, sys.executable, str(GUARD), candidate, evidence_head, check=False)
+        safe = guard(repo, candidate, evidence_head)
         if safe.returncode != 0:
-            fail("evidence-only drift incorrectly revoked candidate:\n" + safe.stdout + safe.stderr)
+            fail("evidence-only Unicode drift incorrectly revoked candidate:\n" + safe.stdout + safe.stderr)
 
+        # Governance prose is authority-bearing and must revoke.
         (repo / "docs" / "FOUNDER_INTELLIGENCE_CONSTITUTION.md").write_text("authority v2\n", encoding="utf-8")
         run(repo, "git", "add", "docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md")
         run(repo, "git", "commit", "-qm", "authority drift")
         authority_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
-        authority = run(repo, sys.executable, str(GUARD), candidate, authority_head, check=False)
-        if authority.returncode == 0:
+        if guard(repo, candidate, authority_head).returncode == 0:
             fail("governance document drift incorrectly preserved candidate")
 
+        # A sensitive change followed by a revert must still revoke the older lease.
         run(repo, "git", "reset", "--hard", evidence_head)
         (repo / "parts" / "app.js").write_text("export const runtime = 2;\n", encoding="utf-8")
         run(repo, "git", "add", "parts/app.js")
         run(repo, "git", "commit", "-qm", "runtime drift")
-        runtime_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
-        unsafe = run(repo, sys.executable, str(GUARD), candidate, runtime_head, check=False)
-        if unsafe.returncode == 0:
-            fail("staged runtime drift incorrectly preserved candidate")
+        runtime_commit = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
+        run(repo, "git", "revert", "--no-edit", runtime_commit)
+        (repo / "receipts" / "proof.md").write_text("baseline\nafter revert evidence\n", encoding="utf-8")
+        run(repo, "git", "add", "receipts/proof.md")
+        run(repo, "git", "commit", "-qm", "safe receipt after revert")
+        reverted_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
+        if guard(repo, candidate, reverted_head).returncode == 0:
+            fail("runtime change followed by revert incorrectly restored candidate authority")
 
-    print("PROMPTOS LEASE TEST PASS: evidence-only drift leases; governance/runtime drift revokes")
+        # Leading whitespace is part of a Git path and must never be trimmed into an allowlisted path.
+        run(repo, "git", "reset", "--hard", evidence_head)
+        forged = repo / " receipts"
+        forged.mkdir()
+        (forged / "forged.md").write_text("unsafe exact path\n", encoding="utf-8")
+        run(repo, "git", "add", " receipts/forged.md")
+        run(repo, "git", "commit", "-qm", "leading-space path drift")
+        whitespace_head = run(repo, "git", "rev-parse", "HEAD").stdout.strip()
+        if guard(repo, candidate, whitespace_head).returncode == 0:
+            fail("leading-space unknown path was incorrectly normalized into the safe allowlist")
+
+    print("PROMPTOS LEASE TEST PASS: exact safe evidence leases; governance, reverted runtime, and forged paths revoke")
 
 
 if __name__ == "__main__":
