@@ -46,7 +46,7 @@ async function prove(browser, viewport) {
   await page.locator('#foProject').fill('jussray/Sekret-Bip');
   await page.locator('#foIntent').fill(FOUNDER_INTENT);
   await page.locator('#foConstraints').fill('Audit current main first. Preserve unrelated behavior. Playwright proof required for UI claims.');
-  await page.locator('#foProviders').fill('github, cloudflare');
+  await page.locator('#foProviders').fill('github, cloudflare, openai');
   await page.locator('#foCompile').click();
 
   await page.locator('#foOutput').waitFor({state: 'visible'});
@@ -74,6 +74,12 @@ async function prove(browser, viewport) {
   await page.locator('#foWorkflowId').fill('repair-production-recovery');
   await page.locator('#foWorkflowAliases').fill('/repair-recovery, recovery-flow');
   await page.locator('#foWorkflowLineage').fill('ultrathink, goalfix');
+  await page.locator('#foModelProfile').selectOption('chatgpt-sol');
+  await page.locator('#foObservedProvider').selectOption('openai');
+  await page.locator('#foRuntimeModel').fill('gpt-5.6-sol');
+  await page.locator('#foObservedCapabilities').fill('github, playwright');
+  await page.locator('#foTruthRefs').fill('repo:jussray/promptos@exact-head, fcr:shared-evidence-spine');
+  await page.locator('#foContinuityFingerprint').fill('promptos:e2e:model-native:exact-head');
   await page.locator('#foMake').click();
   await page.locator('#foWorkflowDraft').waitFor({state: 'visible'});
 
@@ -87,6 +93,19 @@ async function prove(browser, viewport) {
   assert(workflow.lineage?.includes('ultrathink') && workflow.lineage?.includes('goalfix'), 'workflow preview lost declared lineage');
   assert(workflow.verification?.playwrightRequired === true, 'workflow preview lost Playwright proof requirement');
   assert(workflow.verification?.providerReadbackRequired === true, 'workflow preview lost provider readback requirement');
+
+  const modelExecution = workflow.modelExecution;
+  assert(modelExecution?.modelProfileId === 'chatgpt-sol', 'workflow UI did not compile the selected Sol profile');
+  assert(modelExecution?.observedProvider === 'openai', 'workflow UI lost observed provider binding');
+  assert(modelExecution?.observedRuntimeModel === 'gpt-5.6-sol', 'workflow UI lost observed runtime model');
+  assert(modelExecution?.observedCapabilities?.includes('github'), 'workflow UI lost observed GitHub capability');
+  assert(modelExecution?.observedCapabilities?.includes('playwright'), 'workflow UI lost observed Playwright capability');
+  assert(modelExecution?.toolUseRule === 'observed-only-no-simulation', 'workflow UI lost no-simulation rule');
+  assert(modelExecution?.proofRequired?.includes('playwright'), 'model handoff weakened mission Playwright proof');
+  assert(modelExecution?.proofRequired?.includes('provider-readback'), 'model handoff weakened provider-readback proof');
+  assert(modelExecution?.executionAuthorized === false, 'model handoff authorized execution');
+  assert(modelExecution?.authorityTransferred === false, 'model handoff transferred authority');
+  assert(modelExecution?.founderApprovalCarriedForward === false, 'model handoff carried founder approval');
 
   const workflowGate = await page.locator('#foWorkflowGate').innerText();
   assert(workflowGate.includes('Founder approval required before registry promotion'), 'workflow UI did not preserve founder registration gate');
@@ -112,6 +131,11 @@ async function prove(browser, viewport) {
     workflowDraft: true,
     workflowRegistrationAuthority: false,
     workflowLineage: workflow.lineage,
+    modelProfileId: modelExecution.modelProfileId,
+    observedProvider: modelExecution.observedProvider,
+    observedRuntimeModel: modelExecution.observedRuntimeModel,
+    observedCapabilities: modelExecution.observedCapabilities,
+    modelProofRequired: modelExecution.proofRequired,
     pageErrors,
     consoleErrors,
     screenshot,
