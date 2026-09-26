@@ -1,6 +1,10 @@
 # PromptOS
 
-PromptOS is Juss Ray's governed prompt, skill, instruction, and founder-intent layer inside Founder Control Room. It started as a 159-prompt library for OODA, Redteam, L99, Lindy, coding, and Chief AI repo operations; current `main` also includes executable governance contracts, portable Juss command parity, plugin-management boundaries, and a founder-intent mission compiler with desktop/mobile browser proof.
+PromptOS is Juss Ray's governed prompt, skill, instruction, and founder-intent layer inside Founder Control Room. It began as a 159-prompt library and has since grown into a governed catalog runtime with executable contracts, portable Juss command parity, plugin-management boundaries, research-grounded prompt packs, a founder-intent mission compiler, and desktop/mobile browser proof.
+
+**Current catalog:** 398 curated prompts inside 5,000 selected recipes.
+
+The current catalog is executable source truth, not a historical marketing count. `scripts/verify-catalog-runtime.mjs` verifies the selected and curated counts, and `scripts/verify-current-truth-surface.mjs` prevents this README from drifting away from the runtime again.
 
 ## Product boundary
 
@@ -26,7 +30,7 @@ request -> reasoning -> capability composition -> proposal -> evidence handoff
 
 ## What exists now
 
-- **Prompt library:** structured prompts for OODA, Redteam, L99, Lindy, coding, Chief AI, and founder operations.
+- **Prompt catalog:** 398 curated prompts are pinned inside a 5,000-recipe selected catalog. The curated layer includes builder prompts, reasoning/challenge prompts, and the 150-prompt research expansion.
 - **Founder-intent mission compiler:** turns founder intent, constraints, providers, and project context into a governed mission with an explicit authority ceiling, verification requirements, rollback path, and cross-system handoffs.
 - **Authority contracts:** repository and founder-intelligence instructions keep audit context below integration or mutation authority and prohibit silent authority expansion.
 - **Plugin-management contract:** allows declared integrations to be reasoned about without treating repository configuration as proof of live provider state.
@@ -54,16 +58,23 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `.control-room/plugin-management.json` — plugin-management declaration
 - `.control-room/product-boundary.json` — PromptOS/Chief/FCR product boundary
 - `control-room.manifest.json` — Control Room capability manifest
+- `scripts/verify-catalog-runtime.mjs` — 5,000 selected / 398 curated catalog contract
+- `scripts/verify-current-truth-surface.mjs` — binds current README claims to executable catalog truth
+- `scripts/verify-pages-publication-source.mjs` — live GitHub Pages publication-source readback and authority gate
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
 - `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR boundary proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
-- `.github/workflows/pages-deploy.yml` — founder-gated, `workflow_dispatch`-only publication of `index.html` and its canonical `parts/*.js` to GitHub Pages
+- `.github/workflows/pages-deploy.yml` — founder-gated manual deployment workflow, permitted to publish only when live Pages authority is configured for GitHub Actions
 - `e2e/public-deploy-proof.mjs` — proves the deployed public URL is wall-free, renders the real guest-boot UI, and serves the exact published commit SHA
 
 ## Public surface boundary
 
-PromptOS's human-facing browser UI (`index.html` and its canonical `parts/*.js`) may be published to GitHub Pages, but only through `.github/workflows/pages-deploy.yml`, which runs solely on an explicit `workflow_dispatch`. That workflow stages only the browser prompt library — Chief AI Machine, Founder Control Room, and every governance manifest in this repository stay off the public artifact. Publication is not merge; merging this repository's `main` branch never deploys anything on its own.
+PromptOS's human-facing browser UI may be published through `.github/workflows/pages-deploy.yml`, which runs only on an explicit `workflow_dispatch` and stages an allowlisted public artifact. Chief AI Machine, Founder Control Room, governance manifests, credentials, and non-public control surfaces stay outside that artifact.
+
+Provider publication state is runtime truth, not repository inference. The deployment workflow and deployment-candidate contract call `scripts/verify-pages-publication-source.mjs` and fail closed unless GitHub Pages reports `build_type=workflow`. If the provider is configured in legacy branch mode, a push to `main` can publish outside the authorized workflow and the deployment-authority gates must remain blocked.
+
+Merging `main` is not authorization to publish. A successful source or staged-browser test proves code readiness, not provider publication authority. The latest provider-specific continuity receipt is kept under `docs/receipts/`.
 
 ## Documentation rule
 
