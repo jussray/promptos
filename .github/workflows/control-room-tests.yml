@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "README.md"
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/**"
@@ -14,6 +15,7 @@ on:
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
       - "scripts/verify-evidence-decision-loop.mjs"
+      - "scripts/verify-current-truth-surface.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
       - "src/ai-mastery-v6.mjs"
@@ -92,6 +94,8 @@ jobs:
         run: node scripts/verify-ai-mastery-v6.mjs
       - name: Verify migrated PromptOS catalog runtime
         run: node scripts/verify-catalog-runtime.mjs
+      - name: Verify current repo truth surface
+        run: node scripts/verify-current-truth-surface.mjs
       - name: Generate PromptOS catalog quality receipt
         run: node scripts/generate-catalog.mjs
       - name: Verify browser reality inspection contract
