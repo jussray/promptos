@@ -1,0 +1,75 @@
+{
+  "schema": "promptos/model-execution@v1",
+  "authority": "advisory-compilation-only",
+  "truthSource": "fcr-shared-evidence-spine",
+  "runtimeIdentitySource": "observe-per-run",
+  "toolAvailabilitySource": "observe-per-run",
+  "modelConsensusIsProof": false,
+  "requiresIndependentEvidenceForTruthUpgrade": true,
+  "mayAdapt": [
+    "context-packaging",
+    "reasoning-strategy",
+    "tool-selection",
+    "handoff-format",
+    "verification-plan",
+    "prompt-protocol-shape"
+  ],
+  "mayNotAdapt": [
+    "truth-state",
+    "authority-state",
+    "founder-approval",
+    "proof-state",
+    "project-canon"
+  ],
+  "profiles": {
+    "chatgpt-sol": {
+      "provider": "openai",
+      "compilerBias": [
+        "cross-system-reconciliation",
+        "tool-and-connector-orchestration",
+        "multimodal-product-analysis",
+        "founder-readable-decision-synthesis"
+      ],
+      "promptShape": "evidence-first-orchestration",
+      "rules": [
+        "Observe the actual runtime model identity and capabilities before compilation.",
+        "Prefer compact cross-system context with explicit authority, proof, continuity, and next-gate fields.",
+        "Never simulate a connector, browser, model, or tool that is not observed in the current runtime."
+      ]
+    },
+    "claude-code": {
+      "provider": "anthropic",
+      "compilerBias": [
+        "long-context-repository-analysis",
+        "focused-implementation",
+        "careful-refactor-planning",
+        "structured-documentation"
+      ],
+      "promptShape": "repository-context-implementation",
+      "rules": [
+        "Observe the actual runtime model identity and capabilities before compilation.",
+        "Prefer repository-local instructions, bounded implementation context, exact evidence, and explicit rollback.",
+        "Never infer tool use, Playwright use, provider state, or execution from configuration alone."
+      ]
+    }
+  },
+  "handoffFields": [
+    "modelProfileId",
+    "observedRuntimeModel",
+    "observedCapabilities",
+    "sourceTruthRefs",
+    "authorityRequired",
+    "proofRequired",
+    "claims",
+    "unknowns",
+    "continuityFingerprint",
+    "resultEvidence"
+  ],
+  "rules": [
+    "PromptOS may specialize prompt and protocol form per observed model profile but may not specialize reality.",
+    "Model identity, provider access, or tool availability never grants execution, merge, deployment, publication, spending, destructive, or founder authority.",
+    "A model response is advisory input until the receiving system independently validates its evidence.",
+    "If models disagree, preserve the disagreement and reacquire governing evidence rather than voting or averaging.",
+    "A state or fingerprint change invalidates predecessor proof for the changed subject."
+  ]
+}
