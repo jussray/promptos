@@ -34,7 +34,7 @@
       "rules": [
         "Observe the actual runtime model identity and capabilities before compilation.",
         "Prefer compact cross-system context with explicit authority, proof, continuity, and next-gate fields.",
-        "Never simulate a connector, browser, model, or tool that is not observed in the current runtime."
+        "Never simulate a connector, browser, model, or tool that is absent from observedCapabilities."
       ]
     },
     "claude-code": {
@@ -49,7 +49,7 @@
       "rules": [
         "Observe the actual runtime model identity and capabilities before compilation.",
         "Prefer repository-local instructions, bounded implementation context, exact evidence, and explicit rollback.",
-        "Never infer tool use, Playwright use, provider state, or execution from configuration alone."
+        "Never simulate Playwright, browser, provider, model, or tool use that is absent from observedCapabilities."
       ]
     }
   },
@@ -70,6 +70,7 @@
     "Model identity, provider access, or tool availability never grants execution, merge, deployment, publication, spending, destructive, or founder authority.",
     "A model response is advisory input until the receiving system independently validates its evidence.",
     "If models disagree, preserve the disagreement and reacquire governing evidence rather than voting or averaging.",
+    "A capability or tool absent from observedCapabilities must never be simulated or narrated as executed by any model profile.",
     "A state or fingerprint change invalidates predecessor proof for the changed subject."
   ]
 }
