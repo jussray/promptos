@@ -16,6 +16,8 @@ on:
       - "scripts/verify-browser-reality-contract.mjs"
       - "scripts/verify-evidence-decision-loop.mjs"
       - "scripts/verify-current-truth-surface.mjs"
+      - "scripts/verify-main-push-authority.mjs"
+      - "scripts/verify-main-provider-protection.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
       - "src/ai-mastery-v6.mjs"
@@ -48,6 +50,7 @@ on:
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
       - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/main-authority-contract.yml"
       - ".github/workflows/control-room-tests.yml"
   workflow_dispatch:
 
