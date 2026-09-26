@@ -1,0 +1,124 @@
+import { canonicalFamilies } from './families.js';
+import { builderPrompts } from './builderPrompts.js';
+import { workflowPrompts } from './workflowPrompts.js';
+import { validateRecipeSpec } from './compatibility.js';
+
+export const CATALOG_TARGET = 5000;
+export const CATALOG_VERSION = 'catalog-v1';
+
+function stableRank(value) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function titleFor(family, spec) {
+  const stage = spec.stage[0].toUpperCase() + spec.stage.slice(1);
+  const mode = spec.modes[0].replace(/-/g, ' ');
+  return `${family.title} — ${stage} / ${mode}`;
+}
+
+function descriptionFor(family, spec) {
+  return `${family.title} for ${spec.stage} work with a ${spec.riskLens} lens on ${spec.platform}.`;
+}
+
+export function candidateSpecs() {
+  const out = [];
+  for (const family of Object.values(canonicalFamilies)) {
+    if (family.seedOnly) continue;
+    for (const platform of family.allowedPlatforms) {
+      for (const stage of family.allowedStages) {
+        for (const mode of family.allowedModes) {
+          for (const riskLens of family.allowedRiskLenses) {
+            out.push({ familyId: family.id, platform, stage, modes: [mode], riskLens });
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+export function recipeFromSpec(spec) {
+  const check = validateRecipeSpec(spec);
+  if (!check.valid) return { ok: false, errors: check.errors };
+  const family = check.family;
+  const tuple = [family.id, spec.platform, spec.stage, spec.modes.join('.'), spec.riskLens, CATALOG_VERSION].join('|');
+  return {
+    ok: true,
+    recipe: {
+      id: tuple,
+      title: titleFor(family, spec),
+      description: descriptionFor(family, spec),
+      pack: family.pack,
+      familyId: family.id,
+      clauseIds: [],
+      platform: spec.platform,
+      stage: spec.stage,
+      modes: [...spec.modes],
+      riskLens: spec.riskLens,
+      inputs: [...family.requiredInputs],
+      status: 'generated',
+      version: CATALOG_VERSION,
+    },
+  };
+}
+
+function validatedCuratedPrompts(rejected) {
+  const valid = [];
+  for (const recipe of [...builderPrompts, ...workflowPrompts]) {
+    const check = validateRecipeSpec(recipe);
+    if (!check.valid) {
+      rejected.push({ spec: recipe, reason: check.errors.join('; ') });
+      continue;
+    }
+    valid.push(recipe);
+  }
+  return valid;
+}
+
+export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
+  const valid = [];
+  const rejected = [];
+  const curated = validatedCuratedPrompts(rejected);
+
+  for (const spec of candidateSpecs()) {
+    const result = recipeFromSpec(spec);
+    if (!result.ok) {
+      rejected.push({ spec, reason: result.errors.join('; ') });
+      continue;
+    }
+    valid.push(result.recipe);
+  }
+
+  if (curated.length > target) throw new Error(`Curated recipes exceed catalog target: ${curated.length}/${target}.`);
+  if (valid.length + curated.length < target) throw new Error(`Only ${valid.length + curated.length}/${target} valid recipes are available.`);
+
+  valid.sort((a, b) => {
+    const rankDelta = stableRank(a.id) - stableRank(b.id);
+    return rankDelta || a.id.localeCompare(b.id);
+  });
+
+  const curatedIds = new Set(curated.map((recipe) => recipe.id));
+  if (curatedIds.size !== curated.length) throw new Error('Curated recipe ids are not unique.');
+
+  const selected = [
+    ...curated,
+    ...valid.filter((recipe) => !curatedIds.has(recipe.id)).slice(0, target - curated.length),
+  ];
+
+  const ids = new Set(selected.map((recipe) => recipe.id));
+  if (ids.size !== selected.length) throw new Error('Catalog recipe ids are not unique.');
+
+  return {
+    recipes: selected,
+    rejected,
+    candidateCount: valid.length + curated.length,
+    curatedCount: curated.length,
+    curatedBuilderCount: builderPrompts.length,
+    curatedWorkflowCount: workflowPrompts.length,
+  };
+}

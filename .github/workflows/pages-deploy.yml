@@ -1,0 +1,256 @@
+name: PromptOS Public Pages Deploy
+
+# Founder-gated: manual only. This workflow is the sole path that publishes
+# PromptOS externally, so it never runs on push or pull_request. Publication
+# is restricted to founder-triggered exact deployment candidates whose lease
+# remains valid against live main. GitHub Pages with "GitHub Actions" as its
+# source remains a one-time repository-admin action this workflow cannot perform.
+on:
+  workflow_dispatch:
+    inputs:
+      expected_head_sha:
+        description: Exact 40-character deployment candidate SHA to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
+
+concurrency:
+  group: promptos-public-pages
+  cancel-in-progress: false
+
+jobs:
+  verify-and-build:
+    name: Verify deployment candidate lease and stage public site
+    runs-on: ubuntu-22.04
+    timeout-minutes: 18
+    steps:
+      - name: Enforce founder and main dispatch authority
+        shell: bash
+        env:
+          DISPATCH_ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          DISPATCH_REF: ${{ github.ref }}
+          DISPATCH_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test "$DISPATCH_REPOSITORY" = "jussray/promptos"
+          test "$DISPATCH_ACTOR" = "jussray"
+          test "$TRIGGERING_ACTOR" = "jussray"
+          test "$DISPATCH_REF" = "refs/heads/main"
+
+      - name: Validate requested exact head
+        shell: bash
+        run: |
+          case "$EXPECTED_HEAD_SHA" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) ;;
+            *) echo 'expected_head_sha must be an exact lowercase 40-character SHA' >&2; exit 2 ;;
+          esac
+
+      - name: Check out exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify immutable candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Verify deployment candidate lease against live current main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          current_main="$(git rev-parse refs/remotes/origin/main)"
+          printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
+          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+
+      - name: Attack deployment candidate lease before build
+        run: |
+          python3 -m py_compile scripts/deploy_candidate_guard.py scripts/test_deploy_candidate_guard.py
+          python3 scripts/test_deploy_candidate_guard.py
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify non-mutating source authority, prompt syntax, and catalog
+        run: node scripts/verify-control-room-tests.mjs
+
+      - name: Enforce public browser credential-capability absence
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden='GIST_FILENAME|gistHeaders|gistPush|gistPull|gistFindOrCreate|syncToken|syncConnect|syncPush|syncPull|api\.github\.com/gists|Token needs.*gist.*scope'
+          if grep -En "$forbidden" parts/app.js; then
+            echo 'public deployment blocked: legacy browser GitHub/Gist credential capability is still shipped in parts/app.js' >&2
+            exit 1
+          fi
+
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start source PromptOS server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 > /tmp/promptos-server.log 2>&1 &
+          echo $! > /tmp/promptos-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent "http://127.0.0.1:4173/" >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-server.log
+          exit 1
+
+      - name: Pre-flight rendered desktop and mobile source proof
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4173
+          PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
+        run: node e2e/rendered-proof.mjs
+
+      - name: Stop source PromptOS server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-server.pid || kill "$(cat /tmp/promptos-server.pid)" || true
+
+      - name: Stage exact public site with explicit allowlist and leakage guard
+        env:
+          PROMPTOS_PUBLIC_SITE_DIR: _site
+        run: node scripts/stage-public-site.mjs
+
+      - name: Start staged public-site server
+        shell: bash
+        run: |
+          python3 -m http.server 4174 --directory _site > /tmp/promptos-staged-server.log 2>&1 &
+          echo $! > /tmp/promptos-staged-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-staged-server.log
+          exit 1
+
+      - name: Prove staged deploy artifact desktop and mobile before publication
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
+        run: node e2e/rendered-proof.mjs
+
+      - name: Stop staged public-site server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-staged-server.pid || kill "$(cat /tmp/promptos-staged-server.pid)" || true
+
+      - name: Retain pre-publish staged proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: promptos-staged-public-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-staged-proof
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload public site artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: _site
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: verify-and-build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out exact candidate for final authority readback
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Revalidate founder and candidate lease immediately before Pages mutation
+        shell: bash
+        env:
+          DISPATCH_ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          DISPATCH_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          test "$DISPATCH_ACTOR" = "jussray"
+          test "$TRIGGERING_ACTOR" = "jussray"
+          test "$DISPATCH_REF" = "refs/heads/main"
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          current_main="$(git rev-parse refs/remotes/origin/main)"
+          printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
+          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+  prove-public-identity:
+    name: Prove deployed identity and rendered UI (desktop + mobile)
+    needs: deploy
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Prove public deploy identity, no login wall, legacy CTA, and Catalog compile
+        env:
+          PROMPTOS_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+          PROMPTOS_EXPECTED_SHA: ${{ env.EXPECTED_HEAD_SHA }}
+          PROMPTOS_PROOF_DIR: artifacts/promptos-public-deploy-proof
+        run: node e2e/public-deploy-proof.mjs
+
+      - name: Retain public deploy proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: promptos-public-deploy-proof-${{ env.EXPECTED_HEAD_SHA }}
+          path: artifacts/promptos-public-deploy-proof
+          if-no-files-found: error
+          retention-days: 14

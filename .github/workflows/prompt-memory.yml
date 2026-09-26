@@ -1,0 +1,112 @@
+name: PromptOS Prompt Memory Proof
+
+on:
+  pull_request:
+    paths:
+      - "src/prompt-memory.js"
+      - "src/prompt-memory-ui.js"
+      - "scripts/verify-prompt-memory.mjs"
+      - "scripts/stage-public-site.mjs"
+      - "e2e/prompt-memory-proof.mjs"
+      - "parts/p11-make-ui.mjs"
+      - ".github/workflows/prompt-memory.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/prompt-memory.js"
+      - "src/prompt-memory-ui.js"
+      - "scripts/verify-prompt-memory.mjs"
+      - "scripts/stage-public-site.mjs"
+      - "e2e/prompt-memory-proof.mjs"
+      - "parts/p11-make-ui.mjs"
+      - ".github/workflows/prompt-memory.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  PROMPTOS_BASE_URL: http://127.0.0.1:4173
+  PROMPTOS_MEMORY_PROOF_DIR: artifacts/promptos-prompt-memory-proof
+
+concurrency:
+  group: promptos-prompt-memory-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify prompt memory loop
+    runs-on: ubuntu-22.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+      - name: Verify exact head
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify prompt memory contract
+        run: node scripts/verify-prompt-memory.mjs
+      - name: Install isolated Playwright browser client
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start source server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 > /tmp/promptos-memory-source.log 2>&1 &
+          echo $! > /tmp/promptos-memory-source.pid
+          for attempt in {1..30}; do
+            curl --fail --silent "$PROMPTOS_BASE_URL/" >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-memory-source.log
+          exit 1
+      - name: Prove source prompt memory desktop and mobile
+        run: node e2e/prompt-memory-proof.mjs
+      - name: Stop source server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-memory-source.pid || kill "$(cat /tmp/promptos-memory-source.pid)" || true
+      - name: Stage exact public artifact
+        env:
+          PROMPTOS_PUBLIC_SITE_DIR: _site
+        run: node scripts/stage-public-site.mjs
+      - name: Start staged server
+        shell: bash
+        run: |
+          python3 -m http.server 4174 --directory _site > /tmp/promptos-memory-staged.log 2>&1 &
+          echo $! > /tmp/promptos-memory-staged.pid
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/promptos-memory-staged.log
+          exit 1
+      - name: Prove staged prompt memory desktop and mobile
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_MEMORY_PROOF_DIR: artifacts/promptos-staged-prompt-memory-proof
+        run: node e2e/prompt-memory-proof.mjs
+      - name: Stop staged server
+        if: always()
+        shell: bash
+        run: test ! -f /tmp/promptos-memory-staged.pid || kill "$(cat /tmp/promptos-memory-staged.pid)" || true
+      - name: Retain prompt memory proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-prompt-memory-${{ env.EXPECTED_HEAD_SHA }}
+          path: |
+            artifacts/promptos-prompt-memory-proof
+            artifacts/promptos-staged-prompt-memory-proof
+          if-no-files-found: error
+          retention-days: 14

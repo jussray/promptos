@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "1.0",
+  "repository": "jussray/promptos",
+  "portfolioHub": "jussray/founder-control-room",
+  "role": "product-workbench",
+  "authority": {
+    "sourceOfTruth": "PromptOS main, the explicit index script-source graph, checked-in prompt modules, exact-head Control Room tests, rendered browser proof, and isolated Zapier SDK typecheck evidence",
+    "portfolioMode": "sanitized-read-only-observer",
+    "productionMutation": "separate-founder-gate"
+  },
+  "controlRoom": {
+    "localSurface": true,
+    "surfaces": [
+      "control-room.manifest.json",
+      ".control-room/repository.manifest.json",
+      "scripts/verify-control-room-tests.mjs",
+      "e2e/rendered-proof.mjs",
+      ".github/workflows/assemble.yml",
+      ".github/workflows/control-room-tests.yml"
+    ],
+    "privateContentAllowed": false
+  },
+  "tests": {
+    "authority": "repo-native",
+    "aggregation": "sanitized-check-summary-to-founder-control-room",
+    "rawLogsAllowed": false,
+    "catalog": [
+      {
+        "id": "assembly-determinism",
+        "name": "PromptOS index source authority",
+        "kind": "build",
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "index.html",
+          "parts/auth.js",
+          "parts/p05-new-prompts.js",
+          "parts/p06-gap-prompts.js",
+          "parts/p07-ship-ultrathink-skills.js",
+          "parts/p08-cont-redteam.js",
+          "parts/p09-cont-design.js",
+          "parts/p10-cont-ops-growth.js",
+          "parts/app.js",
+          "scripts/verify-control-room-tests.mjs",
+          ".github/workflows/assemble.yml"
+        ]
+      },
+      {
+        "id": "prompt-module-syntax",
+        "name": "Prompt module JavaScript syntax",
+        "kind": "contract",
+        "command": "node scripts/verify-control-room-tests.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "parts/p05-new-prompts.js",
+          "parts/p06-gap-prompts.js",
+          "parts/p07-ship-ultrathink-skills.js",
+          "parts/p08-cont-redteam.js"
+        ]
+      },
+      {
+        "id": "browser-reality-contract",
+        "name": "Portable read-only browser reality contract",
+        "kind": "contract",
+        "command": "node scripts/verify-browser-reality-contract.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "AGENTS_FOUNDER_INTELLIGENCE.md",
+          ".control-room/browser-reality.contract.json",
+          "skills/browser-reality-inspector/SKILL.md",
+          "src/browser-reality-receipt.mjs",
+          "scripts/verify-browser-reality-contract.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
+        "id": "zapier-sdk-typecheck",
+        "name": "Isolated Zapier SDK TypeScript",
+        "kind": "typecheck",
+        "command": "npm --prefix tools/zapier run typecheck",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "tools/zapier/package.json",
+          "tools/zapier/tsconfig.json",
+          "tools/zapier/scripts/sync-lockfile.mjs",
+          ".github/workflows/zapier-sdk-tooling.yml",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
+        "id": "rendered-browser-proof",
+        "name": "PromptOS rendered desktop and mobile browser proof",
+        "kind": "e2e",
+        "command": "node e2e/rendered-proof.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          "index.html",
+          "e2e/rendered-proof.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
+        "id": "public-pages-deploy-identity",
+        "name": "PromptOS public Pages deploy and runtime-identity proof",
+        "kind": "deployment",
+        "command": "node e2e/public-deploy-proof.mjs",
+        "required": false,
+        "status": "founder-gated",
+        "evidencePaths": [
+          "index.html",
+          "parts/auth.js",
+          "parts/app.js",
+          ".github/workflows/pages-deploy.yml",
+          "e2e/public-deploy-proof.mjs"
+        ]
+      }
+    ]
+  },
+  "evidence": {
+    "status": "at-risk",
+    "commit": "a840893b1cd702587c275a86276236c8c52c3b32",
+    "observedAt": "2026-09-10T04:34:01Z",
+    "proofRefs": [
+      ".github/workflows/assemble.yml",
+      ".github/workflows/control-room-tests.yml",
+      ".github/workflows/zapier-sdk-tooling.yml",
+      "scripts/verify-control-room-tests.mjs",
+      "e2e/rendered-proof.mjs",
+      "e2e/founder-os-mission-compiler.mjs"
+    ]
+  },
+  "risk": {
+    "level": "medium",
+    "blockers": [
+      "The predecessor exact-head Control Room Tests run on a840893b1cd702587c275a86276236c8c52c3b32 passed source authority, prompt syntax, isolated Zapier typecheck, rendered desktop/mobile PromptOS proof, and Founder OS compiler desktop/mobile proof.",
+      "This documentation and contract update moves main, so predecessor evidence is historical; the new head must reacquire exact-head proof before this pointer can be treated as current.",
+      "Founder-gated public Pages deployment and live external provider/runtime state were not exercised by the predecessor run.",
+      "Production or external provider mutation remains a separate founder gate."
+    ]
+  },
+  "nextGate": "Run exact-head Control Room Tests on the new head; if green, update this pointer only to that verified head. If public release is requested, run the founder-gated Pages workflow and its deployed identity/browser proof."
+}
