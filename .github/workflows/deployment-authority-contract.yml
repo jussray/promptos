@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  pages: read
 
 env:
   EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -32,6 +33,10 @@ jobs:
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
+      - name: Verify founder-gated GitHub Pages publication source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-pages-publication-source.mjs
       - name: Syntax-check Python authority guards
         run: python3 -m py_compile scripts/deploy_candidate_guard.py scripts/test_deploy_candidate_guard.py
       - name: Attack deployment candidate lease
