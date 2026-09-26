@@ -1,5 +1,11 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import {
+  compileWorkflowArtifact,
+  validateWorkflowArtifact,
+  PROMPTOS_MODEL_EXECUTION_PROFILES,
+  PROMPTOS_MODEL_EXECUTION_HANDOFF_FIELDS,
+} from '../src/workflow-artifact.mjs';
 
 const contractPath = new URL('../.control-room/product-boundary.json', import.meta.url);
 const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
@@ -180,10 +186,26 @@ assert.equal(modelExecution.toolAvailabilitySource, 'observe-per-run');
 assert.equal(modelExecution.modelConsensusIsProof, false);
 assert.equal(modelExecution.requiresIndependentEvidenceForTruthUpgrade, true);
 assertExactUniqueSet(
+  modelExecution.mayAdapt,
+  [
+    'context-packaging',
+    'reasoning-strategy',
+    'tool-selection',
+    'handoff-format',
+    'verification-plan',
+    'prompt-protocol-shape',
+  ],
+  'Model-native adaptable fields',
+);
+assertExactUniqueSet(
   modelExecution.mayNotAdapt,
   ['truth-state', 'authority-state', 'founder-approval', 'proof-state', 'project-canon'],
   'Model-native immutable truth fields',
 );
+const immutableFields = new Set(modelExecution.mayNotAdapt);
+for (const adaptableField of modelExecution.mayAdapt) {
+  assert.ok(!immutableFields.has(adaptableField), `model-native adaptable field must not overlap immutable state: ${adaptableField}`);
+}
 
 const solProfile = modelExecution.profiles?.['chatgpt-sol'];
 const claudeProfile = modelExecution.profiles?.['claude-code'];
@@ -210,12 +232,31 @@ assertExactUniqueSet(
   ],
   'Model-native handoff fields',
 );
+assertExactUniqueSet(
+  PROMPTOS_MODEL_EXECUTION_HANDOFF_FIELDS,
+  modelExecution.handoffFields,
+  'Workflow compiler model handoff fields',
+);
+
+for (const profileId of ['chatgpt-sol', 'claude-code']) {
+  const jsonProfile = modelExecution.profiles[profileId];
+  const compilerProfile = PROMPTOS_MODEL_EXECUTION_PROFILES[profileId];
+  assert.ok(compilerProfile, `workflow compiler must implement ${profileId}`);
+  assert.equal(compilerProfile.provider, jsonProfile.provider, `${profileId} provider must match the contract`);
+  assert.equal(compilerProfile.promptShape, jsonProfile.promptShape, `${profileId} prompt shape must match the contract`);
+  assert.deepEqual([...compilerProfile.compilerBias], jsonProfile.compilerBias, `${profileId} compiler bias must match the contract`);
+  assert.ok(
+    jsonProfile.rules.some((rule) => rule.includes('Never simulate')),
+    `${profileId} must explicitly prohibit simulated unavailable tool use`,
+  );
+}
 
 for (const requiredRule of [
   'may specialize prompt and protocol form per observed model profile but may not specialize reality',
   'never grants execution, merge, deployment, publication, spending, destructive, or founder authority',
   'independently validates its evidence',
   'reacquire governing evidence rather than voting or averaging',
+  'absent from observedCapabilities must never be simulated',
   'invalidates predecessor proof',
 ]) {
   assert.ok(
@@ -224,4 +265,96 @@ for (const requiredRule of [
   );
 }
 
-console.log('PromptOS/Chief/FCR product boundary and model-native execution contracts verified.');
+const mission = {
+  version: 'repair-proof-v1',
+  intent: 'Compile a model-native PromptOS workflow without widening authority.',
+  project: 'promptos',
+  risk: 'low',
+  authorityCeiling: 'L2',
+  requiredEvidence: ['exact-head', 'playwright'],
+  protocols: ['truthmode'],
+  providers: ['openai', 'anthropic'],
+  stopConditions: ['Required exact-head proof fails.'],
+};
+
+const solWorkflow = compileWorkflowArtifact(mission, {
+  id: 'model-native-sol-proof',
+  modelExecution: {
+    modelProfileId: 'chatgpt-sol',
+    observedRuntimeModel: 'gpt-5.6-sol',
+    observedCapabilities: ['github', 'playwright'],
+    sourceTruthRefs: ['fcr:truth-spine:repair-proof'],
+    authorityRequired: ['source-write'],
+    proofRequired: ['exact-head', 'playwright'],
+    claims: ['model profile applied by compiler'],
+    unknowns: [],
+    continuityFingerprint: 'promptos:model-native:sol:repair-proof',
+    resultEvidence: [],
+  },
+});
+const claudeWorkflow = compileWorkflowArtifact(mission, {
+  id: 'model-native-claude-proof',
+  modelExecution: {
+    modelProfileId: 'claude-code',
+    observedRuntimeModel: 'claude-code-observed',
+    observedCapabilities: ['github'],
+    sourceTruthRefs: ['fcr:truth-spine:repair-proof'],
+    authorityRequired: ['source-write'],
+    proofRequired: ['exact-head'],
+    claims: ['model profile applied by compiler'],
+    unknowns: ['playwright capability not observed'],
+    continuityFingerprint: 'promptos:model-native:claude:repair-proof',
+    resultEvidence: [],
+  },
+});
+
+for (const [label, workflow] of [['Sol', solWorkflow], ['Claude', claudeWorkflow]]) {
+  const validation = validateWorkflowArtifact(workflow);
+  assert.equal(validation.valid, true, `${label} model-native workflow must validate: ${validation.errors.join(' | ')}`);
+  assert.ok(workflow.modelExecution, `${label} compiled workflow must carry modelExecution`);
+  for (const field of modelExecution.handoffFields) {
+    assert.ok(
+      Object.prototype.hasOwnProperty.call(workflow.modelExecution, field),
+      `${label} compiled workflow must preserve model handoff field ${field}`,
+    );
+  }
+  assert.equal(workflow.modelExecution.toolUseRule, 'observed-only-no-simulation');
+  assert.equal(workflow.modelExecution.executionAuthorized, false);
+  assert.equal(workflow.modelExecution.authorityTransferred, false);
+  assert.equal(workflow.modelExecution.founderApprovalCarriedForward, false);
+}
+
+assert.equal(solWorkflow.modelExecution.promptShape, solProfile.promptShape);
+assert.equal(claudeWorkflow.modelExecution.promptShape, claudeProfile.promptShape);
+assert.deepEqual(solWorkflow.modelExecution.compilerBias, solProfile.compilerBias);
+assert.deepEqual(claudeWorkflow.modelExecution.compilerBias, claudeProfile.compilerBias);
+assert.notDeepEqual(solWorkflow.modelExecution.compilerBias, claudeWorkflow.modelExecution.compilerBias);
+assert.deepEqual(claudeWorkflow.modelExecution.observedCapabilities, ['github']);
+assert.ok(!claudeWorkflow.modelExecution.observedCapabilities.includes('playwright'));
+
+assert.throws(
+  () => compileWorkflowArtifact(mission, {
+    id: 'missing-runtime-model-proof',
+    modelExecution: {
+      modelProfileId: 'chatgpt-sol',
+      sourceTruthRefs: ['fcr:truth-spine:repair-proof'],
+      continuityFingerprint: 'promptos:model-native:missing-runtime',
+    },
+  }),
+  /observedRuntimeModel is required/,
+  'model-native compilation must fail closed without observed runtime identity',
+);
+assert.throws(
+  () => compileWorkflowArtifact(mission, {
+    id: 'missing-truth-ref-proof',
+    modelExecution: {
+      modelProfileId: 'claude-code',
+      observedRuntimeModel: 'claude-code-observed',
+      continuityFingerprint: 'promptos:model-native:missing-truth',
+    },
+  }),
+  /sourceTruthRefs requires at least one authoritative truth reference/,
+  'model-native compilation must fail closed without authoritative truth references',
+);
+
+console.log('PromptOS/Chief/FCR product boundary and model-native compiler contracts verified.');
