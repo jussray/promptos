@@ -55,6 +55,7 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `AGENTS_FOUNDER_INTELLIGENCE.md` — founder-intelligence execution boundary
 - `docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md` — governance constitution
 - `docs/HUMAN_SAFE_BUILD_CONTRACT.md` — bounded build contract
+- `docs/receipts/PROMPTOS_TRUTH_SURFACE_MERGE_REVIEW_2026-09-26.md` — latest truth-surface/merge continuity receipt
 - `.control-room/plugin-management.json` — plugin-management declaration
 - `.control-room/product-boundary.json` — PromptOS/Chief/FCR product boundary
 - `control-room.manifest.json` — Control Room capability manifest
