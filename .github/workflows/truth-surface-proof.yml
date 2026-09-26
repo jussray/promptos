@@ -5,12 +5,16 @@ on:
     branches:
       - main
       - fix/promptos-truth-surface-review
+      - fix/main-authority-contract
     paths:
       - "README.md"
       - "src/catalog-runtime/**"
       - "scripts/verify-catalog-runtime.mjs"
       - "scripts/verify-current-truth-surface.mjs"
+      - "scripts/verify-main-push-authority.mjs"
+      - "scripts/verify-main-provider-protection.mjs"
       - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/main-authority-contract.yml"
       - ".github/workflows/truth-surface-proof.yml"
   pull_request:
     paths:
@@ -18,7 +22,10 @@ on:
       - "src/catalog-runtime/**"
       - "scripts/verify-catalog-runtime.mjs"
       - "scripts/verify-current-truth-surface.mjs"
+      - "scripts/verify-main-push-authority.mjs"
+      - "scripts/verify-main-provider-protection.mjs"
       - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/main-authority-contract.yml"
       - ".github/workflows/truth-surface-proof.yml"
   workflow_dispatch:
 
@@ -72,6 +79,17 @@ jobs:
           test "$count" -ge 2
           grep -q 'Reverify GitHub Pages publication source immediately before Pages mutation' .github/workflows/pages-deploy.yml
           grep -q 'actions/deploy-pages@' .github/workflows/pages-deploy.yml
+
+      - name: Verify main authority contract is wired
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'node scripts/verify-main-push-authority.mjs' .github/workflows/main-authority-contract.yml
+          grep -q 'git merge-base --is-ancestor' .github/workflows/main-authority-contract.yml
+          grep -q 'node scripts/verify-main-provider-protection.mjs' .github/workflows/main-authority-contract.yml
+          grep -q 'Enforce provider-required checks on main' .github/workflows/main-authority-contract.yml
+          node --check scripts/verify-main-push-authority.mjs
+          node --check scripts/verify-main-provider-protection.mjs
 
       - name: Syntax-check truth verifier
         run: node --check scripts/verify-current-truth-surface.mjs
