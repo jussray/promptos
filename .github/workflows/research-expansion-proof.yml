@@ -9,6 +9,7 @@ on:
       - "src/catalog-runtime/**"
       - "scripts/verify-catalog-runtime.mjs"
       - "e2e/research-expansion-proof.mjs"
+      - "docs/PROMPT_CATALOG_RESEARCH_EXPANSION_2026-09-26.md"
       - ".github/workflows/research-expansion-proof.yml"
   workflow_dispatch:
 
