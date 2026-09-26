@@ -1,0 +1,45 @@
+name: PromptOS Pages Authority Proof
+
+on:
+  push:
+    branches:
+      - main
+      - fix/pages-publication-authority
+    paths:
+      - "scripts/verify-pages-publication-source.mjs"
+      - ".github/workflows/pages-authority-proof.yml"
+      - ".github/workflows/deployment-authority-contract.yml"
+      - ".github/workflows/pages-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+env:
+  EXPECTED_HEAD_SHA: ${{ github.sha }}
+
+jobs:
+  verify:
+    name: Verify GitHub Pages publication authority
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Read back GitHub Pages publication source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-pages-publication-source.mjs
