@@ -8,6 +8,8 @@ Before material planning, implementation, review, automation, publication, deplo
 
 - [`AGENTS_FOUNDER_INTELLIGENCE.md`](AGENTS_FOUNDER_INTELLIGENCE.md)
 - [`docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md`](docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md)
+- [`.control-room/necessary-fix-policy.json`](.control-room/necessary-fix-policy.json)
+- [`docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md`](docs/EXTERNAL_AGENT_EXECUTION_SUBSTRATE.md) when evaluating or integrating managed agent runtimes such as OpenAI Frontier
 
 Use the complete remembrance loop:
 
@@ -38,7 +40,7 @@ Use the full founder stack for nontrivial work:
 /elonmusk /garyvee lindymode redteam l99 redteam ooda /truthmode
 ```
 
-`/elonmusk` adds first-principles reduction, bottleneck identification, leverage analysis, and deletion of unnecessary complexity. It does not replace the founder stack. The first redteam attacks the premise. L99 maps provenance, state, release, rollback, and long-term drift. The second redteam attacks the selected implementation.
+`/elonmusk` adds first-principles reduction, bottleneck identification, leverage analysis, and deletion of unnecessary complexity. It does not replace the founder stack. Red-team 1 attacks whether the request, premise, evidence, and scope justify a change. Lindy mode then selects the smallest durable, reversible, low-dependency carrier and preserves what is already working. L99 maps provenance, state, authority, release, rollback, and long-term drift. Red-team 2 attacks the selected implementation for authority drift, security/privacy failures, regressions, stale evidence, hidden assumptions, overclaims, and missing recovery.
 
 ## Truth hierarchy
 
@@ -73,6 +75,17 @@ Continue working the requested task until it is done or until a real blocker is 
 
 Every handoff must state what was changed, what was verified, what remains blocked, and the next gate.
 
+## Necessary-fix execution default
+
+Apply `policyId: necessary-fix-execution-default` from `.control-room/necessary-fix-policy.json` before returning a repair or implementation step as founder homework.
+
+- Use `execute-now` when the fix is necessary, reversible, inside the current approved scope, and current authority plus applicable evidence/exact-head requirements are satisfied.
+- Use `proof-gated` when the action is reversible but the repository requires proof before integration; collect the proof and continue through the existing gate rather than asking the founder to perform automatable verification.
+- Use `founder-required` for scope expansion, external publication or communication, spending, destructive or irreversible changes, authority expansion, or any stricter PromptOS/FCR boundary.
+- Bidirectional fingerprints/cookies may be updated or invalidated by evidence, but they never grant authority. Provider acceptance is not outcome proof. Verify the outcome, emit/update receipts and continuity markers, then identify the next gate.
+
+This default does not widen tool, merge, deployment, publication, provider, secret, billing, destructive-write, or authority permissions.
+
 ## Codex provider baseline
 
 When a repo-running Codex agent needs model-provider configuration, keep it machine-local and use OpenAI/Codex as the default coding engine:
@@ -100,9 +113,11 @@ For UI, route, browser, release, onboarding, checkout, auth-flow, or runtime beh
 
 ## Merge authority
 
-Agents may merge when the merge is the correct evidence-backed integration step, not merely because a PR exists or a badge looks green.
+`merge_authority: true` means the repository's merge capability is available. It does **not** mean a specific candidate is approved.
 
-A merge is safe only when:
+Before every merge, require fresh explicit founder approval bound to the exact repository, PR number, current base SHA, and current head SHA. If that approval is absent, ambiguous, or stale, ask the founder and stop. Review, implementation, green checks, mergeability, continuity markers, broad `approved`, `cont`, `continue`, or approval of a predecessor candidate do not authorize the merge. Any base/head movement expires approval and requires a new ask.
+
+After exact candidate approval exists, a merge is safe only when:
 
 - repository, target branch, PR, and exact head SHA are verified;
 - the scope is focused and no unrelated work is hidden in the diff;
@@ -115,7 +130,7 @@ A merge is safe only when:
 - rollback or safe forward-fix is understood;
 - the merge itself does not silently perform deployment, migration, auth/RLS changes, billing/spending, external publication, destructive deletion, credential movement, or other separately gated action.
 
-If those conditions are not met, keep working or leave the PR open with the exact blocker.
+If those conditions are not met, keep working or leave the PR open with the exact blocker. If the evidence conditions are met but fresh exact-candidate founder approval is missing, ask the founder and stop.
 
 ## Provider roles
 
@@ -123,6 +138,7 @@ If those conditions are not met, keep working or leave the PR open with the exac
 - Codex: code edits, tests, Playwright, CI triage, and repository operations. Keep patches focused and evidence-backed. Use the Codex provider baseline above when local model-provider configuration is needed.
 - ChatGPT: reasoning, review, debugging, threat modeling, data analysis, and founder-readable decisions. Separate fact, inference, and action.
 - Perplexity: current public research and source discovery. It is not private repository, account, Supabase, Cloudflare, or production truth unless those systems are explicitly connected and inspected.
+- Managed agent runtimes such as OpenAI Frontier: eligible only as bounded execution substrates under Founder Control Room. Their identity, permission, tool, event, observability, and evaluation capabilities must be observed rather than assumed, and their execution receipts never self-promote into founder outcome truth.
 
 ## Separate gates
 

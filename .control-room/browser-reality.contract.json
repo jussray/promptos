@@ -1,0 +1,277 @@
+{
+  "schemaVersion": "1.0",
+  "contractId": "juss/browser-reality@v1",
+  "name": "browser-reality-inspector",
+  "status": "active",
+  "purpose": "Inspect a user-authorized URL in a real rendered browser without mutating the destination, then report only evidence-backed page reality.",
+  "authority": {
+    "mode": "read-only",
+    "mayMutateDestination": false,
+    "mayBypassProviderBoundary": false,
+    "mayCompleteAuthentication": false,
+    "maySolveCaptcha": false,
+    "externalVerification": "separate-read-only-research"
+  },
+  "sourceOfTruth": {
+    "required": "live-rendered-page",
+    "redirectPolicy": "follow-and-record-final-url",
+    "forbiddenAsVerification": [
+      "search-engine-snippet",
+      "redirect-shape-without-rendered-content",
+      "cached-summary",
+      "unrendered-metadata"
+    ]
+  },
+  "truthStates": [
+    "VERIFIED",
+    "INFERRED",
+    "UNKNOWN",
+    "BLOCKED"
+  ],
+  "evidence": {
+    "required": [
+      "final-url",
+      "rendered-page-state"
+    ],
+    "captureWhenAvailable": [
+      "screenshot",
+      "relevant-rendered-text"
+    ],
+    "screenshotPolicy": "capture-visible-page-evidence-without-exposing-unrelated-private-data",
+    "claimRule": "Only content actually rendered in the browser may be VERIFIED."
+  },
+  "inspectionFields": [
+    "final-resolved-url",
+    "target-type",
+    "visible-account-page-profile-name",
+    "main-visible-text-summary",
+    "visible-images-video",
+    "visible-date-time",
+    "marketplace-price",
+    "marketplace-location",
+    "visible-engagement-counts",
+    "visible-external-links",
+    "important-or-suspicious-claims"
+  ],
+  "readOnly": {
+    "prohibitedInteractions": [
+      "like",
+      "comment",
+      "message",
+      "follow",
+      "buy",
+      "save",
+      "share",
+      "post",
+      "upload",
+      "change-settings"
+    ],
+    "navigationAllowed": "Only navigation needed to resolve and inspect the authorized target."
+  },
+  "stopBoundaries": [
+    "login-required-without-an-existing-authenticated-session",
+    "authentication-step",
+    "captcha",
+    "permission-prompt",
+    "provider-boundary",
+    "mutation-required",
+    "scope-expansion-required"
+  ],
+  "continuity": {
+    "firstPartySessionCookies": {
+      "browserManagedReuse": "allowed-when-already-present-and-appropriate",
+      "inspect": false,
+      "extract": false,
+      "export": false,
+      "copy": false,
+      "log": false,
+      "alter": false,
+      "synthesize": false
+    },
+    "pseudonymousId": {
+      "allowedOnlyWhen": "an-existing-first-party-application-seam-requires-continuity",
+      "createForInspectionAlone": false,
+      "generation": "cryptographically-random",
+      "scope": "first-party-purpose-limited",
+      "resettable": true,
+      "disclosed": true,
+      "consentAware": true,
+      "crossSiteCorrelation": false
+    },
+    "browserFingerprinting": {
+      "allowed": false,
+      "alterationAllowed": false,
+      "crossSiteTrackingAllowed": false,
+      "prohibitedSignals": [
+        "canvas-readback",
+        "webgl-renderer-probe",
+        "audio-context-probe",
+        "font-enumeration",
+        "user-agent-entropy-collection",
+        "device-hardware-signal-aggregation"
+      ]
+    },
+    "terminology": "Repository and history fingerprints in docs/CONTINUITY_FINGERPRINT_PROTOCOL.md are deterministic evidence identifiers, not browser or device fingerprints."
+  },
+  "evidenceFingerprint": {
+    "name": "sanitized-evidence-receipt-sha256",
+    "purpose": "Bind one sanitized browser-evidence receipt so later review can detect evidence drift without identifying a person or device.",
+    "implementation": "src/browser-reality-receipt.mjs",
+    "algorithm": "SHA-256",
+    "digestEncoding": "lowercase-hex",
+    "canonicalization": "juss-browser-reality-canonical-json-v1",
+    "canonicalizationRules": [
+      "accept-only-the-declared-input-fields-and-reject-all-extra-fields",
+      "sanitize-authorized-input-and-final-urls-before-receipt-construction",
+      "normalize-text-to-unicode-nfc-trim-and-collapse-whitespace",
+      "normalize-observed-at-to-utc-iso-8601-milliseconds",
+      "sort-truth-labeled-observations-by-state-order-then-utf16-code-units",
+      "deduplicate-identical-state-and-statement-observations",
+      "sort-all-json-object-keys-by-utf16-code-units",
+      "preserve-canonical-array-order-and-serialize-without-extra-whitespace",
+      "hash-the-utf8-canonical-json-bytes"
+    ],
+    "receiptFields": [
+      "contractId",
+      "authorizedInputUrl",
+      "finalUrl",
+      "observedAt",
+      "scope",
+      "observations"
+    ],
+    "inputFields": [
+      "contractId",
+      "authorizedInputUrl",
+      "finalUrl",
+      "observedAt",
+      "scope",
+      "observations"
+    ],
+    "optionalReceiptFields": [
+      "screenshotSha256"
+    ],
+    "truthStateOrder": [
+      "VERIFIED",
+      "INFERRED",
+      "UNKNOWN",
+      "BLOCKED"
+    ],
+    "urlSanitization": {
+      "allowedProtocols": [
+        "https",
+        "http"
+      ],
+      "removeUserInfo": true,
+      "removeFragment": true,
+      "dropTrackingQueryKeys": [
+        "utm_*",
+        "dclid",
+        "fbclid",
+        "gclid",
+        "mibextid",
+        "msclkid",
+        "rdid",
+        "share_url"
+      ],
+      "redactSensitiveQueryValuesWith": "REDACTED",
+      "sanitizeDecodedHttpUrlQueryValuesRecursively": true,
+      "maxNestedUrlDepth": 3,
+      "beyondNestedUrlDepthValue": "REDACTED_NESTED_URL",
+      "sensitiveNormalizedQueryKeys": [
+        "accesstoken",
+        "apikey",
+        "auth",
+        "authorization",
+        "clientsecret",
+        "code",
+        "connectsid",
+        "cookie",
+        "cookies",
+        "credential",
+        "credentials",
+        "csrftoken",
+        "encryptedcontext",
+        "idtoken",
+        "jsessionid",
+        "jwt",
+        "key",
+        "oauth",
+        "oauthtoken",
+        "password",
+        "phpsessid",
+        "refreshtoken",
+        "secret",
+        "session",
+        "sessionid",
+        "sid",
+        "sig",
+        "signature",
+        "state",
+        "token",
+        "xsrftoken"
+      ],
+      "sortRemainingQueryPairsBy": "utf16-key-then-value"
+    },
+    "forbiddenInputCategories": [
+      "cookie-names-or-values",
+      "credentials-or-tokens",
+      "browser-or-device-entropy",
+      "person-or-device-identifiers",
+      "unrelated-private-data"
+    ],
+    "identityBoundary": {
+      "identifiesPerson": false,
+      "identifiesDevice": false,
+      "crossSiteCorrelation": false,
+      "mayBeUsedForTracking": false
+    },
+    "requiredWhenSha256IsAvailable": true,
+    "runtimeInvocationClaimed": false,
+    "conformanceVector": {
+      "input": {
+        "contractId": "juss/browser-reality@v1",
+        "authorizedInputUrl": "HTTPS://viewer:drop-me@Example.COM:443/share/item?utm_source=chat&mibextid=track&token=drop-me&b=two&a=one#private-fragment",
+        "finalUrl": "https://www.Facebook.com:443/marketplace/item/2144661676265222/?sessionid=drop-me&rdid=track&b=two&a=one#details",
+        "observedAt": "2026-08-29T01:02:03-04:00",
+        "scope": "  user-authorized target only  ",
+        "observations": [
+          {
+            "state": "BLOCKED",
+            "statement": "Login required."
+          },
+          {
+            "state": "VERIFIED",
+            "statement": "Marketplace redirect rendered."
+          },
+          {
+            "state": "INFERRED",
+            "statement": "Target appears to be a listing."
+          },
+          {
+            "state": "VERIFIED",
+            "statement": "Marketplace redirect rendered."
+          }
+        ],
+        "screenshotSha256": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expectedCanonicalJson": "{\"authorizedInputUrl\":\"https://example.com/share/item?a=one&b=two&token=REDACTED\",\"contractId\":\"juss/browser-reality@v1\",\"finalUrl\":\"https://www.facebook.com/marketplace/item/2144661676265222/?a=one&b=two&sessionid=REDACTED\",\"observations\":[{\"state\":\"VERIFIED\",\"statement\":\"Marketplace redirect rendered.\"},{\"state\":\"INFERRED\",\"statement\":\"Target appears to be a listing.\"},{\"state\":\"BLOCKED\",\"statement\":\"Login required.\"}],\"observedAt\":\"2026-08-29T05:02:03.000Z\",\"scope\":\"user-authorized target only\",\"screenshotSha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+      "expectedSha256": "b638320661652bab6398f45e2b35bc343ac963bb0eb8b926462db6aea8cb1ab4"
+    }
+  },
+  "externalClaims": {
+    "separateSourceClaimFromVerification": true,
+    "facebookSourceLabel": "FACEBOOK CLAIM",
+    "verificationLabel": "EXTERNAL VERIFICATION",
+    "mayUpgradeUnrenderedClaimToVerified": false
+  },
+  "outputSections": [
+    "REALITY",
+    "TARGET",
+    "CONTENT",
+    "PROOF",
+    "RED TEAM",
+    "BLOCKERS",
+    "NEXT GATE"
+  ],
+  "rollback": "Disable skill routing or revert the focused integration commit through an authorized repository change; no runtime, provider, authentication, cookie, or user-data rollback is required."
+}

@@ -145,6 +145,40 @@
       ]
     },
     {
+      "id": "public-pages-deploy-identity",
+      "description": "Founder-gated, workflow_dispatch-only publication of the exact-head index.html and its canonical parts/*.js to GitHub Pages, with the deployed page stamped with the published commit SHA and proven anonymous, wall-free, and CTA-functional at desktop and mobile viewports before the run is treated as evidence.",
+      "status": "founder-gated",
+      "evidencePaths": [
+        "index.html",
+        "parts/auth.js",
+        "parts/app.js",
+        ".github/workflows/pages-deploy.yml",
+        "e2e/public-deploy-proof.mjs",
+        "control-room.manifest.json"
+      ],
+      "requiredSignals": [],
+      "usageAssertions": [
+        {
+          "id": "pages-workflow-is-manual-only",
+          "path": ".github/workflows/pages-deploy.yml",
+          "marker": "workflow_dispatch:",
+          "description": "Publication only ever runs on an explicit human-triggered workflow_dispatch, never on push or pull_request."
+        },
+        {
+          "id": "pages-artifact-excludes-governance-surfaces",
+          "path": ".github/workflows/pages-deploy.yml",
+          "marker": "Only the public human-facing surface is staged",
+          "description": "The staged Pages artifact copies only index.html and its canonical parts/*.js; Chief AI Machine, Founder Control Room, and governance manifests are never copied into the public artifact."
+        },
+        {
+          "id": "public-proof-checks-runtime-identity",
+          "path": "e2e/public-deploy-proof.mjs",
+          "marker": "promptos-deploy-sha",
+          "description": "The public proof fails unless the deployed page's stamped commit SHA equals the exact source SHA that was published."
+        }
+      ]
+    },
+    {
       "id": "repo-local-promptos-test-control-room",
       "description": "Catalogs PromptOS source, browser, and tooling gates locally, then exports only sanitized provider-check summaries to Founder Control Room.",
       "status": "active",

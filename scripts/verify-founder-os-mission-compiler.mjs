@@ -1,7 +1,11 @@
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {execFileSync} from 'node:child_process';
+import {compileWorkflowArtifact, validateWorkflowArtifact} from '../src/workflow-artifact.mjs';
 
 const source = await readFile('parts/p10-cont-ops-growth.js', 'utf8');
+const workflowRegistry = JSON.parse(await readFile('workflows/registry.json', 'utf8'));
+const ultrathinkWorkflow = JSON.parse(await readFile('workflows/ultrathink.workflow.json', 'utf8'));
 const failures = [];
 
 for (const required of [
@@ -60,18 +64,56 @@ if (typeof sandbox.window.compilePromptOSMission !== 'function') {
   if (uiMission.analytics.proofCoverageTargetPercent !== 100) failures.push('proof coverage target must be 100');
   if (!uiMission.productDesign.playwrightRequired) failures.push('UI mission must require Playwright');
 
+  const reusableWorkflow = compileWorkflowArtifact(uiMission, {
+    id: 'onboarding-completion-repair',
+    title: 'Onboarding completion repair',
+    aliases: ['/goalfix onboarding'],
+    inputs: ['CURRENT STATE', 'TARGET OUTCOME'],
+    lineage: ['ultrathink', 'goalfix'],
+  });
+  const workflowValidation = validateWorkflowArtifact(reusableWorkflow);
+  if (!workflowValidation.valid) failures.push(`compiled workflow invalid: ${workflowValidation.errors.join(' | ')}`);
+  if (reusableWorkflow.intent !== uiMission.intent) failures.push('workflow compiler changed founder intent');
+  if (reusableWorkflow.sourceMission.authorityCeiling !== uiMission.authorityCeiling) failures.push('workflow compiler changed mission authority ceiling');
+  if (reusableWorkflow.status !== 'draft') failures.push('new workflow must remain draft');
+  if (reusableWorkflow.registrationAuthority !== false) failures.push('new workflow must not self-register');
+  for (const proof of uiMission.requiredEvidence) {
+    if (!reusableWorkflow.requiredEvidence.includes(proof)) failures.push(`workflow lost mission proof ${proof}`);
+  }
+  if (!reusableWorkflow.lineage.includes('ultrathink') || !reusableWorkflow.lineage.includes('goalfix')) {
+    failures.push('workflow lineage did not preserve declared operating parents');
+  }
+
+  try {
+    const cliOutput = execFileSync(process.execPath, [
+      'scripts/make-workflow.mjs',
+      '--intent', 'Improve onboarding UX and measure dashboard completion rate',
+      '--project', 'jussray/Sekret-Bip',
+      '--id', 'onboarding-completion-repair',
+      '--constraints', 'Preserve auth behavior,audit current main first',
+      '--lineage', 'ultrathink,goalfix',
+    ], {encoding: 'utf8'});
+    const cliWorkflow = JSON.parse(cliOutput);
+    if (cliWorkflow.id !== 'onboarding-completion-repair') failures.push('workflow maker CLI changed requested workflow id');
+    if (cliWorkflow.intent !== uiMission.intent) failures.push('workflow maker CLI changed founder intent');
+    if (cliWorkflow.status !== 'draft' || cliWorkflow.registrationAuthority !== false) failures.push('workflow maker CLI crossed the registration gate');
+    if (!cliWorkflow.lineage.includes('ultrathink') || !cliWorkflow.lineage.includes('goalfix')) failures.push('workflow maker CLI lost lineage');
+  } catch (error) {
+    failures.push(`workflow maker CLI failed: ${error.message}`);
+  }
+
   const mergeMission = sandbox.window.compilePromptOSMission({
     project: 'jussray/Sekret-Bip',
     intent: 'Merge the verified focused fix after exact-head proof',
   });
-  if (mergeMission.authorityCeiling !== 'L5') failures.push(`merge mission authority should be L5, got ${mergeMission.authorityCeiling}`);
+  if (mergeMission.authorityCeiling !== 'L5') failures.push(`merge mission authority should stay L5, got ${mergeMission.authorityCeiling}`);
 
   const prodMission = sandbox.window.compilePromptOSMission({
     project: 'jussray/Sekret-Bip',
     intent: 'Repair production Cloudflare routing and deploy the verified release',
     providers: 'cloudflare, github',
   });
-  if (prodMission.authorityCeiling !== 'L6') failures.push(`production mission authority should be L6, got ${prodMission.authorityCeiling}`);
+  if (prodMission.authorityCeiling !== 'L6') failures.push(`production mission authority should stay L6, got ${prodMission.authorityCeiling}`);
   for (const proof of ['provider-readback', 'rollback-path', 'production-readback']) {
     if (!prodMission.requiredEvidence.includes(proof)) failures.push(`production mission missing proof ${proof}`);
   }
@@ -86,6 +128,84 @@ for (const id of [92, 93, 94]) {
   if (!ids.includes(id)) failures.push(`Founder OS prompt ${id} missing from registry`);
 }
 
+if (workflowRegistry.schemaVersion !== 1) failures.push('workflow registry schemaVersion must equal 1');
+if (!/explicit founder approval/i.test(workflowRegistry.registrationRule || '')) failures.push('workflow registry must preserve founder approval gate');
+const ultrathinkEntry = Array.isArray(workflowRegistry.workflows)
+  ? workflowRegistry.workflows.find((entry) => entry?.id === 'ultrathink')
+  : null;
+if (!ultrathinkEntry) failures.push('ULTRATHINK workflow missing from registry');
+if (ultrathinkEntry?.status !== 'approved') failures.push('ULTRATHINK registry state must be approved');
+if (ultrathinkEntry?.path !== 'workflows/ultrathink.workflow.json') failures.push('ULTRATHINK registry path drifted');
+
+if (ultrathinkWorkflow.id !== 'ultrathink' || ultrathinkWorkflow.status !== 'approved') failures.push('ULTRATHINK workflow identity/status invalid');
+if (ultrathinkWorkflow.registrationAuthority !== 'founder-approved') failures.push('ULTRATHINK approval provenance is missing');
+if (ultrathinkEntry?.version !== ultrathinkWorkflow.version) failures.push('ULTRATHINK registry/workflow version drifted');
+for (const token of [
+  'Reacquire reality first',
+  'Understand the founder\'s actual intention',
+  'ULTRATHINK:',
+  'Challenge the premise',
+  'Use existing work',
+  'Find the root cause',
+  'smallest reversible implementation',
+  'Lindy mode:',
+  'L99:',
+  'Red-team the result',
+  'OODA:',
+  'Video production:',
+  'Commercialization:',
+  'Product fingerprint:',
+  'Proof cookie:',
+  'Marketing truth:',
+  'UI or runtime work requires Playwright proof',
+  'Separate truth planes',
+  'Never inherit stale green',
+  'Do not fake completion',
+  'Preserve founder authority',
+  'Stop when the goal is proven',
+]) {
+  if (!ultrathinkWorkflow.operatingPrinciples?.some((principle) => principle.includes(token))) {
+    failures.push(`ULTRATHINK workflow missing principle: ${token}`);
+  }
+}
+for (const stage of ['OBSERVE', 'ORIENT', 'CHALLENGE', 'DECIDE', 'ACT', 'VERIFY', 'RED-TEAM', 'REACQUIRE', 'STOP']) {
+  if (!ultrathinkWorkflow.executionLoop?.includes(stage)) failures.push(`ULTRATHINK execution loop missing ${stage}`);
+}
+const expectedCommercializationLoop = ['INSPIRED', 'TRANSFORMED', 'ORIGINAL', 'USEFUL', 'VERIFIED', 'SELL'];
+if (JSON.stringify(ultrathinkWorkflow.commercializationLoop) !== JSON.stringify(expectedCommercializationLoop)) {
+  failures.push(`ULTRATHINK commercialization loop drifted: expected ${expectedCommercializationLoop.join(' -> ')}`);
+}
+for (const section of ['REALITY', 'FIX', 'PROOF', 'RISK', 'ROLLBACK', 'NEXT GATE']) {
+  if (!ultrathinkWorkflow.report?.includes(section)) failures.push(`ULTRATHINK report missing ${section}`);
+}
+const expectedEngineeringStack = ['ultrathink', 'redteam-1', 'lindymode', 'l99', 'redteam-2', 'ooda', 'proofmode'];
+if (JSON.stringify(ultrathinkWorkflow.engineeringStack) !== JSON.stringify(expectedEngineeringStack)) {
+  failures.push(`ULTRATHINK engineering stack order drifted: expected ${expectedEngineeringStack.join(' -> ')}`);
+}
+if (!/Product fingerprints, proof cookies/.test(ultrathinkWorkflow.authorityBoundary || '')) {
+  failures.push('ULTRATHINK authority boundary must keep commercial continuity markers non-authoritative');
+}
+
+const videoPolicy = ultrathinkWorkflow.videoWorkflowPolicy;
+if (!videoPolicy || videoPolicy.workflow !== 'LEEVIZE') failures.push('ULTRATHINK video policy must route through LEEVIZE');
+if (videoPolicy?.shotContract !== 'shot-dna@v1') failures.push('ULTRATHINK video policy must use shot-dna@v1');
+if (JSON.stringify(videoPolicy?.compileOrder) !== JSON.stringify(['director-brief', 'model-neutral-shot-spec', 'renderer-adapter'])) {
+  failures.push('ULTRATHINK video compile order drifted');
+}
+if (videoPolicy?.openSourceFirst !== true) failures.push('ULTRATHINK video policy must stay open-source-first');
+if (JSON.stringify(videoPolicy?.deterministicPostTools) !== JSON.stringify(['ffmpeg', 'ffprobe'])) failures.push('ULTRATHINK deterministic video post must use ffmpeg + ffprobe');
+if (videoPolicy?.candidateAvailabilityIsRuntimeFact !== true) failures.push('ULTRATHINK video candidate availability must be runtime-discovered');
+if (videoPolicy?.openSourceLabelDoesNotProveLicenseOrCommercialUse !== true) failures.push('open-source label must not prove license/commercial-use');
+if (videoPolicy?.unknownLicenseClassifyAs !== 'BLOCKED_LICENSE_REVIEW') failures.push('unknown video license must fail closed');
+if (videoPolicy?.rendererAdaptersReplaceable !== true) failures.push('video renderer adapters must remain replaceable');
+if (videoPolicy?.generatedUiMayProveProductBehavior !== false) failures.push('generated UI may not prove product behavior');
+if (videoPolicy?.realProductCaptureRequiresPlaywright !== true) failures.push('real product capture must require Playwright');
+if (videoPolicy?.finalAudioPrecedesCaptionTiming !== true) failures.push('final audio must precede caption timing');
+if (videoPolicy?.attack6000?.reasoningPressureBudget !== 6000) failures.push('ATTACK6000 video budget must equal 6000');
+if (videoPolicy?.attack6000?.externalTestCountClaimed !== false) failures.push('ATTACK6000 must not claim 6000 external tests');
+if (videoPolicy?.attack6000?.deduplicateFailureClasses !== true) failures.push('ATTACK6000 must deduplicate failure classes');
+if (!/routing preference/i.test(videoPolicy?.authorityBoundary || '')) failures.push('open-source-first video policy must remain non-authorizing');
+
 if (failures.length) {
   console.error('Founder OS mission compiler verification failed:');
   for (const failure of failures) console.error(`- ${failure}`);
@@ -97,8 +217,12 @@ console.log(JSON.stringify({
   version: sandbox.window.PROMPTOS_FOUNDER_OS_VERSION,
   promptIds: [92, 93, 94],
   compilerExported: true,
+  workflowArtifactCompiler: true,
+  registeredWorkflows: workflowRegistry.workflows.map((entry) => `${entry.id}@${entry.version}`),
   productDesignGate: true,
   dataAnalyticsGate: true,
+  commercialProductGraduation: true,
+  videoWorkflowPolicy: 'LEEVIZE/shot-dna@v1/open-source-first',
   mainAuditDoesNotEscalateAuthority: true,
   mergeEscalatesToL5: true,
 }));

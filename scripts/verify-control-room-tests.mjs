@@ -5,6 +5,7 @@ import path from 'node:path';
 const EXPECTED_REPOSITORY = 'jussray/promptos';
 const ASSEMBLY_WORKFLOW = '.github/workflows/assemble.yml';
 const APP_RUNTIME = 'parts/app.js';
+const AUTH_RUNTIME = 'parts/auth.js';
 const INDEX_PATH = 'index.html';
 const EXPECTED_INDEX_SCRIPTS = [
   'parts/auth.js',
@@ -16,8 +17,33 @@ const EXPECTED_INDEX_SCRIPTS = [
   'parts/p10-cont-ops-growth.js',
   'parts/app.js',
 ];
-const MALFORMED_APP_STATE = "  search: '',n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
-const REPAIRED_APP_STATE = "  search: '',\n  sync: { token: '', gistId: '', status: 'idle', lastSynced: null }";
+const FORBIDDEN_BROWSER_GIST_MARKERS = [
+  'GIST_FILENAME',
+  'function gistHeaders',
+  'function gistPush',
+  'function gistPull',
+  'function gistFindOrCreate',
+  "'Authorization': 'token '",
+  'api.github.com/gists',
+  'syncToken',
+  'syncConnect',
+  'syncPush',
+  'syncPull',
+  'Token needs',
+  'gist scope',
+  'STATE.sync',
+  'debouncePush',
+  'injectSyncUI',
+];
+const REQUIRED_PERSISTENCE_TRUTH = [
+  "canonicalAuthority: 'Founder Control Room'",
+  "runtimePersistence: 'not-connected'",
+  "browserState: 'session-only'",
+  'browserGitHubTokenAccepted: false',
+  "recovery: Object.freeze(['export', 'import'])",
+  'persistenceAuthorityStatus',
+  'Session only · FCR runtime persistence not connected',
+];
 const ALLOWED_KINDS = new Set([
   'typecheck',
   'lint',
@@ -159,11 +185,18 @@ for (const file of promptModules) {
 }
 
 const appRuntime = await readFile(APP_RUNTIME, 'utf8');
-if (appRuntime.includes(MALFORMED_APP_STATE)) {
-  errors.push('PromptOS app state contains the malformed search/sync token');
+const authRuntime = await readFile(AUTH_RUNTIME, 'utf8');
+const browserRuntime = `${appRuntime}\n${authRuntime}`;
+const presentGistMarkers = FORBIDDEN_BROWSER_GIST_MARKERS.filter((marker) => browserRuntime.includes(marker));
+if (presentGistMarkers.length > 0) {
+  errors.push(`browser Gist credential capability must be absent: ${presentGistMarkers.join(', ')}`);
 }
-if (!appRuntime.includes(REPAIRED_APP_STATE)) {
-  errors.push('PromptOS app state does not contain the repaired search/sync boundary');
+const missingPersistenceTruth = REQUIRED_PERSISTENCE_TRUTH.filter((marker) => !authRuntime.includes(marker));
+if (missingPersistenceTruth.length > 0) {
+  errors.push(`browser persistence truth contract is incomplete: ${missingPersistenceTruth.join(', ')}`);
+}
+if (!appRuntime.includes('function serializeState(){')) {
+  errors.push('explicit Export / Import recovery must retain deterministic in-memory serialization');
 }
 
 const zapierPackage = JSON.parse(await readFile('tools/zapier/package.json', 'utf8'));
@@ -173,6 +206,10 @@ if (zapierPackage.scripts?.typecheck !== 'tsc -p tsconfig.json --noEmit') {
 if (/(api[_-]?key|secret\s*[:=]|token\s*[:=]|sk-[a-z0-9_-]{10,})/i.test(rawManifest)) {
   errors.push('control-room manifest appears to contain secret material');
 }
+
+const browserPersistenceBoundaryPassed = presentGistMarkers.length === 0
+  && missingPersistenceTruth.length === 0
+  && appRuntime.includes('function serializeState(){');
 
 const report = {
   schemaVersion: 1,
@@ -195,9 +232,9 @@ const report = {
   promptModules: {
     count: promptModules.length,
     syntaxPassed: !errors.some((error) => error.includes('failed node --check')),
-    appRuntimeBoundaryPassed:
-      !appRuntime.includes(MALFORMED_APP_STATE)
-      && appRuntime.includes(REPAIRED_APP_STATE),
+    browserPersistenceBoundaryPassed,
+    forbiddenGistMarkersPresent: presentGistMarkers,
+    persistenceTruthMissing: missingPersistenceTruth,
   },
   renderedBrowserProof: {
     configured: renderedEntry?.status === 'active' && renderedEntry?.command === 'node e2e/rendered-proof.mjs',
