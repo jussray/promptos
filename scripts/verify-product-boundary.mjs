@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 
 const contractPath = new URL('../.control-room/product-boundary.json', import.meta.url);
 const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
+const modelExecutionPath = new URL('../.control-room/model-execution.contract.json', import.meta.url);
+const modelExecution = JSON.parse(fs.readFileSync(modelExecutionPath, 'utf8'));
 
 assert.equal(contract.schemaVersion, 1);
 assert.equal(contract.product, 'PromptOS');
@@ -170,4 +172,56 @@ assert.equal(
   'current truth -> authority decision -> governed execution -> independent verification -> receipt',
 );
 
-console.log('PromptOS/Chief/FCR product boundary contract verified.');
+assert.equal(modelExecution.schema, 'promptos/model-execution@v1');
+assert.equal(modelExecution.authority, 'advisory-compilation-only');
+assert.equal(modelExecution.truthSource, 'fcr-shared-evidence-spine');
+assert.equal(modelExecution.runtimeIdentitySource, 'observe-per-run');
+assert.equal(modelExecution.toolAvailabilitySource, 'observe-per-run');
+assert.equal(modelExecution.modelConsensusIsProof, false);
+assert.equal(modelExecution.requiresIndependentEvidenceForTruthUpgrade, true);
+assertExactUniqueSet(
+  modelExecution.mayNotAdapt,
+  ['truth-state', 'authority-state', 'founder-approval', 'proof-state', 'project-canon'],
+  'Model-native immutable truth fields',
+);
+
+const solProfile = modelExecution.profiles?.['chatgpt-sol'];
+const claudeProfile = modelExecution.profiles?.['claude-code'];
+assert.ok(solProfile, 'PromptOS must preserve the ChatGPT Sol compiler profile');
+assert.ok(claudeProfile, 'PromptOS must preserve the Claude compiler profile');
+assert.equal(solProfile.provider, 'openai');
+assert.equal(claudeProfile.provider, 'anthropic');
+assert.notDeepEqual(solProfile.compilerBias, claudeProfile.compilerBias, 'model profiles should benefit from distinct compilation bias');
+assert.notEqual(solProfile.promptShape, claudeProfile.promptShape, 'model profiles should use distinct prompt shapes');
+
+assertExactUniqueSet(
+  modelExecution.handoffFields,
+  [
+    'modelProfileId',
+    'observedRuntimeModel',
+    'observedCapabilities',
+    'sourceTruthRefs',
+    'authorityRequired',
+    'proofRequired',
+    'claims',
+    'unknowns',
+    'continuityFingerprint',
+    'resultEvidence',
+  ],
+  'Model-native handoff fields',
+);
+
+for (const requiredRule of [
+  'may specialize prompt and protocol form per observed model profile but may not specialize reality',
+  'never grants execution, merge, deployment, publication, spending, destructive, or founder authority',
+  'independently validates its evidence',
+  'reacquire governing evidence rather than voting or averaging',
+  'invalidates predecessor proof',
+]) {
+  assert.ok(
+    modelExecution.rules.some((rule) => rule.includes(requiredRule)),
+    `Model-native contract must preserve invariant: ${requiredRule}`,
+  );
+}
+
+console.log('PromptOS/Chief/FCR product boundary and model-native execution contracts verified.');
