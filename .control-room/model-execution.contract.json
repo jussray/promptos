@@ -32,7 +32,7 @@
       ],
       "promptShape": "evidence-first-orchestration",
       "rules": [
-        "Observe the actual runtime model identity and capabilities before compilation.",
+        "Observe the actual runtime model identity, provider, and capabilities before compilation.",
         "Prefer compact cross-system context with explicit authority, proof, continuity, and next-gate fields.",
         "Never simulate a connector, browser, model, or tool that is absent from observedCapabilities."
       ]
@@ -47,7 +47,7 @@
       ],
       "promptShape": "repository-context-implementation",
       "rules": [
-        "Observe the actual runtime model identity and capabilities before compilation.",
+        "Observe the actual runtime model identity, provider, and capabilities before compilation.",
         "Prefer repository-local instructions, bounded implementation context, exact evidence, and explicit rollback.",
         "Never simulate Playwright, browser, provider, model, or tool use that is absent from observedCapabilities."
       ]
@@ -55,6 +55,7 @@
   },
   "handoffFields": [
     "modelProfileId",
+    "observedProvider",
     "observedRuntimeModel",
     "observedCapabilities",
     "sourceTruthRefs",
@@ -67,6 +68,8 @@
   ],
   "rules": [
     "PromptOS may specialize prompt and protocol form per observed model profile but may not specialize reality.",
+    "Observed provider identity must match the selected profile and remain inside the mission provider allowlist.",
+    "Model-specific proof requirements may add gates but may never remove mission-level required evidence.",
     "Model identity, provider access, or tool availability never grants execution, merge, deployment, publication, spending, destructive, or founder authority.",
     "A model response is advisory input until the receiving system independently validates its evidence.",
     "If models disagree, preserve the disagreement and reacquire governing evidence rather than voting or averaging.",
