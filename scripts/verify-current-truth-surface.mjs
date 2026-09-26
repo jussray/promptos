@@ -12,7 +12,10 @@ const curatedLabel = curated.toLocaleString('en-US');
 const requiredClaims = [
   `**Current catalog:** ${curatedLabel} curated prompts inside ${selectedLabel} selected recipes.`,
   'Provider publication state is runtime truth, not repository inference.',
+  'Provider branch-protection and ruleset state is runtime truth, not repository inference.',
   '`scripts/verify-pages-publication-source.mjs`',
+  '`scripts/verify-main-push-authority.mjs`',
+  '`scripts/verify-main-provider-protection.mjs`',
   'Merging `main` is not authorization to publish.',
 ];
 
@@ -35,4 +38,5 @@ console.log(JSON.stringify({
   curatedCatalog: curated,
   readmeTruthBound: true,
   providerStateDeclaredRuntimeTruth: true,
+  mainProtectionDeclaredProviderTruth: true,
 }));
