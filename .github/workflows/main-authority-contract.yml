@@ -1,0 +1,83 @@
+name: PromptOS Main Authority Contract
+
+on:
+  push:
+    branches:
+      - main
+      - fix/main-authority-contract
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.sha }}
+
+jobs:
+  verify:
+    name: Verify main mutation and provider protection authority
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Syntax-check main authority verifiers
+        run: |
+          node --check scripts/verify-main-push-authority.mjs
+          node --check scripts/verify-main-provider-protection.mjs
+
+      - name: Verify founder-owned non-force main push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          PROMPTOS_REPOSITORY: ${{ github.repository }}
+          PROMPTOS_REF: ${{ github.ref }}
+          PROMPTOS_ACTOR: ${{ github.actor }}
+          PROMPTOS_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          PROMPTOS_FORCED: ${{ toJSON(github.event.forced) }}
+          PROMPTOS_BEFORE_SHA: ${{ github.event.before }}
+          PROMPTOS_AFTER_SHA: ${{ github.event.after }}
+        run: node scripts/verify-main-push-authority.mjs
+
+      - name: Verify main push is an ancestry-preserving fast-forward
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BEFORE_SHA}^{commit}"
+          git cat-file -e "${AFTER_SHA}^{commit}"
+          git merge-base --is-ancestor "$BEFORE_SHA" "$AFTER_SHA"
+
+      - name: Report live provider protection on review branch
+        if: github.ref != 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROMPTOS_AUTHORITY_REPORT_ONLY: "1"
+        run: node scripts/verify-main-provider-protection.mjs
+
+      - name: Enforce provider-required checks on main
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-main-provider-protection.mjs
