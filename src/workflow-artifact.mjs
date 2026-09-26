@@ -26,6 +26,7 @@ const MODEL_EXECUTION_PROFILE_DEFINITIONS = Object.freeze({
 
 const MODEL_EXECUTION_HANDOFF_FIELDS = Object.freeze([
   'modelProfileId',
+  'observedProvider',
   'observedRuntimeModel',
   'observedCapabilities',
   'sourceTruthRefs',
@@ -58,13 +59,32 @@ function copyStrings(value) {
   return uniqueStrings(value);
 }
 
-function compileModelExecutionHandoff(input, mission, requiredEvidence) {
+function profileDefinition(profileId) {
+  return Object.prototype.hasOwnProperty.call(MODEL_EXECUTION_PROFILE_DEFINITIONS, profileId)
+    ? MODEL_EXECUTION_PROFILE_DEFINITIONS[profileId]
+    : null;
+}
+
+function nonEmptyStringArray(value) {
+  return Array.isArray(value) && value.length > 0 && value.every((entry) => typeof entry === 'string' && entry.trim().length > 0);
+}
+
+function compileModelExecutionHandoff(input, mission, requiredEvidence, providers) {
   if (input == null) return null;
   if (!input || typeof input !== 'object') throw new Error('modelExecution must be an object when supplied.');
 
   const modelProfileId = text(input.modelProfileId);
-  const profile = MODEL_EXECUTION_PROFILE_DEFINITIONS[modelProfileId];
+  const profile = profileDefinition(modelProfileId);
   if (!profile) throw new Error('modelExecution.modelProfileId must name a supported observed model profile.');
+
+  const observedProvider = text(input.observedProvider);
+  if (!observedProvider) throw new Error('modelExecution.observedProvider is required.');
+  if (observedProvider !== profile.provider) {
+    throw new Error('modelExecution.observedProvider must match the selected model profile provider.');
+  }
+  if (!providers.includes(observedProvider)) {
+    throw new Error('modelExecution provider must be declared in the mission provider allowlist.');
+  }
 
   const observedRuntimeModel = text(input.observedRuntimeModel);
   if (!observedRuntimeModel) throw new Error('modelExecution.observedRuntimeModel is required.');
@@ -79,13 +99,15 @@ function compileModelExecutionHandoff(input, mission, requiredEvidence) {
   const authorityRequired = copyStrings(input.authorityRequired).length
     ? copyStrings(input.authorityRequired)
     : [text(mission.authorityCeiling)].filter(Boolean);
-  const proofRequired = copyStrings(input.proofRequired).length
-    ? copyStrings(input.proofRequired)
-    : [...requiredEvidence];
+  const proofRequired = [...new Set([
+    ...requiredEvidence,
+    ...copyStrings(input.proofRequired),
+  ])];
 
   return Object.freeze({
     modelProfileId,
     provider: profile.provider,
+    observedProvider,
     promptShape: profile.promptShape,
     compilerBias: Object.freeze([...profile.compilerBias]),
     observedRuntimeModel,
@@ -124,7 +146,7 @@ export function compileWorkflowArtifact(mission, options = {}) {
 
   const project = text(mission.project) || null;
   const shellId = project ? `project:${slug(project)}` : null;
-  const modelExecution = compileModelExecutionHandoff(options.modelExecution, mission, requiredEvidence);
+  const modelExecution = compileModelExecutionHandoff(options.modelExecution, mission, requiredEvidence, providers);
 
   return Object.freeze({
     schemaVersion: 1,
@@ -194,20 +216,29 @@ export function validateWorkflowArtifact(workflow) {
 
   const modelExecution = workflow.modelExecution;
   if (modelExecution != null) {
-    const profile = MODEL_EXECUTION_PROFILE_DEFINITIONS[text(modelExecution.modelProfileId)];
+    const profile = profileDefinition(text(modelExecution.modelProfileId));
     if (!profile) errors.push('modelExecution profile is unsupported');
     else {
       if (modelExecution.provider !== profile.provider) errors.push('modelExecution provider must match the canonical profile');
+      if (modelExecution.observedProvider !== profile.provider) errors.push('modelExecution observedProvider must match the canonical profile provider');
       if (modelExecution.promptShape !== profile.promptShape) errors.push('modelExecution promptShape must match the canonical profile');
-      if (JSON.stringify(modelExecution.compilerBias) !== JSON.stringify([...profile.compilerBias])) {
+      if (!Array.isArray(modelExecution.compilerBias) || JSON.stringify(modelExecution.compilerBias) !== JSON.stringify([...profile.compilerBias])) {
         errors.push('modelExecution compilerBias must match the canonical profile');
+      }
+      if (!Array.isArray(workflow.providers) || !workflow.providers.includes(profile.provider)) {
+        errors.push('modelExecution provider must be declared in workflow providers');
       }
     }
     if (!text(modelExecution.observedRuntimeModel)) errors.push('modelExecution observedRuntimeModel is required');
     if (!Array.isArray(modelExecution.observedCapabilities)) errors.push('modelExecution observedCapabilities must be an array');
-    if (!Array.isArray(modelExecution.sourceTruthRefs) || !modelExecution.sourceTruthRefs.length) errors.push('modelExecution sourceTruthRefs are required');
+    if (!nonEmptyStringArray(modelExecution.sourceTruthRefs)) errors.push('modelExecution sourceTruthRefs require nonempty string entries');
     if (!Array.isArray(modelExecution.authorityRequired)) errors.push('modelExecution authorityRequired must be an array');
     if (!Array.isArray(modelExecution.proofRequired)) errors.push('modelExecution proofRequired must be an array');
+    else {
+      for (const required of workflow.requiredEvidence ?? []) {
+        if (!modelExecution.proofRequired.includes(required)) errors.push(`modelExecution proofRequired must preserve mission evidence: ${required}`);
+      }
+    }
     if (!Array.isArray(modelExecution.claims)) errors.push('modelExecution claims must be an array');
     if (!Array.isArray(modelExecution.unknowns)) errors.push('modelExecution unknowns must be an array');
     if (!text(modelExecution.continuityFingerprint)) errors.push('modelExecution continuityFingerprint is required');
