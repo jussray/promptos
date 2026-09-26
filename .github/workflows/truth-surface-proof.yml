@@ -1,0 +1,77 @@
+name: PromptOS Truth Surface Proof
+
+on:
+  push:
+    branches:
+      - main
+      - fix/promptos-truth-surface-review
+    paths:
+      - "README.md"
+      - "src/catalog-runtime/**"
+      - "scripts/verify-catalog-runtime.mjs"
+      - "scripts/verify-current-truth-surface.mjs"
+      - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/truth-surface-proof.yml"
+  pull_request:
+    paths:
+      - "README.md"
+      - "src/catalog-runtime/**"
+      - "scripts/verify-catalog-runtime.mjs"
+      - "scripts/verify-current-truth-surface.mjs"
+      - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/truth-surface-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+concurrency:
+  group: promptos-truth-surface-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify current truth and deploy authority contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
+          test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify catalog runtime
+        run: node scripts/verify-catalog-runtime.mjs
+
+      - name: Verify current README truth surface
+        run: node scripts/verify-current-truth-surface.mjs
+
+      - name: Verify deploy workflow rechecks provider authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          count="$(grep -c 'node scripts/verify-pages-publication-source.mjs' .github/workflows/pages-deploy.yml)"
+          printf 'provider_authority_readbacks=%s\n' "$count"
+          test "$count" -ge 2
+          grep -q 'Reverify GitHub Pages publication source immediately before Pages mutation' .github/workflows/pages-deploy.yml
+          grep -q 'actions/deploy-pages@' .github/workflows/pages-deploy.yml
+
+      - name: Syntax-check truth verifier
+        run: node --check scripts/verify-current-truth-surface.mjs
