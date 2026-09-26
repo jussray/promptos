@@ -49,6 +49,12 @@ current main -> executable contract -> exact-head checks -> provider/runtime evi
 
 Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful repository check proves only the boundary it actually executed.
 
+## Repository mutation boundary
+
+Provider branch-protection and ruleset state is runtime truth, not repository inference. `.github/workflows/main-authority-contract.yml` verifies founder-owned non-force `main` pushes, checks ancestry to reject non-fast-forward history movement, and reads back live GitHub protection state.
+
+Repository-side CI can detect an unsafe `main` mutation after GitHub accepts it, but it cannot prevent that mutation when the provider leaves `main` unprotected. Therefore PromptOS does **not** claim provider-enforced merge authority unless `scripts/verify-main-provider-protection.mjs` confirms required status checks are enforced by classic branch protection or an active main-applicable ruleset.
+
 ## Key surfaces
 
 - `AGENTS.md` — repository operating contract
@@ -62,10 +68,13 @@ Keep `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKED` distinct. A successful rep
 - `scripts/verify-catalog-runtime.mjs` — 5,000 selected / 398 curated catalog contract
 - `scripts/verify-current-truth-surface.mjs` — binds current README claims to executable catalog truth
 - `scripts/verify-pages-publication-source.mjs` — live GitHub Pages publication-source readback and authority gate
+- `scripts/verify-main-push-authority.mjs` — founder/non-force `main` push authority proof
+- `scripts/verify-main-provider-protection.mjs` — live branch-protection/ruleset required-check readback
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
 - `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR boundary proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
+- `.github/workflows/main-authority-contract.yml` — exact-head main mutation and provider-protection authority lane
 - `.github/workflows/pages-deploy.yml` — founder-gated manual deployment workflow, permitted to publish only when live Pages authority is configured for GitHub Actions
 - `e2e/public-deploy-proof.mjs` — proves the deployed public URL is wall-free, renders the real guest-boot UI, and serves the exact published commit SHA
 
