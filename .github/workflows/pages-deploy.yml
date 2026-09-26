@@ -1,10 +1,10 @@
 name: PromptOS Public Pages Deploy
 
-# Founder-gated: manual only. This workflow is the sole path that publishes
-# PromptOS externally, so it never runs on push or pull_request. Publication
-# is restricted to founder-triggered exact deployment candidates whose lease
-# remains valid against live main. GitHub Pages with "GitHub Actions" as its
-# source remains a one-time repository-admin action this workflow cannot perform.
+# Founder-gated: manual only. This is the authorized PromptOS publication
+# workflow, but repository source cannot by itself control GitHub Pages admin
+# configuration. The workflow therefore reads back live Pages authority before
+# build and again immediately before deployment, and fails closed unless Pages
+# is configured with build_type=workflow. Legacy branch publication is blocked.
 on:
   workflow_dispatch:
     inputs:
@@ -197,6 +197,11 @@ jobs:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Reverify GitHub Pages publication source immediately before Pages mutation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-pages-publication-source.mjs
 
       - name: Revalidate founder and candidate lease immediately before Pages mutation
         shell: bash
