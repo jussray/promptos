@@ -38,6 +38,19 @@ function currentMission() {
   });
 }
 
+function currentModelExecution() {
+  const modelProfileId = document.getElementById('foModelProfile')?.value || '';
+  if (!modelProfileId) return undefined;
+  return {
+    modelProfileId,
+    observedProvider: document.getElementById('foObservedProvider')?.value || '',
+    observedRuntimeModel: document.getElementById('foRuntimeModel')?.value || '',
+    observedCapabilities: list(document.getElementById('foObservedCapabilities')?.value),
+    sourceTruthRefs: list(document.getElementById('foTruthRefs')?.value),
+    continuityFingerprint: document.getElementById('foContinuityFingerprint')?.value || '',
+  };
+}
+
 function renderDraft(workflow) {
   const status = document.getElementById('foWorkflowStatus');
   const gate = document.getElementById('foWorkflowGate');
@@ -45,13 +58,17 @@ function renderDraft(workflow) {
   const copy = document.getElementById('foWorkflowCopy');
   if (!status || !gate || !output || !copy) return;
 
-  status.hidden = false;
-  status.innerHTML = [
+  const badges = [
     `<span class="badge">${workflow.id}@${workflow.version}</span>`,
     `<span class="badge">${workflow.status.toUpperCase()}</span>`,
     `<span class="badge">authority ${workflow.sourceMission.authorityCeiling}</span>`,
     `<span class="badge">lineage ${workflow.lineage.length || 0}</span>`,
-  ].join('');
+  ];
+  if (workflow.modelExecution) {
+    badges.push(`<span class="badge">model ${workflow.modelExecution.modelProfileId}</span>`);
+  }
+  status.hidden = false;
+  status.innerHTML = badges.join('');
   gate.hidden = false;
   gate.textContent = 'Founder approval required before registry promotion. This preview cannot self-register or widen authority.';
   output.hidden = false;
@@ -90,6 +107,13 @@ function injectMakeUI() {
     '<div class="field"><label>Workflow ID</label><input id="foWorkflowId" placeholder="repair-user-path" autocomplete="off"></div>' +
     '<div class="field"><label>Aliases</label><input id="foWorkflowAliases" placeholder="/goalfix, repair login" autocomplete="off"></div>' +
     '<div class="field"><label>Lineage</label><input id="foWorkflowLineage" value="ultrathink, goalfix" autocomplete="off"></div>' +
+    '<div class="field"><label>Model profile (optional)</label><select id="foModelProfile"><option value="">Provider-neutral</option><option value="chatgpt-sol">ChatGPT Sol</option><option value="claude-code">Claude Code</option></select></div>' +
+    '<div class="field"><label>Observed provider</label><select id="foObservedProvider"><option value="">Not observed</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option></select></div>' +
+    '<div class="field"><label>Observed runtime model</label><input id="foRuntimeModel" placeholder="gpt-5.6-sol or observed Claude runtime" autocomplete="off"></div>' +
+    '<div class="field"><label>Observed capabilities</label><input id="foObservedCapabilities" placeholder="github, playwright" autocomplete="off"></div>' +
+    '<div class="field"><label>Authoritative truth refs</label><input id="foTruthRefs" placeholder="repo:owner/name@exact-head" autocomplete="off"></div>' +
+    '<div class="field"><label>Continuity fingerprint</label><input id="foContinuityFingerprint" placeholder="sha256:... or bounded receipt id" autocomplete="off"></div>' +
+    '<div class="hint">Model-native compilation is enabled only when a profile is selected. Provider identity, runtime model, capabilities, truth refs, and continuity must be observed rather than inferred.</div>' +
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
       '<button class="mini-btn solid" id="foMake">/MAKE workflow draft</button>' +
       '<button class="mini-btn" id="foWorkflowCopy" hidden>Copy workflow</button>' +
@@ -109,6 +133,7 @@ function injectMakeUI() {
         id: document.getElementById('foWorkflowId')?.value || undefined,
         aliases: list(document.getElementById('foWorkflowAliases')?.value),
         lineage: list(document.getElementById('foWorkflowLineage')?.value),
+        modelExecution: currentModelExecution(),
       });
       const validation = validateWorkflowArtifact(workflow);
       if (!validation.valid) {
