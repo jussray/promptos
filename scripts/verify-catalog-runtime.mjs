@@ -7,6 +7,8 @@ import {
   compilePrompt,
   deepReasoningPrompts,
   openPromptCard,
+  researchExpansionGroups,
+  researchExpansionPrompts,
   workflowPrompts,
 } from '../src/catalog-runtime/index.js';
 
@@ -14,6 +16,7 @@ function inputsFor(recipe) { return Object.fromEntries(recipe.inputs.map((key) =
 function normalized(value) { return value.toLowerCase().replace(/\s+/g, ' ').trim(); }
 
 const built = buildCatalogRecipes();
+const allCurated = [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts];
 assert.equal(built.recipes.length, 5000, 'PromptOS catalog must contain exactly 5,000 selected recipes');
 assert.ok(built.candidateCount > 5000, 'catalog must select from a larger valid candidate pool');
 assert.equal(built.rejected.length, 0, 'canonical catalog candidates must not be rejected');
@@ -23,13 +26,32 @@ assert.equal(builderPrompts.length, 200, 'PromptOS must expose exactly 200 curat
 assert.equal(workflowPrompts.length, 48, 'PromptOS must expose exactly 48 implicit workflow prompts');
 assert.equal(deepReasoningPrompts.length, 24, 'PromptOS must expose exactly 24 deep reasoning triggers');
 assert.equal(adversarialChallengePrompts.length, 24, 'PromptOS must expose exactly 24 adversarial challenge triggers');
-assert.equal(built.curatedCount, 248, 'all curated prompts must be pinned into the selected catalog');
+assert.equal(researchExpansionGroups.length, 15, 'PromptOS research expansion must contain exactly 15 research groups');
+assert.equal(researchExpansionPrompts.length, 150, 'PromptOS research expansion must contain exactly 150 curated prompts');
+assert.equal(allCurated.length, 398, 'PromptOS must expose exactly 398 curated prompts after research expansion');
+assert.equal(built.curatedCount, 398, 'all curated prompts must be pinned into the selected catalog');
 assert.equal(built.curatedBuilderCount, 200, 'builder curated count drifted');
 assert.equal(built.curatedWorkflowCount, 48, 'workflow curated count drifted');
-assert.equal(new Set(builderPrompts.map((recipe) => recipe.id)).size, 200, 'builder prompt ids must be unique');
+assert.equal(built.curatedResearchExpansionCount, 150, 'research expansion curated count drifted');
+assert.equal(new Set(allCurated.map((recipe) => recipe.id)).size, 398, 'curated prompt ids must be globally unique');
+assert.equal(new Set(allCurated.map((recipe) => normalized(recipe.title))).size, 398, 'curated prompt titles must be globally unique');
 assert.equal(new Set(builderPrompts.map((recipe) => normalized(recipe.instructions))).size, 200, 'builder prompt instructions must be semantically distinct at the normalized text level');
-assert.equal(new Set(workflowPrompts.map((recipe) => recipe.id)).size, 48, 'workflow prompt ids must be unique');
 assert.equal(new Set(workflowPrompts.map((recipe) => normalized(recipe.instructions))).size, 48, 'workflow prompt instructions must be semantically distinct at the normalized text level');
+assert.equal(new Set(researchExpansionPrompts.map((recipe) => normalized(recipe.instructions))).size, 150, 'research expansion instructions must be semantically distinct at the normalized text level');
+
+for (const group of researchExpansionGroups) {
+  assert.equal(group.promptCount, 10, `research group must contain exactly ten prompts: ${group.id}`);
+  assert.ok(group.researchBasis.length >= 2, `research group must retain a research basis: ${group.id}`);
+}
+for (const recipe of researchExpansionPrompts) {
+  assert.match(recipe.id, /^research\.curated\./, `research recipe id lacks curated namespace: ${recipe.id}`);
+  assert.ok(recipe.instructions.length >= 1000, `research recipe is too thin: ${recipe.id}`);
+  assert.ok(Array.isArray(recipe.researchBasis) && recipe.researchBasis.length >= 2, `research basis missing: ${recipe.id}`);
+  assert.ok(recipe.researchGroup, `research group missing: ${recipe.id}`);
+  assert.match(recipe.instructions, /VERIFIED, INFERRED, UNKNOWN, and BLOCKED/, `research recipe lacks evidence classification: ${recipe.id}`);
+  assert.match(recipe.instructions, /smallest reversible next action/, `research recipe lacks reversible-action gate: ${recipe.id}`);
+  assert.match(recipe.instructions, /REALITY \| ANALYSIS \| ACTION \| PROOF \| RISK \| ROLLBACK \| NEXT GATE/, `research recipe lacks decision output contract: ${recipe.id}`);
+}
 
 const bannedBuilderPhrases = [
   'disable auth',
@@ -59,8 +81,7 @@ for (const recipe of deepReasoningPrompts) assert.deepEqual(recipe.workflowLinea
 for (const recipe of adversarialChallengePrompts) assert.deepEqual(recipe.workflowLineage, ['attack-ten','attack6000'], `adversarial lineage drift: ${recipe.id}`);
 
 const selectedIds = new Set(built.recipes.map((recipe) => recipe.id));
-for (const recipe of builderPrompts) assert.ok(selectedIds.has(recipe.id), `curated builder recipe was dropped: ${recipe.id}`);
-for (const recipe of workflowPrompts) assert.ok(selectedIds.has(recipe.id), `curated workflow recipe was dropped: ${recipe.id}`);
+for (const recipe of allCurated) assert.ok(selectedIds.has(recipe.id), `curated recipe was dropped: ${recipe.id}`);
 
 const familyCounts = new Map();
 for (const recipe of built.recipes) {
@@ -73,6 +94,10 @@ for (const recipe of built.recipes) {
   if (recipe.familyId === 'application.builder') {
     assert.match(compiled.prompt, /RECIPE BUILD BRIEF/, `builder instructions were not compiled: ${recipe.id}`);
     if (recipe.requiresUiProof) assert.ok(compiled.provenance.appliedClauseIds.includes('verification.playwright-if-ui'), `UI builder recipe lacks Playwright proof: ${recipe.id}`);
+  }
+  if (recipe.id.startsWith('research.curated.')) {
+    assert.match(compiled.prompt, /RECIPE BUILD BRIEF/, `research instructions were not compiled: ${recipe.id}`);
+    if (recipe.requiresUiProof) assert.ok(compiled.provenance.appliedClauseIds.includes('verification.playwright-if-ui'), `research UI recipe lacks Playwright proof: ${recipe.id}`);
   }
   if (recipe.workflowLineage?.length) {
     assert.deepEqual(compiled.provenance.workflowLineage, recipe.workflowLineage, `compiled workflow lineage drift: ${recipe.id}`);
@@ -111,6 +136,11 @@ assert.equal(challengeCard.ok, true);
 assert.equal(challengeCard.readyToCopy, true);
 assert.deepEqual(challengeCard.provenance?.workflowLineage, ['attack-ten','attack6000']);
 
+const researchCard = openPromptCard(researchExpansionPrompts[0], inputsFor(researchExpansionPrompts[0]), {});
+assert.equal(researchCard.ok, true);
+assert.equal(researchCard.readyToCopy, true);
+assert.match(researchCard.preview, /RECIPE BUILD BRIEF/);
+
 console.log(JSON.stringify({
   status:'passed',
   owner:'jussray/promptos',
@@ -118,7 +148,10 @@ console.log(JSON.stringify({
   selected:built.recipes.length,
   candidates:built.candidateCount,
   families:Object.keys(canonicalFamilies).length,
+  curatedTotal:built.curatedCount,
   curatedBuilders:builderPrompts.length,
+  curatedResearchExpansion:researchExpansionPrompts.length,
+  researchExpansionGroups:researchExpansionGroups.length,
   implicitDeepReasoningTriggers:deepReasoningPrompts.length,
   implicitAdversarialTriggers:adversarialChallengePrompts.length,
   visibleWorkflowNameLeaks:0,
