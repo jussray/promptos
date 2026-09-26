@@ -34,6 +34,7 @@ const publicFiles = [
   'src/catalog-runtime/catalog/buildCatalog.js',
   'src/catalog-runtime/catalog/builderPrompts.js',
   'src/catalog-runtime/catalog/workflowPrompts.js',
+  'src/catalog-runtime/catalog/researchExpansionPrompts.js',
   'src/catalog-runtime/catalog/clauses.js',
   'src/catalog-runtime/catalog/compatibility.js',
   'src/catalog-runtime/catalog/families.js',
