@@ -1,6 +1,7 @@
 import { canonicalFamilies } from './families.js';
 import { builderPrompts } from './builderPrompts.js';
 import { workflowPrompts } from './workflowPrompts.js';
+import { researchExpansionPrompts } from './researchExpansionPrompts.js';
 import { validateRecipeSpec } from './compatibility.js';
 
 export const CATALOG_TARGET = 5000;
@@ -69,7 +70,7 @@ export function recipeFromSpec(spec) {
 
 function validatedCuratedPrompts(rejected) {
   const valid = [];
-  for (const recipe of [...builderPrompts, ...workflowPrompts]) {
+  for (const recipe of [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts]) {
     const check = validateRecipeSpec(recipe);
     if (!check.valid) {
       rejected.push({ spec: recipe, reason: check.errors.join('; ') });
@@ -120,5 +121,6 @@ export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
     curatedCount: curated.length,
     curatedBuilderCount: builderPrompts.length,
     curatedWorkflowCount: workflowPrompts.length,
+    curatedResearchExpansionCount: researchExpansionPrompts.length,
   };
 }
