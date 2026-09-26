@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  pages: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -66,6 +67,11 @@ jobs:
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
+
+      - name: Verify founder-gated GitHub Pages publication source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-pages-publication-source.mjs
 
       - name: Verify deployment candidate lease against live current main
         shell: bash
