@@ -1,0 +1,34 @@
+name: Active Defense Proof
+
+on:
+  push:
+    branches:
+      - feat/active-defense-hallway-48000
+    paths:
+      - 'workflows/active-defense.workflow.json'
+      - 'workflows/ultrathink.workflow.json'
+      - 'scripts/verify-active-defense-workflow.mjs'
+      - '.github/workflows/active-defense-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_HEAD_SHA: ${{ github.sha }}
+
+jobs:
+  prove:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out exact proof head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+      - name: Verify exact proof head
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+      - name: Verify active-defense workflow
+        run: node scripts/verify-active-defense-workflow.mjs
