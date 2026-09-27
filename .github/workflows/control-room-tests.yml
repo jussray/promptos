@@ -18,6 +18,7 @@ on:
       - "scripts/verify-current-truth-surface.mjs"
       - "scripts/verify-main-push-authority.mjs"
       - "scripts/verify-main-provider-protection.mjs"
+      - "scripts/verify-protected-intelligence-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
       - "src/ai-mastery-v6.mjs"
@@ -93,6 +94,8 @@ jobs:
           node-version: "24"
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
+      - name: Verify protected intelligence and live-proof contract
+        run: node scripts/verify-protected-intelligence-contract.mjs
       - name: Verify AI Mastery V6 execution contract
         run: node scripts/verify-ai-mastery-v6.mjs
       - name: Verify migrated PromptOS catalog runtime
