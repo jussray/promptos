@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "artifactType": "promptos-workflow",
+  "id": "active-defense",
+  "version": "1.0",
+  "title": "Juss Active Defense and Never-Ending Hallway",
+  "status": "candidate",
+  "registrationAuthority": "founder-approved",
+  "intent": "Turn suspicious inbound automation on founder-owned or explicitly authorized infrastructure into bounded identification, containment, deception, evidence, and defensive learning while protecting production authority and customer data.",
+  "orchestrator": "ultrathink",
+  "twoStepJobs": {
+    "offense": [
+      "Pressure-test Juss-owned systems with the complete authorized adversarial workflow set.",
+      "When suspicious traffic interacts with Juss-owned infrastructure, increase local verification, controlled deception, and evidence collection without sending intrusive traffic back to the source."
+    ],
+    "defense": [
+      "Protect current production state through identity checks, rate controls, isolation, deny/challenge decisions, and zero-trust authority boundaries.",
+      "Turn observed behavior into receipts, correlations, focused repairs, stronger controls, and successor proof."
+    ]
+  },
+  "attackUnit": [
+    "attack10",
+    "attack20",
+    "attack30",
+    "attack3000",
+    "attack5000",
+    "attack6000",
+    "attack48000",
+    "redteamI",
+    "redteamII",
+    "redteamTwin",
+    "devil",
+    "lindymode",
+    "l99",
+    "ooda",
+    "truthmode",
+    "confess",
+    "goalfix",
+    "proofMode",
+    "continuity",
+    "rollback"
+  ],
+  "sharedContext": [
+    "repository identity",
+    "branch and exact SHA when applicable",
+    "runtime identity",
+    "request method and path",
+    "Cloudflare request/ray evidence when available",
+    "source network indicators",
+    "claimed automation identity",
+    "verified bot classification when available",
+    "JA3/JA4 or equivalent transport fingerprints when available",
+    "prior signed continuity receipt when valid",
+    "authority state",
+    "evidence freshness"
+  ],
+  "hallway": {
+    "fixedLogicalExpansionPerStep": 48000,
+    "additionalExpansion": {
+      "mode": "bounded-secret-derived-pseudorandom",
+      "minimum": 1,
+      "maximum": 48000,
+      "requiredForContainedStep": true
+    },
+    "materialization": "lazy",
+    "materializedContinuationBudget": 8,
+    "continuity": "signed-bounded-cookie-or-receipt",
+    "sessionIsolationRequired": true,
+    "realCredentialsAllowed": false,
+    "realCustomerDataAllowed": false,
+    "productionAuthorityAllowed": false,
+    "outboundIntrusiveProbeAllowed": false,
+    "purpose": "Increase uncertainty and defender observation time while keeping the actual defender cost bounded and production exposure at zero."
+  },
+  "identityPolicy": {
+    "technicalIdentityFirst": true,
+    "claimedIdentityIsNotVerifiedIdentity": true,
+    "humanAttributionWithoutIndependentEvidence": "UNKNOWN",
+    "signals": [
+      "source IP",
+      "ASN",
+      "network organization",
+      "verified crawler category",
+      "user agent claim",
+      "bot score when available",
+      "JA3/JA4 when available",
+      "request sequence",
+      "canary interactions",
+      "continuity lineage"
+    ]
+  },
+  "verdicts": [
+    "ALLOW",
+    "VERIFIED_BOT",
+    "OBSERVE_AUTOMATION",
+    "HALLWAY",
+    "DROP_SESSION",
+    "REPAIR_REQUIRED",
+    "PROOF_INSUFFICIENT"
+  ],
+  "executionLoop": [
+    "CAPTURE",
+    "FINGERPRINT",
+    "RUN-FULL-ATTACK-UNIT",
+    "CROSS-CHECK",
+    "DECIDE",
+    "CONTAIN-OR-ALLOW",
+    "EXPAND-48000",
+    "EXPAND-BOUNDED-RANDOM",
+    "MATERIALIZE-MINIMUM-SYNTHETIC-SURFACE",
+    "LOG-RECEIPT",
+    "HARDEN",
+    "VERIFY",
+    "REOBSERVE"
+  ],
+  "hardInvariants": [
+    "Every meaningful contained step runs the complete applicable attack unit against one shared evidence context.",
+    "No single lens can independently declare the state safe.",
+    "Every Hallway step performs fixed 48000 logical expansion followed by bounded pseudorandom logical expansion.",
+    "Logical expansion must not imply proportional physical compute or model calls.",
+    "Synthetic surfaces never contain real credentials, customer data, internal prompts, or production authority.",
+    "Suspicious inbound traffic does not authorize intrusive outbound scanning, exploitation, or compromise of the source system.",
+    "Technical attribution and human attribution remain separate truth claims.",
+    "Unknown stays UNKNOWN; evidence cannot be promoted because an actor merely claimed an identity.",
+    "State movement expires predecessor proof.",
+    "Known bad state is repaired or reverted before portfolio rollout continues."
+  ],
+  "proof": {
+    "required": [
+      "focused unit proof",
+      "type/lint proof appropriate to the repository",
+      "provider build or dry-run where applicable",
+      "Playwright for UI/runtime paths",
+      "exact-head receipt"
+    ],
+    "truthPlanes": [
+      "SOURCE_IMPLEMENTED",
+      "CI_VERIFIED",
+      "DEPLOYED",
+      "RUNTIME_VERIFIED",
+      "OUTCOME_VERIFIED"
+    ]
+  },
+  "authorityBoundary": "This workflow authorizes defensive behavior only on infrastructure the founder owns or is explicitly authorized to test. It may intensify local inspection, challenge, containment, deception, telemetry, evidence preservation, and internal pressure-testing. It does not grant authority to access, scan, exploit, disrupt, or compromise third-party systems.",
+  "stopCondition": "Stop expansion when the session is safely contained, evidence value is exhausted, resource ceilings are reached, or continued engagement increases risk; preserve the receipt and harden the real system."
+}
