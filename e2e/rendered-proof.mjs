@@ -5,6 +5,8 @@ const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
 const TARGET_PROMPT = 'Jailbreak Pack Review';
 const TARGET_PROMPT_ID = 64;
+const EXPECTED_CURATED_PROMPTS = 398;
+const EXPECTED_SELECTED_RECIPES = 5000;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -38,6 +40,23 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#appShell').waitFor({state: 'visible'});
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
+  await page.locator('#page-catalog.on').waitFor({state: 'visible'});
+  const catalogSummary = await page.evaluate(() => window.__PROMPTOS_CATALOG_SUMMARY__);
+  assert(catalogSummary?.curatedCount === EXPECTED_CURATED_PROMPTS, `${name}: canonical curated prompt count drifted: ${catalogSummary?.curatedCount}`);
+  assert(catalogSummary?.selectedCount === EXPECTED_SELECTED_RECIPES, `${name}: canonical selected recipe count drifted: ${catalogSummary?.selectedCount}`);
+
+  const truthPill = page.locator('#countPill');
+  const truthPillText = (await truthPill.textContent())?.trim() || '';
+  assert(truthPillText.includes('398 curated'), `${name}: global truth badge omitted curated count: ${truthPillText}`);
+  assert(truthPillText.includes('5,000 recipes'), `${name}: global truth badge omitted selected recipe count: ${truthPillText}`);
+  assert(await truthPill.getAttribute('data-catalog-truth') === 'canonical', `${name}: global count badge is not bound to canonical catalog truth`);
+
+  const initialCatalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  const initialQuickLibraryNav = width <= 900 ? page.locator('.mobile-nav [data-page="library"]') : page.locator('.sidebar [data-page="library"]');
+  assert(await initialCatalogNav.getAttribute('class').then((value) => value?.includes('active')), `${name}: canonical catalog is not the active default navigation item`);
+  const quickLibraryLabel = (await initialQuickLibraryNav.textContent())?.trim() || '';
+  assert(quickLibraryLabel.includes('Quick'), `${name}: legacy prompt subset is not labeled Quick Library: ${quickLibraryLabel}`);
+
   const persistenceSelector = width <= 900 ? '#persistenceAuthorityMobileStatus' : '#persistenceAuthorityStatus';
   const persistenceStatus = page.locator(persistenceSelector);
   if (width > 900) await persistenceStatus.scrollIntoViewIfNeeded();
@@ -70,28 +89,37 @@ async function proveViewport(browser, {name, width, height}) {
     const target = prompts.find((prompt) => prompt?.id === targetId);
     return {count: prompts.length, uniqueIds: new Set(ids).size, targetTitle: target?.title ?? null, targetPresent: target?.title === targetTitle};
   }, {targetId: TARGET_PROMPT_ID, targetTitle: TARGET_PROMPT});
-  assert(registry.count > 0, `${name}: prompt registry is empty`);
-  assert(registry.uniqueIds === registry.count, `${name}: prompt registry contains duplicate IDs`);
-  assert(registry.targetPresent, `${name}: canonical p08 prompt is absent from the runtime registry`);
+  assert(registry.count > 0, `${name}: quick-library prompt registry is empty`);
+  assert(registry.uniqueIds === registry.count, `${name}: quick-library registry contains duplicate IDs`);
+  assert(registry.targetPresent, `${name}: canonical p08 quick prompt is absent from the runtime registry`);
+  assert(catalogSummary?.quickLibraryCount === registry.count, `${name}: quick-library count is not represented honestly in catalog summary`);
 
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
-  assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered prompt count does not match runtime registry`);
+  assert(Number.isFinite(totalPrompts) && totalPrompts === registry.count, `${name}: rendered quick prompt count does not match quick-library registry`);
+  assert((await page.locator('#page-library .stat-row .stat .l').first().textContent())?.trim() === 'Quick prompts', `${name}: quick-library stat is mislabeled as whole-product prompts`);
 
   const scriptPaths = await page.evaluate(() => Array.from(document.scripts).map((script) => script.src).filter(Boolean).map((src) => new URL(src).pathname).filter((pathname) => pathname.startsWith('/parts/')));
   for (const required of ['/parts/auth.js','/parts/p05-new-prompts.js','/parts/p06-gap-prompts.js','/parts/p07-ship-ultrathink-skills.js','/parts/p08-cont-redteam.js','/parts/p09-cont-design.js','/parts/p10-cont-ops-growth.js','/parts/app.js']) {
     assert(scriptPaths.includes(required), `${name}: missing rendered script ${required}`);
   }
 
+  await initialQuickLibraryNav.click();
+  await page.locator('#page-library.on').waitFor({state: 'visible'});
+  assert((await page.locator('#page-library .page-head h2').textContent())?.trim() === 'Quick Library', `${name}: legacy subset page is not explicitly labeled Quick Library`);
+
   const search = page.locator('#search');
   await search.fill(TARGET_PROMPT);
   const matchingCards = page.locator('.pcard');
   await matchingCards.first().waitFor({state: 'visible'});
-  assert(await matchingCards.count() === 1, `${name}: search did not narrow to exactly one prompt`);
-  assert((await matchingCards.locator('h3').textContent())?.trim() === TARGET_PROMPT, `${name}: p08 prompt did not render`);
+  assert(await matchingCards.count() === 1, `${name}: quick-library search did not narrow to exactly one prompt`);
+  assert((await matchingCards.locator('h3').textContent())?.trim() === TARGET_PROMPT, `${name}: p08 quick prompt did not render`);
   await page.locator(`[data-open="${TARGET_PROMPT_ID}"]`).click();
   await page.locator('#modalWrap.open').waitFor({state: 'visible'});
-  assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: prompt modal did not open the searched item`);
+  assert((await page.locator('#modalWrap h3').textContent())?.includes(TARGET_PROMPT), `${name}: quick prompt modal did not open the searched item`);
   await page.keyboard.press('Escape');
+
+  const truthAfterQuickLibrary = (await truthPill.textContent())?.trim() || '';
+  assert(truthAfterQuickLibrary.includes('398 curated') && truthAfterQuickLibrary.includes('5,000 recipes'), `${name}: visiting Quick Library overwrote global catalog truth: ${truthAfterQuickLibrary}`);
 
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'light', `${name}: theme toggle did not switch to light`);
@@ -103,10 +131,12 @@ async function proveViewport(browser, {name, width, height}) {
   await catalogNav.click();
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
   const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
+  const curatedPrompts = Number((await page.locator('#catalogCuratedTotal').textContent())?.replace(/,/g, ''));
   const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
   const renderedFamilyTotal = Number((await page.locator('#catalogFamilyTotal').textContent())?.replace(/,/g, ''));
   const familyOptionCount = await page.locator('#catalogFamily option').count() - 1;
-  assert(selectedRecipes === 5000, `${name}: catalog selected recipe count drifted: ${selectedRecipes}`);
+  assert(selectedRecipes === EXPECTED_SELECTED_RECIPES, `${name}: catalog selected recipe count drifted: ${selectedRecipes}`);
+  assert(curatedPrompts === EXPECTED_CURATED_PROMPTS, `${name}: catalog curated prompt count drifted: ${curatedPrompts}`);
   assert(candidateRecipes > selectedRecipes, `${name}: catalog candidate pool must exceed selected recipes: ${candidateRecipes}`);
   assert(renderedFamilyTotal === familyOptionCount, `${name}: rendered canonical family count drifted: ${renderedFamilyTotal} vs ${familyOptionCount}`);
 
@@ -175,7 +205,7 @@ async function proveViewport(browser, {name, width, height}) {
   const result = {
     name,
     viewport: {width, height},
-    totalPrompts,
+    quickLibraryPrompts: totalPrompts,
     registryUniqueIds: registry.uniqueIds,
     searchedPrompt: TARGET_PROMPT,
     searchedPromptId: TARGET_PROMPT_ID,
@@ -183,6 +213,7 @@ async function proveViewport(browser, {name, width, height}) {
     themeRoundTrip: true,
     catalog: {
       selectedRecipes,
+      curatedPrompts,
       candidateRecipes,
       renderedFamilyTotal,
       familyId,
@@ -192,6 +223,8 @@ async function proveViewport(browser, {name, width, height}) {
       builderRecipeCount,
       builderControlCount,
       builderCompiledReady: true,
+      defaultSurface: true,
+      globalTruthBadge: truthPillText,
     },
     persistenceAuthority,
     persistenceText,
