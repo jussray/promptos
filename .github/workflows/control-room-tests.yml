@@ -3,7 +3,7 @@ name: PromptOS Control Room Tests
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, fix/main-authority-contract]
     paths:
       - "README.md"
       - "AGENTS.md"
@@ -51,6 +51,7 @@ on:
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
       - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/deployment-authority-contract.yml"
       - ".github/workflows/main-authority-contract.yml"
       - ".github/workflows/control-room-tests.yml"
   workflow_dispatch:
