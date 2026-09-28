@@ -4,7 +4,9 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches:
+      - main
+      - fix/main-authority-contract
   workflow_dispatch:
 
 permissions:
@@ -41,3 +43,16 @@ jobs:
         run: python3 -m py_compile scripts/deploy_candidate_guard.py scripts/test_deploy_candidate_guard.py
       - name: Attack deployment candidate lease
         run: python3 scripts/test_deploy_candidate_guard.py
+      - name: Syntax-check provider protection verifier
+        run: node --check scripts/verify-main-provider-protection.mjs
+      - name: Enforce provider-required checks before merge
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-main-provider-protection.mjs
+      - name: Report provider protection on authority repair branch
+        if: github.ref == 'refs/heads/fix/main-authority-contract'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROMPTOS_AUTHORITY_REPORT_ONLY: "1"
+        run: node scripts/verify-main-provider-protection.mjs
