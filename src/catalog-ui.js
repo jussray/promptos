@@ -39,11 +39,41 @@ function addStylesheet() {
   document.head.appendChild(link);
 }
 
+function relabelQuickLibraryButton(button, { mobile = false } = {}) {
+  if (!button) return;
+  button.setAttribute('aria-label', 'Quick prompt subset');
+  if (mobile) {
+    button.textContent = '📚 Quick';
+    return;
+  }
+  const count = button.querySelector('.n-count');
+  button.replaceChildren(document.createTextNode('📚 Quick Library '));
+  if (count) button.appendChild(count);
+}
+
+function relabelQuickLibrarySurface() {
+  relabelQuickLibraryButton(document.querySelector('.sidebar [data-page="library"]'));
+  relabelQuickLibraryButton(document.querySelector('.mobile-nav [data-page="library"]'), { mobile: true });
+
+  const page = document.getElementById('page-library');
+  if (!page) return;
+  const crumb = page.querySelector('.crumb b');
+  const heading = page.querySelector('.page-head h2');
+  const description = page.querySelector('.page-head p');
+  const firstStatLabel = page.querySelector('.stat-row .stat .l');
+  if (crumb) crumb.textContent = 'quick library';
+  if (heading) heading.textContent = 'Quick Library';
+  if (description) {
+    description.textContent = 'A compact quick-access subset. The canonical PromptOS catalog contains 398 curated prompts across 5,000 bounded recipes.';
+  }
+  if (firstStatLabel) firstStatLabel.textContent = 'Quick prompts';
+}
+
 function navButton({ mobile = false } = {}) {
   const button = document.createElement('button');
   button.className = 'nav-item';
   button.dataset.page = 'catalog';
-  button.setAttribute('aria-label', 'PromptOS recipe catalog');
+  button.setAttribute('aria-label', 'Canonical PromptOS recipe catalog');
   if (mobile) button.textContent = '🧬 Catalog';
   else button.innerHTML = '🧬 Catalog <span class="n-count" id="catalogNavCount">5K</span>';
   return button;
@@ -54,15 +84,37 @@ function mountNavigation(onOpen) {
   if (desktopLibrary && !document.querySelector('.sidebar [data-page="catalog"]')) {
     const button = navButton();
     button.addEventListener('click', onOpen);
-    desktopLibrary.insertAdjacentElement('afterend', button);
+    desktopLibrary.insertAdjacentElement('beforebegin', button);
   }
 
   const mobileLibrary = document.querySelector('.mobile-nav [data-page="library"]');
   if (mobileLibrary && !document.querySelector('.mobile-nav [data-page="catalog"]')) {
     const button = navButton({ mobile: true });
     button.addEventListener('click', onOpen);
-    mobileLibrary.insertAdjacentElement('afterend', button);
+    mobileLibrary.insertAdjacentElement('beforebegin', button);
   }
+}
+
+function bindGlobalCatalogTruth(built) {
+  const summary = {
+    curatedCount: built.curatedCount,
+    selectedCount: built.recipes.length,
+    candidateCount: built.candidateCount,
+    quickLibraryCount: Array.isArray(window.PROMPTS) ? window.PROMPTS.length : 0,
+  };
+  window.__PROMPTOS_CATALOG_SUMMARY__ = Object.freeze(summary);
+
+  const pill = document.getElementById('countPill');
+  if (!pill) return;
+  const truth = `${summary.curatedCount.toLocaleString()} curated · ${summary.selectedCount.toLocaleString()} recipes`;
+  const enforce = () => {
+    if (pill.textContent !== truth) pill.textContent = truth;
+    pill.dataset.catalogTruth = 'canonical';
+  };
+  enforce();
+
+  const observer = new MutationObserver(enforce);
+  observer.observe(pill, { childList: true, characterData: true, subtree: true });
 }
 
 function createPage() {
@@ -73,13 +125,13 @@ function createPage() {
     <div class="page-head">
       <div class="crumb">promptos <span>/</span> <b>catalog</b></div>
       <h2>5,000 bounded recipes. Compile only what the task needs.</h2>
-      <p>Filter the canonical recipe index, add concrete context, and compile a provider-ready prompt with provenance and proof guardrails.</p>
+      <p>398 curated prompts anchor the canonical recipe index. Filter the catalog, add concrete context, and compile a provider-ready prompt with provenance and proof guardrails.</p>
     </div>
     <div class="promptos-stats" aria-label="PromptOS catalog summary">
       <div class="stat"><div class="n" id="catalogTotal">5,000</div><div class="l">Selected recipes</div></div>
+      <div class="stat"><div class="n" id="catalogCuratedTotal">398</div><div class="l">Curated prompts</div></div>
       <div class="stat"><div class="n" id="catalogCandidateTotal">5,400</div><div class="l">Valid candidates</div></div>
       <div class="stat"><div class="n" id="catalogFamilyTotal">8</div><div class="l">Canonical families</div></div>
-      <div class="stat"><div class="n">On demand</div><div class="l">Prompt compilation</div></div>
     </div>
     <div class="promptos-toolbar" aria-label="PromptOS catalog filters">
       <label class="promptos-search"><span>Search</span><input id="catalogSearch" type="search" placeholder="Repo audit, launch, pricing, UX…" autocomplete="off"></label>
@@ -159,6 +211,7 @@ function cardFor(recipe, onOpen) {
 export function mountPromptOSCatalog() {
   if (document.getElementById('page-catalog')) return;
   addStylesheet();
+  relabelQuickLibrarySurface();
 
   const main = document.querySelector('.main');
   if (!main) return;
@@ -191,7 +244,9 @@ export function mountPromptOSCatalog() {
 
     const built = buildCatalogRecipes();
     recipes = built.recipes;
+    bindGlobalCatalogTruth(built);
     page.querySelector('#catalogTotal').textContent = recipes.length.toLocaleString();
+    page.querySelector('#catalogCuratedTotal').textContent = built.curatedCount.toLocaleString();
     page.querySelector('#catalogCandidateTotal').textContent = built.candidateCount.toLocaleString();
     page.querySelector('#catalogFamilyTotal').textContent = Object.keys(canonicalFamilies).length.toLocaleString();
 
@@ -330,9 +385,12 @@ export function mountPromptOSCatalog() {
     render();
     emitAnalytics('catalog_mounted', null, {
       selectedCount: recipes.length,
+      curatedCount: built.curatedCount,
       candidateCount: built.candidateCount,
     });
   }
+
+  showCatalog();
 }
 
 mountPromptOSCatalog();
