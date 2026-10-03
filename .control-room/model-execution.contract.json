@@ -6,6 +6,13 @@
   "toolAvailabilitySource": "observe-per-run",
   "modelConsensusIsProof": false,
   "requiresIndependentEvidenceForTruthUpgrade": true,
+  "runtimeStopContract": "juss/runtime-stop-evidence@v1",
+  "secureSdlcWorkflows": [
+    "continuous-code-scanning",
+    "test-environment-scanning",
+    "security-finding-validation",
+    "security-patch-automation"
+  ],
   "mayAdapt": [
     "context-packaging",
     "reasoning-strategy",
@@ -33,7 +40,7 @@
       "promptShape": "evidence-first-orchestration",
       "rules": [
         "Observe the actual runtime model identity, provider, and capabilities before compilation.",
-        "Prefer compact cross-system context with explicit authority, proof, continuity, and next-gate fields.",
+        "Prefer compact cross-system context with explicit authority, proof, continuity, runtime-stop, side-effect, and next-gate fields.",
         "Never simulate a connector, browser, model, or tool that is absent from observedCapabilities."
       ]
     },
@@ -48,7 +55,7 @@
       "promptShape": "repository-context-implementation",
       "rules": [
         "Observe the actual runtime model identity, provider, and capabilities before compilation.",
-        "Prefer repository-local instructions, bounded implementation context, exact evidence, and explicit rollback.",
+        "Prefer repository-local instructions, bounded implementation context, exact evidence, explicit side-effect reconciliation, and rollback.",
         "Never simulate Playwright, browser, provider, model, or tool use that is absent from observedCapabilities."
       ]
     }
@@ -60,20 +67,32 @@
     "observedCapabilities",
     "sourceTruthRefs",
     "authorityRequired",
+    "authorizationState",
     "proofRequired",
     "claims",
     "unknowns",
     "continuityFingerprint",
+    "requestDigest",
+    "responseDigest",
+    "runtimeStopEvidence",
+    "toolEffects",
+    "completedWork",
+    "incompleteWork",
     "resultEvidence"
   ],
   "rules": [
     "PromptOS may specialize prompt and protocol form per observed model profile but may not specialize reality.",
     "Observed provider identity must match the selected profile and remain inside the mission provider allowlist.",
     "Model-specific proof requirements may add gates but may never remove mission-level required evidence.",
-    "Model identity, provider access, or tool availability never grants execution, merge, deployment, publication, spending, destructive, or founder authority.",
+    "Model identity, provider access, tool availability, refusal behavior, provider acceptance, monitor stops, and customer-visible wording never grant or determine execution, merge, deployment, publication, spending, destructive, or founder authority.",
+    "Authorization is evaluated separately from runtime outcome and must remain UNKNOWN or NOT_EVALUATED when separate authority evidence is absent.",
     "A model response is advisory input until the receiving system independently validates its evidence.",
+    "A refusal-looking response must not be attributed to the model unless model execution and the completion itself are independently evidenced.",
+    "A monitored stop after a tool mutation does not undo the mutation, complete the task, or authorize automatic retry; reconcile side effects before any resubmission.",
+    "Secure SDLC and AppSec scan results are evidence inputs; security patch automation still requires separate write authority plus successor verification and rollback evidence.",
     "If models disagree, preserve the disagreement and reacquire governing evidence rather than voting or averaging.",
     "A capability or tool absent from observedCapabilities must never be simulated or narrated as executed by any model profile.",
-    "A state or fingerprint change invalidates predecessor proof for the changed subject."
+    "A state or fingerprint change invalidates predecessor proof for the changed subject.",
+    "Raw request and response payloads remain private evidence; review handoffs must use redacted records without credentials or unnecessary sensitive content."
   ]
 }
