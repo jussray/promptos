@@ -30,9 +30,10 @@ if (missing.length) {
 }
 
 const forbiddenHierarchyClaims = [
-  'layer inside Founder Control Room',
-  'layer inside FCR',
-  'product shell for its peers',
+  'PromptOS is Juss Ray\'s governed prompt, skill, instruction, and founder-intent layer inside Founder Control Room.',
+  '**Founder Control Room is the single founder operating system and product shell.**',
+  '**PromptOS is the human-AI instruction governance layer inside FCR.**',
+  '**Chief AI Machine is the governed cognition and proposal layer inside FCR.**',
   'PromptOS must compound FCR by default',
   'included-in-fcr',
 ];
