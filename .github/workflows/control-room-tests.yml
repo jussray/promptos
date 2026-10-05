@@ -151,6 +151,8 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in source UI
+        run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in source UI
         run: node e2e/implicit-workflow-proof.mjs
       - name: Prove Founder OS mission compiler desktop and mobile
@@ -179,6 +181,10 @@ jobs:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in staged UI
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
