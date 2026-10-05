@@ -1,6 +1,8 @@
 # PromptOS
 
-PromptOS is Juss Ray's governed prompt, skill, instruction, and founder-intent layer inside Founder Control Room. It began as a 159-prompt library and has since grown into a governed catalog runtime with executable contracts, portable Juss command parity, plugin-management boundaries, research-grounded prompt packs, a founder-intent mission compiler, and desktop/mobile browser proof.
+PromptOS is Juss Ray's **standalone governed prompt, skill, instruction, and founder-intent system**. It began as a 159-prompt library and has since grown into a governed catalog runtime with executable contracts, portable Juss command parity, plugin-management boundaries, research-grounded prompt packs, a founder-intent mission compiler, and desktop/mobile browser proof.
+
+PromptOS can interoperate with Founder Control Room, Chief AI Machine, SolContinuity, and other first-party systems through explicit contracts without becoming a module, shell, or subordinate runtime of another product.
 
 **Current catalog:** 398 curated prompts inside 5,000 selected recipes.
 
@@ -8,25 +10,35 @@ The current catalog is executable source truth, not a historical marketing count
 
 ## Product boundary
 
-PromptOS, Chief AI Machine, and Founder Control Room are complementary, not interchangeable.
+PromptOS, Chief AI Machine, SolContinuity, and Founder Control Room are complementary standalone peers, not interchangeable layers inside one product.
 
-- **Founder Control Room is the single founder operating system and product shell.** It owns the shared founder-intent, current-state, authority, evidence, outcome, and next-gate loop.
-- **PromptOS is the human-AI instruction governance layer inside FCR.** It structures founder intent, context, constraints, reusable workflows, prompts, skills, agent behavior, and human-reviewed learning without creating a second operating system.
-- **Chief AI Machine is the governed cognition and proposal layer inside FCR.** It may interpret bounded requests, reason, plan, compose capability proposals, and produce evidence-shaped handoffs, but it does not self-authorize consequential execution.
-- A PromptOS artifact or Chief output is advisory input. Neither can widen execution authority or prove deployment, provider state, publication, or external outcome by itself.
+- **Founder Control Room is a standalone founder operating environment and governance/evidence plane.** It owns FCR-native state and may evaluate or coordinate cross-system execution only where an explicit current contract gives it that role; it is not the parent product shell for its peers.
+- **PromptOS is a standalone human-AI instruction governance product.** It structures founder intent, context, constraints, reusable workflows, prompts, skills, agent behavior, and human-reviewed learning while retaining its own repository, product identity, interface, lifecycle, evidence, and failure state.
+- **Chief AI Machine is a standalone Founder Intelligence product.** It may interpret bounded requests, reason, plan, compose capability proposals, and produce evidence-shaped handoffs without becoming an FCR module or self-authorizing consequential execution.
+- **SolContinuity is a standalone continuity and resilience product.** It can exchange bounded evidence with the other peers without surrendering its own runtime or product boundary.
+- A PromptOS artifact, Chief output, FCR receipt, or SolContinuity observation cannot silently widen another peer's execution authority or prove deployment, provider state, publication, or external outcome on that peer's behalf.
 
-The machine-readable contract lives at `.control-room/product-boundary.json` and is enforced by `scripts/verify-product-boundary.mjs`.
+The machine-readable functional contract lives at `.control-room/product-boundary.json`; the standalone-peer topology is also recorded in `.control-room/council-residency.contract.json`. Both are enforced by repository verification.
 
 ```text
 Founder Control Room
-founder intent -> current truth -> capability coordination -> authority -> governed action -> evidence -> outcome -> next gate
+current truth -> authority decision -> governed coordination/execution -> evidence -> outcome -> next gate
 
 PromptOS
 intent/context -> instruction governance -> workflow/skill behavior -> proposal request -> learning
 
 Chief AI Machine
 request -> reasoning -> capability composition -> proposal -> evidence handoff
+
+SolContinuity
+routes/providers -> continuity evidence -> failover/recovery -> proof
 ```
+
+## Commercial packaging
+
+PromptOS keeps its standalone product identity regardless of go-to-market packaging. It may be offered directly, keep a free public catalog or acquisition layer, or participate in an explicit multi-product bundle with Founder Control Room or another first-party product.
+
+Bundling with Founder Control Room does not collapse PromptOS product identity, runtime, authority, receipts, pricing truth, or evidence. A paid PromptOS offer, conversion claim, retention claim, or revenue claim still requires PromptOS-specific economic evidence.
 
 ## What exists now
 
@@ -34,7 +46,7 @@ request -> reasoning -> capability composition -> proposal -> evidence handoff
 - **Founder-intent mission compiler:** turns founder intent, constraints, providers, and project context into a governed mission with an explicit authority ceiling, verification requirements, rollback path, and cross-system handoffs.
 - **Authority contracts:** repository and founder-intelligence instructions keep audit context below integration or mutation authority and prohibit silent authority expansion.
 - **Plugin-management contract:** allows declared integrations to be reasoned about without treating repository configuration as proof of live provider state.
-- **Portable command surface:** keeps Juss command semantics consistent across supported agent environments while FCR remains the operating-system authority.
+- **Portable command surface:** keeps Juss command semantics consistent across supported agent environments while preserving each participating system's own authority boundary.
 - **Verification:** focused source-contract checks plus desktop/mobile Playwright proof run in the Control Room test workflow and retain proof artifacts.
 
 ## Truth boundary
@@ -63,15 +75,16 @@ Repository-side CI can detect an unsafe `main` mutation after GitHub accepts it,
 - `docs/HUMAN_SAFE_BUILD_CONTRACT.md` — bounded build contract
 - `docs/receipts/PROMPTOS_TRUTH_SURFACE_MERGE_REVIEW_2026-09-26.md` — latest truth-surface/merge continuity receipt
 - `.control-room/plugin-management.json` — plugin-management declaration
-- `.control-room/product-boundary.json` — PromptOS/Chief/FCR product boundary
+- `.control-room/product-boundary.json` — PromptOS/Chief/FCR functional boundary
+- `.control-room/council-residency.contract.json` — standalone-peer topology
 - `control-room.manifest.json` — Control Room capability manifest
 - `scripts/verify-catalog-runtime.mjs` — 5,000 selected / 398 curated catalog contract
-- `scripts/verify-current-truth-surface.mjs` — binds current README claims to executable catalog truth
+- `scripts/verify-current-truth-surface.mjs` — binds current README claims to executable catalog and product truth
 - `scripts/verify-pages-publication-source.mjs` — live GitHub Pages publication-source readback and authority gate
 - `scripts/verify-main-push-authority.mjs` — founder/non-force `main` push authority proof
 - `scripts/verify-main-provider-protection.mjs` — live branch-protection/ruleset required-check readback
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
-- `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR boundary proof
+- `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR functional boundary proof
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
 - `.github/workflows/main-authority-contract.yml` — exact-head main mutation and provider-protection authority lane
