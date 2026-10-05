@@ -168,6 +168,74 @@ Layer name | Current placeholder | Real copy | Length flag
     }
   ];
   additions.forEach(function(p){ if (!existing.has(p.id)) PROMPTS.push(p); });
+
+  // Upgrade the existing Cold Message Forge in place so every PromptOS outreach
+  // chat keeps the same public prompt identity while using the founder's
+  // discovery-first negotiation contract.
+  var coldMessageForge = PROMPTS.find(function(p){ return p && p.id === 180; });
+  if (coldMessageForge && coldMessageForge.versions) {
+    coldMessageForge.notes = 'Use for business outreach and replies. The response should discover before pitching, preserve truthful founder leverage, reshape weak deal structures before negotiating terms, and end with one verifiable next step. Never manufacture scarcity, authority, competing offers, or pressure.';
+    coldMessageForge.versions.chatgpt = `Write a truthful business outreach message or reply that advances the conversation without pressure.
+
+Sender context: [WHO I AM]
+Counterparty: [WHO THEY ARE + VERIFIED CONTEXT]
+Inbound message, if replying: [PASTE IT]
+Current goal: [SMALLEST OUTCOME I WANT]
+Known decision-maker / authority: [KNOWN / UNKNOWN + EVIDENCE]
+Verified value or proof: [ONLY FACTS I CAN SUPPORT]
+Real alternatives / BATNA: [ONLY REAL OPTIONS]
+Constraints: [TIMING / BUDGET / SCOPE / CHANNEL]
+Channel: [EMAIL / LINKEDIN / DM / OTHER]
+
+Before writing, silently run:
+DISCOVER -> GOAL -> AUTHORITY -> BATNA -> VALUE -> EVIDENCE -> STRUCTURE -> TERMS -> RECEIPT
+
+Rules:
+- Answer the inbound message first when this is a reply.
+- If the need, decision-maker, constraint, or success condition is unclear, ask one useful discovery question before pitching.
+- Use only verified value, evidence, timing, and real alternatives as leverage. Never invent demand, scarcity, deadlines, authority, competing offers, or urgency.
+- Sequence information intentionally. Do not volunteer private budget ceilings, maximum concessions, fallback options, desperation, or full strategy merely because they are known.
+- Never lie, bluff, omit a required disclosure, or create a false impression.
+- If the full deal is premature, reshape the next step into a smaller reversible structure such as a fit check, pilot, milestone, sample, limited scope, or staged commitment.
+- Negotiate terms only after fit, authority, constraints, and structure are sufficiently understood.
+- End with one observable next step or question that can become a receipt.
+- Keep it human and channel-appropriate. One ask, not three. No filler opener.
+
+Return:
+1. Best send-ready response.
+2. One short note explaining the chosen structure and what remains unknown.`,
+      coldMessageForge.versions.claude = `<role>Truthful business outreach and negotiation-response writer.</role>
+
+<objective>Draft the strongest evidence-grounded next message without pressure or invented leverage.</objective>
+
+<input>
+Sender: [WHO I AM]
+Counterparty: [WHO THEY ARE + VERIFIED CONTEXT]
+Inbound message: [PASTE IF REPLYING]
+Goal: [SMALLEST OUTCOME]
+Authority: [KNOWN / UNKNOWN + EVIDENCE]
+Verified value/proof: [FACTS]
+Real BATNA: [REAL ALTERNATIVES]
+Constraints: [TIMING / BUDGET / SCOPE / CHANNEL]
+Channel: [CHANNEL]
+</input>
+
+<reasoning_contract>
+Silently apply DISCOVER -> GOAL -> AUTHORITY -> BATNA -> VALUE -> EVIDENCE -> STRUCTURE -> TERMS -> RECEIPT.
+Treat unknown authority, motives, constraints, and emotion as unknown. Prefer discovery before pitch, structure before terms, and a smaller reversible next step before a forced yes/no close.
+</reasoning_contract>
+
+<constraints>
+- Answer the inbound message first.
+- One useful ask or next step.
+- No invented scarcity, urgency, demand, competing offers, authority, testimonials, or results.
+- Do not volunteer private budget ceilings, maximum concessions, fallback options, desperation, or full strategy merely because they are known.
+- Never lie, bluff, hide a required disclosure, or create a false impression.
+- Use leverage from verified value, evidence, timing, real alternatives, and deal structure rather than pressure.
+</constraints>
+
+<output>Send-ready response + one short structure note + unresolved unknowns.</output>`;
+  }
 })();
 
 /* Load browser-only PromptOS extensions after the core mission workspace exists. */
