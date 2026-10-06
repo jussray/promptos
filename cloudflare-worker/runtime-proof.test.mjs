@@ -37,6 +37,7 @@ test('runtime proof returns provenance without model text', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({
     id: 'resp_promptos_runtime_1',
+    status: 'completed',
     output_text: 'PROMPTOS_RUNTIME_PROOF_OK',
   }), { status: 200, headers: { 'content-type': 'application/json' } });
 
