@@ -139,18 +139,17 @@ async function compile(input, checkedAt = new Date().toISOString()) {
   return { ...workflowCore, workflowFingerprint: await sha256(workflowCore) };
 }
 
-export default {
-  async fetch(request, env) {
+async function handleRequest(request) {
     const url = new URL(request.url);
     if (request.method === 'GET' && url.pathname === '/health') {
       return json({
         service: 'promptos-court',
-        release_sha: FULL_SHA.test(String(env.PROMPTOS_RELEASE_SHA || '')) ? String(env.PROMPTOS_RELEASE_SHA).toLowerCase() : 'unknown',
+        release_sha: FULL_SHA.test(String(PROMPTOS_RELEASE_SHA || '')) ? String(env.PROMPTOS_RELEASE_SHA).toLowerCase() : 'unknown',
         authority: 'none',
       });
     }
     if (request.method !== 'POST' || url.pathname !== '/court/compile') return json({ error: 'not found' }, 404);
-    if (!env.PROMPTOS_COURT_BRIDGE_KEY) return json({ error: 'court compiler not configured' }, 503);
+    if (!PROMPTOS_COURT_BRIDGE_KEY) return json({ error: 'court compiler not configured' }, 503);
     const bearer = (request.headers.get('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1] || '';
     if (!timingSafeEqual(bearer, env.PROMPTOS_COURT_BRIDGE_KEY)) return json({ error: 'unauthorized' }, 401);
     const release = String(env.PROMPTOS_RELEASE_SHA || '').trim().toLowerCase();
@@ -161,5 +160,9 @@ export default {
     } catch (error) {
       return json({ error: error instanceof Error ? error.message : 'court compilation failed' }, 400);
     }
-  },
-};
+
+}
+
+addEventListener('fetch', (event) => {
+  event.respondWith(handleRequest(event.request));
+});
