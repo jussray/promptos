@@ -1,4 +1,4 @@
-import { buildCatalogRecipes, canonicalFamilies, openPromptCard } from './catalog-runtime/index.js';
+import { PUBLIC_COMMAND_CATEGORIES, buildCatalogRecipes, canonicalFamilies, openPromptCard, publicCommands, resolvePublicCommand } from './catalog-runtime/index.js';
 
 const PAGE_SIZE = 24;
 const LONG_INPUTS = new Set([
@@ -127,6 +127,33 @@ function createPage() {
       <h2>5,000 bounded recipes. Compile only what the task needs.</h2>
       <p>398 curated prompts anchor the canonical recipe index. Filter the catalog, add concrete context, and compile a provider-ready prompt with provenance and proof guardrails.</p>
     </div>
+    <div class="promptos-command-deck" aria-label="PromptOS public command palette">
+      <div class="promptos-command-head">
+        <div>
+          <div class="crumb">intent <span>/</span> <b>command palette</b></div>
+          <h3>Short command in. Governed capability route out.</h3>
+          <p>Use a human-sized command. PromptOS resolves the capability and specialist while execution authority stays separate.</p>
+        </div>
+        <span class="badge cat" id="commandCountBadge">30 public commands</span>
+      </div>
+      <form class="promptos-command-form" id="commandForm">
+        <label class="promptos-command-input"><span>Command</span><input id="commandInput" type="text" placeholder="/fix checkout" autocomplete="off" spellcheck="false"></label>
+        <label><span>Project hint</span><input id="commandProject" type="text" placeholder="optional: Se'kret Bip" autocomplete="off"></label>
+        <button class="mini-btn solid" type="submit">Resolve</button>
+      </form>
+      <div class="promptos-command-categories" id="commandCategories" aria-label="Command categories"></div>
+      <div class="promptos-command-suggestions" id="commandSuggestions" aria-live="polite"></div>
+      <div class="promptos-command-route" id="commandRoute" data-state="idle" aria-live="polite">
+        <div class="promptos-command-route-top"><strong id="commandRouteToken">/command</strong><span id="commandRouteState">Choose a command to inspect its route.</span></div>
+        <dl>
+          <div><dt>Capability</dt><dd id="commandRouteCapability">Not resolved</dd></div>
+          <div><dt>Specialist</dt><dd id="commandRouteSpecialist">Not resolved</dd></div>
+          <div><dt>Authority</dt><dd id="commandRouteAuthority">Founder Control Room</dd></div>
+          <div><dt>Arguments</dt><dd id="commandRouteArgs">None</dd></div>
+        </dl>
+        <button class="mini-btn" id="commandBrowse" type="button" disabled>Browse related recipes</button>
+      </div>
+    </div>
     <div class="promptos-stats" aria-label="PromptOS catalog summary">
       <div class="stat"><div class="n" id="catalogTotal">5,000</div><div class="l">Selected recipes</div></div>
       <div class="stat"><div class="n" id="catalogCuratedTotal">398</div><div class="l">Curated prompts</div></div>
@@ -173,6 +200,132 @@ function createDialog() {
     </div>
   `;
   return dialog;
+}
+
+function initializeCommandPalette(page) {
+  const form = page.querySelector('#commandForm');
+  if (!form) return;
+
+  const input = page.querySelector('#commandInput');
+  const project = page.querySelector('#commandProject');
+  const categoryWrap = page.querySelector('#commandCategories');
+  const suggestions = page.querySelector('#commandSuggestions');
+  const route = page.querySelector('#commandRoute');
+  const browse = page.querySelector('#commandBrowse');
+  const routeToken = page.querySelector('#commandRouteToken');
+  const routeState = page.querySelector('#commandRouteState');
+  const routeCapability = page.querySelector('#commandRouteCapability');
+  const routeSpecialist = page.querySelector('#commandRouteSpecialist');
+  const routeAuthority = page.querySelector('#commandRouteAuthority');
+  const routeArgs = page.querySelector('#commandRouteArgs');
+  const countBadge = page.querySelector('#commandCountBadge');
+  let activeCategory = PUBLIC_COMMAND_CATEGORIES[0];
+  let currentResult = null;
+
+  countBadge.textContent = `${publicCommands.length} public commands`;
+  window.__PROMPTOS_COMMAND_SUMMARY__ = Object.freeze({
+    commandCount: publicCommands.length,
+    categories: Object.freeze([...PUBLIC_COMMAND_CATEGORIES]),
+    authority: 'founder-control-room',
+    executionAuthority: false,
+  });
+
+  function renderCategories() {
+    categoryWrap.replaceChildren();
+    for (const category of PUBLIC_COMMAND_CATEGORIES) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'promptos-command-category';
+      button.classList.toggle('active', category === activeCategory);
+      button.textContent = category;
+      button.addEventListener('click', () => {
+        activeCategory = category;
+        renderCategories();
+        renderSuggestions();
+      });
+      categoryWrap.appendChild(button);
+    }
+  }
+
+  function visibleCommands() {
+    const query = input.value.trim().toLowerCase().replace(/^\//, '').split(/\s+/)[0].replace(/:$/, '');
+    const inCategory = publicCommands.filter((command) => command.category === activeCategory);
+    if (!query) return inCategory;
+    return publicCommands.filter((command) => {
+      const tokens = [command.id, ...command.aliases, command.label, command.description].map((value) => String(value).toLowerCase());
+      return tokens.some((value) => value.includes(query));
+    });
+  }
+
+  function renderSuggestions() {
+    const commands = visibleCommands().slice(0, 8);
+    suggestions.replaceChildren();
+    for (const command of commands) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'promptos-command-suggestion';
+      const token = document.createElement('strong');
+      token.textContent = `/${command.id}`;
+      const description = document.createElement('span');
+      description.textContent = command.description;
+      button.append(token, description);
+      button.addEventListener('click', () => {
+        input.value = `/${command.id}`;
+        resolveAndRender();
+        input.focus();
+      });
+      suggestions.appendChild(button);
+    }
+  }
+
+  function resolveAndRender() {
+    const result = resolvePublicCommand(input.value, { project: project.value });
+    currentResult = result.ok ? result : null;
+    if (!result.ok) {
+      route.dataset.state = 'error';
+      routeToken.textContent = input.value.trim() || '/command';
+      routeState.textContent = result.suggestions.length
+        ? `Unknown command. Try ${result.suggestions.join(', ')}.`
+        : 'Unknown command. Choose one of the public capabilities above.';
+      routeCapability.textContent = 'Not resolved';
+      routeSpecialist.textContent = 'Not resolved';
+      routeAuthority.textContent = 'Founder Control Room';
+      routeArgs.textContent = 'None';
+      browse.disabled = true;
+      return;
+    }
+
+    route.dataset.state = 'resolved';
+    routeToken.textContent = result.command.token;
+    routeState.textContent = `${result.command.category} intent resolved. Execution has not been claimed.`;
+    routeCapability.textContent = result.capabilityId;
+    routeSpecialist.textContent = result.route.specialistProduct;
+    routeAuthority.textContent = result.route.authorityPlane;
+    routeArgs.textContent = result.arguments || 'None';
+    browse.disabled = false;
+    window.dispatchEvent(new CustomEvent('promptos:command', { detail: result }));
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    resolveAndRender();
+  });
+  input.addEventListener('input', renderSuggestions);
+  project.addEventListener('input', () => {
+    if (currentResult) resolveAndRender();
+  });
+  browse.addEventListener('click', () => {
+    if (!currentResult) return;
+    const catalogSearch = page.querySelector('#catalogSearch');
+    if (!catalogSearch) return;
+    catalogSearch.value = currentResult.catalogQuery;
+    catalogSearch.dispatchEvent(new Event('input', { bubbles:true }));
+    catalogSearch.scrollIntoView({ behavior:'smooth', block:'center' });
+    catalogSearch.focus();
+  });
+
+  renderCategories();
+  renderSuggestions();
 }
 
 function addOption(select, value, label = value) {
@@ -237,6 +390,7 @@ export function mountPromptOSCatalog() {
   }
 
   mountNavigation(showCatalog);
+  initializeCommandPalette(page);
 
   function initializeCatalog() {
     if (initialized) return;

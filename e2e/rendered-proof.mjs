@@ -42,6 +42,28 @@ async function proveViewport(browser, {name, width, height}) {
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
   const catalogSummary = await page.evaluate(() => window.__PROMPTOS_CATALOG_SUMMARY__);
+  const commandSummary = await page.evaluate(() => window.__PROMPTOS_COMMAND_SUMMARY__);
+  assert(commandSummary?.commandCount === 30, `${name}: public command count drifted: ${commandSummary?.commandCount}`);
+  assert(commandSummary?.categories?.length === 9, `${name}: public command categories drifted`);
+  assert(commandSummary?.authority === 'founder-control-room', `${name}: public command authority plane drifted`);
+  assert(commandSummary?.executionAuthority === false, `${name}: public command palette incorrectly claims execution authority`);
+
+  const commandInput = page.locator('#commandInput');
+  const commandProject = page.locator('#commandProject');
+  await commandProject.fill('Truth Weaver');
+  await commandInput.fill('/contract vendor NDA');
+  await commandInput.press('Enter');
+  await page.locator('#commandRoute[data-state="resolved"]').waitFor({state:'visible'});
+  assert((await page.locator('#commandRouteCapability').textContent())?.trim() === 'legal-navigation', `${name}: contract command capability did not resolve`);
+  assert((await page.locator('#commandRouteSpecialist').textContent())?.trim() === 'truth-weaver', `${name}: contract command did not route to Truth Weaver`);
+  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'founder-control-room', `${name}: command route bypassed FCR authority`);
+  assert((await page.locator('#commandRouteArgs').textContent())?.trim() === 'vendor NDA', `${name}: command arguments were not preserved`);
+
+  await commandProject.fill("Se'kret Bip");
+  await commandInput.fill('/world Bip scene');
+  await commandInput.press('Enter');
+  assert((await page.locator('#commandRouteCapability').textContent())?.trim() === 'creative-canon', `${name}: world command capability did not resolve`);
+  assert((await page.locator('#commandRouteSpecialist').textContent())?.trim() === 'se-kret-bip', `${name}: Bip creative command crossed the canon boundary`);
   assert(catalogSummary?.curatedCount === EXPECTED_CURATED_PROMPTS, `${name}: canonical curated prompt count drifted: ${catalogSummary?.curatedCount}`);
   assert(catalogSummary?.selectedCount === EXPECTED_SELECTED_RECIPES, `${name}: canonical selected recipe count drifted: ${catalogSummary?.selectedCount}`);
 
