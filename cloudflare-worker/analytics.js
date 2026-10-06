@@ -28,6 +28,22 @@ function providerAuthorized(request, env) {
   return (bearer || '') === env.PROMPTOS_AI_OPERATOR_KEY;
 }
 
+function constantTimeTextEqual(left, right) {
+  const a = new TextEncoder().encode(String(left || ''));
+  const b = new TextEncoder().encode(String(right || ''));
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) diff |= a[index] ^ b[index];
+  return diff === 0;
+}
+
+function courtAuthorized(request, env) {
+  const configured = String(env.PROMPTOS_COURT_BRIDGE_KEY || '').trim();
+  if (!configured) return false;
+  const bearer = (request.headers.get('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1] || '';
+  return constantTimeTextEqual(bearer, configured);
+}
+
 
 function releaseSha(env) {
   const candidates = [
@@ -114,8 +130,8 @@ export default {
     }
 
     if (url.pathname === '/court/compile' && method === 'POST') {
-      if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'court compiler lane not configured' }, 503);
-      if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
+      if (!env.PROMPTOS_COURT_BRIDGE_KEY) return json({ error: 'court compiler lane not configured' }, 503);
+      if (!courtAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
       const release = releaseSha(env);
       if (!FULL_SHA.test(release)) return json({ error: 'release identity unavailable' }, 503);
       const input = await request.json().catch(() => ({}));
