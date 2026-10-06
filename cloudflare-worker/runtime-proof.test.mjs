@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './analytics.js';
+import { courtHandoffFingerprint } from '../src/court-compiler.mjs';
 
 const RELEASE_SHA = '1234567890abcdef1234567890abcdef12345678';
 
@@ -74,4 +75,97 @@ test('unknown release identity stays unknown rather than inventing a SHA', async
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.equal(body.release_sha, 'unknown');
+});
+
+
+function courtHandoff(overrides = {}) {
+  const core = {
+    schema: 'juss/promptos-court-compile-handoff@v1',
+    caseId: 'court-case-1',
+    repository: 'jussray/founder-control-room',
+    branch: 'main',
+    headSha: 'a'.repeat(40),
+    witnessReceiptFingerprint: 'b'.repeat(64),
+    observedAt: '2099-10-06T04:00:00Z',
+    expiresAt: '2099-10-06T05:00:00Z',
+    authority: {
+      evidenceOnly: true,
+      createsTruth: false,
+      createsAuthority: false,
+      executionAuthorized: false,
+      mergeAuthorized: false,
+      deployAuthorized: false,
+      publishAuthorized: false,
+      credentialMutationAuthorized: false,
+      providerMutationAuthorized: false,
+    },
+    task: 'compile the bounded next proof workflow',
+    founderGoal: 'Preserve Court truth without widening authority.',
+    stopCondition: 'Return compiled work only.',
+    constraints: [
+      'preserve truth states exactly',
+      'do not convert consensus into authority',
+    ],
+    ...overrides,
+  };
+  return { ...core, handoffFingerprint: courtHandoffFingerprint(core) };
+}
+
+test('court compiler is protected and non-authorizing', async () => {
+  const unauthorized = await worker.fetch(request('/court/compile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(courtHandoff()),
+  }), env());
+  assert.equal(unauthorized.status, 401);
+
+  const response = await worker.fetch(request('/court/compile', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer operator-proof-key',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(courtHandoff()),
+  }), env());
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.service, 'promptos');
+  assert.equal(body.release_sha, RELEASE_SHA);
+  assert.equal(body.authority, 'none');
+  assert.equal(body.result.state, 'COMPILED');
+  assert.equal(body.result.authority.executionAuthorized, false);
+  assert.equal(body.result.authority.createsAuthority, false);
+  assert.equal(body.result.steps.every((step) => step.mayMutate === false), true);
+});
+
+test('court compiler rejects tampering and widened authority', async () => {
+  const tampered = courtHandoff();
+  tampered.branch = 'other';
+  const tamperedResponse = await worker.fetch(request('/court/compile', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer operator-proof-key',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(tampered),
+  }), env());
+  assert.equal(tamperedResponse.status, 400);
+  assert.match((await tamperedResponse.json()).error, /handoff fingerprint mismatch/);
+
+  const widenedCore = courtHandoff();
+  const widened = {
+    ...widenedCore,
+    authority: { ...widenedCore.authority, executionAuthorized: true },
+  };
+  widened.handoffFingerprint = courtHandoffFingerprint(widened);
+  const widenedResponse = await worker.fetch(request('/court/compile', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer operator-proof-key',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(widened),
+  }), env());
+  assert.equal(widenedResponse.status, 400);
+  assert.match((await widenedResponse.json()).error, /authority.executionAuthorized widened or missing/);
 });
