@@ -46,6 +46,7 @@ jobs:
       PROMPTOS_PUBLIC_URL: ${{ vars.PROMPTOS_PUBLIC_URL }}
       PROMPTOS_PROVIDER_URL: ${{ vars.PROMPTOS_PROVIDER_URL }}
       PROMPTOS_AI_OPERATOR_KEY: ${{ secrets.PROMPTOS_AI_OPERATOR_KEY }}
+      PROMPTOS_COURT_BRIDGE_KEY: ${{ secrets.PROMPTOS_COURT_BRIDGE_KEY }}
       PROMPTOS_RUNTIME_PROOF_PROVIDER: ${{ vars.PROMPTOS_RUNTIME_PROOF_PROVIDER || 'openai' }}
       EXPECTED_HEAD_SHA: ${{ github.sha }}
     steps:
@@ -63,6 +64,7 @@ jobs:
           test -n "$PROMPTOS_PUBLIC_URL" || { echo 'PROMPTOS_PUBLIC_URL repository variable is required' >&2; exit 1; }
           test -n "$PROMPTOS_PROVIDER_URL" || { echo 'PROMPTOS_PROVIDER_URL repository variable is required' >&2; exit 1; }
           test -n "$PROMPTOS_AI_OPERATOR_KEY" || { echo 'PROMPTOS_AI_OPERATOR_KEY repository secret is required' >&2; exit 1; }
+          test -n "$PROMPTOS_COURT_BRIDGE_KEY" || { echo 'PROMPTOS_COURT_BRIDGE_KEY repository secret is required' >&2; exit 1; }
           printf '%s\n' "$EXPECTED_HEAD_SHA" | grep -Eq '^[0-9a-f]{40}$'
       - name: Install Playwright runtime
         run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.61.1
