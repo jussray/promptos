@@ -1,0 +1,80 @@
+name: Runtime Provider Proof
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'cloudflare-worker/**'
+      - 'e2e/runtime-provider-proof.mjs'
+      - '.github/workflows/runtime-provider-proof.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'cloudflare-worker/**'
+      - 'e2e/runtime-provider-proof.mjs'
+      - '.github/workflows/runtime-provider-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Verify bounded provider runtime contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run provider proof contract tests
+        run: node --test cloudflare-worker/runtime-proof.test.mjs
+
+  # SECURITY BOUNDARY: provider credentials are never exposed to pull-request-controlled code.
+  # PR success means source-safe candidate only, never production VERIFIED.
+  # The privileged live witness runs from trusted main and must pass before any
+  # production-runtime VERIFIED claim or founder-authorized publication.
+  live-witness:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: PromptOS trusted-main live provider witness
+    runs-on: ubuntu-latest
+    needs: contract
+    env:
+      PROMPTOS_PUBLIC_URL: ${{ vars.PROMPTOS_PUBLIC_URL }}
+      PROMPTOS_PROVIDER_URL: ${{ vars.PROMPTOS_PROVIDER_URL }}
+      PROMPTOS_AI_OPERATOR_KEY: ${{ secrets.PROMPTOS_AI_OPERATOR_KEY }}
+      PROMPTOS_RUNTIME_PROOF_PROVIDER: ${{ vars.PROMPTOS_RUNTIME_PROOF_PROVIDER || 'openai' }}
+      EXPECTED_HEAD_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Require configured deployed runtime witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$PROMPTOS_PUBLIC_URL" || { echo 'PROMPTOS_PUBLIC_URL repository variable is required' >&2; exit 1; }
+          test -n "$PROMPTOS_PROVIDER_URL" || { echo 'PROMPTOS_PROVIDER_URL repository variable is required' >&2; exit 1; }
+          test -n "$PROMPTOS_AI_OPERATOR_KEY" || { echo 'PROMPTOS_AI_OPERATOR_KEY repository secret is required' >&2; exit 1; }
+          printf '%s\n' "$EXPECTED_HEAD_SHA" | grep -Eq '^[0-9a-f]{40}$'
+      - name: Install Playwright runtime
+        run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.61.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Prove exact deployed provider runtime
+        run: node e2e/runtime-provider-proof.mjs
+      - name: Retain sanitized runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptos-runtime-proof-${{ github.sha }}
+          path: artifacts/promptos-runtime-proof
+          if-no-files-found: error
+          retention-days: 14
