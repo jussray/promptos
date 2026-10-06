@@ -49,6 +49,21 @@ Bundling with Founder Control Room does not collapse PromptOS product identity, 
 - **Portable command surface:** keeps Juss command semantics consistent across supported agent environments while preserving each participating system's own authority boundary.
 - **Verification:** focused source-contract checks plus desktop/mobile Playwright proof run in the Control Room test workflow and retain proof artifacts.
 
+
+## Court compiler bridge
+
+PromptOS exposes a bounded server-side `POST /court/compile` adapter for
+Founder Court/Council handoffs. The route deterministically compiles an
+evidence-bound next-proof workflow; it does not call a model, mutate the prompt
+catalog, promote a candidate, publish, deploy, or create execution authority.
+
+The route requires the dedicated server-only `PROMPTOS_COURT_BRIDGE_KEY`.
+Do **not** reuse `PROMPTOS_AI_OPERATOR_KEY`: provider/optimizer credentials and
+Court compilation authority are separate capability roots. A valid Court
+handoff must bind a full source SHA, witness receipt fingerprint, observation
+lease, exact zero-authority ceiling, and its own handoff fingerprint. Stale
+handoffs compile only to `BLOCKED_STALE_HANDOFF`.
+
 ## Truth boundary
 
 PromptOS compiles and governs instructions; it does **not** turn an audit, prompt, plugin declaration, generated mission, or Chief proposal into deployment or production authority.
