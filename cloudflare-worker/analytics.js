@@ -1,5 +1,6 @@
 import { invokeProvider, providerStates } from './providers.js';
 import { executeOptimizerExperiment } from './optimizer-executor.js';
+import { compileCourtHandoff } from '../src/court-compiler.mjs';
 
 /**
  * PromptOS Analytics + bounded provider Worker.
@@ -110,6 +111,27 @@ export default {
       if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'provider lane not configured' }, 503);
       if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
       return runtimeProof(request, env);
+    }
+
+    if (url.pathname === '/court/compile' && method === 'POST') {
+      if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'court compiler lane not configured' }, 503);
+      if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
+      const release = releaseSha(env);
+      if (!FULL_SHA.test(release)) return json({ error: 'release identity unavailable' }, 503);
+      const input = await request.json().catch(() => ({}));
+      try {
+        const result = compileCourtHandoff(input);
+        return json({
+          service: 'promptos',
+          release_sha: release,
+          result,
+          authority: 'none',
+        });
+      } catch (error) {
+        return json({
+          error: error instanceof Error ? error.message : 'court compilation failed',
+        }, 400);
+      }
     }
 
     if (url.pathname === '/providers' && method === 'GET') {
