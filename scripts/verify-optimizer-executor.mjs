@@ -7,8 +7,8 @@ const fakeFetch = async (_url, options) => {
   calls.push(body);
   const isEvaluator = String(body.input || body.messages?.[0]?.content || '').includes('Score the candidate output');
   const providerBody = isEvaluator
-    ? { id: 'eval-1', output_text: JSON.stringify({metrics:{quality:0.9,correctness:0.9}}) }
-    : { id: 'run-1', output_text: 'bounded candidate answer' };
+    ? { id: 'eval-1', status: 'completed', output_text: JSON.stringify({metrics:{quality:0.9,correctness:0.9}}) }
+    : { id: 'run-1', status: 'completed', output_text: 'bounded candidate answer' };
   return new Response(JSON.stringify(providerBody), {status: 200});
 };
 
