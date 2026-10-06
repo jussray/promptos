@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 24
       - name: Run provider proof contract tests
-        run: node --test cloudflare-worker/runtime-proof.test.mjs
+        run: node --test cloudflare-worker/runtime-proof.test.mjs cloudflare-worker/providers.test.mjs
 
   # SECURITY BOUNDARY: provider credentials are never exposed to pull-request-controlled code.
   # PR success means source-safe candidate only, never production VERIFIED.
