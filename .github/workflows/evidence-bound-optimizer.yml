@@ -6,6 +6,7 @@ on:
       - "src/evidence-bound-optimizer.mjs"
       - "src/evidence-bound-optimizer.test.mjs"
       - "cloudflare-worker/optimizer-executor.js"
+      - "cloudflare-worker/analytics.js"
       - "scripts/verify-evidence-bound-optimizer.mjs"
       - "scripts/verify-optimizer-executor.mjs"
       - ".github/workflows/evidence-bound-optimizer.yml"
