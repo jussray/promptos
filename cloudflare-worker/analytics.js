@@ -1,4 +1,11 @@
-import { invokeProvider, providerStates } from './providers.js';
+import {
+  cancelAnthropicBatch,
+  createAnthropicBatch,
+  getAnthropicBatch,
+  getAnthropicBatchResults,
+  invokeProvider,
+  providerStates,
+} from './providers.js';
 import { executeOptimizerExperiment } from './optimizer-executor.js';
 
 /**
@@ -123,7 +130,23 @@ export default {
       if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
       const input = await request.json().catch(() => ({}));
       try {
-        const result = await invokeProvider(env, input);
+        let result;
+        if (String(input.mode || 'standard').trim().toLowerCase() === 'batch') {
+          const operation = String(input.operation || 'create').trim().toLowerCase();
+          if (operation === 'create') {
+            result = await createAnthropicBatch(env, input);
+          } else if (operation === 'status') {
+            result = await getAnthropicBatch(env, input.batchId);
+          } else if (operation === 'results') {
+            result = await getAnthropicBatchResults(env, input.batchId);
+          } else if (operation === 'cancel') {
+            result = await cancelAnthropicBatch(env, input.batchId);
+          } else {
+            throw new Error('unsupported Anthropic batch operation');
+          }
+        } else {
+          result = await invokeProvider(env, input);
+        }
         return json({ service: 'promptos', result });
       } catch (error) {
         return json({ error: error instanceof Error ? error.message : 'provider invocation failed' }, 503);
