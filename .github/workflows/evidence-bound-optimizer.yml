@@ -1,0 +1,45 @@
+name: Evidence Bound Optimizer
+
+on:
+  pull_request:
+    paths:
+      - "src/evidence-bound-optimizer.mjs"
+      - "src/evidence-bound-optimizer.test.mjs"
+      - "cloudflare-worker/optimizer-executor.js"
+      - "scripts/verify-evidence-bound-optimizer.mjs"
+      - "scripts/verify-optimizer-executor.mjs"
+      - ".github/workflows/evidence-bound-optimizer.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/evidence-bound-optimizer.mjs"
+      - "src/evidence-bound-optimizer.test.mjs"
+      - "cloudflare-worker/optimizer-executor.js"
+      - "scripts/verify-evidence-bound-optimizer.mjs"
+      - "scripts/verify-optimizer-executor.mjs"
+      - ".github/workflows/evidence-bound-optimizer.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  verify:
+    name: Verify optimizer scoring and bounded execution
+    runs-on: ubuntu-22.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+      - run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node scripts/verify-evidence-bound-optimizer.mjs
+      - run: node scripts/verify-optimizer-executor.mjs
