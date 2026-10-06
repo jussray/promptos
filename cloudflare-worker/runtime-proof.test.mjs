@@ -8,6 +8,7 @@ const RELEASE_SHA = '1234567890abcdef1234567890abcdef12345678';
 function env(overrides = {}) {
   return {
     PROMPTOS_AI_OPERATOR_KEY: 'operator-proof-key',
+    PROMPTOS_COURT_BRIDGE_KEY: 'court-proof-key',
     PROMPTOS_RELEASE_SHA: RELEASE_SHA,
     OPENAI_API_KEY: 'test-openai-key',
     ...overrides,
@@ -122,7 +123,7 @@ test('court compiler is protected and non-authorizing', async () => {
   const response = await worker.fetch(request('/court/compile', {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer operator-proof-key',
+      Authorization: 'Bearer court-proof-key',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(courtHandoff()),
@@ -144,7 +145,7 @@ test('court compiler rejects tampering and widened authority', async () => {
   const tamperedResponse = await worker.fetch(request('/court/compile', {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer operator-proof-key',
+      Authorization: 'Bearer court-proof-key',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(tampered),
@@ -161,11 +162,24 @@ test('court compiler rejects tampering and widened authority', async () => {
   const widenedResponse = await worker.fetch(request('/court/compile', {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer operator-proof-key',
+      Authorization: 'Bearer court-proof-key',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(widened),
   }), env());
   assert.equal(widenedResponse.status, 400);
   assert.match((await widenedResponse.json()).error, /authority.executionAuthorized widened or missing/);
+});
+
+
+test('court compiler does not accept the broader AI operator key', async () => {
+  const response = await worker.fetch(request('/court/compile', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer operator-proof-key',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(courtHandoff()),
+  }), env());
+  assert.equal(response.status, 401);
 });
