@@ -53,7 +53,7 @@ test('keeps baseline when aggregate gain hides an unacceptable case regression',
     results: [
       { caseId: 'build', metrics: { quality: 1, correctness: 1 } },
       { caseId: 'truth', metrics: { quality: 1, correctness: 1 } },
-      { caseId: 'clarity', metrics: { quality: 0.2, correctness: 0.2 } },
+      { caseId: 'clarity', metrics: { quality: 0.5, correctness: 0.5 } },
     ],
   };
   const receipt = evaluateCandidates({
