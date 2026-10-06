@@ -1,4 +1,5 @@
 import { invokeProvider, providerStates } from './providers.js';
+import { executeOptimizerExperiment } from './optimizer-executor.js';
 
 /**
  * PromptOS Analytics + bounded provider Worker.
@@ -48,6 +49,18 @@ export default {
         return json({ service: 'promptos', result });
       } catch (error) {
         return json({ error: error instanceof Error ? error.message : 'provider invocation failed' }, 503);
+      }
+    }
+
+    if (url.pathname === '/optimizer/evaluate' && method === 'POST') {
+      if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'optimizer lane not configured' }, 503);
+      if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
+      const input = await request.json().catch(() => ({}));
+      try {
+        const result = await executeOptimizerExperiment(env, input);
+        return json({ service: 'promptos', result });
+      } catch (error) {
+        return json({ error: error instanceof Error ? error.message : 'optimizer evaluation failed' }, 503);
       }
     }
 
