@@ -48,6 +48,7 @@ Bundling with Founder Control Room does not collapse PromptOS product identity, 
 - **Plugin-management contract:** allows declared integrations to be reasoned about without treating repository configuration as proof of live provider state.
 - **Portable command surface:** keeps Juss command semantics consistent across supported agent environments while preserving each participating system's own authority boundary.
 - **Verification:** focused source-contract checks plus desktop/mobile Playwright proof run in the Control Room test workflow and retain proof artifacts.
+- **Visual Makeover advisory handoff acceptance:** accepts `visual-makeover/promptos-handoff@v1` drafts backed by `juss/browser-reality@v1` receipts while refusing browser, execution, registration, deployment, and publication authority inheritance.
 
 ## Truth boundary
 
@@ -85,6 +86,8 @@ Repository-side CI can detect an unsafe `main` mutation after GitHub accepts it,
 - `scripts/verify-main-provider-protection.mjs` — live branch-protection/ruleset required-check readback
 - `scripts/verify-founder-os-mission-compiler.mjs` — Founder OS compiler contract proof
 - `scripts/verify-product-boundary.mjs` — PromptOS/Chief/FCR functional boundary proof
+- `.control-room/visual-makeover-handoff.contract.json` — advisory-only Visual Makeover peer acceptance contract
+- `scripts/verify-visual-makeover-handoff-contract.mjs` — rejects authority expansion and unsafe browser payloads in Visual Makeover handoffs
 - `e2e/founder-os-mission-compiler.mjs` — desktop/mobile compiler proof
 - `.github/workflows/control-room-tests.yml` — exact repository verification lane
 - `.github/workflows/main-authority-contract.yml` — exact-head main mutation and provider-protection authority lane
