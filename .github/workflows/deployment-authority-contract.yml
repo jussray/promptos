@@ -36,6 +36,9 @@ jobs:
       - name: Verify founder-gated GitHub Pages publication source
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # Non-deploying contract check only: tolerate "Pages not enabled" (404 + has_pages=false).
+          # pages-deploy.yml and pages-authority-proof.yml stay strict.
+          PROMPTOS_PAGES_ABSENT_OK: '1'
         run: node scripts/verify-pages-publication-source.mjs
       - name: Syntax-check Python authority guards
         run: python3 -m py_compile scripts/deploy_candidate_guard.py scripts/test_deploy_candidate_guard.py
