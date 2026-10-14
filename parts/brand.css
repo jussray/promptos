@@ -1,0 +1,68 @@
+/* Juss & Co. approved PromptOS color treatment, 2026-10-14.
+ * /brand and /color only. Existing auth, prompt library and layouts stay intact.
+ * Shared FCR base: midnight navy with electric blue/purple cosmic lighting.
+ * PromptOS signature: mint-to-emerald green ombre and glowing cube.
+ */
+html[data-theme="dark"]{
+  --bg:#060b1e;--surface:#09132a;--surface-2:#101c34;--surface-3:#182742;
+  --border:rgba(96,163,237,.2);--border-2:rgba(112,143,244,.34);
+  --text:#f4f8ff;--text-muted:#abc3da;--text-faint:#7a9ab4;
+  --primary:#4df5aa;--primary-dim:rgba(21,218,142,.13);--primary-glow:rgba(27,250,156,.36);
+  --accent-green:#40ec9f;--accent-blue:#64b1ff;--accent-purple:#a178ff;
+  --code-bg:#080f23;--scrim:rgba(4,9,24,.87);
+}
+html[data-theme="light"]{
+  --primary:#07824d;--primary-dim:rgba(5,153,89,.1);--primary-glow:rgba(6,148,90,.25);
+  --accent-purple:#7958ad;--accent-blue:#346daa;
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(ellipse at 94% 14%,rgba(25,148,169,.18),transparent 38%),
+    radial-gradient(ellipse at 14% 82%,rgba(104,63,205,.22),transparent 49%),
+    #060b1e;
+}
+html[data-theme="dark"] .topbar,
+html[data-theme="dark"] .sidebar{
+  background:rgba(6,13,31,.96);backdrop-filter:blur(16px);
+}
+html[data-theme="dark"] .topbar{border-bottom-color:rgba(57,219,181,.24)}
+html[data-theme="dark"] .sidebar{border-right-color:rgba(96,163,237,.24)}
+html[data-theme="dark"] .logo .mark{
+  background:none;box-shadow:0 0 18px rgba(34,234,148,.3);
+  color:#4cf7ad;
+}
+.logo .mark svg{display:block;width:26px;height:26px}
+html[data-theme="dark"] .logo .os{
+  background:linear-gradient(100deg,#b0ffe1,#4bedaf 50%,#05a67a);
+  color:transparent;-webkit-background-clip:text;background-clip:text;
+}
+html[data-theme="dark"] .nav-item.active{
+  background:linear-gradient(100deg,rgba(26,216,139,.22),rgba(68,99,226,.1));
+  box-shadow:inset 3px 0 0 #4eeeb0;
+}
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat,
+html[data-theme="dark"] .pcard{
+  border-color:rgba(82,154,235,.23);
+  background:linear-gradient(145deg,rgba(14,25,55,.96),rgba(7,17,36,.96));
+}
+html[data-theme="dark"] .panel:hover,
+html[data-theme="dark"] .pcard:hover{border-color:rgba(55,244,156,.55)}
+html[data-theme="dark"] .page-head h2{
+  background:linear-gradient(110deg,#f4fffc,#7eeec6 46%,#10a981);
+  color:transparent;-webkit-background-clip:text;background-clip:text;
+}
+html[data-theme="dark"] .mini-btn.solid{
+  background:linear-gradient(110deg,#acffdc,#46eaa9 54%,#0ca675);
+  border-color:#46dba5;color:#09231b;
+  box-shadow:0 0 16px rgba(29,209,139,.17);
+}
+html[data-theme="dark"] .mini-btn.solid:hover{color:#09231b}
+html[data-theme="dark"] .count-pill{border-color:rgba(60,245,171,.46)}
+html[data-theme="dark"] .stat:nth-child(1) .n{color:#5df4b1}
+html[data-theme="dark"] .stat:nth-child(2) .n{color:#64b4ff}
+html[data-theme="dark"] .stat:nth-child(3) .n{color:#ae86fc}
+html[data-theme="dark"] .stat:nth-child(4) .n{color:#5df4b1}
+@media(prefers-reduced-transparency:reduce){
+  html[data-theme="dark"] .topbar,html[data-theme="dark"] .sidebar{backdrop-filter:none}
+}
