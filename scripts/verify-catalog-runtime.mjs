@@ -7,6 +7,9 @@ import {
   compilePrompt,
   deepReasoningPrompts,
   openPromptCard,
+  PUBLIC_COMMAND_CATEGORIES,
+  publicCommands,
+  resolvePublicCommand,
   researchExpansionGroups,
   researchExpansionPrompts,
   workflowPrompts,
@@ -14,6 +17,38 @@ import {
 
 function inputsFor(recipe) { return Object.fromEntries(recipe.inputs.map((key) => [key, `sample-${key}`])); }
 function normalized(value) { return value.toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+const commandIds = publicCommands.map((command) => command.id);
+const commandAliases = publicCommands.flatMap((command) => [command.id, ...command.aliases]);
+assert.deepEqual(PUBLIC_COMMAND_CATEGORIES, ['Build','Money','Sell','Create','Research','Legal','Operate','Communicate','Personal'], 'public command categories drifted');
+assert.equal(publicCommands.length, 30, 'PromptOS public command registry must expose exactly 30 curated commands');
+assert.equal(new Set(commandIds).size, commandIds.length, 'public command ids must be unique');
+assert.equal(new Set(commandAliases).size, commandAliases.length, 'public command aliases must be globally unique');
+for (const command of publicCommands) {
+  assert.ok(PUBLIC_COMMAND_CATEGORIES.includes(command.category), `unknown public command category: ${command.id}`);
+  assert.ok(command.capabilityId, `public command lacks capability: ${command.id}`);
+  assert.ok(command.evidence, `public command lacks evidence contract: ${command.id}`);
+}
+const hiddenCommandSurfaceNames = ['ultrathink','attack-ten','redteam','l99','truthmode','confess'];
+for (const command of publicCommands) {
+  const visible = normalized(`${command.id} ${command.aliases.join(' ')} ${command.label} ${command.description}`);
+  for (const hidden of hiddenCommandSurfaceNames) assert.ok(!visible.includes(hidden), `internal workflow name leaked through public command: ${command.id} -> ${hidden}`);
+}
+const fixRoute = resolvePublicCommand('/fix checkout', { project:'Se\'kret Bip' });
+assert.equal(fixRoute.ok, true, 'fix command did not resolve');
+assert.equal(fixRoute.capabilityId, 'repair', 'fix command routed to the wrong capability');
+assert.equal(fixRoute.arguments, 'checkout', 'fix command lost arguments');
+assert.equal(fixRoute.authorityCeiling, 'advisory-only', 'public command widened PromptOS authority');
+assert.equal(fixRoute.execution.mutationAuthorized, false, 'public command self-authorized mutation');
+assert.equal(fixRoute.route.authorityPlane, 'founder-control-room', 'public command bypassed FCR authority');
+const legalRoute = resolvePublicCommand('/contract vendor NDA', {});
+assert.equal(legalRoute.route.specialistProduct, 'truth-weaver', 'legal command did not route to Truth Weaver');
+assert.equal(legalRoute.capabilityId, 'legal-navigation', 'legal command capability drifted');
+const bipWorld = resolvePublicCommand('/world Bip scene', { project:'Se\'kret Bip' });
+assert.equal(bipWorld.command.id, 'worldbuilding', 'world alias did not resolve to worldbuilding');
+assert.equal(bipWorld.route.specialistProduct, 'se-kret-bip', 'Bip creative command did not preserve product canon boundary');
+const unknownCommand = resolvePublicCommand('/doesnotexist');
+assert.equal(unknownCommand.ok, false, 'unknown public command must fail closed');
 
 const built = buildCatalogRecipes();
 const allCurated = [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts];

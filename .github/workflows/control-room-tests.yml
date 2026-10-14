@@ -10,10 +10,12 @@ on:
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/**"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/visual-makeover-handoff.contract.json"
       - ".control-room/evidence-decision-loop.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-visual-makeover-handoff-contract.mjs"
       - "scripts/verify-evidence-decision-loop.mjs"
       - "scripts/verify-current-truth-surface.mjs"
       - "scripts/verify-main-push-authority.mjs"
@@ -108,6 +110,8 @@ jobs:
         run: node scripts/verify-browser-reality-contract.mjs
       - name: Verify evidence decision loop contract
         run: node scripts/verify-evidence-decision-loop.mjs
+      - name: Verify Visual Makeover advisory handoff contract
+        run: node scripts/verify-visual-makeover-handoff-contract.mjs
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
       - name: Verify Founder OS mission compiler contract
@@ -151,6 +155,8 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in source UI
+        run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in source UI
         run: node e2e/implicit-workflow-proof.mjs
       - name: Prove Founder OS mission compiler desktop and mobile
@@ -179,6 +185,10 @@ jobs:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in staged UI
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
