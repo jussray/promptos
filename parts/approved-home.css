@@ -55,3 +55,7 @@
  .brand-shortcuts .nav-item{min-height:105px}
 }
 @media(prefers-reduced-motion:reduce){.brand-shortcuts .nav-item{transform:none!important}}
+
+/* Small handset: preserve the authenticated search rather than hiding it. */
+.topbar .search-wrap{min-width:0}
+@media(max-width:420px){.topbar{gap:6px;padding-inline:8px}.logo{font-size:15px}.search-wrap{min-width:0}.top-actions{gap:4px}}
