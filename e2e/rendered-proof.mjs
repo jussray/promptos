@@ -37,6 +37,17 @@ async function proveViewport(browser, {name, width, height}) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
+  // Prove source and staged Pages both serve disclosure as plain text.
+  // An HTML fallback or Access login must never count as verified.
+  const disclosure = await page.evaluate(async () => {
+    const response = await fetch('/.well-known/security.txt', {cache: 'no-store', credentials: 'omit'});
+    return {status: response.status, type: response.headers.get('content-type') || '', body: await response.text()};
+  });
+  assert(disclosure.status === 200, 'public security.txt did not return HTTP 200');
+  assert(disclosure.type.toLowerCase().startsWith('text/plain'), 'public security.txt is not text/plain');
+  assert(/^Contact: mailto:[^\r\n]+$/m.test(disclosure.body), 'public security.txt contact missing');
+  const disclosureExpiry = disclosure.body.match(/^Expires: ([^\r\n]+)$/m);
+  assert(disclosureExpiry && Date.parse(disclosureExpiry[1]) > Date.now(), 'security.txt expired or invalid');
   await page.locator('#appShell').waitFor({state: 'visible'});
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
