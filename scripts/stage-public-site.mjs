@@ -15,6 +15,7 @@ if (!/^[0-9a-f]{40}$/.test(expectedHead)) {
 }
 
 const publicFiles = [
+  '.well-known/security.txt',
   'index.html',
   'parts/auth.js',
   'parts/p05-new-prompts.js',
@@ -48,6 +49,16 @@ for (const file of publicFiles) {
   const destination = path.join(outputDir, file);
   await mkdir(path.dirname(destination), { recursive: true });
   await cp(file, destination);
+}
+
+
+// The public vulnerability intake must be present in the exact deployed artifact.
+// A source-only security.txt cannot satisfy RFC 9116 disclosure discovery.
+const disclosure = await readFile(path.join(outputDir, '.well-known/security.txt'), 'utf8');
+const contact = disclosure.match(/^Contact: (mailto:[^\\r\\n]+|https:\\/\\/[^\\r\\n]+)$/m);
+const expiry = disclosure.match(/^Expires: ([^\\r\\n]+)$/m);
+if (!contact || !expiry || !Number.isFinite(Date.parse(expiry[1])) || Date.parse(expiry[1]) <= Date.now()) {
+  throw new Error('public security.txt is missing a valid Contact or future Expires field');
 }
 
 const stagedIndexPath = path.join(outputDir, 'index.html');
