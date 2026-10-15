@@ -1,0 +1,55 @@
+/* PromptOS: founder-approved emerald ombre + cosmic Juss & Co. UI.
+   Preserve private prompt data, authentication, and existing page functions.
+   Cube artwork comes from the exact approved Chief/PromptOS reference. */
+.app{grid-template-columns:minmax(0,1fr)}
+.sidebar{display:none}
+.topbar{padding:0 clamp(12px,2vw,30px);gap:14px}
+.main{width:min(100%,1350px);margin-inline:auto;padding:18px clamp(12px,2.2vw,30px) 80px}
+.logo{font-family:var(--sans);font-size:20px;letter-spacing:-.04em;font-weight:700}
+.logo .mark{width:32px;height:32px;box-shadow:none}
+.logo .mark svg{width:30px;height:30px}
+.brand-top-nav{display:flex;align-items:center;gap:5px;margin-left:10px}
+.brand-top-nav .nav-item{width:auto;display:inline-flex;white-space:nowrap;padding:6px 11px;font-size:12px}
+.brand-top-nav .nav-item.active{border:1px solid rgba(58,244,161,.52);border-radius:8px}
+.search-wrap{max-width:260px;min-width:130px}
+.brand-hero{position:relative;min-height:304px;overflow:hidden;isolation:isolate;padding:34px clamp(22px,5vw,70px);border:1px solid rgba(79,198,253,.55);border-radius:16px;background:radial-gradient(ellipse at 80% 10%,rgba(42,212,164,.3),transparent 42%),radial-gradient(ellipse at 46% 80%,rgba(86,72,213,.39),transparent 52%),linear-gradient(122deg,#061128,#070d24 52%,#09182b);box-shadow:0 0 28px rgba(49,99,243,.12)}
+.brand-hero:before{content:"";position:absolute;z-index:-1;inset:auto -5% 0 0;height:44%;opacity:.6;background:linear-gradient(135deg,transparent 27%,#0d163f 27.4% 46%,transparent 46.3%),linear-gradient(30deg,transparent 19%,#12254b 19.3% 49%,transparent 49.3%),linear-gradient(155deg,transparent 39%,#2d3570 39.2% 75%,transparent 75.2%);clip-path:polygon(0 100%,10% 47%,26% 90%,43% 15%,56% 87%,75% 25%,90% 72%,100% 100%)}
+.brand-hero:after{content:"";position:absolute;inset:0;z-index:-2;opacity:.45;background:radial-gradient(circle at 25% 15%,#57baff 0 1px,transparent 2px);background-size:85px 59px}
+.brand-hero-copy{position:relative;z-index:2;max-width:64%;text-shadow:0 2px 24px #050e22}
+.brand-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9affdd;font-weight:600}
+.brand-hero h1{font-family:var(--sans);font-weight:800;font-size:clamp(47px,7.8vw,112px);line-height:1.05;letter-spacing:-.064em;margin:27px 0 0;color:#f6f9ff}
+.brand-hero h1 span{background:linear-gradient(115deg,#e4fff3,#5ff4b5 50%,#08a97e);color:transparent;background-clip:text;-webkit-background-clip:text}
+.brand-subtitle{font-size:clamp(15px,2.1vw,22px);letter-spacing:.2em;color:#f6f7ff}
+.brand-description{margin-top:12px;color:#d7e6f4;font-size:14px;max-width:52ch}
+.brand-hero-image{position:absolute;top:10%;right:3%;height:86%;width:32%;background:url('../assets/brand/approved-promptos-cube.webp') center/contain no-repeat;z-index:1;filter:drop-shadow(0 0 24px rgba(32,245,160,.3));pointer-events:none}
+.brand-command{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:12px 0 16px;padding:18px 22px;border:1px solid rgba(39,221,180,.54);border-radius:15px;background:linear-gradient(130deg,rgba(8,22,34,.95),rgba(7,15,37,.92))}
+.brand-command-label{font-size:16px;color:#e6f3f7;flex:1 1 280px}
+.brand-action{border-radius:999px;border:1px solid #65ffbe;background:linear-gradient(110deg,#b2ffe5,#45edac 53%,#08bb88);color:#052c20;padding:10px 16px;font-size:13px;font-weight:700}
+.brand-action:focus-visible{outline:3px solid #88a5ff}
+.brand-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.brand-shortcuts .nav-item{display:flex;width:100%;min-height:110px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px;background:linear-gradient(145deg,rgba(9,23,44,.96),rgba(7,16,35,.96));border:1px solid rgba(86,166,239,.55);border-radius:12px;color:#eaf9ff;text-align:center;box-shadow:0 0 14px rgba(39,106,206,.13)}
+.brand-shortcuts .nav-item:hover,.brand-shortcuts .nav-item:focus-visible{border-color:#46e9b0;transform:translateY(-1px)}
+.brand-shortcuts .nav-item:disabled{opacity:.57;cursor:not-allowed;transform:none}
+.brand-shortcuts .shortcut-icon{font-size:25px;line-height:1;color:#5bf2b4}
+.brand-shortcuts strong{font-size:14px}.brand-shortcuts small{font-size:11px;color:#b9cadc;line-height:1.4}
+.brand-proof{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;margin-bottom:30px;border:1px solid rgba(71,153,228,.38);background:rgba(7,14,34,.78);border-radius:12px}
+.brand-proof strong{color:#77f5c5}.brand-proof p{margin:0;font-size:12px;color:#bccbdf}
+.brand-original-workspace{border-top:1px solid rgba(98,160,225,.27);padding-top:18px}
+@media(max-width:900px){
+ .app{grid-template-columns:1fr;grid-template-rows:56px auto 1fr}
+ .brand-top-nav{display:none}.logo{font-size:17px}.logo .mark{width:27px;height:27px}
+ .brand-hero{min-height:265px;padding:22px}.brand-hero-image{width:41%;right:0}
+ .brand-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .brand-proof{align-items:start;flex-direction:column}
+}
+@media(max-width:520px){
+ .brand-hero{min-height:310px;padding:20px}.brand-hero-copy{max-width:100%}
+ .brand-eyebrow{font-size:9px;max-width:29ch}
+ .brand-hero h1{font-size:clamp(46px,14vw,72px);margin-top:20px}
+ .brand-subtitle{font-size:13px}
+ .brand-description{max-width:25ch;font-size:12px}
+ .brand-hero-image{top:auto;bottom:-5%;width:43%;height:55%;right:0;opacity:.82}
+ .brand-command{padding:16px}.brand-command-label{flex-basis:100%;font-size:14px}
+ .brand-shortcuts .nav-item{min-height:105px}
+}
+@media(prefers-reduced-motion:reduce){.brand-shortcuts .nav-item{transform:none!important}}
