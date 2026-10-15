@@ -218,6 +218,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 }
 </style>
 <link rel="stylesheet" href="./parts/brand.css">
+<link rel="stylesheet" href="./parts/approved-home.css">
 </head>
 <body>
 
@@ -281,6 +282,13 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 <div class="app">
   <header class="topbar">
     <div class="logo"><span class="mark"><svg viewBox="0 0 48 48" role="img" aria-label="PromptOS cube"><path d="M24 3 44 14v21L24 46 4 35V14Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M4 14 24 25 44 14M24 25v21" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></span>Prompt<span class="os">OS</span></div>
+    <nav class="brand-top-nav" aria-label="PromptOS product navigation">
+      <button type="button" class="nav-item" data-page="builder">Create</button>
+      <button type="button" class="nav-item active" data-page="library">Library</button>
+      <button type="button" class="nav-item" data-page="custom">Drafts</button>
+      <button type="button" class="nav-item" data-page="freestyle">Tools</button>
+      <button type="button" class="nav-item" data-page="bench">Benchmarks</button>
+    </nav>
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input class="search" id="search" placeholder="Search prompts…" autocomplete="off">
@@ -323,6 +331,30 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   <main class="main">
     <!-- LIBRARY -->
     <section class="page on" id="page-library">
+      <section class="brand-hero" aria-label="PromptOS approved founder front door">
+        <div class="brand-hero-image" aria-hidden="true"></div>
+        <div class="brand-hero-copy">
+          <p class="brand-eyebrow">Prompts | Workflows | Real outcomes</p>
+          <h1>Prompt<span>OS</span></h1>
+          <p class="brand-subtitle">THE FOUNDER PROMPT LIBRARY</p>
+          <p class="brand-description">Better prompts. Bigger outcomes. Built for real work.</p>
+        </div>
+      </section>
+      <section class="brand-command" aria-label="Prompt creation">
+        <p class="brand-command-label">What would you like to create today?</p>
+        <button type="button" class="brand-action nav-item" data-page="builder">Create a prompt →</button>
+      </section>
+      <nav class="brand-shortcuts" aria-label="PromptOS workspace shortcuts">
+        <button type="button" class="nav-item" data-page="builder"><span class="shortcut-icon">✎</span><strong>Create</strong><small>Build better prompts</small></button>
+        <button type="button" class="nav-item" data-page="custom"><span class="shortcut-icon">▱</span><strong>Organize</strong><small>Review saved drafts</small></button>
+        <button type="button" class="nav-item" disabled title="Automated workflows are not active in this browser interface"><span class="shortcut-icon">♧</span><strong>Automate</strong><small>Not active yet</small></button>
+        <button type="button" class="nav-item active" data-page="library"><span class="shortcut-icon">⌕</span><strong>Discover</strong><small>Explore the prompt library</small></button>
+      </nav>
+      <section class="brand-proof" aria-label="PromptOS product truth">
+        <strong>PromptOS library</strong>
+        <p>Open the library below for actual prompts. Workflow automation and outcome figures require runtime verification.</p>
+      </section>
+
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>library</b></div>
         <h2>Prompt ops for your repos.</h2>
