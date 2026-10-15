@@ -33,6 +33,8 @@ jobs:
           actual="$(git rev-parse HEAD)"
           printf 'expected=%s\nactual=%s\n' "$EXPECTED_HEAD_SHA" "$actual"
           test "$actual" = "$EXPECTED_HEAD_SHA"
+      - name: Test GitHub Pages readback fail-closed cases
+        run: node --test scripts/test-pages-publication-source.mjs
       - name: Verify founder-gated GitHub Pages publication source
         env:
           GITHUB_TOKEN: ${{ github.token }}
