@@ -1,0 +1,5 @@
+Contact: mailto:founder@jussco.company
+Expires: 2027-04-15T00:00:00Z
+Preferred-Languages: en
+Canonical: https://promptos.foundercontrolroom.org/.well-known/security.txt
+Policy: https://github.com/jussray/promptos/blob/main/SECURITY.md
