@@ -81,11 +81,12 @@ function applyTheme(t){
 }
 
 /* ── 4b. HOME PANELS (recent activity + truthful status; session-only) ── */
+var RECENT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.4 3 7.6 7.5 9.5 4.5-1.9 7.5-5.1 7.5-9.5V6Z"/><path d="M9 11.5h6M9 14.5h4"/></svg>';
 function recordRecent(id, action){
   id = parseInt(id); if (isNaN(id)) return;
   STATE.recent = STATE.recent.filter(function(r){ return r.id !== id; });
   STATE.recent.unshift({ id: id, action: action, ts: Date.now() });
-  if (STATE.recent.length > 5) STATE.recent.length = 5;
+  if (STATE.recent.length > 4) STATE.recent.length = 4;
   renderHome();
 }
 function agoText(ts){
@@ -106,7 +107,7 @@ function renderHome(){
     var li = document.createElement('li');
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'recent-row';
-    var ic = document.createElement('span'); ic.className = 'recent-ic'; ic.textContent = p.emoji || '✨';
+    var ic = document.createElement('span'); ic.className = 'recent-ic'; ic.innerHTML = RECENT_ICON;
     var tx = document.createElement('span'); tx.className = 'recent-text';
     var t = document.createElement('span'); t.className = 'recent-title'; t.textContent = p.title;
     var w = document.createElement('span'); w.className = 'recent-when'; w.textContent = agoText(r.ts);
