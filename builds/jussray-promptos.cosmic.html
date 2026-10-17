@@ -506,6 +506,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
             </div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="password" id="fsKey" autocomplete="off" spellcheck="false" placeholder="Anthropic API key" aria-label="Anthropic API key, kept in this tab only" style="flex:1;min-width:180px;font-family:var(--mono);font-size:12px">
             <button class="mini-btn solid" id="fsGenerate">✨ Generate</button>
             <button class="mini-btn" id="fsClear">Clear</button>
           </div>
@@ -7987,12 +7988,12 @@ function fsSetPlaceholder(msg){
 
 async function runFreestyle(){
   if(fsLoading) return;
-  /* Egress off in this local build: the request text is not sent to any third-party API. */
-  if(qs('#fsAsk').value.trim()){ fsSetPlaceholder('AI generation is off in this local build, so nothing is sent anywhere. Use Library or Builder to build a prompt.'); return; }
   const ask = qs('#fsAsk').value.trim();
   if(!ask){ toast('Describe what you need first'); return; }
   const platforms = qsa('#page-freestyle .pcheck input:checked').map(x=>x.value);
   if(!platforms.length){ toast('Pick at least one platform'); return; }
+  const apiKey = (qs('#fsKey')?.value || '').trim();
+  if(!apiKey){ fsSetPlaceholder('Paste your Anthropic API key next to Generate. It stays in this tab and is sent only to api.anthropic.com.'); return; }
 
   fsLoading = true;
   const btn = qs('#fsGenerate');
@@ -8021,9 +8022,9 @@ Only produce versions for these platforms: ${platforms.join(', ')}.`;
   try{
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
+        model: "claude-sonnet-5-5",
         max_tokens: 1000,
         system: "You are a prompt-engineering assistant that converts a plain-language request into a single polished, reusable prompt-library entry as JSON. Output ONLY the JSON object — no markdown fences, no preamble, no explanation.",
         messages: [{ role: "user", content: `Request: "${ask}"\n\n${schemaHint}\n\n${styleHint}` }]
