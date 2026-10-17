@@ -169,7 +169,7 @@ function renderChips(){
     b.className = 'chip' + (STATE.filter === c ? ' active' : '') + (c==='⭐ starred'?' c-star':'');
     b.textContent = c + ' ' + n;
     b.addEventListener('click', function(){
-      STATE.filter = c; STATE.search = ''; qs('#search').value = ''; if (qs('#heroAsk')) qs('#heroAsk').value = '';
+      STATE.filter = c; STATE.search = ''; qs('#search').value = '';
       renderChips(); renderGrid();
     });
     el.appendChild(b);
@@ -492,23 +492,25 @@ function boot(){
     renderChips(); renderGrid();
   });
 
-  var ask = qs('#heroAsk');
-  function toGrid(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  var ask = qs('#search');
+  function toGrid(){
+    if (!qs('#page-library.on')) switchPage('library');
+    setTimeout(function(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+  }
   function toFreestyle(){
     var fs = qs('#fsAsk'); if (fs && ask) fs.value = ask.value.trim();
     switchPage('freestyle'); if (fs) fs.focus();
   }
   if (ask) {
-    ask.addEventListener('input', function(){
-      var main = qs('#search'); if (!main) return;
-      main.value = ask.value; main.dispatchEvent(new Event('input', { bubbles: true }));
+    ask.addEventListener('input', function(){ if (!qs('#page-library.on')) switchPage('library'); });
+    ask.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && document.documentElement.getAttribute('data-theme') === 'dark') { e.preventDefault(); toFreestyle(); }
     });
-    ask.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); toFreestyle(); } });
     var on = function(id, fn){ var el = qs(id); if (el) el.addEventListener('click', fn); };
     on('#askSend', toFreestyle);
     on('#askLib', toGrid);
     on('#viewAll', toGrid);
-    on('#tileDiscover', function(){ setTimeout(toGrid, 60); });
+    on('#tileDiscover', toGrid);
     on('#askPlus', function(){ switchPage('custom'); });
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });

@@ -247,7 +247,10 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
 /* ── PromptOS cosmic skin: layout (dark theme only). Rollback: delete from this marker to the end of this style block and the .hero….home-panels markup. ── */
 .sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.hero,.askbar,.tiles,.home-panels{display:none}
+.hero,.tiles,.home-panels{display:none}
+.askbar{display:block;margin:0 0 14px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)}
+.ask-row{display:none}
+[data-theme="dark"] .ask-row{display:flex}
 [data-theme="dark"] body{padding:8px;background:radial-gradient(900px 500px at 50% -10%,rgba(40,80,220,.22),transparent 65%),#02030a}
 [data-theme="dark"] .app{--u:clamp(.9px,calc(100cqw/478),1.65px);container-type:inline-size;max-width:1180px;margin:0 auto;min-height:calc(100vh - 16px);position:relative;overflow:hidden;
   display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:52px 1fr auto;
@@ -273,7 +276,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 [data-theme="dark"] .mobile-nav .nav-item.active{border-color:var(--primary);color:#fff;background:rgba(56,234,160,.10);box-shadow:0 0 12px rgba(56,234,160,.35),inset 0 0 8px rgba(56,234,160,.14)}
 [data-theme="dark"] #persistenceAuthorityMobileStatus{order:99;margin-left:auto;background:none!important;font-size:9px!important;padding:5px 9px!important}
 [data-theme="dark"] .main{grid-column:1/-1;grid-row:2;padding:0 calc(var(--u)*14) 14px;min-width:0}
-[data-theme="dark"] .page.on:not(#page-library){padding-top:calc(var(--u)*14)}
+[data-theme="dark"] .page.on:not(#page-library):not(#page-catalog){padding-top:calc(var(--u)*14)}
 [data-theme="dark"] .sidebar{grid-column:1/-1;grid-row:3;position:static;height:auto;display:flex!important;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 16px;border-right:0;border-top:1px solid var(--border);overflow:visible;background:rgba(4,8,22,.6)}
 [data-theme="dark"] .sidebar .nav-item[data-page],[data-theme="dark"] .sidebar .side-label{display:none}
 [data-theme="dark"] .sidebar .nav-item{width:auto;padding:6px 12px;font-size:11.5px;border:1px solid var(--border);border-radius:var(--r-full)}
@@ -295,8 +298,10 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
 /* ask box */
 [data-theme="dark"] .askbar{display:block;position:relative;z-index:2;max-width:calc(var(--u)*420);margin:calc(var(--u)*10) auto calc(var(--u)*14);padding:calc(var(--u)*12) calc(var(--u)*12) calc(var(--u)*10);border-radius:calc(var(--u)*14);background:rgba(6,12,30,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.ask-input{width:100%;padding:2px 0 calc(var(--u)*11);border:0;border-bottom:1px solid rgba(255,255,255,.14);background:none;color:#fff;font-family:var(--sans);font-size:max(11.5px,calc(var(--u)*12.5));margin-bottom:calc(var(--u)*10);border-radius:0}
-.ask-input::placeholder{color:#e9efff;opacity:.95}
+.ask-input{width:100%;padding:2px 0 calc(var(--u)*11);border:0;border-bottom:1px solid var(--border-2);background:none;color:var(--text);font-family:var(--sans);font-size:max(11.5px,calc(var(--u)*12.5));margin-bottom:calc(var(--u)*10);border-radius:0}
+.ask-input::placeholder{color:var(--text-muted)}
+[data-theme="dark"] .ask-input{color:#fff;border-bottom-color:rgba(255,255,255,.14)}
+[data-theme="dark"] .ask-input::placeholder{color:#e9efff;opacity:.95}
 .ask-input:focus{outline:none;border-bottom-color:var(--primary)}
 .ask-row{display:flex;align-items:center;gap:calc(var(--u)*8)}
 .ask-round{width:calc(var(--u)*28);height:calc(var(--u)*28);min-width:26px;min-height:26px;flex:0 0 auto;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(10,18,40,.8);color:#fff;display:grid;place-items:center}
@@ -342,6 +347,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 .hs-list b{font-size:max(9px,calc(var(--u)*9));color:#fff;font-weight:600}
 .hs-list span{font-size:max(8.5px,calc(var(--u)*8));color:#9fb0cf;white-space:nowrap}
 .hs-list em{font-style:normal;color:#4dffb0;font-weight:600}
+/* home block shows on the landing views (Catalog, Quick Library) only */
+.main:has(.page.on:not(#page-catalog):not(#page-library)) :is(.hero,.askbar,.tiles,.home-panels){display:none!important}
 @media(max-width:560px){[data-theme="dark"] body{padding:3px}[data-theme="dark"] .app{border-radius:20px;min-height:calc(100vh - 6px)}[data-theme="dark"] .logo{padding-left:12px}}
 </style>
 </head>
@@ -407,10 +414,6 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 <div class="app">
   <header class="topbar">
     <div class="logo"><span class="mark"><svg class="logo-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cglogo-cube" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9dffd6"/><stop offset="1" stop-color="#12a566"/></linearGradient><filter id="cflogo-cube" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cflogo-cube)"><path d="M60 6 108 33v54L60 114 12 87V33Z" fill="rgba(20,120,80,.35)" stroke="url(#cglogo-cube)" stroke-width="3.4"/><path d="M60 6v54m0 0L12 33m48 27 48-27M60 60v54" stroke="url(#cglogo-cube)" stroke-width="2.2" fill="none"/><path d="M60 24 92 42v36L60 96 28 78V42Z" fill="rgba(5,30,22,.75)" stroke="#b6ffe0" stroke-width="1.8"/><path d="M60 24v36M28 42l32 18 32-18" stroke="#b6ffe0" stroke-width="1.3" fill="none"/></g></svg></span>PromptOS</div>
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input class="search" id="search" placeholder="Search prompts…" autocomplete="off">
-    </div>
     <div class="top-actions">
       <span class="count-pill" id="countPill">— prompts</span>
       <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
@@ -447,8 +450,6 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   </nav>
 
   <main class="main">
-    <!-- LIBRARY -->
-    <section class="page on" id="page-library">
       <div class="hero" aria-label="PromptOS">
         <div class="hero-inner">
           <div class="hero-copy">
@@ -462,12 +463,12 @@ td .best{font-size:11.5px;color:var(--text-muted)}
         </div>
       </div>
       <div class="askbar">
-        <label class="ask-label sr-only" for="heroAsk">What would you like to create today?</label>
-        <input id="heroAsk" class="ask-input" placeholder="What would you like to create today?" autocomplete="off">
+        <label class="ask-label sr-only" for="search">What would you like to create today?</label>
+        <input id="search" class="ask-input" placeholder="What would you like to create today?" autocomplete="off">
         <div class="ask-row">
           <button type="button" class="ask-round" id="askPlus" title="New prompt (My Prompts)" aria-label="New prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           <button type="button" class="ask-round" id="askGlobe" title="Platform benchmarks" aria-label="Platform benchmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
-          <button type="button" class="ask-chip" id="askLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg>Prompt Library</button>
+          <button type="button" class="ask-chip" id="askLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg>Quick Library</button>
           <button type="button" class="ask-chip" id="askFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.5" r="2.4"/><circle cx="5.5" cy="18" r="2.4"/><circle cx="18.5" cy="18" r="2.4"/><path d="m11 7.7-4.4 8M13 7.7l4.4 8"/></svg>Workflow Mode</button>
           <button type="button" class="ask-send" id="askSend" title="Generate in Freestyle" aria-label="Generate in Freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </div>
@@ -487,7 +488,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
         <section class="hpanel" aria-label="Workspace status">
           <h3>PromptOS Status <span class="live"><i></i>Session</span></h3>
           <ul class="hs-list">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg><b>Prompt Library</b><span><em id="hsPrompts">0</em></span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg><b>Quick Library</b><span><em id="hsPrompts">0</em></span></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9Z"/></svg><b>Starred</b><span><em id="hsStarred">0</em></span></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><b>My Prompts</b><span><em id="hsCustom">0</em></span></li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><b>Platforms covered</b><span><em id="hsPlatforms">0</em></span></li>
@@ -495,6 +496,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
           <p class="hs-note">Session only · FCR not connected.</p>
         </section>
       </div>
+    <!-- LIBRARY -->
+    <section class="page on" id="page-library">
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>library</b></div>
         <h2>Prompt ops for your repos.</h2>
