@@ -73,8 +73,8 @@ async function proveViewport(browser, {name, width, height}) {
   assert(truthPillText.includes('5,000 recipes'), `${name}: global truth badge omitted selected recipe count: ${truthPillText}`);
   assert(await truthPill.getAttribute('data-catalog-truth') === 'canonical', `${name}: global count badge is not bound to canonical catalog truth`);
 
-  const initialCatalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
-  const initialQuickLibraryNav = width <= 900 ? page.locator('.mobile-nav [data-page="library"]') : page.locator('.sidebar [data-page="library"]');
+  const initialCatalogNav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
+  const initialQuickLibraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
   assert(await initialCatalogNav.getAttribute('class').then((value) => value?.includes('active')), `${name}: canonical catalog is not the active default navigation item`);
   const quickLibraryLabel = (await initialQuickLibraryNav.textContent())?.trim() || '';
   assert(quickLibraryLabel.includes('Quick'), `${name}: legacy prompt subset is not labeled Quick Library: ${quickLibraryLabel}`);
@@ -148,7 +148,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'dark', `${name}: theme toggle did not return to dark`);
 
-  const catalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  const catalogNav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
   await catalogNav.waitFor({state: 'visible'});
   await catalogNav.click();
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
