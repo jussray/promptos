@@ -217,6 +217,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   #userChip span{display:none}
 }
 
+
 /* ── Cosmic reskin (presentation only; dark theme). Rollback: delete this block + .hero markup. ── */
 [data-theme="dark"]{
   --bg:#04050e;--surface:rgba(9,15,32,.72);--surface-2:rgba(14,24,48,.66);--surface-3:rgba(30,46,84,.55);
@@ -243,27 +244,93 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 [data-theme="dark"] .mini-btn.solid{background:linear-gradient(135deg,#38eaa0,#22c77f);border-color:#38eaa0;color:#03140d;font-weight:700;box-shadow:0 0 16px var(--primary-glow)}
 [data-theme="dark"] .mini-btn.solid:hover{color:#03140d}
 
+
+/* ── exact-look layout (dark theme): phone-frame card, single-row header, footer data strip ── */
+[data-theme="dark"] body{padding:10px}
+[data-theme="dark"] .app{max-width:1180px;margin:0 auto;min-height:calc(100vh - 20px);position:relative;overflow:hidden;
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;
+  border:1px solid rgba(96,170,255,.5);border-radius:26px;
+  background:radial-gradient(700px 300px at 85% 0,rgba(110,70,255,.22),transparent 70%),linear-gradient(180deg,#070a1e,#04050e);
+  box-shadow:0 0 0 1px rgba(40,90,255,.28),0 0 34px rgba(60,130,255,.38),inset 0 0 60px rgba(70,120,255,.10)}
+[data-theme="dark"] .topbar{display:contents}
+[data-theme="dark"] .search-wrap,[data-theme="dark"] .count-pill{display:none}
+[data-theme="dark"] .logo{grid-column:1;grid-row:1;padding:12px 6px 12px 16px;font-family:var(--sans);font-size:17px;font-weight:700;letter-spacing:-.01em;color:#fff;display:flex;align-items:center;gap:8px;background:rgba(6,10,26,.7)}
+[data-theme="dark"] .logo .mark{width:30px;height:30px;border-radius:0;background:none;box-shadow:none;display:block}
+[data-theme="dark"] .logo .mark svg{width:30px;height:30px;display:block}
+[data-theme="dark"] .top-actions{grid-column:3;grid-row:1;padding:10px 14px 10px 6px;background:rgba(6,10,26,.7);display:flex;align-items:center;gap:8px;margin:0}
+[data-theme="dark"] .mobile-nav{display:flex!important;grid-column:2;grid-row:1;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;padding:0 6px;background:rgba(6,10,26,.7);border:0;margin:0;min-width:0}
+[data-theme="dark"] .mobile-nav::-webkit-scrollbar{display:none}
+[data-theme="dark"] .mobile-nav .nav-item{width:auto;flex:0 0 auto;white-space:nowrap;padding:7px 11px;border:1px solid transparent;border-radius:10px;font-size:12.5px;font-weight:500;color:var(--text);background:none}
+[data-theme="dark"] .mobile-nav .nav-item.active{border-color:var(--primary);color:#fff;background:rgba(56,234,160,.10);box-shadow:0 0 14px rgba(56,234,160,.30),inset 0 0 10px rgba(56,234,160,.12)}
+[data-theme="dark"] .main{grid-column:1/-1;grid-row:2;padding:0 16px 16px}
+[data-theme="dark"] .sidebar{grid-column:1/-1;grid-row:3;position:static;height:auto;display:flex!important;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 16px;border-right:0;border-top:1px solid var(--border);overflow:visible}
+[data-theme="dark"] .sidebar .nav-item[data-page],[data-theme="dark"] .sidebar .side-label{display:none}
+[data-theme="dark"] .sidebar .nav-item{width:auto;padding:6px 12px;font-size:11.5px;border:1px solid var(--border);border-radius:var(--r-full)}
+[data-theme="dark"] .side-foot{margin:0 0 0 auto}
+[data-theme="dark"] #persistenceAuthorityMobileStatus{order:99;margin-left:auto;background:none!important;border-color:var(--border)!important}
+@media(max-width:700px){[data-theme="dark"] .mobile-nav{grid-column:1/-1;grid-row:2;border-top:1px solid var(--border);padding:8px 10px}[data-theme="dark"] .main{grid-row:3}[data-theme="dark"] .sidebar{grid-row:4}[data-theme="dark"] .app{grid-template-rows:auto auto 1fr auto}}
+@media(max-width:560px){[data-theme="dark"] body{padding:0}[data-theme="dark"] .app{border-radius:0;min-height:100vh}[data-theme="dark"] .logo{font-size:15px;padding-left:12px}[data-theme="dark"] #userChip span,[data-theme="dark"] #userChip .signin-label{display:none}}
+
 /* hero */
-.hero{display:none}
-[data-theme="dark"] .hero{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;position:relative;overflow:hidden;margin-bottom:18px;padding:26px 24px 22px;border-radius:18px;border:1px solid var(--border-2);background:
-  radial-gradient(520px 260px at 82% 30%,rgba(56,234,160,.20),transparent 65%),
-  linear-gradient(180deg,rgba(40,24,96,.55),rgba(6,10,26,.78));box-shadow:var(--shadow)}
-.hero .hero-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;color:var(--text-muted);text-transform:uppercase}
-.hero h1{font-family:var(--sans);font-weight:800;font-size:clamp(38px,7vw,64px);letter-spacing:-.03em;line-height:1.02;margin:10px 0 4px;color:#fff;text-shadow:0 0 28px rgba(120,160,255,.35)}
-.hero h1 span{color:var(--primary);text-shadow:0 0 24px var(--primary-glow)}
-.hero .hero-sub{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text)}
-.hero .hero-tag{margin-top:10px;color:var(--text-muted);font-size:14px}
-.hero .hero-cube{width:clamp(96px,22vw,200px);height:auto;filter:drop-shadow(0 0 22px rgba(56,234,160,.55))}
-.hero .hero-peaks{position:absolute;left:0;right:0;bottom:0;height:46%;opacity:.5;pointer-events:none}
-.hero>*{position:relative;z-index:1}.hero>.hero-peaks{position:absolute;z-index:0}
-.tiles{display:none}
-[data-theme="dark"] .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.tile{text-align:center;padding:16px 10px 14px;border-radius:14px;border:1px solid var(--border-2);background:var(--surface);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
-.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--primary)}
-.tile svg{width:30px;height:30px;color:var(--primary);filter:drop-shadow(0 0 8px var(--primary-glow))}
-.tile b{font-family:var(--sans);font-size:15px}
-.tile small{font-size:11px;color:var(--text-muted);line-height:1.35}
-@media(max-width:700px){[data-theme="dark"] .tiles{grid-template-columns:repeat(2,1fr)}[data-theme="dark"] .hero{padding:20px 16px 18px}}
+.hero,.askbar,.tiles,.home-panels{display:none}
+[data-theme="dark"] .hero{display:block;position:relative;overflow:hidden;margin:0 -16px 12px;padding:26px 20px 24px;min-height:228px;border-bottom:1px solid var(--border)}
+.hero-art{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.hero-copy{position:relative;z-index:1;max-width:72%}
+.hero-kicker{font-family:var(--mono);font-size:clamp(8.5px,2.3vw,11px);letter-spacing:.2em;color:#cbd6f0;text-transform:uppercase;white-space:nowrap}
+.hero h1{font-family:var(--sans);font-weight:800;font-size:clamp(40px,12.5vw,76px);letter-spacing:-.035em;line-height:1;margin:16px 0 8px;color:#fff;text-shadow:0 2px 24px rgba(120,160,255,.45)}
+.hero-sub{font-family:var(--sans);font-weight:700;font-size:clamp(10.5px,3vw,15px);letter-spacing:.2em;text-transform:uppercase;color:#fff}
+.hero-tag{margin-top:12px;color:#cfd8ee;font-size:clamp(12px,3.1vw,15px)}
+.hero-cube{position:absolute;z-index:1;right:4%;top:8%;width:clamp(96px,30vw,190px);height:auto;filter:drop-shadow(0 0 20px rgba(56,234,160,.6))}
+@media(min-width:900px){.hero-copy{max-width:58%}}
+
+/* ask box */
+[data-theme="dark"] .askbar{display:block;margin-bottom:12px;padding:14px 14px 12px;border-radius:18px;border:1px solid rgba(56,234,160,.38);background:rgba(8,14,32,.78);box-shadow:0 0 22px rgba(56,234,160,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ask-label{display:block;font-size:clamp(15px,4vw,19px);color:#fff;margin-bottom:10px;font-weight:500}
+.ask-input{width:100%;padding:8px 2px 10px;border:0;border-bottom:1px solid var(--border);background:none;color:var(--text);font-size:13px;margin-bottom:12px}
+.ask-input:focus{outline:none;border-bottom-color:var(--primary)}
+.ask-row{display:flex;align-items:center;gap:8px}
+.ask-round{width:38px;height:38px;flex:0 0 38px;border-radius:50%;border:1px solid var(--border-2);background:rgba(12,20,42,.7);color:var(--text);display:grid;place-items:center}
+.ask-round svg{width:17px;height:17px}
+.ask-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:12px;border:1px solid rgba(56,234,160,.35);background:rgba(12,22,44,.7);color:#fff;font-size:12.5px;white-space:nowrap}
+.ask-chip svg{width:16px;height:16px;color:var(--primary)}
+.ask-chip:hover,.ask-round:hover{border-color:var(--primary)}
+.ask-send{margin-left:auto;width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:linear-gradient(135deg,#46f0ac,#1fbf7c);color:#03140d;display:grid;place-items:center;box-shadow:0 0 18px rgba(56,234,160,.6)}
+.ask-send svg{width:19px;height:19px}
+@media(max-width:420px){.ask-chip{padding:8px 9px;font-size:11.5px;gap:5px}.ask-chip svg{display:none}}
+
+/* tiles */
+[data-theme="dark"] .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 6px 12px;border-radius:14px;border:1px solid rgba(56,234,160,.32);background:rgba(8,16,36,.74);color:#fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 0 16px rgba(56,234,160,.10);transition:transform var(--t),border-color var(--t),box-shadow var(--t)}
+.tile:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 0 22px rgba(56,234,160,.30)}
+.tile svg{width:30px;height:30px;color:var(--primary);filter:drop-shadow(0 0 7px rgba(56,234,160,.6))}
+.tile b{font-size:clamp(12px,3.2vw,15px);font-weight:700}
+.tile small{font-size:clamp(9px,2.4vw,11px);color:var(--text-muted);line-height:1.3}
+
+/* panels */
+[data-theme="dark"] .home-panels{display:grid;grid-template-columns:1.45fr 1fr;gap:10px;margin-bottom:18px}
+.hpanel{padding:12px 12px 10px;border-radius:14px;border:1px solid rgba(56,234,160,.3);background:rgba(8,16,36,.76);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);min-width:0}
+.hpanel h3{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--sans);font-size:clamp(12px,3.2vw,14.5px);font-weight:700;color:#fff;margin-bottom:10px}
+.viewall{font-size:11px;font-weight:500;color:var(--primary)}
+.live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--primary)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--primary);box-shadow:0 0 8px var(--primary)}
+.recent-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.recent-row{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;text-align:left;padding:7px 8px;border-radius:10px;border:1px solid var(--border);background:rgba(10,18,40,.55);color:var(--text)}
+.recent-row:hover{border-color:var(--primary)}
+.recent-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:rgba(56,234,160,.10);border:1px solid rgba(56,234,160,.28)}
+.recent-text{display:flex;flex-direction:column;min-width:0}
+.recent-title{font-size:12px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent-when{font-size:10px;color:var(--text-faint)}
+.recent-tag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:7px;border:1px solid;white-space:nowrap}
+.recent-tag.t-used{color:#38eaa0;border-color:rgba(56,234,160,.6);background:rgba(56,234,160,.12)}
+.recent-tag.t-saved{color:#5fe0ff;border-color:rgba(95,224,255,.55);background:rgba(95,224,255,.10)}
+.recent-tag.t-opened{color:#b99bff;border-color:rgba(185,155,255,.55);background:rgba(167,124,255,.12)}
+.hpanel-empty,.hs-note{font-size:11px;color:var(--text-muted);line-height:1.5}
+.hs-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:8px}
+.hs-list li{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:center}
+.hs-list svg{width:26px;height:26px;padding:5px;border-radius:7px;color:var(--primary);background:rgba(56,234,160,.10);border:1px solid rgba(56,234,160,.28)}
+.hs-list b{display:block;font-size:11.5px;color:#fff;font-weight:600}
+.hs-list span{font-size:10.5px;color:var(--text-muted)}
+.hs-list em{font-style:normal;color:var(--primary);font-weight:600}
 </style>
 </head>
 <body>
@@ -327,7 +394,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 <div id="appShell" style="display:none;">
 <div class="app">
   <header class="topbar">
-    <div class="logo"><span class="mark">J</span>Prompt<span class="os">OS</span></div>
+    <div class="logo"><span class="mark"><svg class="logo-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8dffcf"/><stop offset="1" stop-color="#119e63"/></linearGradient><filter id="cglow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cglow2)"><path d="M60 8 106 34v52L60 112 14 86V34Z" fill="rgba(56,234,160,.10)" stroke="url(#cg2)" stroke-width="3"/><path d="M60 8v52m0 0L14 34m46 26 46-26M60 60v52" stroke="url(#cg2)" stroke-width="2.2" fill="none"/><path d="M60 26 90 43v34L60 94 30 77V43Z" fill="rgba(56,234,160,.22)" stroke="#8dffcf" stroke-width="1.6"/></g></svg></span>PromptOS</div>
     <div class="search-wrap">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input class="search" id="search" placeholder="Search prompts…" autocomplete="off">
@@ -344,12 +411,12 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
   <aside class="sidebar">
     <div class="side-label">Workspace</div>
-    <button class="nav-item active" data-page="library">📚 Library <span class="n-count" id="navCount">0</span></button>
-    <button class="nav-item" data-page="builder">🛠 Builder</button>
-    <button class="nav-item" data-page="freestyle">🎲 Freestyle</button>
-    <button class="nav-item" data-page="custom">✨ My Prompts <span class="n-count" id="navCustom">0</span></button>
-    <button class="nav-item" data-page="anatomy">🧠 Anatomy</button>
-    <button class="nav-item" data-page="bench">📊 Benchmarks</button>
+    <button class="nav-item active" data-page="library">Library <span class="n-count" id="navCount">0</span></button>
+    <button class="nav-item" data-page="builder">Builder</button>
+    <button class="nav-item" data-page="freestyle">Freestyle</button>
+    <button class="nav-item" data-page="custom">My Prompts <span class="n-count" id="navCustom">0</span></button>
+    <button class="nav-item" data-page="anatomy">Anatomy</button>
+    <button class="nav-item" data-page="bench">Benchmarks</button>
     <div class="side-label">Data</div>
     <button class="nav-item" id="exportBtn">⬇️ Export JSON</button>
     <button class="nav-item" id="importBtn">⬆️ Import JSON</button>
@@ -359,32 +426,79 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   </aside>
 
   <nav class="mobile-nav" id="mobileNav">
-    <button class="nav-item active" data-page="library">📚 Library</button>
-    <button class="nav-item" data-page="builder">🛠 Builder</button>
-    <button class="nav-item" data-page="freestyle">🎲 Freestyle</button>
-    <button class="nav-item" data-page="custom">✨ Mine</button>
-    <button class="nav-item" data-page="anatomy">🧠 Anatomy</button>
-    <button class="nav-item" data-page="bench">📊 Bench</button>
+    <button class="nav-item active" data-page="library">Library</button>
+    <button class="nav-item" data-page="builder">Builder</button>
+    <button class="nav-item" data-page="freestyle">Freestyle</button>
+    <button class="nav-item" data-page="custom">My Prompts</button>
+    <button class="nav-item" data-page="anatomy">Anatomy</button>
+    <button class="nav-item" data-page="bench">Benchmarks</button>
   </nav>
 
   <main class="main">
     <!-- LIBRARY -->
     <section class="page on" id="page-library">
       <div class="hero" aria-label="PromptOS">
-        <svg class="hero-peaks" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 100V62l38-30 26 22 46-44 40 40 34-24 52 46 36-28 48 32 40-20 40 26v40Z" fill="#0b1230"/><path d="M0 100V78l50-26 36 24 44-34 48 38 40-22 60 34 50-20 72 28v20Z" fill="#070b20"/></svg>
-        <div>
+        <svg class="hero-art" viewBox="0 0 478 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0b2e"/><stop offset=".55" stop-color="#241552"/><stop offset="1" stop-color="#101a48"/></linearGradient>
+            <radialGradient id="neb1" cx=".78" cy=".35" r=".6"><stop offset="0" stop-color="#7a4dff" stop-opacity=".75"/><stop offset="1" stop-color="#7a4dff" stop-opacity="0"/></radialGradient>
+            <radialGradient id="neb2" cx=".12" cy=".3" r=".55"><stop offset="0" stop-color="#2a6bff" stop-opacity=".55"/><stop offset="1" stop-color="#2a6bff" stop-opacity="0"/></radialGradient>
+            <radialGradient id="neb3" cx=".5" cy="1" r=".6"><stop offset="0" stop-color="#2fe39a" stop-opacity=".30"/><stop offset="1" stop-color="#2fe39a" stop-opacity="0"/></radialGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <rect width="478" height="300" fill="url(#sky)"/><rect width="478" height="300" fill="url(#neb1)"/><rect width="478" height="300" fill="url(#neb2)"/><rect width="478" height="300" fill="url(#neb3)"/>
+          <circle cx="155" cy="35" r="0.5" fill="#cfe0ff" opacity="0.30"/><circle cx="256" cy="84" r="0.5" fill="#cfe0ff" opacity="0.89"/><circle cx="103" cy="20" r="1.0" fill="#cfe0ff" opacity="0.30"/><circle cx="43" cy="98" r="1.3" fill="#cfe0ff" opacity="0.34"/><circle cx="107" cy="144" r="0.5" fill="#cfe0ff" opacity="0.65"/><circle cx="190" cy="225" r="0.5" fill="#cfe0ff" opacity="0.64"/><circle cx="64" cy="96" r="1.3" fill="#cfe0ff" opacity="0.33"/><circle cx="147" cy="188" r="0.6" fill="#cfe0ff" opacity="0.32"/><circle cx="273" cy="43" r="0.5" fill="#cfe0ff" opacity="0.63"/><circle cx="30" cy="14" r="0.6" fill="#cfe0ff" opacity="0.60"/><circle cx="254" cy="179" r="1.0" fill="#cfe0ff" opacity="0.66"/><circle cx="217" cy="69" r="0.6" fill="#cfe0ff" opacity="0.74"/><circle cx="117" cy="132" r="1.3" fill="#cfe0ff" opacity="0.60"/><circle cx="164" cy="103" r="1.3" fill="#cfe0ff" opacity="0.94"/><circle cx="56" cy="96" r="0.8" fill="#cfe0ff" opacity="0.36"/><circle cx="234" cy="9" r="0.5" fill="#cfe0ff" opacity="0.79"/><circle cx="274" cy="201" r="0.8" fill="#cfe0ff" opacity="0.49"/><circle cx="167" cy="114" r="1.0" fill="#cfe0ff" opacity="0.30"/><circle cx="45" cy="62" r="0.5" fill="#cfe0ff" opacity="0.29"/><circle cx="335" cy="149" r="1.0" fill="#cfe0ff" opacity="0.45"/><circle cx="184" cy="154" r="0.5" fill="#cfe0ff" opacity="0.91"/><circle cx="170" cy="141" r="1.0" fill="#cfe0ff" opacity="0.29"/><circle cx="367" cy="30" r="0.6" fill="#cfe0ff" opacity="0.53"/><circle cx="438" cy="114" r="0.6" fill="#cfe0ff" opacity="0.56"/><circle cx="263" cy="203" r="1.0" fill="#cfe0ff" opacity="0.85"/><circle cx="133" cy="96" r="0.8" fill="#cfe0ff" opacity="0.73"/><circle cx="182" cy="53" r="0.5" fill="#cfe0ff" opacity="0.37"/><circle cx="111" cy="54" r="1.0" fill="#cfe0ff" opacity="0.83"/><circle cx="87" cy="65" r="0.6" fill="#cfe0ff" opacity="0.54"/><circle cx="177" cy="130" r="0.6" fill="#cfe0ff" opacity="0.73"/><circle cx="246" cy="142" r="0.5" fill="#cfe0ff" opacity="0.57"/><circle cx="416" cy="219" r="1.3" fill="#cfe0ff" opacity="0.52"/><circle cx="191" cy="24" r="1.0" fill="#cfe0ff" opacity="0.29"/><circle cx="32" cy="48" r="0.6" fill="#cfe0ff" opacity="0.33"/><circle cx="287" cy="24" r="1.3" fill="#cfe0ff" opacity="0.36"/><circle cx="48" cy="84" r="0.5" fill="#cfe0ff" opacity="0.30"/><circle cx="99" cy="87" r="0.8" fill="#cfe0ff" opacity="0.92"/><circle cx="288" cy="109" r="0.5" fill="#cfe0ff" opacity="0.84"/><circle cx="475" cy="107" r="1.0" fill="#cfe0ff" opacity="0.47"/><circle cx="69" cy="172" r="0.8" fill="#cfe0ff" opacity="0.59"/><circle cx="331" cy="119" r="0.6" fill="#cfe0ff" opacity="0.92"/><circle cx="253" cy="34" r="1.3" fill="#cfe0ff" opacity="0.89"/><circle cx="362" cy="69" r="0.5" fill="#cfe0ff" opacity="0.74"/><circle cx="125" cy="84" r="0.6" fill="#cfe0ff" opacity="0.50"/><circle cx="106" cy="125" r="1.3" fill="#cfe0ff" opacity="0.48"/><circle cx="107" cy="187" r="0.6" fill="#cfe0ff" opacity="0.81"/><circle cx="391" cy="170" r="0.6" fill="#cfe0ff" opacity="0.39"/><circle cx="236" cy="168" r="0.5" fill="#cfe0ff" opacity="0.80"/><circle cx="226" cy="45" r="1.3" fill="#cfe0ff" opacity="0.92"/><circle cx="214" cy="216" r="0.8" fill="#cfe0ff" opacity="0.92"/><circle cx="174" cy="51" r="0.6" fill="#cfe0ff" opacity="0.58"/><circle cx="161" cy="111" r="1.3" fill="#cfe0ff" opacity="0.84"/><circle cx="229" cy="150" r="0.5" fill="#cfe0ff" opacity="0.83"/><circle cx="57" cy="89" r="0.6" fill="#cfe0ff" opacity="0.58"/><circle cx="85" cy="182" r="0.8" fill="#cfe0ff" opacity="0.31"/><circle cx="452" cy="166" r="1.0" fill="#cfe0ff" opacity="0.53"/><circle cx="453" cy="167" r="0.6" fill="#cfe0ff" opacity="0.95"/><circle cx="13" cy="136" r="1.0" fill="#cfe0ff" opacity="0.81"/><circle cx="70" cy="190" r="1.0" fill="#cfe0ff" opacity="0.71"/><circle cx="167" cy="126" r="0.6" fill="#cfe0ff" opacity="0.26"/><circle cx="382" cy="167" r="0.5" fill="#cfe0ff" opacity="0.62"/><circle cx="446" cy="100" r="0.6" fill="#cfe0ff" opacity="0.83"/><circle cx="101" cy="58" r="0.8" fill="#cfe0ff" opacity="0.60"/><circle cx="365" cy="75" r="1.3" fill="#cfe0ff" opacity="0.54"/><circle cx="63" cy="209" r="0.8" fill="#cfe0ff" opacity="0.88"/><circle cx="317" cy="187" r="1.3" fill="#cfe0ff" opacity="0.54"/><circle cx="439" cy="115" r="1.3" fill="#cfe0ff" opacity="0.36"/><circle cx="244" cy="201" r="0.6" fill="#cfe0ff" opacity="0.68"/><circle cx="371" cy="34" r="0.6" fill="#cfe0ff" opacity="0.58"/><circle cx="347" cy="128" r="0.8" fill="#cfe0ff" opacity="0.73"/><circle cx="254" cy="111" r="0.5" fill="#cfe0ff" opacity="0.87"/><circle cx="27" cy="44" r="0.5" fill="#cfe0ff" opacity="0.79"/><circle cx="243" cy="129" r="0.5" fill="#cfe0ff" opacity="0.56"/><circle cx="293" cy="116" r="1.3" fill="#cfe0ff" opacity="0.39"/><circle cx="132" cy="117" r="1.0" fill="#cfe0ff" opacity="0.61"/><circle cx="118" cy="120" r="0.8" fill="#cfe0ff" opacity="0.90"/><circle cx="427" cy="47" r="1.0" fill="#cfe0ff" opacity="0.35"/><circle cx="58" cy="102" r="0.5" fill="#cfe0ff" opacity="0.72"/><circle cx="205" cy="49" r="0.8" fill="#cfe0ff" opacity="0.80"/><circle cx="429" cy="36" r="0.8" fill="#cfe0ff" opacity="0.35"/><circle cx="422" cy="223" r="0.6" fill="#cfe0ff" opacity="0.77"/><circle cx="45" cy="204" r="0.6" fill="#cfe0ff" opacity="0.94"/><circle cx="398" cy="37" r="1.0" fill="#cfe0ff" opacity="0.95"/><circle cx="193" cy="97" r="0.8" fill="#cfe0ff" opacity="0.47"/><circle cx="345" cy="4" r="1.3" fill="#cfe0ff" opacity="0.57"/><circle cx="336" cy="88" r="1.3" fill="#cfe0ff" opacity="0.69"/><circle cx="245" cy="15" r="0.6" fill="#cfe0ff" opacity="0.93"/><circle cx="50" cy="61" r="0.5" fill="#cfe0ff" opacity="0.88"/><circle cx="87" cy="174" r="1.0" fill="#cfe0ff" opacity="0.84"/><circle cx="323" cy="218" r="1.0" fill="#cfe0ff" opacity="0.35"/>
+          <path d="M0 300V196l30-22 22 16 38-52 34 40 26-24 46 62 30-34 40 44 32-30 42 56 40-38 38 28 30-18 30 28v88Z" fill="#0b1230"/>
+          <path d="M0 300V226l44-34 30 24 52-44 40 40 34-26 58 50 38-30 48 44 40-26 48 40V300Z" fill="#070c24"/>
+          <path d="M90 172l16 20-14 4-8-10ZM172 168l14 18-12 2-6-8ZM262 190l12 14-10 2ZM380 184l14 16-12 2Z" fill="#9fc4ff" opacity=".45"/>
+          <g filter="url(#glow)" fill="none" stroke-linecap="round">
+            <path d="M300 230c40-40 70-110 130-150" stroke="#3aa0ff" stroke-width="1.6" opacity=".9"/>
+            <path d="M330 250c60-20 100-80 120-150" stroke="#6fd0ff" stroke-width="1.2" opacity=".8"/>
+            <path d="M360 120c-30 30-24 70 10 100" stroke="#38eaa0" stroke-width="1.4" opacity=".85"/>
+            <path d="M410 70l-14 30 14-4-10 28" stroke="#9fe0ff" stroke-width="1.5" opacity=".9"/>
+          </g>
+        </svg>
+        <div class="hero-copy">
           <div class="hero-kicker">Prompts &nbsp;|&nbsp; Workflows &nbsp;|&nbsp; Real outcomes</div>
-          <h1>Prompt<span>OS</span></h1>
+          <h1>PromptOS</h1>
           <div class="hero-sub">The Founder Prompt Library</div>
           <p class="hero-tag">Better prompts. Bigger outcomes. Built for real work.</p>
         </div>
-        <svg class="hero-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dffc4"/><stop offset="1" stop-color="#119e63"/></linearGradient></defs><path d="M60 8 106 34v52L60 112 14 86V34Z" fill="rgba(56,234,160,.12)" stroke="url(#cg)" stroke-width="3"/><path d="M60 8v52m0 0L14 34m46 26 46-26M60 60v52" stroke="url(#cg)" stroke-width="2.4" fill="none"/><path d="M60 24 92 42v36L60 96 28 78V42Z" fill="rgba(56,234,160,.25)" stroke="#7dffc4" stroke-width="1.6"/></svg>
+        <svg class="hero-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8dffcf"/><stop offset="1" stop-color="#119e63"/></linearGradient><filter id="cglow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cglow)"><path d="M60 8 106 34v52L60 112 14 86V34Z" fill="rgba(56,234,160,.10)" stroke="url(#cg)" stroke-width="3"/><path d="M60 8v52m0 0L14 34m46 26 46-26M60 60v52" stroke="url(#cg)" stroke-width="2.2" fill="none"/><path d="M60 26 90 43v34L60 94 30 77V43Z" fill="rgba(56,234,160,.22)" stroke="#8dffcf" stroke-width="1.6"/></g></svg>
+      </div>
+      <div class="askbar">
+        <label class="ask-label" for="heroAsk">What would you like to create today?</label>
+        <input id="heroAsk" class="ask-input" placeholder="Describe it, or type to filter the library…" autocomplete="off">
+        <div class="ask-row">
+          <button type="button" class="ask-round" id="askPlus" title="New prompt (My Prompts)" aria-label="New prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button type="button" class="ask-round" id="askGlobe" title="Platform benchmarks" aria-label="Platform benchmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
+          <button type="button" class="ask-chip" id="askLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/></svg>Prompt Library</button>
+          <button type="button" class="ask-chip" id="askFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/><circle cx="12" cy="6" r="2.2"/><path d="m11 8.2-4 7.6M13 8.2l4 7.6"/></svg>Workflow Mode</button>
+          <button type="button" class="ask-send" id="askSend" title="Generate in Freestyle" aria-label="Generate in Freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 14-7-5 14-3-6Z"/></svg></button>
+        </div>
       </div>
       <div class="tiles" role="navigation" aria-label="Quick start">
-        <button class="tile" data-page="builder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M4 5.5v16"/></svg><b>Create</b><small>Build better prompts</small></button>
-        <button class="tile" data-page="custom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m3 17.5 9 5 9-5" opacity=".5"/></svg><b>Organize</b><small>Star &amp; save your own</small></button>
-        <button class="tile" data-page="freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><circle cx="12" cy="6" r="2.4"/><path d="m11 8.2-4 7.6M13 8.2l4 7.6"/></svg><b>Generate</b><small>Turn an ask into a prompt</small></button>
-        <button class="tile" data-page="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><b>Discover</b><small>Browse what works</small></button>
+        <button class="tile" data-page="builder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/><path d="M8 8h8M8 12h5"/></svg><b>Create</b><small>Build better prompts</small></button>
+        <button class="tile" data-page="custom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m3 17.5 9 5 9-5" opacity=".5"/></svg><b>Organize</b><small>Star &amp; save your own</small></button>
+        <button class="tile" data-page="freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><circle cx="12" cy="6" r="2.4"/><path d="m11 8.2-4 7.6M13 8.2l4 7.6"/></svg><b>Generate</b><small>Turn an ask into a prompt</small></button>
+        <button class="tile" data-page="library" id="tileDiscover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><b>Discover</b><small>Find what works</small></button>
+      </div>
+      <div class="home-panels">
+        <section class="hpanel" aria-label="Recent prompts">
+          <h3>Recent Prompts <button type="button" class="viewall" id="viewAll">View all →</button></h3>
+          <ul id="homeRecent" class="recent-list"></ul>
+          <p id="homeRecentEmpty" class="hpanel-empty">Nothing yet. Open, copy or star a prompt and it shows up here.</p>
+        </section>
+        <section class="hpanel" aria-label="Workspace status">
+          <h3>PromptOS Status <span class="live"><i></i>Session</span></h3>
+          <ul class="hs-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5Z"/></svg><div><b>Prompt Library</b><span><em id="hsPrompts">0</em> prompts</span></div></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9Z"/></svg><div><b>Starred</b><span><em id="hsStarred">0</em> saved</span></div></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><div><b>My Prompts</b><span><em id="hsCustom">0</em> custom</span></div></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div><b>Platforms</b><span><em id="hsPlatforms">0</em> covered</span></div></li>
+          </ul>
+          <p class="hs-note">Session only · FCR not connected.</p>
+        </section>
       </div>
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>library</b></div>

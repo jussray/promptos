@@ -13,7 +13,8 @@ var STATE = {
   theme: 'dark',
   page: 'library',
   filter: 'all',
-  search: ''
+  search: '',
+  recent: []          // session-only activity log for the home panel; never exported
 };
 
 function serializeState(){
@@ -79,6 +80,50 @@ function applyTheme(t){
     : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
 }
 
+/* ── 4b. HOME PANELS (recent activity + truthful status; session-only) ── */
+function recordRecent(id, action){
+  id = parseInt(id); if (isNaN(id)) return;
+  STATE.recent = STATE.recent.filter(function(r){ return r.id !== id; });
+  STATE.recent.unshift({ id: id, action: action, ts: Date.now() });
+  if (STATE.recent.length > 5) STATE.recent.length = 5;
+  renderHome();
+}
+function agoText(ts){
+  var m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  return Math.floor(m / 60) + ' h ago';
+}
+function renderHome(){
+  var list = qs('#homeRecent'); if (!list) return;
+  var all = allPrompts();
+  list.textContent = '';
+  var shown = 0;
+  STATE.recent.forEach(function(r){
+    var p = all.find(function(x){ return x.id === r.id; });
+    if (!p) return;
+    shown++;
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'recent-row';
+    var ic = document.createElement('span'); ic.className = 'recent-ic'; ic.textContent = p.emoji || '✨';
+    var tx = document.createElement('span'); tx.className = 'recent-text';
+    var t = document.createElement('span'); t.className = 'recent-title'; t.textContent = p.title;
+    var w = document.createElement('span'); w.className = 'recent-when'; w.textContent = agoText(r.ts);
+    tx.appendChild(t); tx.appendChild(w);
+    var a = document.createElement('span'); a.className = 'recent-tag t-' + r.action.toLowerCase(); a.textContent = r.action;
+    b.appendChild(ic); b.appendChild(tx); b.appendChild(a);
+    b.addEventListener('click', function(){ openModal(r.id); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  var empty = qs('#homeRecentEmpty'); if (empty) empty.hidden = shown > 0;
+  var starred = Object.keys(STATE.stars).filter(function(k){ return STATE.stars[k]; }).length;
+  var plats = new Set(); all.forEach(function(p){ (p.platforms||[]).forEach(function(x){ plats.add(x); }); });
+  var set = function(sel, v){ var el = qs(sel); if (el) el.textContent = v; };
+  set('#hsPrompts', all.length); set('#hsStarred', starred);
+  set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
+}
+
 function allPrompts(){
   var base = (typeof PROMPTS !== 'undefined') ? PROMPTS : [];
   var custom = STATE.custom.map(function(p){
@@ -93,7 +138,7 @@ function allPrompts(){
 function renderAll(){
   renderStats(); renderChips(); renderGrid();
   renderCustomList(); renderBench();
-  updateCounts();
+  updateCounts(); renderHome();
 }
 
 function renderStats(){
@@ -123,7 +168,7 @@ function renderChips(){
     b.className = 'chip' + (STATE.filter === c ? ' active' : '') + (c==='⭐ starred'?' c-star':'');
     b.textContent = c + ' ' + n;
     b.addEventListener('click', function(){
-      STATE.filter = c; STATE.search = ''; qs('#search').value = '';
+      STATE.filter = c; STATE.search = ''; qs('#search').value = ''; if (qs('#heroAsk')) qs('#heroAsk').value = '';
       renderChips(); renderGrid();
     });
     el.appendChild(b);
@@ -196,7 +241,7 @@ function qs(sel){ return document.querySelector(sel); }
 function toggleStar(id){
   id = parseInt(id);
   STATE.stars[id] = !STATE.stars[id];
-  if (!STATE.stars[id]) delete STATE.stars[id];
+  if (!STATE.stars[id]) delete STATE.stars[id]; else recordRecent(id, 'Saved');
   renderStats(); renderChips(); renderGrid();
   var mStar = qs('#mStar');
   if (mStar && mStar.dataset.id == id) {
@@ -231,6 +276,7 @@ function openModal(id){
   renderModalTabs(tabs, versions);
   qs('#modalWrap').classList.add('open');
   document.body.style.overflow = 'hidden';
+  recordRecent(id, 'Opened');
 }
 
 function renderModalTabs(tabs, versions){
@@ -445,6 +491,28 @@ function boot(){
     renderChips(); renderGrid();
   });
 
+  var ask = qs('#heroAsk');
+  function toGrid(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  function toFreestyle(){
+    var fs = qs('#fsAsk'); if (fs && ask) fs.value = ask.value.trim();
+    switchPage('freestyle'); if (fs) fs.focus();
+  }
+  if (ask) {
+    ask.addEventListener('input', function(){
+      var main = qs('#search'); if (!main) return;
+      main.value = ask.value; main.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    ask.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); toFreestyle(); } });
+    var on = function(id, fn){ var el = qs(id); if (el) el.addEventListener('click', fn); };
+    on('#askSend', toFreestyle);
+    on('#askLib', toGrid);
+    on('#viewAll', toGrid);
+    on('#tileDiscover', function(){ setTimeout(toGrid, 60); });
+    on('#askPlus', function(){ switchPage('custom'); });
+    on('#askGlobe', function(){ switchPage('bench'); });
+    on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+  }
+
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
   qs('#modalWrap').addEventListener('click', function(e){ if (e.target === qs('#modalWrap')) closeModal(); });
@@ -455,7 +523,7 @@ function boot(){
   });
 
   qs('#mCopy').addEventListener('click', function(){
-    var body = qs('#mBody'); if (body) copy(body.textContent);
+    var body = qs('#mBody'); if (body) { copy(body.textContent); if (_openId !== null) recordRecent(_openId, 'Used'); }
   });
 
   ['#bPack','#bPlatform','#bRepo','#bTask','#bConstraints','#bFormat'].forEach(function(sel){
