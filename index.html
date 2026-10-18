@@ -349,6 +349,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 .hs-list em{font-style:normal;color:#4dffb0;font-weight:600}
 /* home block shows on the landing views (Catalog, Quick Library) only */
 .main:has(.page.on:not(#page-catalog):not(#page-library)) :is(.hero,.askbar,.tiles,.home-panels){display:none!important}
+/* PR #56 review (index.html hero, narrow phones): under 375px the kicker overflows the copy column and the cube overlaps the wordmark. Stack the copy full width and hide the cube. Rollback: delete the @media line below. */
+@media(max-width:374px){[data-theme="dark"] .hero-copy{width:100%}[data-theme="dark"] .hero-cube{display:none}}
 @media(max-width:560px){[data-theme="dark"] body{padding:3px}[data-theme="dark"] .app{border-radius:20px;min-height:calc(100vh - 6px)}[data-theme="dark"] .logo{padding-left:12px}}
 </style>
 </head>
