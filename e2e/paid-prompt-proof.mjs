@@ -5,7 +5,7 @@ const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const browser = await chromium.launch({ headless: true });
 const views = [{ name: 'desktop', width: 1440, height: 960 }, { name: 'mobile', width: 390, height: 844 }];
 const failures = [];
-const nav = (width, name) => (width <= 900 ? '.mobile-nav' : '.sidebar') + ' [data-page="' + name + '"]';
+const nav = (_width, name) => '.mobile-nav [data-page="' + name + '"]:visible, .sidebar [data-page="' + name + '"]:visible';
 
 try {
   for (const view of views) {
@@ -15,18 +15,18 @@ try {
     await page.locator('#appShell').waitFor({ state: 'visible' });
 
     // Every save entry point must fail closed while the paid endpoint is unconfigured.
-    await page.locator(nav(view.width, 'custom')).click();
+    await page.locator(nav(view.width, 'custom')).first().click();
     await page.locator('#cTitle').fill('Should remain a draft');
     await page.locator('#cBody').fill('This must never be added to the free account.');
     await page.locator('#saveCustom').click();
     assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': custom save bypassed paywall');
     assert.equal(await page.locator('#cTitle').inputValue(), 'Should remain a draft', 'Denied save discarded draft');
 
-    await page.locator(nav(view.width, 'builder')).click();
+    await page.locator(nav(view.width, 'builder')).first().click();
     await page.locator('#saveBuilder').click();
     assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': builder save bypassed paywall');
 
-    await page.locator(nav(view.width, 'freestyle')).click();
+    await page.locator(nav(view.width, 'freestyle')).first().click();
     await page.locator('#fsAsk').fill('Write a governance prompt with a rollback path');
     await page.locator('#fsGenerate').click();
     await page.locator('#fsSave').click();
@@ -41,7 +41,7 @@ try {
     });
     await page.waitForTimeout(50);
     assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': import bypassed paywall');
-    await page.locator(nav(view.width, 'library')).click();
+    await page.locator(nav(view.width, 'library')).first().click();
     assert(await page.locator('#page-library').isVisible(), view.name + ': free library blocked');
 
     console.log('Paywall free-account browser proof: ' + view.name + ' PASS');
@@ -85,7 +85,7 @@ try {
   await page.evaluate(() => {
     window.PromptOSAuth.getIdToken = () => 'test-id-token';
   });
-  await page.locator('.sidebar [data-page="custom"]').click();
+  await page.locator(nav(1440, 'custom')).first().click();
   await page.locator('#cTitle').fill('Paid user prompt');
   await page.locator('#cBody').fill('Only admitted after authenticated billing request');
   await page.locator('#saveCustom').click();
