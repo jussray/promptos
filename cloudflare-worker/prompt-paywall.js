@@ -171,6 +171,9 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
       return reply({ error: 'checkout return URLs not configured' }, 503, headers);
     }
     try {
+      if (await paidSubscription(env, identity.sub)) {
+        return reply({ error: 'already subscribed' }, 409, headers);
+      }
       const customer = await env.PROMPTOS_BILLING_KV.get('customer:' + identity.sub);
       const checkout = await stripeRequest(env, '/checkout/sessions', {
         mode: 'subscription',
