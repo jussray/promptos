@@ -10,7 +10,7 @@ function assert(condition, message) {
 }
 
 async function openCatalog(page, width) {
-  const nav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  const nav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
   await nav.waitFor({ state: 'visible' });
   await nav.click();
   await page.locator('#page-catalog.on').waitFor({ state: 'visible' });
