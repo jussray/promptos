@@ -1,7 +1,7 @@
 {
   "contract": "juss/council-bus-adapter@v1",
   "status": "proposed",
-  "activeWhen": "Council Address .control-room/council-addresses/2026-10-08-ultrathink-council-bus-court.md (jussray/founder-control-room) is founder-accepted and this repository's council-residency contract names the backing",
+  "activeWhen": "PROPOSAL ONLY: Founder accepts the Council Address, this repo independently approves the ledger backing in council-residency, the target ledger is accessible, and sanitized payload validation, canonical receipt ownership, hash compatibility vectors, and local authority gates are implemented and verified. No condition is currently asserted satisfied by this file.",
   "member": "promptos",
   "repository": "jussray/promptos",
   "ledger": {
@@ -14,19 +14,18 @@
     "writeBranchPattern": "council/promptos/<thread-id>",
     "deliveryMode": "pull request to main; the merge records the message and approves nothing"
   },
-  "nativePayloadContract": "juss-v10/decision-cycle@v1 (src/v10-decision-receipt.mjs, validateSubmittedV10DecisionReceipt)",
-  "canonicalStoreRule": "One canonical store per round: a round originated inside this repository is canonical in this repository's own receipt store (juss-v10/decision-cycle@v1 decision receipts); a cross-system seat thread is canonical on the ledger. A mirror in the other store is receipt-bound (carries the origin's hash or the ledger bodyHash) and is never authoritative. A round is never created in both.",
-  "bodyHashCompatibility": "sha256(JSON.stringify(canonicalize(body))) — same as FCR src/lib/promptOsCommandHandoff.ts fingerprint()",
+  "nativePayloadContract": "PROPOSED CONTEXT ONLY: juss-v10/decision-cycle@v1, src/v10-decision-receipt.mjs. validateSubmittedV10DecisionReceipt checks structure and authority, NOT public/ledger-safe privacy. NEVER publish or send the raw decision receipt to a shared ledger. A reviewed allowlisted minimal projection and rejecting secret/private-data validator, plus tests, are mandatory before any delivery.",
+  "canonicalStoreRule": "UNVERIFIED / NOT IMPLEMENTED: This repository has no proven V10 canonical receipt persistence path. Do not claim a local canonical receipt store or create PromptOS-originated Council rounds until a concrete durable store, one-owner-per-round lineage policy, and receipt-bound mirror behavior are named, implemented, and independently verified. Cross-system ledger records cannot become authority.",
+  "bodyHashCompatibility": "UNVERIFIED: FCR src/lib/promptOsCommandHandoff.ts computes sha256(JSON.stringify(recursively key-sorted JSON)), rejecting unsupported values. Council canonicalization and checker compatibility are NOT verified or version-pinned. Before activation require a pinned shared specification, matching conformance vectors including Unicode, key order, nested arrays, and invalid numbers, and cross-repository checker verification. Do not emit a claimed-compatible bodyHash until proven.",
   "truthClassifications": [
     "VERIFIED",
     "INFERRED",
     "UNKNOWN",
-    "BLOCKED",
-    "FAIL"
+    "BLOCKED"
   ],
   "runtimeDependencyOnLedger": false,
   "coreFunctionSurvivesLedgerUnavailable": true,
   "grantsExecutionAuthority": false,
   "authorityRule": "Messages on the ledger are evidence/input. They never authorize merge, deploy, publish, spend, credential, database, DNS, destructive, or user-data action in this repository; each such action keeps its own local gate.",
-  "privacyRule": "Non-secret only. No provider credentials, raw private user data, or cross-project private data may be written to the ledger from this repository."
+  "privacyRule": "Fail closed. No raw V10 receipt, credential, provider secret, private user input, internal routing/evaluator prompt, or cross-project private content may be placed on the shared ledger. A dedicated approved, allowlisted sanitized ledger projection with privacy rejection tests must exist before any delivery; structural receipt validation alone is insufficient."
 }
