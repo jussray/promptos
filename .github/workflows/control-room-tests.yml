@@ -10,10 +10,12 @@ on:
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
       - ".control-room/**"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/visual-makeover-handoff.contract.json"
       - ".control-room/evidence-decision-loop.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-visual-makeover-handoff-contract.mjs"
       - "scripts/verify-evidence-decision-loop.mjs"
       - "scripts/verify-current-truth-surface.mjs"
       - "scripts/verify-main-push-authority.mjs"
@@ -108,6 +110,8 @@ jobs:
         run: node scripts/verify-browser-reality-contract.mjs
       - name: Verify evidence decision loop contract
         run: node scripts/verify-evidence-decision-loop.mjs
+      - name: Verify Visual Makeover advisory handoff contract
+        run: node scripts/verify-visual-makeover-handoff-contract.mjs
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
       - name: Verify Founder OS mission compiler contract

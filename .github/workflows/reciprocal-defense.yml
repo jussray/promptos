@@ -1,0 +1,29 @@
+name: Reciprocal Defense Contract
+on:
+  push:
+    branches:
+      - feat/reciprocal-defense-hallway
+    paths:
+      - security/reciprocal-defense.mjs
+      - security/reciprocal-ingress.mjs
+      - security/full-attack-unit.mjs
+      - test/reciprocal-defense.test.mjs
+      - test/reciprocal-ingress.test.mjs
+      - test/full-attack-unit.test.mjs
+      - .github/workflows/reciprocal-defense.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reciprocal-defense:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify reciprocal defense, ingress, and full-unit invariants
+        run: node --test test/reciprocal-defense.test.mjs test/reciprocal-ingress.test.mjs test/full-attack-unit.test.mjs
+      - name: Verify full-unit observer binding
+        run: grep -q "runFullAttackUnit" security/reciprocal-ingress.mjs
