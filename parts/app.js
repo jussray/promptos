@@ -482,7 +482,24 @@ function boot(){
   });
 
   document.querySelectorAll('[data-page]').forEach(function(btn){
-    btn.addEventListener('click', function(){ switchPage(btn.dataset.page); });
+    btn.addEventListener('click', function(){
+      // Discover tile: already on Library, so bring the prompt grid into view and focus the search box.
+      if (btn.classList.contains('tile') && btn.dataset.page === 'library') {
+        switchPage('library');
+        var grid = qs('#grid'); if (grid) grid.scrollIntoView({ block: 'start' });
+        var search = qs('#search'); if (search) search.focus({ preventScroll: true });
+        return;
+      }
+      // Organize tile: its job is starring and saving, and stars live in Library, so open the Starred view there.
+      if (btn.classList.contains('tile') && btn.dataset.page === 'custom') {
+        var hasStars = Object.keys(STATE.stars).some(function(k){ return STATE.stars[k]; });
+        if (hasStars) { STATE.filter = '⭐ starred'; STATE.search = ''; var s2 = qs('#search'); if (s2) s2.value = ''; renderAll(); }
+        else { toast('Star a prompt in Library to organize it here'); }
+        switchPage('library');
+        return;
+      }
+      switchPage(btn.dataset.page);
+    });
   });
 
   var searchEl = qs('#search');
@@ -510,7 +527,6 @@ function boot(){
     on('#askSend', toFreestyle);
     on('#askLib', toGrid);
     on('#viewAll', toGrid);
-    on('#tileDiscover', toGrid);
     on('#askPlus', function(){ switchPage('custom'); });
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
