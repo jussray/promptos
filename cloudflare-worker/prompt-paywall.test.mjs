@@ -87,6 +87,9 @@ test('free user cannot admit personal prompt; paid price+status allows it', asyn
 
 test('checkout requires a verified identity and uses configured price, not browser price', async () => {
   const token = await jwt();
+  map.set('customer:user-123', 'cus_test001');
+  assert.equal((await run('/billing/checkout', 'POST', token)).status, 409, 'active subscribers must not purchase twice');
+  map.clear();
   assert.equal((await run('/billing/checkout', 'POST')).status, 401);
   const response = await run('/billing/checkout', 'POST', token);
   assert.equal(response.status, 200);
