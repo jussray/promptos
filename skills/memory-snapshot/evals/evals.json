@@ -1,0 +1,48 @@
+{
+  "skill_name": "memory-snapshot",
+  "evals": [
+    {
+      "id": 0,
+      "name": "full-migration-rich-history",
+      "prompt": "I'm moving to a different AI assistant. Our past conversations are exported in transcript-rich.md. Compile a portable memory snapshot of what you reliably know about me as a single Markdown block with sections (Identity, Profession & work, Communication preferences, Recurring people, Health & dietary, Interests & hobbies, Ongoing projects, Working style & values, Tools & environment, Anything else durable). Third person, one sentence per bullet, mark uncertain things (inferred), skip one-offs and sensitive info unless I asked you to remember it, 2000 word cap.",
+      "expected_output": "Snapshot with Portland/Pacific, data analyst, stack, bullets/no emoji/blunt, Sam + Ivy, lactose intolerant + vegetarian, scheduler + grant projects; excludes ADHD, loan/bonus figures, cake errand; Spanish marked inferred; pronouns not guessed.",
+      "files": [
+        "evals/files/transcript-rich.md"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "sparse-history-no-invention",
+      "prompt": "export everything you know about me so i can paste it into chatgpt memory. my chat history is in transcript-sparse.md",
+      "expected_output": "Very short snapshot (name Marco, dog Biscuit) with no invented facts, empty sections omitted, and gaps flagged for the user.",
+      "files": [
+        "evals/files/transcript-sparse.md"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "custom-sections-and-cap",
+      "prompt": "Using transcript-rich.md, write me a tiny about-me I can paste into Gemini's saved info. Only three sections: Identity, Work, Preferences. Max 120 words total.",
+      "expected_output": "Only the three requested headers, under 120 words, third person, no sensitive details.",
+      "files": [
+        "evals/files/transcript-rich.md"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "conflicts-and-other-ai-claims",
+      "prompt": "I'm switching from ChatGPT to you. Everything is in transcript-conflict.md: my old ChatGPT memory export plus our chat history. Build me a clean memory snapshot I can load into your memory, same section format as a standard memory snapshot.",
+      "expected_output": "Denver/Mountain current (Chicago not current), Lumen Bank senior product designer current, pescatarian not vegan, one son Arjun (not two kids), short answers (not long-form), Japanese dropped, T1 diabetes included (asked to remember), therapy/burnout excluded.",
+      "files": [
+        "evals/files/transcript-conflict.md"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "no-history-available",
+      "prompt": "im switching to gemini. give me a memory snapshot of everything you know about me so i can paste it in",
+      "expected_output": "States it has no visible history/sources, invents nothing, offers a fill-in path instead of a fabricated profile.",
+      "files": []
+    }
+  ]
+}
