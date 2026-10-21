@@ -408,7 +408,19 @@
     document.head.appendChild(s);
   }
 
-  window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
+  window.PromptOSAuth = {
+    // Returns false when Google sign-in cannot run here (localhost never loads the GIS SDK).
+    signIn: function () {
+      var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      var ready = !!(window.google && google.accounts && google.accounts.id);
+      if (local && !ready) return false;
+      triggerGoogleSignIn();
+      return true;
+    },
+    signOut: signOut,
+    getUser: function () { return SESSION.user; },
+    isGuest: function () { return SESSION.user === null; }
+  };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 

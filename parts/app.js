@@ -511,6 +511,104 @@ function switchPage(name){
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
   var pg = qs('#page-'+name); if (pg) pg.classList.add('on');
   document.querySelectorAll('.nav-item[data-page]').forEach(function(b){ b.classList.toggle('active', b.dataset.page === name); });
+  var main = qs('.main'); if (main) main.setAttribute('data-view', name === 'catalog' ? 'explore' : 'home');
+  if (name === 'catalog') buildExploreRail();
+  if (name === 'account') renderAccount();
+}
+
+/* Explore rail: mirrors the catalog family select (source of truth stays in catalog-ui). */
+function buildExploreRail(){
+  var page = qs('#page-catalog'), family = qs('#catalogFamily'), reset = qs('#catalogReset');
+  if (!page || !family || page.querySelector('#exploreRail')) return;
+  var rail = document.createElement('nav');
+  rail.id = 'exploreRail';
+  rail.setAttribute('aria-label', 'Catalog families');
+  var list = document.createElement('ul');
+  list.className = 'explore-rail-list';
+  Array.prototype.forEach.call(family.options, function(opt){
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'explore-rail-btn';
+    btn.dataset.value = opt.value;
+    btn.textContent = opt.textContent;
+    btn.addEventListener('click', function(){
+      family.value = opt.value;
+      family.dispatchEvent(new Event('change'));
+      syncRail();
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  rail.appendChild(list);
+  page.insertBefore(rail, page.firstChild);
+  function syncRail(){
+    rail.querySelectorAll('.explore-rail-btn').forEach(function(b){
+      var on = b.dataset.value === family.value;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  family.addEventListener('change', syncRail);
+  if (reset) reset.addEventListener('click', syncRail);
+  syncRail();
+}
+
+/* Account page: signed-in state comes from PromptOSAuth; no fake email/password flow. */
+function renderAccount(){
+  var auth = window.PromptOSAuth;
+  var user = auth && auth.getUser ? auth.getUser() : null;
+  var out = qs('#acctSignedOut'), inn = qs('#acctSignedIn'), who = qs('#acctName');
+  if (!out || !inn) return;
+  out.hidden = !!user;
+  inn.hidden = !user;
+  if (user && who) who.textContent = user.name || 'your Google account';
+}
+
+function setAcctMode(mode){
+  var create = mode !== 'signin';
+  var tabC = qs('#acctTabCreate'), tabS = qs('#acctTabSignin');
+  if (!tabC || !tabS) return;
+  tabC.setAttribute('aria-selected', create ? 'true' : 'false');
+  tabS.setAttribute('aria-selected', create ? 'false' : 'true');
+  tabC.tabIndex = create ? 0 : -1;
+  tabS.tabIndex = create ? -1 : 0;
+  qs('#acctPanel').setAttribute('aria-labelledby', create ? 'acctTabCreate' : 'acctTabSignin');
+  qs('#acctHeading').textContent = create ? 'Get started' : 'Welcome back';
+  qs('#acctLede').textContent = create
+    ? 'Continue with Google to identify this browser session. Browsing works without an account.'
+    : 'Sign in with Google to identify this browser session. Email and password sign-in is not available yet.';
+}
+
+function wireAccount(){
+  var tabC = qs('#acctTabCreate'), tabS = qs('#acctTabSignin');
+  if (!tabC || !tabS) return;
+  tabC.addEventListener('click', function(){ setAcctMode('create'); });
+  tabS.addEventListener('click', function(){ setAcctMode('signin'); });
+  [tabC, tabS].forEach(function(t){
+    t.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      var toSignin = t === tabC;
+      setAcctMode(toSignin ? 'signin' : 'create');
+      (toSignin ? tabS : tabC).focus();
+    });
+  });
+  qs('#acctSignIn').addEventListener('click', function(){
+    var auth = window.PromptOSAuth;
+    var ok = !!(auth && auth.signIn && auth.signIn());
+    qs('#acctStatus').textContent = ok
+      ? 'Google sign-in requested.'
+      : 'Google sign-in is not available in this local environment.';
+  });
+  qs('#acctSignOut').addEventListener('click', function(){
+    if (window.PromptOSAuth && window.PromptOSAuth.signOut) window.PromptOSAuth.signOut();
+  });
+  ['acctGuest', 'acctGuest2'].forEach(function(id){
+    qs('#' + id).addEventListener('click', function(){ switchPage('catalog'); });
+  });
+  window.addEventListener('promptos:authed', renderAccount);
+  window.addEventListener('promptos:signedout', renderAccount);
 }
 
 /* ── 14. BOOT ─────────────────────────────────────────────────────── */
@@ -545,6 +643,8 @@ function boot(){
       switchPage(btn.dataset.page);
     });
   });
+
+  wireAccount();
 
   var searchEl = qs('#search');
   if (searchEl) searchEl.addEventListener('input', function(){
