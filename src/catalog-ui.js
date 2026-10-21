@@ -148,7 +148,7 @@ function createPage() {
         <dl>
           <div><dt>Capability</dt><dd id="commandRouteCapability">Not resolved</dd></div>
           <div><dt>Specialist</dt><dd id="commandRouteSpecialist">Not resolved</dd></div>
-          <div><dt>Authority</dt><dd id="commandRouteAuthority">Founder Control Room</dd></div>
+          <div><dt>Authority</dt><dd id="commandRouteAuthority">Founder Control Room · not connected here</dd></div>
           <div><dt>Arguments</dt><dd id="commandRouteArgs">None</dd></div>
         </dl>
         <button class="mini-btn" id="commandBrowse" type="button" disabled>Browse related recipes</button>
@@ -289,7 +289,7 @@ function initializeCommandPalette(page) {
         : 'Unknown command. Choose one of the public capabilities above.';
       routeCapability.textContent = 'Not resolved';
       routeSpecialist.textContent = 'Not resolved';
-      routeAuthority.textContent = 'Founder Control Room';
+      routeAuthority.textContent = 'Founder Control Room · not connected here';
       routeArgs.textContent = 'None';
       browse.disabled = true;
       return;
@@ -300,7 +300,7 @@ function initializeCommandPalette(page) {
     routeState.textContent = `${result.command.category} intent resolved. Execution has not been claimed.`;
     routeCapability.textContent = result.capabilityId;
     routeSpecialist.textContent = result.route.specialistProduct;
-    routeAuthority.textContent = result.route.authorityPlane;
+    routeAuthority.textContent = 'Founder Control Room · not connected here';
     routeArgs.textContent = result.arguments || 'None';
     browse.disabled = false;
     window.dispatchEvent(new CustomEvent('promptos:command', { detail: result }));
