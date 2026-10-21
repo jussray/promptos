@@ -7,7 +7,7 @@
  *   • Signing in upgrades the session in-place.
  *
  * Persistence authority (app state — stars, custom prompts, theme):
- *   • Current browser app state is session-only.
+ *   • Current browser app state is session-only; decoded Google profile data is not server-verified.
  *   • Standalone PromptOS has no connected account-level persistence service.
  *   • Founder Control Room is a separate capability, not this app's state store.
  *   • Browser GitHub/Gist credentials are not accepted or implemented.
@@ -280,7 +280,11 @@
       signInBtn.style.background = 'var(--primary-dim)';
       signInBtn.style.color = 'var(--primary)';
     });
-    signInBtn.addEventListener('click', function () { triggerGoogleSignIn(); });
+    signInBtn.addEventListener('click', function () {
+      var accountNav = qs('.sidebar .nav-item[data-page="account"]');
+      if (accountNav) accountNav.click();
+      else triggerGoogleSignIn();
+    });
 
     chip.appendChild(icon);
     chip.appendChild(label);
@@ -378,6 +382,27 @@
     window.dispatchEvent(new CustomEvent('promptos:signedout'));
   }
 
+  // The official Google button remains usable when One Tap is suppressed.
+  function renderGoogleButton() {
+    var mount = qs('#acctGsiButton');
+    var fallback = qs('#acctSignIn');
+    if (!mount || mount.dataset.gsiRendered === 'true') return !!mount && mount.dataset.gsiRendered === 'true';
+    if (!window.google || !google.accounts || !google.accounts.id || typeof google.accounts.id.renderButton !== 'function') return false;
+    try {
+      google.accounts.id.renderButton(mount, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'pill', width: 280
+      });
+      if (!mount.firstElementChild) return false;
+      mount.dataset.gsiRendered = 'true';
+      if (fallback) fallback.style.display = 'none';
+      return true;
+    } catch (e) {
+      console.warn('[PromptOS auth] Google button unavailable', e);
+      return false;
+    }
+  }
+
   function initGIS() {
     if (!window.google || !google.accounts || !google.accounts.id) {
       setTimeout(initGIS, 150);
@@ -389,6 +414,7 @@
       auto_select: false,
       cancel_on_tap_outside: true
     });
+    if (qs('#page-account.on')) renderGoogleButton();
   }
 
   function loadGIS(promptAfter) {
@@ -415,10 +441,13 @@
     signIn: function () {
       var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
       var ready = !!(window.google && google.accounts && google.accounts.id);
-      if (local && !ready) return false;
+      if (!ready) return false;
       triggerGoogleSignIn();
       return true;
     },
+    renderGoogleButton: renderGoogleButton,
+    // Browser display identity only; not a verified backend account session.
+    serverAuthenticated: false,
     signOut: signOut,
     getUser: function () { return SESSION.user; },
     isGuest: function () { return SESSION.user === null; }

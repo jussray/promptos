@@ -563,6 +563,7 @@ function renderAccount(){
   out.hidden = !!user;
   inn.hidden = !user;
   if (user && who) who.textContent = user.name || 'your Google account';
+  if (!user && auth && auth.renderGoogleButton) auth.renderGoogleButton();
 }
 
 function setAcctMode(mode){
@@ -597,9 +598,11 @@ function wireAccount(){
   qs('#acctSignIn').addEventListener('click', function(){
     var auth = window.PromptOSAuth;
     var ok = !!(auth && auth.signIn && auth.signIn());
+    var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     qs('#acctStatus').textContent = ok
       ? 'Google sign-in requested.'
-      : 'Google sign-in is not available in this local environment.';
+      : local ? 'Google sign-in is not available in this local environment.'
+              : 'Google sign-in is not ready in this browser. Check the connection and authorized site origin.';
   });
   qs('#acctSignOut').addEventListener('click', function(){
     if (window.PromptOSAuth && window.PromptOSAuth.signOut) window.PromptOSAuth.signOut();

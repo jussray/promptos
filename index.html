@@ -531,8 +531,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
     <!-- Fine print -->
     <p style="font-size:11px;color:var(--text-faint);text-align:center;max-width:36ch;line-height:1.6;">
-      Signing in with Google lets PromptOS identify you across devices.<br>
-      No data is sent to any server.
+      Google may share profile details for this browser session. PromptOS account storage and cross-device sync are not connected.
     </p>
 
   </div>
@@ -820,13 +819,14 @@ td .best{font-size:11.5px;color:var(--text-muted)}
           <div id="acctPanel" role="tabpanel" aria-labelledby="acctTabCreate">
             <div id="acctSignedOut">
               <button type="button" class="ac-btn ac-google" id="acctSignIn">Continue with Google</button>
+              <div id="acctGsiButton" style="display:flex;justify-content:center;min-height:0;margin:8px 0;" aria-label="Official Google sign-in button"></div>
               <button type="button" class="ac-btn" disabled aria-disabled="true">Continue with Apple (not available yet)</button>
               <p class="ac-note">Email and password sign-in is not available yet.</p>
               <p class="ac-status" id="acctStatus" role="status" aria-live="polite"></p>
               <button type="button" class="ac-link" id="acctGuest">Browse as guest</button>
             </div>
             <div id="acctSignedIn" hidden>
-              <p class="ac-note">Signed in as <strong id="acctName"></strong>.</p>
+              <p class="ac-note">Google profile shown as <strong id="acctName"></strong> for this session only. Server-verified account access and cloud sync are not connected.</p>
               <button type="button" class="ac-btn" id="acctSignOut">Sign out</button>
               <button type="button" class="ac-link" id="acctGuest2">Browse the catalog</button>
             </div>

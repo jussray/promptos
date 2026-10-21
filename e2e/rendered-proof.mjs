@@ -38,6 +38,9 @@ async function proveViewport(browser, {name, width, height}) {
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   await page.locator('#appShell').waitFor({state: 'visible'});
+  assert(await page.locator('#acctGsiButton').count() === 1, `${name}: account page lacks official GIS button mount`);
+  const accountText = (await page.locator('#acctSignedIn').textContent()) || '';
+  assert(accountText.includes('Server-verified account access and cloud sync are not connected'), `${name}: account falsely implies backend authentication`);
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
