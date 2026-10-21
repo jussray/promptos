@@ -95,7 +95,28 @@ function agoText(ts){
   if (m < 60) return m + ' min ago';
   return Math.floor(m / 60) + ' h ago';
 }
+function renderEstablished(){
+  var list = qs('#homeEstablished'); if (!list) return;
+  var first = allPrompts().slice(0, 10);
+  list.textContent = '';
+  first.forEach(function(p, i){
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'est-row';
+    var n = document.createElement('span'); n.className = 'est-n'; n.textContent = String(i + 1);
+    var ic = document.createElement('span'); ic.className = 'est-ic'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = p.emoji || '\u2726';
+    var tx = document.createElement('span'); tx.className = 'est-text';
+    var t = document.createElement('span'); t.className = 'est-title'; t.textContent = p.title;
+    var s = document.createElement('span'); s.className = 'est-sub'; s.textContent = p.sub || '';
+    tx.appendChild(t); tx.appendChild(s);
+    var ar = document.createElement('span'); ar.className = 'est-arrow'; ar.setAttribute('aria-hidden', 'true'); ar.textContent = '\u2192';
+    b.appendChild(n); b.appendChild(ic); b.appendChild(tx); b.appendChild(ar);
+    b.addEventListener('click', function(){ openModal(p.id); });
+    li.appendChild(b); list.appendChild(li);
+  });
+}
 function renderHome(){
+  renderEstablished();
   var list = qs('#homeRecent'); if (!list) return;
   var all = allPrompts();
   list.textContent = '';
@@ -123,6 +144,7 @@ function renderHome(){
   var set = function(sel, v){ var el = qs(sel); if (el) el.textContent = v; };
   set('#hsPrompts', all.length); set('#hsStarred', starred);
   set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
+  set('#hsLibCount', all.length); set('#hsStatus', 'Online');
 }
 
 function allPrompts(){
@@ -552,6 +574,15 @@ function boot(){
     on('#askPlus', function(){ switchPage('custom'); });
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#estViewAll', toGrid);
+    on('#stripLib', toGrid);
+    on('#stripFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#tileAutomate', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#acctGoogle', function(){
+      var g = qs('#userChip [aria-label="Sign in with Google"]');
+      if (g) { g.click(); return; }
+      var self = qs('#acctGoogle'); if (self) self.textContent = 'Already signed in';
+    });
   }
 
   qs('#mClose').addEventListener('click', closeModal);
