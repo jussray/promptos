@@ -1,7 +1,7 @@
 /* PromptOS — Full App Runtime
    State: stars, custom prompts, theme, last tab
    Persistence: session-only browser state with explicit Export / Import recovery
-   Canonical runtime persistence authority: Founder Control Room (not connected here)
+   Runtime persistence: browser session only; FCR capability is separate and not connected
 */
 (function(){
 'use strict';
