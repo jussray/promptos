@@ -42,7 +42,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.evaluate(async () => window.PromptOSPromptMemory.clearPromptMemory());
   await page.waitForFunction(async () => (await window.PromptOSPromptMemory.listPrompts()).length === 0);
 
-  const catalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  const catalogNav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
   await catalogNav.waitFor({state: 'visible'});
   await catalogNav.click();
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
@@ -76,7 +76,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(await memoryCount(page, 'revision') === 1, `${name}: generated prompt did not enter revision memory`);
   await page.keyboard.press('Escape');
 
-  const memoryNav = width <= 900 ? page.locator('.mobile-nav [data-page="prompt-memory"]') : page.locator('.sidebar [data-page="prompt-memory"]');
+  const memoryNav = page.locator('.mobile-nav [data-page="prompt-memory"]:visible, .sidebar [data-page="prompt-memory"]:visible').first();
   await memoryNav.waitFor({state: 'visible'});
   await memoryNav.click();
   await page.locator('#page-prompt-memory.on').waitFor({state: 'visible'});
@@ -122,7 +122,7 @@ async function proveViewport(browser, {name, width, height}) {
 
   await mkdir(OUTPUT_DIR, {recursive: true});
   const screenshot = `${OUTPUT_DIR}/${name}.png`;
-  const reloadMemoryNav = width <= 900 ? page.locator('.mobile-nav [data-page="prompt-memory"]') : page.locator('.sidebar [data-page="prompt-memory"]');
+  const reloadMemoryNav = page.locator('.mobile-nav [data-page="prompt-memory"]:visible, .sidebar [data-page="prompt-memory"]:visible').first();
   await reloadMemoryNav.click();
   await page.locator('#page-prompt-memory.on').waitFor({state: 'visible'});
   await page.screenshot({path: screenshot, fullPage: true});

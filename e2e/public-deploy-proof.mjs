@@ -74,7 +74,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(/copied/i.test(toastText), `${name}: primary CTA (copy prompt) did not confirm ("${toastText.trim()}")`);
   await page.locator('#mClose, #mClose2').first().click();
 
-  const catalogNav = width <= 900 ? page.locator('.mobile-nav [data-page="catalog"]') : page.locator('.sidebar [data-page="catalog"]');
+  const catalogNav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
   await catalogNav.waitFor({state: 'visible'});
   await catalogNav.click();
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
