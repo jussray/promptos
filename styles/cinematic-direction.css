@@ -1,0 +1,17 @@
+/* PromptOS: approved emerald/cosmic direction without changing prompts,
+   auth callbacks, library state, or workflow execution. */
+html[data-theme="dark"]{--bg:#050c1c;--surface:#07162b;--surface-2:#0e213b;--surface-3:#152c49;--border:rgba(66,226,204,.24);--border-2:rgba(97,246,206,.36);--primary:#43ecc3;--primary-dim:rgba(40,230,182,.12);--primary-glow:rgba(35,244,184,.38);--text:#f4f8ff;--text-muted:#bdd5e6;--text-faint:#90aabc}
+html[data-theme="dark"] body{background:radial-gradient(ellipse at 78% -12%,rgba(49,69,215,.32),transparent 45%),radial-gradient(ellipse at 18% 20%,rgba(7,167,211,.14),transparent 42%),#050c1c}
+html[data-theme="dark"] .topbar{background:rgba(4,10,24,.81);border-bottom:1px solid rgba(46,239,196,.34);backdrop-filter:blur(20px);box-shadow:0 7px 32px rgba(0,0,0,.19)}
+html[data-theme="dark"] .sidebar{background:rgba(6,13,31,.75);border-right-color:rgba(50,218,204,.22);backdrop-filter:blur(16px)}
+html[data-theme="dark"] .nav-item.active{background:linear-gradient(105deg,rgba(28,234,186,.16),rgba(22,80,191,.12));color:#96ffe6;box-shadow:inset 3px 0 0 #35eac6}
+html[data-theme="dark"] .hero{border:1px solid rgba(68,213,251,.22);border-radius:20px;box-shadow:0 0 32px rgba(34,148,224,.17),inset 0 0 90px rgba(2,13,37,.25);min-height:max(300px,calc(var(--u)*245))}
+html[data-theme="dark"] .hero::after{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(3,10,29,.66),transparent 72%),linear-gradient(0deg,rgba(3,10,26,.42),transparent 60%)}
+html[data-theme="dark"] .hero h1{filter:drop-shadow(0 0 16px rgba(51,255,189,.18))}
+.hero-cube{filter:drop-shadow(0 0 27px rgba(53,255,190,.6))}
+html[data-theme="dark"] .askbar,html[data-theme="dark"] .hpanel,html[data-theme="dark"] .tile,html[data-theme="dark"] .panel{background:linear-gradient(135deg,rgba(9,24,48,.68),rgba(2,11,29,.74));border:1px solid rgba(55,216,208,.36);backdrop-filter:blur(24px);box-shadow:inset 0 1px rgba(190,255,237,.07),0 13px 40px rgba(0,0,0,.18)}
+html[data-theme="dark"] .ask-send,html[data-theme="dark"] .mini-btn.solid{box-shadow:0 0 24px rgba(49,236,178,.28)}
+html[data-theme="dark"] #onboarding{background:radial-gradient(ellipse at 55% 15%,rgba(24,213,166,.19),transparent 48%),radial-gradient(ellipse at 20% 70%,rgba(43,108,229,.24),transparent 44%),#050c1c !important}
+html[data-theme="dark"] #onboarding>div{padding:clamp(14px,3vw,25px);border:1px solid rgba(67,237,204,.32);border-radius:24px;background:rgba(8,24,46,.6);box-shadow:0 20px 75px rgba(0,0,0,.35);backdrop-filter:blur(20px)}
+@media(max-width:650px){html[data-theme="dark"] .hero{border-radius:14px;min-height:240px}html[data-theme="dark"] .askbar{width:100%;max-width:none}.hero-cube{opacity:.75}.topbar{gap:6px}}
+@media(prefers-reduced-transparency:reduce){html[data-theme="dark"] #onboarding>div,html[data-theme="dark"] .askbar,html[data-theme="dark"] .hpanel,html[data-theme="dark"] .tile{background:#0a1a35;backdrop-filter:none}}
