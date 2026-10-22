@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "artifactType": "promptos-workflow",
+  "id": "actual-flow-v4",
+  "version": "4.0.0-draft.2",
+  "title": "ACTUAL-FLOW V4 — Repository-bound Coordinated Engineering",
+  "status": "draft",
+  "registrationAuthority": "founder-review-required",
+  "intent": "Ship scoped, high-leverage changes using explicit approval boundaries and current source-backed proof.",
+  "reasoningSequence": [
+    "5W1H + Socratic falsification",
+    "GOALFIX root-bottleneck classification + MoSCoW + 80/20",
+    "Red Team 1: challenge premise, source and scope",
+    "LindyMode: preserve reliable, reversible existing carriers",
+    "L99: bind provenance, authority, recovery and temporal drift",
+    "Red Team 2: attack chosen implementation",
+    "FutureMe/You + first principles + OODA + ULTRATHINK/GODMODE",
+    "Implement only what current scoped approval allows",
+    "Independent verification and red-team challenge",
+    "Receipt and exact next gate"
+  ],
+  "codexRouting": {
+    "devWorkflows": "Plan features, investigate bugs, orchestrate bounded independent work and review release readiness",
+    "coordinator": "Only for explicit goal-scoped parallel durable work in one shared repository checkout",
+    "engineeringGuardrails": "Implement narrowly, then independently verify against acceptance criteria",
+    "processJobs": "Finite, potentially long local workloads with a concrete command and working directory",
+    "testFlightRelease": "macOS/Xcode iOS beta build and upload after distinct user authorization",
+    "materialThemes": "Codex editor appearance only; no product UI mutations"
+  },
+  "provenance": {
+    "contract": "juss/actual-flow-v4-proof@v1",
+    "adapter": "workflows/actual-flow-v4/proof-gate.mjs",
+    "inherits": ["juss/main-continuity@v1", "juss/assistant-continuity@v1"],
+    "requiresExactRepositoryHead": true,
+    "invalidatesOnStateMovement": true,
+    "nonSecret": true,
+    "notBrowserCookie": true,
+    "notDeviceFingerprint": true,
+    "neverAuthorizesExecution": true
+  },
+  "truthStates": ["VERIFIED", "INFERRED", "UNKNOWN", "BLOCKED"],
+  "report": ["REALITY", "FIX", "PROOF", "RISK", "ROLLBACK", "NEXT GATE"],
+  "authorityBoundary": "This workflow and its fingerprints and proof cookies are evidence only. No private-resource access, deletion, data sharing, auth/RLS changes, merges, pushes, deployments, publication, spending, TestFlight release, or other consequential execution without appropriate task-specific authority. Founder Control Room and each repository retain their stricter gates.",
+  "stopCondition": "Stop when the authorized outcome is verified or an explicit approval/evidence blocker is reached."
+}
