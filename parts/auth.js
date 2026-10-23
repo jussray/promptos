@@ -252,6 +252,7 @@
   }
 
   function renderGuestChip() {
+    document.body.classList.remove('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -286,6 +287,7 @@
   }
 
   function renderUserChip(user) {
+    document.body.classList.add('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -411,6 +413,12 @@
   window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
+
+  // Home sign-up card (guest only): delegates to the same Google sign-in the topbar chip uses.
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-google-signin]') : null;
+    if (t) triggerGoogleSignIn();
+  });
 
   function boot() {
     initVisitorIdentification();
