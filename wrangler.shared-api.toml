@@ -1,0 +1,12 @@
+# PromptOS shared-service API Worker (B). Source: cloudflare-worker/analytics.js.
+# NO routes are declared here on purpose. Attaching promptos.foundercontrolroom.org
+# is a founder-gated production routing change. See docs/SHARED_OS_ROUTING.md.
+name = "promptos-shared-api"
+main = "cloudflare-worker/analytics.js"
+compatibility_date = "2025-01-01"
+workers_dev = false
+
+[[kv_namespaces]]
+binding = "ANALYTICS_KV"
+# Founder must create the namespace and replace this placeholder. Deploy fails until then.
+id = "REPLACE_WITH_FOUNDER_KV_NAMESPACE_ID"

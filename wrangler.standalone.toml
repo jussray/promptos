@@ -1,0 +1,10 @@
+# PromptOS standalone application (A). Assets-only Worker serving the staged public app.
+# Build the directory first: EXPECTED_HEAD_SHA=<exact 40-char sha> node scripts/stage-public-site.mjs
+# NO routes are declared here on purpose. Attaching promptos.jussco.company is a
+# founder-gated production routing change. See docs/SHARED_OS_ROUTING.md.
+name = "promptos-standalone"
+compatibility_date = "2025-01-01"
+workers_dev = false
+
+[assets]
+directory = "_site"

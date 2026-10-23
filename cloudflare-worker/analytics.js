@@ -21,6 +21,7 @@ const ALLOWED_EVENTS = [
 ];
 const FULL_SHA = /^[0-9a-f]{40}$/i;
 const RUNTIME_PROOF_MARKER = 'PROMPTOS_RUNTIME_PROOF_OK';
+const RUNTIME_IDENTITY_SCHEMA = 'promptos/shared-runtime-identity@v1';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin' : 'https://jussray.github.io',
@@ -106,8 +107,10 @@ export default {
       if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'provider lane not configured' }, 503);
       if (!providerAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
       return json({
+        schema: RUNTIME_IDENTITY_SCHEMA,
         service: 'promptos',
         release_sha: releaseSha(env),
+        observed_at: new Date().toISOString(),
         providers: publicProviderStates(env),
         authority: 'none',
       });
