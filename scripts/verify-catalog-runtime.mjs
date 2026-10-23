@@ -12,6 +12,7 @@ import {
   resolvePublicCommand,
   researchExpansionGroups,
   researchExpansionPrompts,
+  slashCommandPackPrompts,
   workflowPrompts,
 } from '../src/catalog-runtime/index.js';
 
@@ -51,7 +52,7 @@ const unknownCommand = resolvePublicCommand('/doesnotexist');
 assert.equal(unknownCommand.ok, false, 'unknown public command must fail closed');
 
 const built = buildCatalogRecipes();
-const allCurated = [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts];
+const allCurated = [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts, ...slashCommandPackPrompts];
 assert.equal(built.recipes.length, 5000, 'PromptOS catalog must contain exactly 5,000 selected recipes');
 assert.ok(built.candidateCount > 5000, 'catalog must select from a larger valid candidate pool');
 assert.equal(built.rejected.length, 0, 'canonical catalog candidates must not be rejected');
@@ -63,16 +64,26 @@ assert.equal(deepReasoningPrompts.length, 24, 'PromptOS must expose exactly 24 d
 assert.equal(adversarialChallengePrompts.length, 24, 'PromptOS must expose exactly 24 adversarial challenge triggers');
 assert.equal(researchExpansionGroups.length, 15, 'PromptOS research expansion must contain exactly 15 research groups');
 assert.equal(researchExpansionPrompts.length, 150, 'PromptOS research expansion must contain exactly 150 curated prompts');
-assert.equal(allCurated.length, 398, 'PromptOS must expose exactly 398 curated prompts after research expansion');
-assert.equal(built.curatedCount, 398, 'all curated prompts must be pinned into the selected catalog');
+assert.equal(slashCommandPackPrompts.length, 110, 'PromptOS must expose exactly 110 founder slash-pack prompts');
+assert.equal(allCurated.length, 508, 'PromptOS must expose exactly 508 curated prompts after research expansion and founder slash pack');
+assert.equal(built.curatedCount, 508, 'all curated prompts must be pinned into the selected catalog');
 assert.equal(built.curatedBuilderCount, 200, 'builder curated count drifted');
 assert.equal(built.curatedWorkflowCount, 48, 'workflow curated count drifted');
 assert.equal(built.curatedResearchExpansionCount, 150, 'research expansion curated count drifted');
-assert.equal(new Set(allCurated.map((recipe) => recipe.id)).size, 398, 'curated prompt ids must be globally unique');
-assert.equal(new Set(allCurated.map((recipe) => normalized(recipe.title))).size, 398, 'curated prompt titles must be globally unique');
+assert.equal(built.curatedSlash110Count, 110, 'slash-110 curated count drifted');
+assert.equal(new Set(allCurated.map((recipe) => recipe.id)).size, 508, 'curated prompt ids must be globally unique');
+assert.equal(new Set(allCurated.map((recipe) => normalized(recipe.title))).size, 508, 'curated prompt titles must be globally unique');
 assert.equal(new Set(builderPrompts.map((recipe) => normalized(recipe.instructions))).size, 200, 'builder prompt instructions must be semantically distinct at the normalized text level');
 assert.equal(new Set(workflowPrompts.map((recipe) => normalized(recipe.instructions))).size, 48, 'workflow prompt instructions must be semantically distinct at the normalized text level');
 assert.equal(new Set(researchExpansionPrompts.map((recipe) => normalized(recipe.instructions))).size, 150, 'research expansion instructions must be semantically distinct at the normalized text level');
+assert.equal(new Set(slashCommandPackPrompts.map((recipe) => recipe.id)).size, 110, 'slash-110 prompt ids must be unique');
+assert.equal(new Set(slashCommandPackPrompts.map((recipe) => normalized(recipe.instructions))).size, 110, 'slash-110 prompt instructions must be semantically distinct at the normalized text level');
+for (const recipe of slashCommandPackPrompts) {
+  assert.equal(recipe.familyId, 'founder.slash110', `slash-110 recipe in wrong family: ${recipe.id}`);
+  assert.equal(recipe.pack, 'founder-110-pack', `slash-110 recipe in wrong pack: ${recipe.id}`);
+  assert.equal(recipe.status, 'curated', `slash-110 recipe status drift: ${recipe.id}`);
+  assert.ok(recipe.instructions.length >= 300, `slash-110 recipe is too thin: ${recipe.id}`);
+}
 
 for (const group of researchExpansionGroups) {
   assert.equal(group.promptCount, 10, `research group must contain exactly ten prompts: ${group.id}`);
@@ -186,6 +197,7 @@ console.log(JSON.stringify({
   curatedTotal:built.curatedCount,
   curatedBuilders:builderPrompts.length,
   curatedResearchExpansion:researchExpansionPrompts.length,
+  curatedSlash110:slashCommandPackPrompts.length,
   researchExpansionGroups:researchExpansionGroups.length,
   implicitDeepReasoningTriggers:deepReasoningPrompts.length,
   implicitAdversarialTriggers:adversarialChallengePrompts.length,

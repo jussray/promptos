@@ -2,6 +2,7 @@ import { canonicalFamilies } from './families.js';
 import { builderPrompts } from './builderPrompts.js';
 import { workflowPrompts } from './workflowPrompts.js';
 import { researchExpansionPrompts } from './researchExpansionPrompts.js';
+import { slashCommandPackPrompts } from './slashCommandPack.js';
 import { validateRecipeSpec } from './compatibility.js';
 
 export const CATALOG_TARGET = 5000;
@@ -70,7 +71,7 @@ export function recipeFromSpec(spec) {
 
 function validatedCuratedPrompts(rejected) {
   const valid = [];
-  for (const recipe of [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts]) {
+  for (const recipe of [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts, ...slashCommandPackPrompts]) {
     const check = validateRecipeSpec(recipe);
     if (!check.valid) {
       rejected.push({ spec: recipe, reason: check.errors.join('; ') });
@@ -122,5 +123,6 @@ export function buildCatalogRecipes({ target = CATALOG_TARGET } = {}) {
     curatedBuilderCount: builderPrompts.length,
     curatedWorkflowCount: workflowPrompts.length,
     curatedResearchExpansionCount: researchExpansionPrompts.length,
+    curatedSlash110Count: slashCommandPackPrompts.length,
   };
 }
