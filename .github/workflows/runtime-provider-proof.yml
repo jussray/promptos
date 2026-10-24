@@ -43,6 +43,37 @@ jobs:
           node-version: 24
       - name: Run provider proof contract tests
         run: node --test cloudflare-worker/runtime-proof.test.mjs cloudflare-worker/providers.test.mjs scripts/prepare-provider-deploy.test.mjs
+      - name: Prove local protected Worker starts with the pinned runtime
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          fixture="$RUNNER_TEMP/promptos-local-fixtures.env"
+          printf '%s\n' 'OPENAI_API_KEY=synthetic-provider-fixture' 'PROMPTOS_AI_OPERATOR_KEY=synthetic-operator-fixture' > "$fixture"
+          npx --yes wrangler@4.110.0 dev --config wrangler.provider.jsonc \
+            --local --ip 127.0.0.1 --port 8792 --env-file "$fixture" \
+            --var "PROMPTOS_RELEASE_SHA:$SOURCE_SHA" --var PROMPTOS_OPENAI_MODEL:synthetic-model \
+            > "$RUNNER_TEMP/promptos-local-worker.log" 2>&1 &
+          worker_pid=$!
+          trap 'kill "$worker_pid" 2>/dev/null || true; rm -f "$fixture"' EXIT
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          const url = 'http://127.0.0.1:8792/runtime-identity';
+          let response;
+          for (let attempt = 0; attempt < 60; attempt++) {
+            try { response = await fetch(url); break; } catch { await new Promise(resolve => setTimeout(resolve, 1000)); }
+          }
+          assert.equal(response?.status, 401, 'local runtime must start and deny public callers');
+          const authorized = await fetch(url, { headers: { Authorization: 'Bearer synthetic-operator-fixture' } });
+          assert.equal(authorized.status, 200);
+          const identity = await authorized.json();
+          assert.equal(identity.service, 'promptos');
+          assert.equal(identity.release_sha, process.env.SOURCE_SHA);
+          assert.equal(identity.providers.openai.state, 'INTEGRATED');
+          assert.equal(identity.authority, 'none');
+          console.log('Local protected runtime started and proved source identity; no provider request made.');
+          JS
 
   deploy-runtime:
     if: github.event_name == 'workflow_dispatch'
