@@ -70,6 +70,7 @@ Repository-side CI can detect an unsafe `main` mutation after GitHub accepts it,
 
 ## Key surfaces
 
+- `wrangler.provider.jsonc` and `docs/PROVIDER_RUNTIME_DEPLOYMENT.md` — protected provider runtime deployment, existing-key reuse, exact-head gates, and live proof requirements; these do not declare production activation.
 - `AGENTS.md` — repository operating contract
 - `AGENTS_FOUNDER_INTELLIGENCE.md` — founder-intelligence execution boundary
 - `docs/FOUNDER_INTELLIGENCE_CONSTITUTION.md` — governance constitution
