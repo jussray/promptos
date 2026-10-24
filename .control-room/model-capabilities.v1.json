@@ -2,7 +2,7 @@
   "contract": "juss/council-model-capability-profile@v1",
   "repository": "jussray/promptos",
   "defaultBranch": "main",
-  "preparedAgainstBaseSha": "57155946641fdc4af2ef700a94db9a21410af9ae",
+  "preparedAgainstBaseSha": "248f6d59d74aeb1b44be2b743976c78c9f43fc96",
   "authorityHost": "jussray/founder-control-room",
   "providerExecutionHost": "jussray/founder-control-room",
   "projectRole": "prompt_workflow_compiler_routing_intelligence",
