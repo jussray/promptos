@@ -352,6 +352,32 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 /* PR #56 review (index.html hero, narrow phones): under 375px the kicker overflows the copy column and the cube overlaps the wordmark. Stack the copy full width and hide the cube. Rollback: delete the @media line below. */
 @media(max-width:374px){[data-theme="dark"] .hero-copy{width:100%}[data-theme="dark"] .hero-cube{display:none}}
 @media(max-width:560px){[data-theme="dark"] body{padding:3px}[data-theme="dark"] .app{border-radius:20px;min-height:calc(100vh - 6px)}[data-theme="dark"] .logo{padding-left:12px}}
+
+/* ── Mockup match pass (dark theme presentation only). Later rules win over the cosmic skin above. ── */
+/* Library: the Established Prompts heading leads; the repeated counts live in PromptOS Status instead */
+#page-library .stat-row{display:none}
+
+/* Bottom CTA row (library page) */
+.cta-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-top:18px}
+.cta-card{position:relative;overflow:hidden;padding:22px;border-radius:18px;background:rgba(9,15,32,.72);border:1px solid var(--border-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 0 28px rgba(56,234,160,.08)}
+.cta-card h3{font-size:clamp(20px,2.6vw,28px);font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff}
+.cta-card h3 span{color:var(--primary)}
+.cta-card p{margin-top:8px;font-size:13px;color:var(--text-muted);line-height:1.55;max-width:46ch}
+.cta-quote{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.cta-q{margin:0;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:clamp(17px,2vw,21px);color:#fff;line-height:1.35;max-width:none}
+.cta-go{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;color:#03140d;background:linear-gradient(135deg,#38eaa0,#22c77f);box-shadow:0 0 18px var(--primary-glow)}
+.cta-go.alt{margin-top:0;color:#fff;background:linear-gradient(135deg,#7c4dff,#a77cff);box-shadow:0 0 18px rgba(167,124,255,.45)}
+@media(max-width:700px){.cta-row{grid-template-columns:1fr}}
+/* Create Your Account card (home, guests only). Non-blocking: calls the existing Google sign-in. */
+.signup-card{display:flex;align-items:center;justify-content:space-between;gap:14px 18px;flex-wrap:wrap;margin:0 0 14px;padding:16px 18px;border-radius:16px;background:rgba(9,15,32,.72);border:1px solid var(--border-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.signup-card h3{font-size:16px;font-weight:700;color:#fff;letter-spacing:-.01em}
+.signup-card p{margin-top:3px;font-size:12.5px;color:var(--text-muted);line-height:1.5;max-width:52ch}
+.signup-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.signup-google{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:12px;font-size:13px;font-weight:700;color:#03140d;background:linear-gradient(135deg,#38eaa0,#22c77f);box-shadow:0 0 16px var(--primary-glow)}
+.signup-soon{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(14,24,48,.55);color:var(--text-faint);font-size:12.5px;font-weight:600;cursor:not-allowed}
+.signup-soon em{font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--border);border-radius:var(--r-full);padding:1px 6px}
+body.signed-in .signup-card{display:none}
+@media(max-width:560px){.signup-actions{width:100%}.signup-google{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -415,7 +441,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 <div id="appShell" style="display:none;">
 <div class="app">
   <header class="topbar">
-    <div class="logo"><span class="mark"><svg class="logo-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cglogo-cube" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9dffd6"/><stop offset="1" stop-color="#12a566"/></linearGradient><filter id="cflogo-cube" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cflogo-cube)"><path d="M60 6 108 33v54L60 114 12 87V33Z" fill="rgba(20,120,80,.35)" stroke="url(#cglogo-cube)" stroke-width="3.4"/><path d="M60 6v54m0 0L12 33m48 27 48-27M60 60v54" stroke="url(#cglogo-cube)" stroke-width="2.2" fill="none"/><path d="M60 24 92 42v36L60 96 28 78V42Z" fill="rgba(5,30,22,.75)" stroke="#b6ffe0" stroke-width="1.8"/><path d="M60 24v36M28 42l32 18 32-18" stroke="#b6ffe0" stroke-width="1.3" fill="none"/></g></svg></span>PromptOS</div>
+    <div class="logo"><span class="mark"><svg class="logo-cube" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="cglogo-cube" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9dffd6"/><stop offset="1" stop-color="#12a566"/></linearGradient><filter id="cflogo-cube" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cflogo-cube)"><path d="M60 6 108 33v54L60 114 12 87V33Z" fill="rgba(20,120,80,.35)" stroke="url(#cglogo-cube)" stroke-width="3.4"/><path d="M60 6v54m0 0L12 33m48 27 48-27M60 60v54" stroke="url(#cglogo-cube)" stroke-width="2.2" fill="none"/><path d="M60 24 92 42v36L60 96 28 78V42Z" fill="rgba(5,30,22,.75)" stroke="#b6ffe0" stroke-width="1.8"/><path d="M60 24v36M28 42l32 18 32-18" stroke="#b6ffe0" stroke-width="1.3" fill="none"/></g></svg></span><span class="wordmark">Prompt<span class="os">OS</span></span></div>
     <div class="top-actions">
       <span class="count-pill" id="countPill">— prompts</span>
       <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
@@ -443,9 +469,9 @@ td .best{font-size:11.5px;color:var(--text-muted)}
   </aside>
 
   <nav class="mobile-nav" id="mobileNav">
+    <button class="nav-item" data-page="freestyle">Create</button>
     <button class="nav-item active" data-page="library">Library</button>
-    <button class="nav-item" data-page="builder">Builder</button>
-    <button class="nav-item" data-page="freestyle">Freestyle</button>
+    <button class="nav-item" data-page="builder">Workflows</button>
     <button class="nav-item" data-page="custom">My Prompts</button>
     <button class="nav-item" data-page="anatomy">Anatomy</button>
     <button class="nav-item" data-page="bench">Benchmarks</button>
@@ -470,7 +496,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
         <div class="ask-row">
           <button type="button" class="ask-round" id="askPlus" title="New prompt (My Prompts)" aria-label="New prompt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
           <button type="button" class="ask-round" id="askGlobe" title="Platform benchmarks" aria-label="Platform benchmarks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
-          <button type="button" class="ask-chip" id="askLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg>Quick Library</button>
+          <button type="button" class="ask-chip" id="askLib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg>Prompt Library</button>
           <button type="button" class="ask-chip" id="askFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.5" r="2.4"/><circle cx="5.5" cy="18" r="2.4"/><circle cx="18.5" cy="18" r="2.4"/><path d="m11 7.7-4.4 8M13 7.7l4.4 8"/></svg>Workflow Mode</button>
           <button type="button" class="ask-send" id="askSend" title="Generate in Freestyle" aria-label="Generate in Freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </div>
@@ -478,9 +504,20 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       <div class="tiles" role="navigation" aria-label="Quick start">
         <button class="tile" data-page="builder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5Z"/><path d="M12 6v13.5"/></svg><b>Create</b><small>Build better prompts</small></button>
         <button class="tile" data-page="custom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 12.5 9 5 9-5"/><path d="m3 17 9 5 9-5" opacity=".55"/></svg><b>Organize</b><small>Star &amp; save your own</small></button>
-        <button class="tile" data-page="freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.5" r="2.4"/><circle cx="5.5" cy="18" r="2.4"/><circle cx="18.5" cy="18" r="2.4"/><path d="m11 7.7-4.4 8M13 7.7l4.4 8"/></svg><b>Generate</b><small>Turn an ask into a prompt</small></button>
+        <button class="tile" data-page="freestyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5.5" r="2.4"/><circle cx="5.5" cy="18" r="2.4"/><circle cx="18.5" cy="18" r="2.4"/><path d="m11 7.7-4.4 8M13 7.7l4.4 8"/></svg><b>Automate</b><small>Turn an ask into a prompt</small></button>
         <button class="tile" data-page="library" id="tileDiscover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><b>Discover</b><small>Find what works</small></button>
       </div>
+      <section class="signup-card" aria-label="Create your account">
+        <div>
+          <h3>Create Your Account</h3>
+          <p>Sign in with Google to identify yourself. Stars and custom prompts stay in this browser session.</p>
+        </div>
+        <div class="signup-actions">
+          <button type="button" class="signup-google" data-google-signin>Continue with Google</button>
+          <button type="button" class="signup-soon" disabled>Apple <em>Soon</em></button>
+          <button type="button" class="signup-soon" disabled>Email <em>Soon</em></button>
+        </div>
+      </section>
       <div class="home-panels">
         <section class="hpanel" aria-label="Recent prompts">
           <h3>Recent Prompts <button type="button" class="viewall" id="viewAll">View all →</button></h3>
@@ -502,8 +539,8 @@ td .best{font-size:11.5px;color:var(--text-muted)}
     <section class="page on" id="page-library">
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>library</b></div>
-        <h2>Prompt ops for your repos.</h2>
-        <p>Production prompts across ChatGPT, Claude, Perplexity, Figma, Canva, and Shopify. Search, filter, star, copy. Open a card to see every version.</p>
+        <h2>Established Prompts</h2>
+        <p>Real prompts for ChatGPT, Claude, Perplexity, Figma, Canva, and Shopify. Search, filter, star, copy. Open a card to see every version.</p>
       </div>
       <div class="stat-row">
         <div class="stat"><div class="n" id="statTotal">0</div><div class="l">Prompts</div></div>
@@ -513,6 +550,17 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       </div>
       <div class="chips" id="chips"></div>
       <div class="grid" id="grid"></div>
+    <div class="cta-row">
+      <section class="cta-card cta-main" aria-label="Get started">
+        <h3>Turn Your Ideas <span>Into Real Results.</span></h3>
+        <p>Explore the Prompt Library, compose prompts in the Builder, and draft new ones in Freestyle.</p>
+        <button type="button" class="cta-go" data-page="freestyle">Draft in Freestyle →</button>
+      </section>
+      <section class="cta-card cta-quote" aria-label="Tagline">
+        <p class="cta-q">“Better prompts. Bigger outcomes.”</p>
+        <button type="button" class="cta-go alt" data-page="builder">Open Prompt Builder →</button>
+      </section>
+    </div>
     </section>
 
     <!-- BUILDER -->
