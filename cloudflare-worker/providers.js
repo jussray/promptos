@@ -7,6 +7,7 @@ const ANTHROPIC_FAST_BETA = 'fast-mode-2026-02-01';
 const ANTHROPIC_BATCH_URL = 'https://api.anthropic.com/v1/messages/batches';
 const DEFAULT_ANTHROPIC_ADVISOR_MODEL = 'claude-fable-5';
 const ANTHROPIC_FAST_MODELS = new Set(['claude-opus-5-5', 'claude-opus-5', 'claude-opus-4-8']);
+const SAFE_MUSE_MODEL = /^muse-spark-1\.(?:1|2|3)$/;
 const ANTHROPIC_ADVISOR_SYSTEM = 'You have access to an advisor tool backed by a stronger reviewer model. Call advisor before substantive implementation work, give the advice serious weight, then implement. Orientation and reading are not substantive work. Advisor guidance does not grant execution authority.';
 
 const PROVIDERS = Object.freeze({
@@ -18,10 +19,16 @@ const PROVIDERS = Object.freeze({
 function configFor(env, provider) {
   const config = PROVIDERS[provider];
   if (!config) throw new Error('unsupported provider');
+  const configuredModel = String(env?.[config.model] || '').trim();
+  // Muse (FCR semantics): no default fallback — the model must be explicitly
+  // configured AND allow-listed, otherwise the provider is not configured.
+  const modelName = provider === 'muse'
+    ? (SAFE_MUSE_MODEL.test(configuredModel) ? configuredModel : '')
+    : (configuredModel || config.defaultModel);
   return {
     ...config,
-    keyValue: String(env?.[config.key] || '').trim(),
-    modelName: String(env?.[config.model] || '').trim() || config.defaultModel,
+    keyValue: provider === 'muse' && !modelName ? '' : String(env?.[config.key] || '').trim(),
+    modelName,
   };
 }
 
@@ -334,8 +341,12 @@ export async function invokeProvider(env, input, fetchImpl = fetch) {
   const stableContext = String(input?.stableContext || '').trim();
   if (!prompt || prompt.length > 24_000) throw new Error('invalid prompt');
   if (stableContext.length > 120_000) throw new Error('stableContext must be <=120000 characters');
-  if (String(input?.sensitivity || 'standard').trim().toLowerCase() === 'restricted') {
-    throw new Error('restricted context is not authorized for external providers');
+  if (String(input?.sensitivity || 'standard').trim().toLowerCase() !== 'standard') {
+    throw new Error('sensitive_context_not_authorized');
+  }
+  const source = String(input?.source || 'founder').trim().toLowerCase();
+  if (!['founder', 'repository', 'system'].includes(source)) {
+    throw new Error('user_content_not_authorized');
   }
   const config = configFor(env, provider);
   if (!config.keyValue) throw new Error(`${provider} provider is not configured`);
