@@ -72,6 +72,16 @@ Sauce Guard applies to every PromptOS public document, catalog excerpt, generate
 
 When authorization, scope, or public-safety proof is absent, hold only the affected disclosure or action; do not block unrelated authorized PromptOS work. Sauce Guard neither makes PromptOS a Chief subsystem nor places it inside FCR. The operative stop conditions are in `.claude/skills/goalfix/SKILL.md` under `Sauce Guard / stop conditions`.
 
+## Conversation continuity — opt-in and non-tracking
+
+`ultrathink godmode cont` is a user-supplied continuity keyword for resuming PromptOS work; `cont`, `/resume`, and `/compact` follow the same evidence and consent boundaries. The keyword requests careful reconstruction from **context already available or explicitly supplied**, not hidden cross-chat memory, access to private conversations, elevated authority, or permission to bypass Sauce Guard.
+
+For an authorized handoff, keep a concise, **non-secret continuity fingerprint and proof cookie** with: product/repository identity (PromptOS as a standalone system), the user's current goal and scope, verified branch/PR/exact commit when inspected, evidence classification (`VERIFIED`, `INFERRED`, `UNKNOWN`, or `BLOCKED`), unresolved risks and stop conditions, rollback, next gate, and the changes that invalidate the marker. Refresh the fingerprint after the source, goal, authority, or evidence changes. Previous receipts and remembered summaries never self-certify the new state.
+
+**A proof cookie is a non-secret evidence marker, not a browser cookie, tracking identifier, authentication token, or permission grant.** Never inspect, export, implant, or reuse browser/session cookies or personal/device fingerprints to recall conversations. Do not quietly search a user's previous chats, files, connected services, or private workspaces. No automatic cross-chat recall is promised: if the prior context is unavailable, mark it `UNKNOWN` and request only a minimal, user-approved, redacted handoff.
+
+This is a portable PromptOS instruction convention, **not** a claim that ChatGPT or any other host persists every conversation. Store no private transcripts or sauce-bearing continuity data in this public repository. Retention, sharing, or use of an external storage provider requires explicit consent and an authorized destination. Neither the continuity keyword nor the marker gives Chief AI Machine or Founder Control Room ownership of PromptOS.
+
 ## Repository mutation boundary
 
 Provider branch-protection and ruleset state is runtime truth, not repository inference. `.github/workflows/main-authority-contract.yml` verifies founder-owned non-force `main` pushes, checks ancestry to reject non-fast-forward history movement, and reads back live GitHub protection state.
