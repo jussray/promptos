@@ -10,6 +10,7 @@ on:
       - '.github/workflows/runtime-provider-proof.yml'
       - 'wrangler.provider.jsonc'
       - 'scripts/prepare-provider-deploy*'
+      - 'scripts/runtime-provider-witness-receipt*'
   push:
     branches:
       - main
@@ -19,6 +20,7 @@ on:
       - '.github/workflows/runtime-provider-proof.yml'
       - 'wrangler.provider.jsonc'
       - 'scripts/prepare-provider-deploy*'
+      - 'scripts/runtime-provider-witness-receipt*'
   workflow_dispatch:
     inputs:
       expected_head_sha:
@@ -42,7 +44,7 @@ jobs:
         with:
           node-version: 24
       - name: Run provider proof contract tests
-        run: node --test cloudflare-worker/runtime-proof.test.mjs cloudflare-worker/providers.test.mjs scripts/prepare-provider-deploy.test.mjs
+        run: node --test cloudflare-worker/runtime-proof.test.mjs cloudflare-worker/providers.test.mjs scripts/prepare-provider-deploy.test.mjs scripts/runtime-provider-witness-receipt.test.mjs
       - name: Prove local protected Worker starts with the pinned runtime
         shell: bash
         env:
@@ -168,19 +170,24 @@ jobs:
         with:
           node-version: 24
       - name: Require configured deployed runtime witness
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "$PROMPTOS_PUBLIC_URL" || { echo 'PROMPTOS_PUBLIC_URL repository variable is required' >&2; exit 1; }
-          test -n "$PROMPTOS_PROVIDER_URL" || { echo 'PROMPTOS_PROVIDER_URL repository variable is required' >&2; exit 1; }
-          test -n "$PROMPTOS_AI_OPERATOR_KEY" || { echo 'PROMPTOS_AI_OPERATOR_KEY repository secret is required' >&2; exit 1; }
-          printf '%s\n' "$EXPECTED_HEAD_SHA" | grep -Eq '^[0-9a-f]{40}$'
+        run: node scripts/runtime-provider-witness-receipt.mjs preflight
       - name: Install Playwright runtime
         run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.61.1
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Prove exact deployed provider runtime
+        id: runtime_proof
         run: node e2e/runtime-provider-proof.mjs
+      - name: Record sanitized runtime failure
+        if: always() && steps.runtime_proof.outcome == 'failure'
+        run: node scripts/runtime-provider-witness-receipt.mjs runtime-failed
+      - name: Require complete evidence after successful runtime proof
+        if: steps.runtime_proof.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s artifacts/promptos-runtime-proof/runtime-proof.json
+          test -s artifacts/promptos-runtime-proof/promptos-browser.png
       - name: Retain sanitized runtime evidence
         if: always()
         uses: actions/upload-artifact@v4
