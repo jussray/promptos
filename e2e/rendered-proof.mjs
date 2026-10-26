@@ -38,6 +38,9 @@ async function proveViewport(browser, {name, width, height}) {
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   await page.locator('#appShell').waitFor({state: 'visible'});
+  assert(await page.locator('#acctGsiButton').count() === 1, `${name}: account page lacks official GIS button mount`);
+  const accountText = (await page.locator('#acctSignedIn').textContent()) || '';
+  assert(accountText.includes('Server-verified account access and cloud sync are not connected'), `${name}: account falsely implies backend authentication`);
   assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
@@ -47,6 +50,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(commandSummary?.categories?.length === 9, `${name}: public command categories drifted`);
   assert(commandSummary?.authority === 'founder-control-room', `${name}: public command authority plane drifted`);
   assert(commandSummary?.executionAuthority === false, `${name}: public command palette incorrectly claims execution authority`);
+  assert(commandSummary?.productSurface === 'standalone-promptos' && commandSummary?.fcrConnected === false, `${name}: standalone and FCR capability boundaries were conflated`);
 
   const commandInput = page.locator('#commandInput');
   const commandProject = page.locator('#commandProject');
@@ -56,7 +60,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#commandRoute[data-state="resolved"]').waitFor({state:'visible'});
   assert((await page.locator('#commandRouteCapability').textContent())?.trim() === 'legal-navigation', `${name}: contract command capability did not resolve`);
   assert((await page.locator('#commandRouteSpecialist').textContent())?.trim() === 'truth-weaver', `${name}: contract command did not route to Truth Weaver`);
-  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'founder-control-room', `${name}: command route bypassed FCR authority`);
+  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'Advisory only · FCR not connected', `${name}: route incorrectly claims a connected FCR authority`);
   assert((await page.locator('#commandRouteArgs').textContent())?.trim() === 'vendor NDA', `${name}: command arguments were not preserved`);
 
   await commandProject.fill("Se'kret Bip");
@@ -85,7 +89,7 @@ async function proveViewport(browser, {name, width, height}) {
   await persistenceStatus.waitFor({state: 'visible'});
   const persistenceText = (await persistenceStatus.textContent())?.trim() || '';
   assert(persistenceText.includes('Session only'), `${name}: persistence status did not disclose session-only state`);
-  assert(persistenceText.includes('FCR') && persistenceText.includes('not connected'), `${name}: persistence status overstated FCR runtime persistence`);
+  assert(persistenceText.includes('cloud sync not connected'), `${name}: persistence status overstated connected cloud sync`);
 
   for (const selector of ['#syncToken', '#syncConnect', '#syncPush', '#syncPull']) {
     assert(await page.locator(selector).count() === 0, `${name}: legacy browser Gist control remains: ${selector}`);
@@ -96,7 +100,8 @@ async function proveViewport(browser, {name, width, height}) {
   assert(!bodyText.includes('persist across sessions'), `${name}: stale cross-session persistence claim is still visible`);
 
   const persistenceAuthority = await page.evaluate(() => window.__PROMPTOS_PERSISTENCE_AUTHORITY__);
-  assert(persistenceAuthority?.canonicalAuthority === 'Founder Control Room', `${name}: FCR is not declared as canonical persistence authority`);
+  assert(persistenceAuthority?.canonicalAuthority === 'browser-session', `${name}: standalone persistence authority is not the browser session`);
+  assert(persistenceAuthority?.productBoundary === 'standalone-promptos' && persistenceAuthority?.fcrCapabilityConnected === false, `${name}: FCR capability was incorrectly marked connected to standalone PromptOS`);
   assert(persistenceAuthority?.runtimePersistence === 'not-connected', `${name}: runtime persistence should remain not-connected until a real FCR path exists`);
   assert(persistenceAuthority?.browserState === 'session-only', `${name}: browser state is not truthfully marked session-only`);
   assert(persistenceAuthority?.browserGitHubTokenAccepted === false, `${name}: browser GitHub token acceptance is not explicitly disabled`);

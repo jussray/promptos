@@ -1,7 +1,7 @@
 /* PromptOS — Full App Runtime
    State: stars, custom prompts, theme, last tab
    Persistence: session-only browser state with explicit Export / Import recovery
-   Canonical runtime persistence authority: Founder Control Room (not connected here)
+   Runtime persistence: browser session only; FCR capability is separate and not connected
 */
 (function(){
 'use strict';
@@ -95,7 +95,28 @@ function agoText(ts){
   if (m < 60) return m + ' min ago';
   return Math.floor(m / 60) + ' h ago';
 }
+function renderEstablished(){
+  var list = qs('#homeEstablished'); if (!list) return;
+  var first = allPrompts().slice(0, 10);
+  list.textContent = '';
+  first.forEach(function(p, i){
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'est-row';
+    var n = document.createElement('span'); n.className = 'est-n'; n.textContent = String(i + 1);
+    var ic = document.createElement('span'); ic.className = 'est-ic'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = p.emoji || '\u2726';
+    var tx = document.createElement('span'); tx.className = 'est-text';
+    var t = document.createElement('span'); t.className = 'est-title'; t.textContent = p.title;
+    var s = document.createElement('span'); s.className = 'est-sub'; s.textContent = p.sub || '';
+    tx.appendChild(t); tx.appendChild(s);
+    var ar = document.createElement('span'); ar.className = 'est-arrow'; ar.setAttribute('aria-hidden', 'true'); ar.textContent = '\u2192';
+    b.appendChild(n); b.appendChild(ic); b.appendChild(tx); b.appendChild(ar);
+    b.addEventListener('click', function(){ openModal(p.id); });
+    li.appendChild(b); list.appendChild(li);
+  });
+}
 function renderHome(){
+  renderEstablished();
   var list = qs('#homeRecent'); if (!list) return;
   var all = allPrompts();
   list.textContent = '';
@@ -123,6 +144,7 @@ function renderHome(){
   var set = function(sel, v){ var el = qs(sel); if (el) el.textContent = v; };
   set('#hsPrompts', all.length); set('#hsStarred', starred);
   set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
+  set('#hsLibCount', all.length); set('#hsStatus', 'Online');
 }
 
 function allPrompts(){
@@ -489,6 +511,107 @@ function switchPage(name){
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
   var pg = qs('#page-'+name); if (pg) pg.classList.add('on');
   document.querySelectorAll('.nav-item[data-page]').forEach(function(b){ b.classList.toggle('active', b.dataset.page === name); });
+  var main = qs('.main'); if (main) main.setAttribute('data-view', name === 'catalog' ? 'explore' : 'home');
+  if (name === 'catalog') buildExploreRail();
+  if (name === 'account') renderAccount();
+}
+
+/* Explore rail: mirrors the catalog family select (source of truth stays in catalog-ui). */
+function buildExploreRail(){
+  var page = qs('#page-catalog'), family = qs('#catalogFamily'), reset = qs('#catalogReset');
+  if (!page || !family || page.querySelector('#exploreRail')) return;
+  var rail = document.createElement('nav');
+  rail.id = 'exploreRail';
+  rail.setAttribute('aria-label', 'Catalog families');
+  var list = document.createElement('ul');
+  list.className = 'explore-rail-list';
+  Array.prototype.forEach.call(family.options, function(opt){
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'explore-rail-btn';
+    btn.dataset.value = opt.value;
+    btn.textContent = opt.textContent;
+    btn.addEventListener('click', function(){
+      family.value = opt.value;
+      family.dispatchEvent(new Event('change'));
+      syncRail();
+    });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  rail.appendChild(list);
+  page.insertBefore(rail, page.firstChild);
+  function syncRail(){
+    rail.querySelectorAll('.explore-rail-btn').forEach(function(b){
+      var on = b.dataset.value === family.value;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  family.addEventListener('change', syncRail);
+  if (reset) reset.addEventListener('click', syncRail);
+  syncRail();
+}
+
+/* Account page: signed-in state comes from PromptOSAuth; no fake email/password flow. */
+function renderAccount(){
+  var auth = window.PromptOSAuth;
+  var user = auth && auth.getUser ? auth.getUser() : null;
+  var out = qs('#acctSignedOut'), inn = qs('#acctSignedIn'), who = qs('#acctName');
+  if (!out || !inn) return;
+  out.hidden = !!user;
+  inn.hidden = !user;
+  if (user && who) who.textContent = user.name || 'your Google account';
+  if (!user && auth && auth.renderGoogleButton) auth.renderGoogleButton();
+}
+
+function setAcctMode(mode){
+  var create = mode !== 'signin';
+  var tabC = qs('#acctTabCreate'), tabS = qs('#acctTabSignin');
+  if (!tabC || !tabS) return;
+  tabC.setAttribute('aria-selected', create ? 'true' : 'false');
+  tabS.setAttribute('aria-selected', create ? 'false' : 'true');
+  tabC.tabIndex = create ? 0 : -1;
+  tabS.tabIndex = create ? -1 : 0;
+  qs('#acctPanel').setAttribute('aria-labelledby', create ? 'acctTabCreate' : 'acctTabSignin');
+  qs('#acctHeading').textContent = create ? 'Get started' : 'Welcome back';
+  qs('#acctLede').textContent = create
+    ? 'Continue with Google to identify this browser session. Browsing works without an account.'
+    : 'Sign in with Google to identify this browser session. Email and password sign-in is not available yet.';
+}
+
+function wireAccount(){
+  var tabC = qs('#acctTabCreate'), tabS = qs('#acctTabSignin');
+  if (!tabC || !tabS) return;
+  tabC.addEventListener('click', function(){ setAcctMode('create'); });
+  tabS.addEventListener('click', function(){ setAcctMode('signin'); });
+  [tabC, tabS].forEach(function(t){
+    t.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      var toSignin = t === tabC;
+      setAcctMode(toSignin ? 'signin' : 'create');
+      (toSignin ? tabS : tabC).focus();
+    });
+  });
+  qs('#acctSignIn').addEventListener('click', function(){
+    var auth = window.PromptOSAuth;
+    var ok = !!(auth && auth.signIn && auth.signIn());
+    var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    qs('#acctStatus').textContent = ok
+      ? 'Google sign-in requested.'
+      : local ? 'Google sign-in is not available in this local environment.'
+              : 'Google sign-in is not ready in this browser. Check the connection and authorized site origin.';
+  });
+  qs('#acctSignOut').addEventListener('click', function(){
+    if (window.PromptOSAuth && window.PromptOSAuth.signOut) window.PromptOSAuth.signOut();
+  });
+  ['acctGuest', 'acctGuest2'].forEach(function(id){
+    qs('#' + id).addEventListener('click', function(){ switchPage('catalog'); });
+  });
+  window.addEventListener('promptos:authed', renderAccount);
+  window.addEventListener('promptos:signedout', renderAccount);
 }
 
 /* ── 14. BOOT ─────────────────────────────────────────────────────── */
@@ -524,6 +647,8 @@ function boot(){
     });
   });
 
+  wireAccount();
+
   var searchEl = qs('#search');
   if (searchEl) searchEl.addEventListener('input', function(){
     STATE.search = searchEl.value;
@@ -552,6 +677,15 @@ function boot(){
     on('#askPlus', function(){ switchPage('custom'); });
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#estViewAll', toGrid);
+    on('#stripLib', toGrid);
+    on('#stripFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#tileAutomate', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+    on('#acctGoogle', function(){
+      var g = qs('#userChip [aria-label="Sign in with Google"]');
+      if (g) { g.click(); return; }
+      var self = qs('#acctGoogle'); if (self) self.textContent = 'Already signed in';
+    });
   }
 
   qs('#mClose').addEventListener('click', closeModal);

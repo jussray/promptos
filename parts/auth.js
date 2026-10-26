@@ -7,9 +7,9 @@
  *   • Signing in upgrades the session in-place.
  *
  * Persistence authority (app state — stars, custom prompts, theme):
- *   • Current browser app state is session-only.
- *   • Founder Control Room is the canonical runtime persistence authority.
- *   • FCR runtime persistence is not connected from this browser product yet.
+ *   • Current browser app state is session-only; decoded Google profile data is not server-verified.
+ *   • Standalone PromptOS has no connected account-level persistence service.
+ *   • Founder Control Room is a separate capability, not this app's state store.
  *   • Browser GitHub/Gist credentials are not accepted or implemented.
  *   • JSON Export / Import remains explicit backup and recovery.
  *   This is unrelated to visitor analytics identification below — a device
@@ -52,7 +52,9 @@
   var ANALYTICS_ENDPOINT = '';
 
   var persistenceAuthority = Object.freeze({
-    canonicalAuthority: 'Founder Control Room',
+    canonicalAuthority: 'browser-session',
+    productBoundary: 'standalone-promptos',
+    fcrCapabilityConnected: false,
     runtimePersistence: 'not-connected',
     browserState: 'session-only',
     browserGitHubTokenAccepted: false,
@@ -78,7 +80,7 @@
       status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
-      status.textContent = 'Session only · FCR runtime persistence not connected';
+      status.textContent = 'Session only · cloud sync not connected';
 
       var recovery = document.createElement('div');
       recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
@@ -99,7 +101,7 @@
       mobileStatus.setAttribute('aria-live', 'polite');
       mobileStatus.setAttribute('data-persistence-authority', 'session-only');
       mobileStatus.style.cssText = 'font-family:var(--mono);font-size:10.5px;line-height:1;white-space:nowrap;flex-shrink:0;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r-full);background:var(--surface-2);color:var(--text-muted)';
-      mobileStatus.textContent = 'Session only · FCR not connected';
+      mobileStatus.textContent = 'Session only · cloud sync not connected';
       mobileNav.insertBefore(mobileStatus, mobileNav.firstChild);
     }
   }
@@ -278,7 +280,11 @@
       signInBtn.style.background = 'var(--primary-dim)';
       signInBtn.style.color = 'var(--primary)';
     });
-    signInBtn.addEventListener('click', function () { triggerGoogleSignIn(); });
+    signInBtn.addEventListener('click', function () {
+      var accountNav = qs('.sidebar .nav-item[data-page="account"]');
+      if (accountNav) accountNav.click();
+      else triggerGoogleSignIn();
+    });
 
     chip.appendChild(icon);
     chip.appendChild(label);
@@ -376,6 +382,27 @@
     window.dispatchEvent(new CustomEvent('promptos:signedout'));
   }
 
+  // The official Google button remains usable when One Tap is suppressed.
+  function renderGoogleButton() {
+    var mount = qs('#acctGsiButton');
+    var fallback = qs('#acctSignIn');
+    if (!mount || mount.dataset.gsiRendered === 'true') return !!mount && mount.dataset.gsiRendered === 'true';
+    if (!window.google || !google.accounts || !google.accounts.id || typeof google.accounts.id.renderButton !== 'function') return false;
+    try {
+      google.accounts.id.renderButton(mount, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'pill', width: 280
+      });
+      if (!mount.firstElementChild) return false;
+      mount.dataset.gsiRendered = 'true';
+      if (fallback) fallback.style.display = 'none';
+      return true;
+    } catch (e) {
+      console.warn('[PromptOS auth] Google button unavailable', e);
+      return false;
+    }
+  }
+
   function initGIS() {
     if (!window.google || !google.accounts || !google.accounts.id) {
       setTimeout(initGIS, 150);
@@ -387,6 +414,7 @@
       auto_select: false,
       cancel_on_tap_outside: true
     });
+    if (qs('#page-account.on')) renderGoogleButton();
   }
 
   function loadGIS(promptAfter) {
@@ -408,7 +436,22 @@
     document.head.appendChild(s);
   }
 
-  window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
+  window.PromptOSAuth = {
+    // Returns false when Google sign-in cannot run here (localhost never loads the GIS SDK).
+    signIn: function () {
+      var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      var ready = !!(window.google && google.accounts && google.accounts.id);
+      if (!ready) return false;
+      triggerGoogleSignIn();
+      return true;
+    },
+    renderGoogleButton: renderGoogleButton,
+    // Browser display identity only; not a verified backend account session.
+    serverAuthenticated: false,
+    signOut: signOut,
+    getUser: function () { return SESSION.user; },
+    isGuest: function () { return SESSION.user === null; }
+  };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 

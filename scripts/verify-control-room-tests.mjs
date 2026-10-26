@@ -37,13 +37,15 @@ const FORBIDDEN_BROWSER_GIST_MARKERS = [
   'sync via GitHub Gist',
 ];
 const REQUIRED_PERSISTENCE_TRUTH = [
-  "canonicalAuthority: 'Founder Control Room'",
+  "canonicalAuthority: 'browser-session'",
+  "productBoundary: 'standalone-promptos'",
+  'fcrCapabilityConnected: false',
   "runtimePersistence: 'not-connected'",
   "browserState: 'session-only'",
   'browserGitHubTokenAccepted: false',
   "recovery: Object.freeze(['export', 'import'])",
   'persistenceAuthorityStatus',
-  'Session only · FCR runtime persistence not connected',
+  'Session only · cloud sync not connected',
 ];
 const ALLOWED_KINDS = new Set([
   'typecheck',
