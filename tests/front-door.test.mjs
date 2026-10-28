@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import worker from '../front-door/worker.mjs';
-const home='https://promptos.foundercontrolroom.org';
+const home='https://promptos.jussco.company';
 test('PromptOS homepage displays its own public-safe presentation', async()=>{
  for(const url of [home+'/',home+'/?utm_source=review']){
   const r=await worker.fetch(new Request(url));
@@ -16,7 +16,7 @@ test('private and unrelated endpoints are not served by the public worker',async
   assert.equal((await worker.fetch(new Request(home+path))).status,404,path);
  }
  assert.equal((await worker.fetch(new Request(home+'/',{method:'POST'}))).status,404);
- assert.equal((await worker.fetch(new Request('https://foundercontrolroom.org/'))).status,404);
+ assert.equal((await worker.fetch(new Request('https://promptos.foundercontrolroom.org/'))).status,404);\n assert.equal((await worker.fetch(new Request('https://foundercontrolroom.org/'))).status,404);
 });
 test('front-door routes cannot override Founder Control Room or PromptOS private origin',()=>{
  const config=JSON.parse(readFileSync(new URL('../wrangler.front-door.jsonc',import.meta.url),'utf8'));
