@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "contract": "juss/buffer-runtime-binding@v1",
+  "project": "promptos",
+  "repository": "jussray/promptos",
+  "authorityOwner": "jussray/founder-control-room",
+  "capabilityId": "buffer-publishing-runtime-v1",
+  "canonicalPlugin": {
+    "repository": "jussray/founder-control-room",
+    "path": "plugins/buffer-control",
+    "preferredRuntime": "https://mcp.buffer.com/mcp",
+    "authentication": "oauth",
+    "credentialsStoredInRepository": false
+  },
+  "role": "prompt_and_copy_input",
+  "invocation": {
+    "path": "fcr_shared_capability_runtime",
+    "runtimeDiscoveryRequired": true,
+    "freshAuthorityCheckBeforeMutation": true,
+    "proposalBindingRequiredForMutation": true,
+    "providerReceiptRequired": true,
+    "providerAcceptanceIsPublished": false
+  },
+  "allowed": [
+    "compose_prompt",
+    "compose_copy",
+    "select_approved_template",
+    "emit_content_fingerprint"
+  ],
+  "forbidden": [
+    "store_buffer_credentials",
+    "publish",
+    "queue",
+    "schedule",
+    "edit",
+    "delete",
+    "manufacture_authority"
+  ],
+  "rollback": "Disable or ignore this binding; no Buffer credential or provider state is stored here."
+}
