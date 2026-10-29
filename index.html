@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Public Worker origin must be verified and configured before checkout can run. -->
+<meta name="promptos-billing-api" content="">
 <title>Jussray PromptOS</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='rgb(79,152,163)'/%3E%3Ctext%20x='16'%20y='23'%20font-family='monospace'%20font-size='18'%20font-weight='800'%20fill='white'%20text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -606,7 +608,9 @@ td .best{font-size:11.5px;color:var(--text-muted)}
       <div class="page-head">
         <div class="crumb">promptos <span>/</span> <b>my-prompts</b></div>
         <h2>My Prompts</h2>
-        <p>Your own prompts, saved to this app's storage. They show up in the Library under the <b>custom</b> filter.</p>
+        <p>Save and import personal prompts with a verified paid account. The curated prompt library stays free. Custom prompts currently remain session-only, with Export / Import for backup.</p>
+        <p id="billingStatus" role="status" aria-live="polite">Paid account required to save personal prompts.</p>
+        <button type="button" class="mini-btn" id="billingUpgrade">Sign in / Upgrade</button>
       </div>
       <div class="split">
         <div class="panel">
@@ -686,6 +690,7 @@ td .best{font-size:11.5px;color:var(--text-muted)}
 
 <!-- auth.js MUST load first — it controls #onboarding / #appShell visibility -->
 <script src="./parts/auth.js"></script>
+<script src="./parts/billing.js"></script>
 <script src="./parts/p05-new-prompts.js"></script>
 <script src="./parts/p06-gap-prompts.js"></script>
 <script src="./parts/p07-ship-ultrathink-skills.js"></script>

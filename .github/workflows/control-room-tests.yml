@@ -47,6 +47,7 @@ on:
       - "skills/evidence-decision-loop/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "parts/**"
+      - "cloudflare-worker/**"
       - "index.html"
       - "build.sh"
       - "e2e/**"
@@ -94,6 +95,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Verify paid prompt server authority and Stripe webhook tests
+        run: node --test cloudflare-worker/prompt-paywall.test.mjs
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
       - name: Verify protected intelligence and live-proof contract
@@ -155,6 +158,8 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove paid prompt gate in real desktop/mobile browser
+        run: node e2e/paid-prompt-proof.mjs
       - name: Prove negotiation-aware outreach prompt in source UI
         run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in source UI
@@ -182,6 +187,10 @@ jobs:
           done
           cat /tmp/promptos-staged-server.log
           exit 1
+      - name: Prove paid prompt gate in staged public artifact
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/paid-prompt-proof.mjs
       - name: Prove staged public artifact desktop and mobile
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174

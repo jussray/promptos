@@ -7,6 +7,7 @@ import {
   providerStates,
 } from './providers.js';
 import { executeOptimizerExperiment } from './optimizer-executor.js';
+import { handlePromptPaywall } from './prompt-paywall.js';
 
 /**
  * PromptOS Analytics + bounded provider Worker.
@@ -102,6 +103,10 @@ export default {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
+
+    if (url.pathname.startsWith('/billing/') || url.pathname === '/prompts/admit') {
+      return handlePromptPaywall(request, env, url.pathname, CORS_HEADERS);
+    }
 
     if (url.pathname === '/runtime-identity' && method === 'GET') {
       if (!env.PROMPTOS_AI_OPERATOR_KEY) return json({ error: 'provider lane not configured' }, 503);

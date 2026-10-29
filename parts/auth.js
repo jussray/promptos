@@ -49,6 +49,7 @@
   if (!Array.isArray(window.PROMPTS)) window.PROMPTS = [];
 
   var CLIENT_ID = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
+  var verifiedIdToken = null; // Verified by Worker on each paid action, not trusted in the browser.
   var ANALYTICS_ENDPOINT = '';
 
   var persistenceAuthority = Object.freeze({
@@ -350,6 +351,7 @@
     if (!response || !response.credential) return;
     var payload = decodeJwt(response.credential);
     if (!payload) return;
+    verifiedIdToken = response.credential;
 
     var wasGuest = SESSION.startedAs === 'guest' && SESSION.user === null;
     SESSION.user = {
@@ -366,6 +368,7 @@
   };
 
   function signOut() {
+    verifiedIdToken = null;
     SESSION.user = null;
     SESSION.startedAs = 'guest';
     if (window.google && google.accounts && google.accounts.id) {
@@ -408,7 +411,7 @@
     document.head.appendChild(s);
   }
 
-  window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
+  window.PromptOSAuth = { signOut: signOut, signIn: triggerGoogleSignIn, getIdToken: function () { return verifiedIdToken; }, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 
