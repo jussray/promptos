@@ -4,7 +4,7 @@ PromptOS is Juss Ray's **standalone governed prompt, skill, instruction, and fou
 
 PromptOS can interoperate with Founder Control Room, Chief AI Machine, SolContinuity, and other first-party systems through explicit contracts without becoming a module, shell, or subordinate runtime of another product.
 
-**Current catalog:** 398 curated prompts inside 5,000 selected recipes.
+**Current catalog:** 508 curated prompts inside 5,000 selected recipes.
 
 The current catalog is executable source truth, not a historical marketing count. `scripts/verify-catalog-runtime.mjs` verifies the selected and curated counts, and `scripts/verify-current-truth-surface.mjs` prevents this README from drifting away from the runtime again.
 
@@ -42,7 +42,7 @@ Bundling with Founder Control Room does not collapse PromptOS product identity, 
 
 ## What exists now
 
-- **Prompt catalog:** 398 curated prompts are pinned inside a 5,000-recipe selected catalog. The curated layer includes builder prompts, reasoning/challenge prompts, and the 150-prompt research expansion.
+- **Prompt catalog:** 508 curated prompts are pinned inside a 5,000-recipe selected catalog. The curated layer includes builder prompts, reasoning/challenge prompts, and the 150-prompt research expansion.
 - **Founder-intent mission compiler:** turns founder intent, constraints, providers, and project context into a governed mission with an explicit authority ceiling, verification requirements, rollback path, and cross-system handoffs.
 - **Authority contracts:** repository and founder-intelligence instructions keep audit context below integration or mutation authority and prohibit silent authority expansion.
 - **Plugin-management contract:** allows declared integrations to be reasoned about without treating repository configuration as proof of live provider state.
@@ -79,7 +79,7 @@ Repository-side CI can detect an unsafe `main` mutation after GitHub accepts it,
 - `.control-room/product-boundary.json` — PromptOS/Chief/FCR functional boundary
 - `.control-room/council-residency.contract.json` — standalone-peer topology
 - `control-room.manifest.json` — Control Room capability manifest
-- `scripts/verify-catalog-runtime.mjs` — 5,000 selected / 398 curated catalog contract
+- `scripts/verify-catalog-runtime.mjs` — 5,000 selected / 508 curated catalog contract
 - `scripts/verify-current-truth-surface.mjs` — binds current README claims to executable catalog and product truth
 - `scripts/verify-pages-publication-source.mjs` — live GitHub Pages publication-source readback and authority gate
 - `scripts/verify-main-push-authority.mjs` — founder/non-force `main` push authority proof
