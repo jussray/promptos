@@ -48,7 +48,7 @@ For a meaningful comparison, collect metrics *from owned/authorized environments
 
 1. Freeze the canonical repo and exact head; compare recent PRs and avoid duplicate implementation.
 2. Confirm every local rule check is reported as **inline evaluation**, with no claim of external skill invocation.
-3. Verify strict hallway bounds (0 for inactive; 48,000–95,999 for active) and full 64-character hex receipt shape. **A hash-shaped string is not validated authentication or provenance.**
+3. Verify strict expansion bounds (0 for ordinary, non-meaningful observation; 48,000–95,999 for meaningful classified traffic, including non-hallway automation) and full 64-character hex receipt shape. **A hash-shaped string is not validated authentication or provenance.**
 4. Check that no raw source IP, bearer token, session ID, secret, sensitive user-agent payload, or minor/guardian content is logged or passed to external decoys.
 5. Run isolated local tests; inspect fresh CI on exact head; use only synthetic identities against owned endpoints for runtime proof.
 6. Match Git head → build artifact → exact Cloudflare deployed version → real runtime observation. A successful Worker version upload or preview does not establish traffic serving.
