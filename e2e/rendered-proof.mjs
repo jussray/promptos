@@ -5,7 +5,7 @@ const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_PROOF_DIR || 'artifacts/promptos-rendered-proof';
 const TARGET_PROMPT = 'Jailbreak Pack Review';
 const TARGET_PROMPT_ID = 64;
-const EXPECTED_CURATED_PROMPTS = 398;
+const EXPECTED_CURATED_PROMPTS = 508;
 const EXPECTED_SELECTED_RECIPES = 5000;
 
 function assert(condition, message) {
@@ -69,7 +69,7 @@ async function proveViewport(browser, {name, width, height}) {
 
   const truthPill = page.locator('#countPill');
   const truthPillText = (await truthPill.textContent())?.trim() || '';
-  assert(truthPillText.includes('398 curated'), `${name}: global truth badge omitted curated count: ${truthPillText}`);
+  assert(truthPillText.includes('508 curated'), `${name}: global truth badge omitted curated count: ${truthPillText}`);
   assert(truthPillText.includes('5,000 recipes'), `${name}: global truth badge omitted selected recipe count: ${truthPillText}`);
   assert(await truthPill.getAttribute('data-catalog-truth') === 'canonical', `${name}: global count badge is not bound to canonical catalog truth`);
 
@@ -141,7 +141,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.keyboard.press('Escape');
 
   const truthAfterQuickLibrary = (await truthPill.textContent())?.trim() || '';
-  assert(truthAfterQuickLibrary.includes('398 curated') && truthAfterQuickLibrary.includes('5,000 recipes'), `${name}: visiting Quick Library overwrote global catalog truth: ${truthAfterQuickLibrary}`);
+  assert(truthAfterQuickLibrary.includes('508 curated') && truthAfterQuickLibrary.includes('5,000 recipes'), `${name}: visiting Quick Library overwrote global catalog truth: ${truthAfterQuickLibrary}`);
 
   await page.locator('#themeBtn').click();
   assert(await page.locator('html').getAttribute('data-theme') === 'light', `${name}: theme toggle did not switch to light`);
