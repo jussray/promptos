@@ -23,6 +23,12 @@ on:
       - test/full-attack-unit.test.mjs
       - .github/workflows/reciprocal-defense.yml
   workflow_dispatch:
+  # GitHub API-authenticated custom event. The client_payload is ignored.
+  repository_dispatch:
+    types: [juss_security_audit_v1]
+  # Low-cost, read-only drift witness. Activated only when this file reaches default branch.
+  schedule:
+    - cron: '37 8 * * *'
 permissions:
   contents: read
 concurrency:
@@ -50,3 +56,12 @@ jobs:
         run: node --test test/reciprocal-defense.test.mjs test/reciprocal-ingress.test.mjs test/full-attack-unit.test.mjs
       - name: Verify full-unit observer binding
         run: grep -q "runFullAttackUnit" security/reciprocal-ingress.mjs
+      - name: Verify registered skill continuity and event trigger contracts
+        run: |
+          node workflows/continuity/verify.mjs
+          node --test test/security-event-trigger.test.mjs
+      - name: Record evidence of exact-head inspection, not skill execution
+        if: always()
+        shell: bash
+        run: |
+          printf '## PromptOS security audit\n\n- Event: %s\n- Exact checkout: %s\n- Scope: local rule tests and skill contract verification only\n- External council invocations: none\n- Merge/deploy authority: none\n' "$GITHUB_EVENT_NAME" "$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
