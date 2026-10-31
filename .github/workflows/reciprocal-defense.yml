@@ -11,6 +11,9 @@ on:
       - test/reciprocal-ingress.test.mjs
       - test/full-attack-unit.test.mjs
       - test/security-event-trigger.test.mjs
+      - scripts/safe-pr-autoupdate.mjs
+      - test/safe-pr-autoupdate.test.mjs
+      - .github/workflows/founder-safe-pr-refresh.yml
       - .github/workflows/reciprocal-defense.yml
   push:
     branches:
@@ -23,6 +26,9 @@ on:
       - test/reciprocal-ingress.test.mjs
       - test/full-attack-unit.test.mjs
       - test/security-event-trigger.test.mjs
+      - scripts/safe-pr-autoupdate.mjs
+      - test/safe-pr-autoupdate.test.mjs
+      - .github/workflows/founder-safe-pr-refresh.yml
       - .github/workflows/reciprocal-defense.yml
   workflow_dispatch:
   # GitHub API-authenticated custom event. The client_payload is ignored.
@@ -62,6 +68,7 @@ jobs:
         run: |
           node workflows/continuity/verify.mjs
           node --test test/security-event-trigger.test.mjs
+          node --test test/safe-pr-autoupdate.test.mjs
       - name: Record evidence of exact-head inspection, not skill execution
         if: always()
         shell: bash
