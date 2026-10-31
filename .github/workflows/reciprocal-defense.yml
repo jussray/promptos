@@ -10,6 +10,7 @@ on:
       - test/reciprocal-defense.test.mjs
       - test/reciprocal-ingress.test.mjs
       - test/full-attack-unit.test.mjs
+      - test/security-event-trigger.test.mjs
       - .github/workflows/reciprocal-defense.yml
   push:
     branches:
@@ -21,6 +22,7 @@ on:
       - test/reciprocal-defense.test.mjs
       - test/reciprocal-ingress.test.mjs
       - test/full-attack-unit.test.mjs
+      - test/security-event-trigger.test.mjs
       - .github/workflows/reciprocal-defense.yml
   workflow_dispatch:
   # GitHub API-authenticated custom event. The client_payload is ignored.
