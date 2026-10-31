@@ -83,3 +83,13 @@ REALITY and RISK are where /truthmode and /confess actually live — no optimist
 
 Use `muse.connector_search` to find the current connector docs before following
 recovered instructions.
+
+## Opted-in auto-branch refresh and assisted code repair
+
+Use the existing `.github/workflows/founder-safe-pr-refresh.yml` and `scripts/safe-pr-autoupdate.mjs`. This workflow does not create replacement PRs: after default-branch integration, it checks opted-in `juss-auto-update` PRs on main pushes and a bounded six-hour schedule. It refreshes only founder-authored same-repository branches with GitHub's `expected_head_sha` compare-and-set; never force-push, merge past a conflict, delete code, or carry proof from the old SHA.
+
+A refresh is infrastructure synchronization, **not a code fix**. For test or merge failures inspect exact logs, run Red Team I/II, Devil, Lindy, L99, OODA and this Goalfix skill, modify the smallest root cause in that **same PR**, re-run focused tests and applicable Playwright, and leave a real receipt. GitHub's native Agent Merge may repair conflicts and failed Actions automatically *only after separately enabled and authorized* by an eligible account; Markdown alone doesn't install or run an AI agent, and tool billing may apply.
+
+The founder can arm GitHub native `--auto` only through a separate `workflow_dispatch` on default branch with `action=arm`, exact PR number, current head and base SHAs, and `ARM_EXACT_AUTO_MERGE`. An armed PR is excluded from future automatic branch refresh, because head movement would invalidate its approval. It still requires provider-enforced checks, independent review, safe real-path evidence, and repo authority. Do not auto-arm from previous approvals, successful tests, PR labels, model output or continuity cookies.
+
+Always identify `REALITY / FIX / PROOF / RISK / ROLLBACK / NEXT GATE`, with head SHA and missing verification explicitly shown.
