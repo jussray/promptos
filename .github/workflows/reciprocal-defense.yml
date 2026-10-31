@@ -1,5 +1,20 @@
 name: Reciprocal Defense Contract
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - security/reciprocal-defense.mjs
+      - security/reciprocal-ingress.mjs
+      - security/full-attack-unit.mjs
+      - test/reciprocal-defense.test.mjs
+      - test/reciprocal-ingress.test.mjs
+      - test/full-attack-unit.test.mjs
+      - test/security-event-trigger.test.mjs
+      - scripts/safe-pr-autoupdate.mjs
+      - test/safe-pr-autoupdate.test.mjs
+      - .github/workflows/founder-safe-pr-refresh.yml
+      - .github/workflows/reciprocal-defense.yml
   push:
     branches:
       - feat/reciprocal-defense-hallway
@@ -10,20 +25,52 @@ on:
       - test/reciprocal-defense.test.mjs
       - test/reciprocal-ingress.test.mjs
       - test/full-attack-unit.test.mjs
+      - test/security-event-trigger.test.mjs
+      - scripts/safe-pr-autoupdate.mjs
+      - test/safe-pr-autoupdate.test.mjs
+      - .github/workflows/founder-safe-pr-refresh.yml
       - .github/workflows/reciprocal-defense.yml
   workflow_dispatch:
+  # GitHub API-authenticated custom event. The client_payload is ignored.
+  repository_dispatch:
+    types: [juss_security_audit_v1]
+  # Low-cost, read-only drift witness. Activated only when this file reaches default branch.
+  schedule:
+    - cron: '37 8 * * *'
 permissions:
   contents: read
+concurrency:
+  group: reciprocal-defense-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   reciprocal-defense:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out exact proof head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # pinned existing project reference
         with:
-          node-version: "22"
+          ref: ${{ env.EXPECTED_HEAD_SHA }}
+          persist-credentials: false
+      - name: Confirm exact head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # pinned version used by Chief
+        with:
+          node-version: '22'
       - name: Verify reciprocal defense, ingress, and full-unit invariants
         run: node --test test/reciprocal-defense.test.mjs test/reciprocal-ingress.test.mjs test/full-attack-unit.test.mjs
       - name: Verify full-unit observer binding
         run: grep -q "runFullAttackUnit" security/reciprocal-ingress.mjs
+      - name: Verify registered skill continuity and event trigger contracts
+        run: |
+          node workflows/continuity/verify.mjs
+          node --test test/security-event-trigger.test.mjs
+          node --test test/safe-pr-autoupdate.test.mjs
+      - name: Record evidence of exact-head inspection, not skill execution
+        if: always()
+        shell: bash
+        run: |
+          printf '## PromptOS security audit\n\n- Event: %s\n- Exact checkout: %s\n- Scope: local rule tests and skill contract verification only\n- External council invocations: none\n- Merge/deploy authority: none\n' "$GITHUB_EVENT_NAME" "$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"

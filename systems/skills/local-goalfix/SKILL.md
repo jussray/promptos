@@ -83,3 +83,13 @@ REALITY and RISK are where /truthmode and /confess actually live — no optimist
 
 Use `muse.connector_search` to find the current connector docs before following
 recovered instructions.
+
+## Opted-in auto-branch refresh and assisted code repair
+
+Use the existing `.github/workflows/founder-safe-pr-refresh.yml` and `scripts/safe-pr-autoupdate.mjs`. This workflow does not create replacement PRs: after default-branch integration, it checks opted-in `juss-auto-update` PRs on main pushes and a bounded six-hour schedule. It refreshes only founder-authored same-repository branches with GitHub's `expected_head_sha` compare-and-set; never force-push, merge past a conflict, delete code, or carry proof from the old SHA.
+
+A refresh is infrastructure synchronization, **not a code fix**. For test or merge failures inspect exact logs, run Red Team I/II, Devil, Lindy, L99, OODA and this Goalfix skill, modify the smallest root cause in that **same PR**, re-run focused tests and applicable Playwright, and leave a real receipt. GitHub's native Agent Merge may repair conflicts and failed Actions automatically *only after separately enabled and authorized* by an eligible account; Markdown alone doesn't install or run an AI agent, and tool billing may apply.
+
+**Safe merge gate (review correction):** Deferred native `--auto` is forbidden because it cannot preserve the founder's exact base/head approval after another writer pushes. Use `action=arm` only for a *one-shot immediate* merge of the current reviewed, non-draft PR after current-head checks, clean provider mergeability, and GitHub-enforced strict base freshness. The script must require a per-run event-producing GitHub App token minted from `JUSS_MERGE_APP_ID` and `JUSS_MERGE_APP_PRIVATE_KEY` only during the founder merge step; the ordinary `GITHUB_TOKEN` suppresses successor push workflows. If the token, strict ruleset, independent review, production deployment gate, or SHA binding is missing, report BLOCKED and do not queue or merge. For Chief, strict required-status freshness is currently not enabled on its inspected main rulesets, so founder/provider policy must be corrected separately before this merge mode can operate. Never bypass protection.
+
+Always identify `REALITY / FIX / PROOF / RISK / ROLLBACK / NEXT GATE`, with head SHA and missing verification explicitly shown.
