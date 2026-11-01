@@ -156,3 +156,15 @@ never parked as a report. Never merge over a blocked mandatory gate or a
 red exact head. A credential- or founder-gated red gets a full diagnosis
 plus the one unblocking action named — never silence, never a faked fix.
 Full charter: `.github/agents/reds-implant.agent.md`.
+
+## Project-owned delivery and applicable skills
+
+For every authorized creation or repair, leave the corresponding project able to continue without this chat or a disposable workspace.
+
+- Resolve the actual project, repository, branch, current head, existing owner, and applicable agent instructions before changing anything. Discover and invoke all relevant, available, approved skills required for that task; do not load unrelated skills merely to claim “all skills.” Record skill execution honestly as unavailable, inspected, invoked, or verified, and name any blocking requirement.
+- Deliver created code, configuration, images, video, workflows, and reusable knowledge to their authorized project-owned destination. Prefer the existing implementation and asset pipeline. Local scratch files, a chat response, a generated preview, a copied skill, or an unconnected registry entry are not completed project implementation.
+- When the task requires executable behavior, connect the deliverable to the project's actual entrypoint/runtime or existing adapter. Include the necessary dependencies and configuration references, focused verification, operating instructions, failure handling, and rollback. Keep credentials outside source control. If runtime integration is not applicable, explain why; if it is blocked or separately gated, leave an explicit incomplete state and next gate rather than claiming it works.
+- For image/video and design tasks, resolve project-scoped approved references from GitHub, Canva, Figma, and ChatGPT Library when authorized and available. Preserve source identifiers, versions, approval scope, and content hashes in the appropriate private or public-safe project record. Missing access is a named gap, never permission to search unrelated content. A generated variant, world/ensemble board, source location, or matching hash does not by itself grant character-canon approval.
+- Keep each product independent. Reuse another project's approved contract through a scoped interface; do not copy its private data, identity, proprietary prompts, or authority. This rule does not make this project a media renderer or enable a provider/runtime by declaration.
+- Leave a minimized handoff with goal, affected paths, exact branch/commit, intended versus applied changes, tests and results, observed runtime outcome versus unknowns, source/artifact hashes where relevant, rollback, and next owner/gate. New evidence supersedes only its bound subject; preserve historical provenance.
+- Documentation changes are instructions, not machine enforcement or proof of live behavior. This rule grants no additional search, sharing, publication, spending, deletion, merge, deployment, secret, auth, or provider-mutation authority. Preserve all stricter project and founder gates, including current restrictions on new PRs/drafts.
