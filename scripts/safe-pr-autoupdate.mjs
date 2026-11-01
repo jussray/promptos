@@ -66,6 +66,13 @@ async function armMerge(repo) {
   if (!n || !/^[a-f0-9]{40}$/.test(head) || !/^[a-f0-9]{40}$/.test(base)) {
     throw new Error('Exact PR number, head SHA and base SHA required.');
   }
+  // PromptOS main verifies founder identity on every push. An App-authored
+  // merge would be rejected until a separately reviewed exact-head receipt
+  // bridge is implemented in scripts/verify-main-push-authority.mjs.
+  // Fail closed rather than merging a candidate whose live authority gate fails.
+  if (repo === 'jussray/promptos') {
+    throw new Error('MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED: App-authored merge is not yet accepted by main authority verifier.');
+  }
   const mergeToken = process.env.MERGE_GH_TOKEN || '';
   if (!mergeToken || mergeToken === process.env.GH_TOKEN) {
     throw new Error('APP_IDENTITY_REQUIRED: a separately authorized GitHub App merge token is required to preserve post-merge workflows.');
