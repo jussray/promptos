@@ -54,6 +54,7 @@ test('API compare-and-set and guarded one-shot merge are visible in source', () 
   assert.match(script, /--match-head-commit/);
   assert.match(script, /APP_IDENTITY_REQUIRED/);
   assert.match(script, /STRICT_BASE_GUARD_REQUIRED/);
+  assert.match(script, /MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED/);
   assert.match(script, /mergeable_state !== 'clean'/);
   assert.match(script, /--squash/);
   assert.doesNotMatch(script, /['"]--auto['"]/);
