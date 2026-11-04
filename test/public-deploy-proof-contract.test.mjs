@@ -19,7 +19,8 @@ test('deployed UI proof navigates to a visible Quick Library control before open
 test('a cold guest visit never obtains an opt-in visitor cookie', () => {
   assert.match(proof, /freshCookies = await context\.cookies\(\)/);
   assert.match(proof, /postJourneyCookies = await context\.cookies\(\)/);
-  assert.match(proof, /cookie\.name === 'promptos_vid'/);
+  assert.match(proof, /VISITOR_COOKIE_NAMES = new Set\(\['promptos_vid', 'promptos_vid_v2'\]\)/);
+  assert.match(proof, /VISITOR_COOKIE_NAMES\.has\(cookie\.name\)/);
   assert.match(auth, /if \(consent === 'accepted'\)\s*\{\s*ensureVisitorId\(\)/);
 });
 
@@ -31,6 +32,8 @@ test('both successful and failed live checks retain a non-authorizing source fin
   assert.match(proof, /browserCookie: false/);
   assert.match(proof, /authority: false/);
   assert.match(proof, /proofReceipt\('failed'/);
+  assert.match(proof, /-failure\.png/);
+  assert.match(proof, /finally \{\s*await context\.close\(\)/);
   assert.match(proof, /const results = \[\];\s*let browser;\s*try/);
   assert.match(proof, /writeFile\(\x60\$\{OUTPUT_DIR\}\/failure\.json/);
 });

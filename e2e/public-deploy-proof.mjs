@@ -21,6 +21,7 @@ assert(typeof BASE_URL === 'string' && BASE_URL.length > 0, 'PROMPTOS_BASE_URL i
 assert(/^[0-9a-f]{40}$/.test(EXPECTED_SHA || ''), 'PROMPTOS_EXPECTED_SHA must be an exact 40-character commit SHA');
 
 const EXPECTED_HOST = process.env.PROMPTOS_EXPECTED_HOST || new URL(BASE_URL).host;
+const VISITOR_COOKIE_NAMES = new Set(['promptos_vid', 'promptos_vid_v2']);
 const SCRIPT_SHA256 = createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex');
 const PROOF_SUBJECT = Object.freeze({
   repository: process.env.GITHUB_REPOSITORY || 'jussray/promptos',
@@ -71,6 +72,7 @@ async function proveViewport(browser, {name, width, height}) {
     if (url.origin === origin && response.status() >= 400) localFailures.push(`${response.status()} ${url.pathname}`);
   });
 
+  try {
   const response = await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   assert(response, `${name}: navigation produced no response`);
   assert(response.status() === 200, `${name}: expected 200, got ${response.status()} (possible Access/login wall)`);
@@ -90,7 +92,7 @@ async function proveViewport(browser, {name, width, height}) {
 
   // A fresh anonymous browser must not receive an opt-in identifier before consent.
   const freshCookies = await context.cookies();
-  assert(!freshCookies.some((cookie) => cookie.name === 'promptos_vid'),
+  assert(!freshCookies.some((cookie) => VISITOR_COOKIE_NAMES.has(cookie.name)),
     `${name}: visitor identification cookie was set without consent`);
 
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
@@ -163,7 +165,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(consoleErrors.length === 0, `${name}: console errors: ${consoleErrors.join(' | ')}`);
 
   const postJourneyCookies = await context.cookies();
-  assert(!postJourneyCookies.some((cookie) => cookie.name === 'promptos_vid'),
+  assert(!postJourneyCookies.some((cookie) => VISITOR_COOKIE_NAMES.has(cookie.name)),
     `${name}: visitor identification cookie appeared without consent after the journey`);
 
   const result = {
@@ -182,8 +184,14 @@ async function proveViewport(browser, {name, width, height}) {
     consoleErrors,
     screenshot,
   };
-  await context.close();
   return result;
+  } catch (error) {
+    // Guest-only failure screenshot is evidence, not an authorization or a passing result.
+    await page.screenshot({path: `${OUTPUT_DIR}/${name}-failure.png`, fullPage: true}).catch(() => {});
+    throw error;
+  } finally {
+    await context.close();
+  }
 }
 
 await mkdir(OUTPUT_DIR, {recursive: true});
