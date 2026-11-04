@@ -38,13 +38,23 @@ test('both successful and failed live checks retain a non-authorizing source fin
 test('declared cookies are separate from proof cookies and optional analytics requires consent', () => {
   assert.equal(policy.defaultPolicy, 'deny-undeclared');
   assert.deepEqual(policy.allowedCookieWriters, ['parts/auth.js']);
-  assert.deepEqual(policy.cookies.map((c) => c.name), ['promptos_consent', 'promptos_vid']);
+  assert.deepEqual(policy.cookies.map((c) => c.name), ['promptos_consent_v2', 'promptos_vid_v2']);
   const visitor = policy.cookies[1];
   assert.equal(visitor.consentRequired, true);
   assert.equal(visitor.crossSite, false);
   assert.equal(visitor.identitySource, 'cryptographically_random_browser_id');
-  assert.match(auth, /var VISITOR_COOKIE = 'promptos_vid'/);
+  assert.match(auth, /var VISITOR_COOKIE = 'promptos_vid_v2'/);
+  assert.match(auth, /var CONSENT_COOKIE = 'promptos_consent_v2'/);
   assert.match(auth, /SameSite=Lax/);
+  assert.match(auth, /function cookieScopePath\(\)/);
+  assert.match(auth, /url\.origin === location\.origin/);
+  assert.match(auth, /return url\.pathname/);
+  assert.match(auth, /location\.hostname === 'jussray\.github\.io' \? '\/promptos\/' : '\/'/);
+  assert.match(auth, /'; path=' \+ COOKIE_PATH/);
+  assert.doesNotMatch(auth, /'; path=\/; SameSite=Lax'/);
+  assert.ok(policy.cookies.every((c) => c.path === 'application_root_from_same_origin_script'));
+  assert.ok(policy.cookies.every((c) => c.legacyRootCookieBehavior.includes('Do not read')));
+
   assert.match(auth, /location\.protocol === 'https:'/);
   assert.doesNotMatch(auth, /Math\.random\(/);
   assert.match(auth, /return null;\s*\}\s*setCookie\(VISITOR_COOKIE/);
