@@ -5,7 +5,8 @@
  *   3. serving the exact authorized source commit (runtime identity == source SHA);
  *   4. exercising both the legacy library CTA and the canonical 5,000-recipe Catalog compile path.
  */
-import {mkdir, writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL;
@@ -20,6 +21,38 @@ assert(typeof BASE_URL === 'string' && BASE_URL.length > 0, 'PROMPTOS_BASE_URL i
 assert(/^[0-9a-f]{40}$/.test(EXPECTED_SHA || ''), 'PROMPTOS_EXPECTED_SHA must be an exact 40-character commit SHA');
 
 const EXPECTED_HOST = process.env.PROMPTOS_EXPECTED_HOST || new URL(BASE_URL).host;
+const SCRIPT_SHA256 = createHash('sha256').update(await readFile(new URL(import.meta.url))).digest('hex');
+const PROOF_SUBJECT = Object.freeze({
+  repository: process.env.GITHUB_REPOSITORY || 'jussray/promptos',
+  headSha: EXPECTED_SHA,
+  host: EXPECTED_HOST,
+  proofScriptSha256: SCRIPT_SHA256,
+  runId: process.env.GITHUB_RUN_ID || 'local',
+});
+
+function proofReceipt(result, viewports, extra = {}) {
+  // A continuity "cookie" is a proof-file label, never a browser cookie or authorization.
+  const evidence = {subject: PROOF_SUBJECT, result, completedViewports: viewports.map((v) => v.name)};
+  const fingerprint = createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
+  return {
+    schemaVersion: 2,
+    baseUrl: BASE_URL,
+    expectedHost: EXPECTED_HOST,
+    expectedSha: EXPECTED_SHA,
+    generatedAt: new Date().toISOString(),
+    result,
+    viewports,
+    sourceSubject: PROOF_SUBJECT,
+    proofFingerprint: 'sha256:' + fingerprint,
+    proofCookie: {
+      value: 'promptos-public-proof:' + fingerprint.slice(0, 24),
+      browserCookie: false,
+      authority: false,
+      visitorTracking: false,
+    },
+    ...extra,
+  };
+}
 
 async function proveViewport(browser, {name, width, height}) {
   const context = await browser.newContext({viewport: {width, height}});
@@ -55,8 +88,20 @@ async function proveViewport(browser, {name, width, height}) {
   const deployedSha = await page.locator('meta[name="promptos-deploy-sha"]').getAttribute('content');
   assert(deployedSha === EXPECTED_SHA, `${name}: deployed runtime identity ${deployedSha} does not equal authorized source SHA ${EXPECTED_SHA}`);
 
+  // A fresh anonymous browser must not receive an opt-in identifier before consent.
+  const freshCookies = await context.cookies();
+  assert(!freshCookies.some((cookie) => cookie.name === 'promptos_vid'),
+    `${name}: visitor identification cookie was set without consent`);
+
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts > 0, `${name}: prompt registry did not render`);
+
+  // The canonical Catalog opens on boot. Use a *visible user control* to reach
+  // Quick Library before clicking its card; do not bypass navigation via evaluate().
+  const quickLibraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
+  await quickLibraryNav.waitFor({state: 'visible'});
+  await quickLibraryNav.click();
+  await page.locator('#page-library.on').waitFor({state: 'visible'});
 
   const firstCard = page.locator('.pcard [data-open]').first();
   await firstCard.waitFor({state: 'visible'});
@@ -68,6 +113,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#mCopy').click();
   await page.waitForFunction(
     () => (document.getElementById('toast')?.textContent || '').toLowerCase().includes('copied'),
+    null,
     {timeout: 5000},
   );
   const toastText = (await page.locator('#toast').textContent()) || '';
@@ -116,6 +162,10 @@ async function proveViewport(browser, {name, width, height}) {
   assert(pageErrors.length === 0, `${name}: page errors: ${pageErrors.join(' | ')}`);
   assert(consoleErrors.length === 0, `${name}: console errors: ${consoleErrors.join(' | ')}`);
 
+  const postJourneyCookies = await context.cookies();
+  assert(!postJourneyCookies.some((cookie) => cookie.name === 'promptos_vid'),
+    `${name}: visitor identification cookie appeared without consent after the journey`);
+
   const result = {
     name,
     viewport: {width, height},
@@ -137,22 +187,22 @@ async function proveViewport(browser, {name, width, height}) {
 }
 
 await mkdir(OUTPUT_DIR, {recursive: true});
-const browser = await chromium.launch({headless: true});
+const results = [];
+let browser;
 try {
-  const results = [];
+  browser = await chromium.launch({headless: true});
   results.push(await proveViewport(browser, {name: 'public-desktop', width: 1440, height: 1000}));
   results.push(await proveViewport(browser, {name: 'public-mobile', width: 390, height: 844}));
-  const receipt = {
-    schemaVersion: 1,
-    baseUrl: BASE_URL,
-    expectedHost: EXPECTED_HOST,
-    expectedSha: EXPECTED_SHA,
-    generatedAt: new Date().toISOString(),
-    result: 'passed',
-    viewports: results,
-  };
+  const receipt = proofReceipt('passed', results);
   await writeFile(`${OUTPUT_DIR}/receipt.json`, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');
   console.log(JSON.stringify(receipt));
+} catch (error) {
+  // Always retain a bounded, non-authorizing receipt when live proof fails.
+  const failure = proofReceipt('failed', results, {
+    failure: {type: error?.name || 'Error', completedViewports: results.map((v) => v.name)},
+  });
+  await writeFile(`${OUTPUT_DIR}/failure.json`, `${JSON.stringify(failure, null, 2)}\n`, 'utf8');
+  throw error;
 } finally {
-  await browser.close();
+  if (browser) await browser.close();
 }

@@ -159,22 +159,25 @@
      cryptographically-random, first-party, disclosed, resettable, no
      cross-site correlation — so that is what this uses. */
   function randomId() {
-    if (window.crypto && crypto.getRandomValues) {
-      var bytes = crypto.getRandomValues(new Uint8Array(16));
-      return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-    }
-    /* Fallback for a browser without crypto.getRandomValues (none expected
-       in a modern evergreen browser, but never leave this unset). */
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+    /* Fail closed: never substitute predictable Math.random/Date.now for
+       cryptographic browser randomness when creating a persistent identifier. */
+    if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') return null;
+    var bytes = window.crypto.getRandomValues(new Uint8Array(16));
+    return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
 
   function ensureVisitorId() {
     var existing = getCookie(VISITOR_COOKIE);
-    if (existing) {
+    if (existing && /^[a-f0-9]{32}$/i.test(existing)) {
       VISITOR_ID = existing;
       return existing;
     }
     var id = randomId();
+    if (!id) {
+      VISITOR_ID = null;
+      console.warn('[PromptOS analytics] visitor id unavailable without secure random source');
+      return null;
+    }
     setCookie(VISITOR_COOKIE, id, VISITOR_COOKIE_DAYS);
     VISITOR_ID = id;
     return id;
