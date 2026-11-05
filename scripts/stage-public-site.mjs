@@ -41,6 +41,7 @@ const publicFiles = [
   'src/catalog-runtime/compiler/compilePrompt.js',
   'src/catalog-runtime/compiler/platformAdapters.js',
   'styles/catalog.css',
+  'styles/cinematic-direction.css',
 ];
 
 await rm(outputDir, { recursive: true, force: true });
