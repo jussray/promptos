@@ -1,12 +1,13 @@
 /**
  * Proves that the deployed public PromptOS URL is:
  *   1. reachable anonymously, with no Access/login/provider wall in front of it;
- *   2. rendering the real guest-boot PromptOS UI (not a placeholder or error page);
+ *   2. rendering the real PromptOS welcome-to-onboarding-to-guest journey;
  *   3. serving the exact authorized source commit (runtime identity == source SHA);
  *   4. exercising both the legacy library CTA and the canonical 5,000-recipe Catalog compile path.
  */
 import {mkdir, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL;
 const EXPECTED_SHA = process.env.PROMPTOS_EXPECTED_SHA;
@@ -45,8 +46,7 @@ async function proveViewport(browser, {name, width, height}) {
   const finalUrl = new URL(page.url());
   assert(finalUrl.host === EXPECTED_HOST, `${name}: navigation redirected off the public host to ${finalUrl.host} (possible provider/login wall)`);
 
-  await page.locator('#appShell').waitFor({state: 'visible', timeout: 15000});
-  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding/login wall is visible on anonymous load`);
+  await enterGuestWorkspace(page);
 
   const guestChipText = (await page.locator('#userChip').textContent()) || '';
   assert(/guest/i.test(guestChipText), `${name}: anonymous visitor was not booted as guest (chip: "${guestChipText.trim()}")`);
@@ -124,7 +124,7 @@ async function proveViewport(browser, {name, width, height}) {
     deployedSha,
     totalPrompts,
     guestBoot: true,
-    onboardingWallHidden: true,
+    welcomeOnboardingSequence: true,
     primaryCtaWorked: true,
     catalog: {selectedRecipes, candidateRecipes, familyId: 'repo.audit.first', concreteInputCount: inputCount, compiledReady: true},
     localFailures,
