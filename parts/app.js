@@ -620,6 +620,12 @@ function boot(){
   renderAll();
   switchPage('library');
 
+  // Catalog owns its navigation buttons; reconcile both entry paths here.
+  // switchPage is non-recursive and builds the rail only once.
+  window.addEventListener('promptos:catalog-opened', function(){
+    switchPage('catalog');
+  });
+
   var themeBtn = qs('#themeBtn');
   if (themeBtn) themeBtn.addEventListener('click', function(){
     STATE.theme = STATE.theme === 'dark' ? 'light' : 'dark';
