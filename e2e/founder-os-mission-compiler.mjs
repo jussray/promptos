@@ -20,6 +20,12 @@ async function prove(browser, viewport) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
+  await page.locator('#welcomeScreen').waitFor({state: 'visible'});
+  assert(await page.locator('#appShell').isHidden(), 'application bypassed Welcome');
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('#onboarding').waitFor({state: 'visible'});
+  assert(await page.locator('#appShell').isHidden(), 'application bypassed Onboarding');
+  await page.locator('#onboardingGuest').click();
   await page.locator('#appShell').waitFor({state: 'visible'});
 
   const runtime = await page.evaluate(() => ({
