@@ -332,13 +332,32 @@
     return el;
   }
 
-  function bootAsGuest() {
-    var ob = qs('#onboarding');
+  // Welcome and onboarding are real public screens, not authentication gates.
+  function enterApp() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
     var app = qs('#appShell');
-    if (ob) ob.style.display = 'none';
+    if (welcome) welcome.style.display = 'none';
+    if (onboarding) onboarding.style.display = 'none';
     if (app) app.style.display = '';
+  }
+
+  function showOnboarding() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
+    var app = qs('#appShell');
+    if (welcome) welcome.style.display = 'none';
+    if (app) app.style.display = 'none';
+    if (!onboarding) return;
+    onboarding.style.display = 'flex';
+    onboarding.tabIndex = -1;
+    onboarding.focus({ preventScroll: true });
+  }
+
+  function bootAsGuest() {
     SESSION.user = null;
     SESSION.startedAs = 'guest';
+    enterApp();
     renderGuestChip();
     logEvent('guest_session_started');
     window.dispatchEvent(new CustomEvent('promptos:guest'));
@@ -365,6 +384,7 @@
       picture: payload.picture || ''
     };
 
+    enterApp();
     renderUserChip(SESSION.user);
     logEvent('google_signin_success');
     if (wasGuest) logEvent('guest_to_google_upgrade');
@@ -415,6 +435,15 @@
       cancel_on_tap_outside: true
     });
     if (qs('#page-account.on')) renderGoogleButton();
+    var onboardingMount = qs('#gsiButton');
+    if (onboardingMount && !onboardingMount.dataset.gsiRendered &&
+        typeof google.accounts.id.renderButton === 'function') {
+      google.accounts.id.renderButton(onboardingMount, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'pill', width: 280
+      });
+      onboardingMount.dataset.gsiRendered = 'true';
+    }
   }
 
   function loadGIS(promptAfter) {
@@ -457,8 +486,13 @@
 
   function boot() {
     initVisitorIdentification();
-    bootAsGuest();
     renderPersistenceAuthority();
+    var start = qs('[data-start-onboarding]');
+    var guest = qs('#onboardingGuest');
+    if (start) start.addEventListener('click', showOnboarding);
+    if (guest) guest.addEventListener('click', bootAsGuest);
+    // Keep the Welcome screen in front. App state initializes behind it.
+    renderGuestChip();
     loadGIS();
   }
 
