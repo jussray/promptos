@@ -2,6 +2,7 @@ export { buildCatalogRecipes, CATALOG_TARGET, CATALOG_VERSION } from './catalog/
 export { builderPrompts } from './catalog/builderPrompts.js';
 export { workflowPrompts, deepReasoningPrompts, adversarialChallengePrompts } from './catalog/workflowPrompts.js';
 export { researchExpansionPrompts, researchExpansionGroups } from './catalog/researchExpansionPrompts.js';
+export { slashCommandPackPrompts } from './catalog/slashCommandPack.js';
 export { compilePrompt } from './compiler/compilePrompt.js';
 export { openPromptCard } from './openPromptCard.js';
 export { canonicalFamilies, ALL_STAGES, ALL_MODES, ALL_RISK_LENSES } from './catalog/families.js';
