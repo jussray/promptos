@@ -389,6 +389,9 @@ export function mountPromptOSCatalog() {
       button.classList.toggle('active', button.dataset.page === 'catalog');
     });
     initializeCatalog();
+    // app.js owns cinematic navigation presentation; this event is emitted
+    // only after the catalog options have been populated.
+    window.dispatchEvent(new CustomEvent('promptos:catalog-opened'));
   }
 
   mountNavigation(showCatalog);
