@@ -91,7 +91,7 @@ async function proveViewport(browser, {name, width, height}) {
   await persistenceStatus.waitFor({state: 'visible'});
   const persistenceText = (await persistenceStatus.textContent())?.trim() || '';
   assert(persistenceText.includes('Session only'), `${name}: persistence status did not disclose session-only state`);
-  assert(persistenceText.includes('FCR') && persistenceText.includes('not connected'), `${name}: persistence status overstated FCR runtime persistence`);
+  assert(persistenceText.includes('cloud sync not connected'), `${name}: persistence status overstated FCR runtime persistence`);
 
   for (const selector of ['#syncToken', '#syncConnect', '#syncPush', '#syncPull']) {
     assert(await page.locator(selector).count() === 0, `${name}: legacy browser Gist control remains: ${selector}`);
@@ -102,7 +102,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(!bodyText.includes('persist across sessions'), `${name}: stale cross-session persistence claim is still visible`);
 
   const persistenceAuthority = await page.evaluate(() => window.__PROMPTOS_PERSISTENCE_AUTHORITY__);
-  assert(persistenceAuthority?.canonicalAuthority === 'Founder Control Room', `${name}: FCR is not declared as canonical persistence authority`);
+  assert(persistenceAuthority?.canonicalAuthority === 'browser-session', `${name}: browser session is not declared as the current persistence authority`);
   assert(persistenceAuthority?.runtimePersistence === 'not-connected', `${name}: runtime persistence should remain not-connected until a real FCR path exists`);
   assert(persistenceAuthority?.browserState === 'session-only', `${name}: browser state is not truthfully marked session-only`);
   assert(persistenceAuthority?.browserGitHubTokenAccepted === false, `${name}: browser GitHub token acceptance is not explicitly disabled`);

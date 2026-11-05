@@ -80,7 +80,7 @@
       status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
-      status.textContent = 'Session only · FCR not connected';
+      status.textContent = 'Session only · cloud sync not connected';
 
       var recovery = document.createElement('div');
       recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
@@ -101,7 +101,7 @@
       mobileStatus.setAttribute('aria-live', 'polite');
       mobileStatus.setAttribute('data-persistence-authority', 'session-only');
       mobileStatus.style.cssText = 'font-family:var(--mono);font-size:10.5px;line-height:1;white-space:nowrap;flex-shrink:0;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r-full);background:var(--surface-2);color:var(--text-muted)';
-      mobileStatus.textContent = 'Session only · FCR not connected';
+      mobileStatus.textContent = 'Session only · cloud sync not connected';
       mobileNav.insertBefore(mobileStatus, mobileNav.firstChild);
     }
   }
