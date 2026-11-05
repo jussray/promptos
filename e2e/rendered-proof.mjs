@@ -62,7 +62,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#commandRoute[data-state="resolved"]').waitFor({state:'visible'});
   assert((await page.locator('#commandRouteCapability').textContent())?.trim() === 'legal-navigation', `${name}: contract command capability did not resolve`);
   assert((await page.locator('#commandRouteSpecialist').textContent())?.trim() === 'truth-weaver', `${name}: contract command did not route to Truth Weaver`);
-  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'founder-control-room', `${name}: command route bypassed FCR authority`);
+  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'Advisory only · FCR not connected', `${name}: the public command route must not claim connected execution authority`);
   assert((await page.locator('#commandRouteArgs').textContent())?.trim() === 'vendor NDA', `${name}: command arguments were not preserved`);
 
   await commandProject.fill("Se'kret Bip");
