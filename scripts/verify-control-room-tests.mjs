@@ -155,6 +155,13 @@ for (const source of EXPECTED_INDEX_SCRIPTS) {
 const exactMatch = sameSequence(declaredSources, EXPECTED_INDEX_SCRIPTS);
 
 if (missingSources.length > 0) errors.push(`index references missing canonical sources: ${missingSources.join(', ')}`);
+if (!indexHtml.includes('<script type="module" src="./parts/p11-make-ui.mjs"></script>')) {
+  errors.push('public app must mount the existing governed /MAKE workflow UI');
+}
+for (const modulePath of ['parts/p11-make-ui.mjs', 'src/workflow-artifact.mjs', 'src/prompt-memory-ui.js', 'src/prompt-memory.js']) {
+  if (!(await exists(modulePath))) errors.push('governed workflow UI dependency is missing: ' + modulePath);
+}
+
 if (!exactMatch) {
   errors.push(`index script authority drifted; expected ${EXPECTED_INDEX_SCRIPTS.join(' -> ')}, got ${declaredSources.join(' -> ')}`);
 }
