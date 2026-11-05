@@ -37,7 +37,15 @@ async function proveViewport(browser, {name, width, height}) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
+  await page.locator('#welcomeScreen').waitFor({state: 'visible'});
+  assert(await page.locator('#appShell').isHidden(), `${name}: application displayed before welcome/onboarding`);
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('#onboarding').waitFor({state: 'visible'});
+  assert(await page.locator('#welcomeScreen').isHidden(), `${name}: welcome stayed visible during onboarding`);
+  assert(await page.locator('#appShell').isHidden(), `${name}: application displayed before guest choice`);
+  await page.locator('#onboardingGuest').click();
   await page.locator('#appShell').waitFor({state: 'visible'});
+  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding remained visible after guest choice`);
   assert(await page.locator('#acctGsiButton').count() === 1, `${name}: account page lacks official GIS button mount`);
   const accountText = (await page.locator('#acctSignedIn').textContent()) || '';
   assert(accountText.includes('Server-verified account access and cloud sync are not connected'), `${name}: account falsely implies backend authentication`);
