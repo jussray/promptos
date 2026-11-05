@@ -58,6 +58,15 @@ async function proveViewport(browser, {name, width, height}) {
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts > 0, `${name}: prompt registry did not render`);
 
+  // The app mounts its catalog UI from a deferred dynamic import, and that
+  // one-time mount activates the Catalog page whenever the module lands.
+  // Over real network latency it can land after the navigation below and
+  // steal the active page back mid-click, hiding the card button under a
+  // display:none page. The catalog summary is bound in the same mount
+  // sequence (bindGlobalCatalogTruth), so wait for it before interacting:
+  // once it exists, the mount has settled and page state is stable.
+  await page.waitForFunction(() => typeof window.__PROMPTOS_CATALOG_SUMMARY__ !== 'undefined');
+
   const libraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
   await libraryNav.waitFor({state: 'visible'});
   await libraryNav.click();
