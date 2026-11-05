@@ -47,6 +47,12 @@ async function proveViewport(browser, {name, width, height}) {
   assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding remained visible after guest choice`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
+  // Catalog has an independent navigation entrypoint; the cinematic Explore
+  // view and family rail must appear on the ordinary path, not only via Account.
+  await page.locator('.main[data-view="explore"]').waitFor({state: 'visible'});
+  await page.locator('#exploreRail').waitFor({state: 'visible'});
+  assert((await page.locator('#exploreRail .explore-rail-btn').count()) > 1,
+    `${name}: canonical catalog family rail did not populate`);
   const catalogSummary = await page.evaluate(() => window.__PROMPTOS_CATALOG_SUMMARY__);
   const commandSummary = await page.evaluate(() => window.__PROMPTOS_COMMAND_SUMMARY__);
   assert(commandSummary?.commandCount === 30, `${name}: public command count drifted: ${commandSummary?.commandCount}`);
