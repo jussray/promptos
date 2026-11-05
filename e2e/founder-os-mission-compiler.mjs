@@ -1,5 +1,6 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_FOUNDER_OS_PROOF_DIR || 'artifacts/promptos-founder-os-proof';
@@ -20,7 +21,7 @@ async function prove(browser, viewport) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
-  await page.locator('#appShell').waitFor({state: 'visible'});
+  await enterGuestWorkspace(page);
 
   const runtime = await page.evaluate(() => ({
     version: window.PROMPTOS_FOUNDER_OS_VERSION,
