@@ -58,6 +58,11 @@ async function proveViewport(browser, {name, width, height}) {
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts > 0, `${name}: prompt registry did not render`);
 
+  const libraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
+  await libraryNav.waitFor({state: 'visible'});
+  await libraryNav.click();
+  await page.locator('#page-library.on').waitFor({state: 'visible'});
+
   const firstCard = page.locator('.pcard [data-open]').first();
   await firstCard.waitFor({state: 'visible'});
   await firstCard.click();
@@ -82,7 +87,9 @@ async function proveViewport(browser, {name, width, height}) {
   const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
   const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
   assert(selectedRecipes === 5000, `${name}: deployed catalog selected recipe count drifted: ${selectedRecipes}`);
-  assert(candidateRecipes === 5400, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
+  // Candidates = 5,400 generated-valid + 398 curated (catalog candidateCount
+  // definition changed in ed2bc3f; verify-catalog-runtime.mjs reports 5,798).
+  assert(candidateRecipes === 5798, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
 
   await page.locator('#catalogFamily').selectOption('repo.audit.first');
   await page.locator('#catalogPlatform').selectOption('chatgpt');
