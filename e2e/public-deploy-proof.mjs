@@ -1,7 +1,7 @@
 /**
  * Proves that the deployed public PromptOS URL is:
  *   1. reachable anonymously, with no Access/login/provider wall in front of it;
- *   2. rendering the real guest-boot PromptOS UI (not a placeholder or error page);
+ *   2. rendering Welcome → Onboarding → real guest PromptOS UI (not a placeholder or error page);
  *   3. serving the exact authorized source commit (runtime identity == source SHA);
  *   4. exercising both the legacy library CTA and the canonical 5,000-recipe Catalog compile path.
  */
@@ -45,8 +45,14 @@ async function proveViewport(browser, {name, width, height}) {
   const finalUrl = new URL(page.url());
   assert(finalUrl.host === EXPECTED_HOST, `${name}: navigation redirected off the public host to ${finalUrl.host} (possible provider/login wall)`);
 
+  await page.locator('#welcomeScreen').waitFor({state: 'visible', timeout: 15000});
+  assert(await page.locator('#appShell').isHidden(), `${name}: app bypassed public welcome`);
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('#onboarding').waitFor({state: 'visible'});
+  assert(await page.locator('#appShell').isHidden(), `${name}: app bypassed onboarding`);
+  await page.locator('#onboardingGuest').click();
   await page.locator('#appShell').waitFor({state: 'visible', timeout: 15000});
-  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding/login wall is visible on anonymous load`);
+  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding did not close after guest entry`);
 
   const guestChipText = (await page.locator('#userChip').textContent()) || '';
   assert(/guest/i.test(guestChipText), `${name}: anonymous visitor was not booted as guest (chip: "${guestChipText.trim()}")`);
