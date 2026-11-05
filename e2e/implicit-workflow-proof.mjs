@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_IMPLICIT_PROOF_DIR || 'artifacts/promptos-implicit-workflow-proof';
@@ -67,7 +68,7 @@ async function proveViewport(browser, { name, width, height }) {
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
 
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-  await page.locator('#appShell').waitFor({ state: 'visible' });
+  await enterGuestWorkspace(page);
   await openCatalog(page, width);
 
   const deep = await proveFamily(page, {
