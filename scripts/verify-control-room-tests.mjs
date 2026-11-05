@@ -175,6 +175,15 @@ if (!assemblyWorkflow.includes('node scripts/verify-control-room-tests.mjs')) {
   errors.push('legacy assembly workflow must delegate to the non-mutating source verifier');
 }
 
+const cloudflareBuildTests = spawnSync(process.execPath, ['--test', 'scripts/cloudflare-pages-build.test.mjs'], {
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+if (cloudflareBuildTests.status !== 0) {
+  errors.push('Cloudflare public publication guard failed: ' +
+    (cloudflareBuildTests.stderr || cloudflareBuildTests.stdout || '').trim().slice(0, 500));
+}
+
 const promptModules = (await readdir('parts'))
   .filter((file) => file.endsWith('.js'))
   .sort()
