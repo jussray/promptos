@@ -8,10 +8,14 @@ const policy = JSON.parse(readFileSync(new URL('../.security/cookies.json', impo
 const workflow = readFileSync(new URL('../.github/workflows/control-room-tests.yml', import.meta.url), 'utf8');
 
 test('deployed UI proof navigates to a visible Quick Library control before opening a card', () => {
-  const nav = proof.indexOf('const quickLibraryNav =');
+  const navMatch = /const (quickLibraryNav|libraryNav) = page\.locator\(/.exec(proof);
+  assert.ok(navMatch, 'a visible library navigation control must exist');
+  const nav = proof.indexOf(navMatch[0]);
+  const click = proof.indexOf('await ' + navMatch[1] + '.click();');
   const card = proof.indexOf('await firstCard.click();');
-  assert.ok(nav >= 0 && nav < card, 'navigation must precede library card click');
-  assert.match(proof, /quickLibraryNav\.click\(\)/);
+  assert.ok(nav >= 0 && nav < click && click < card, 'visible navigation must precede library card click');
+  assert.ok(proof.includes('await ' + navMatch[1] + '.waitFor({state: \'visible\'});'));
+  assert.match(proof, /__PROMPTOS_CATALOG_SUMMARY__/);
   assert.match(proof, /'#page-library\.on'/);
   assert.doesNotMatch(proof, /firstCard\.click\(\{\s*force:\s*true/);
 });
