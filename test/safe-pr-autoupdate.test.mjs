@@ -62,3 +62,23 @@ test('API compare-and-set and guarded one-shot merge are visible in source', () 
   assert.match(script, /Agent Merge/);
   assert.doesNotMatch(script, /--admin|force:\s*true|deleteBranch:\s*true/);
 });
+
+
+test('App-authored main merge needs founder workflow signature and provider verification', () => {
+  const merger = readFileSync(new URL('../scripts/safe-pr-autoupdate.mjs', import.meta.url), 'utf8');
+  const mainVerifier = readFileSync(new URL('../scripts/verify-main-push-authority.mjs', import.meta.url), 'utf8');
+  const mainWorkflow = readFileSync(new URL('../.github/workflows/main-authority-contract.yml', import.meta.url), 'utf8');
+  const refreshWorkflow = readFileSync(new URL('../.github/workflows/founder-safe-pr-refresh.yml', import.meta.url), 'utf8');
+  assert.match(merger, /createApprovalComment/);
+  assert.match(merger, /FOUNDER_DISPATCH_IDENTITY_REQUIRED/);
+  assert.match(merger, /SIGNED_FOUNDER_RECEIPT_FAILED/);
+  assert.doesNotMatch(merger, /MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED/);
+  assert.match(mainVerifier, /verifyAppMainPush/);
+  assert.match(mainVerifier, /directFounder/);
+  assert.match(mainWorkflow, /actions: read/);
+  assert.match(mainWorkflow, /issues: read/);
+  assert.match(mainWorkflow, /pull-requests: read/);
+  assert.match(mainWorkflow, /PROMPTOS_MERGE_RECEIPT_KEY/);
+  assert.match(refreshWorkflow, /JUSS_MERGE_RECEIPT_KEY/);
+  assert.match(refreshWorkflow, /steps\.merge-token\.outputs\.token/);
+});
