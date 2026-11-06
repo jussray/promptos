@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "repository": "jussray/promptos",
+  "defaultPolicy": "deny-undeclared",
+  "owner": "PromptOS public static client",
+  "sessionAuthCookie": false,
+  "allowedCookieWriters": [
+    "parts/auth.js"
+  ],
+  "cookies": [
+    {
+      "name": "promptos_consent_v2",
+      "classification": "strictly_necessary_preference",
+      "purpose": "Remember the visitor's explicit accept or decline choice for optional analytics",
+      "owner": "browser",
+      "consentRequired": false,
+      "sensitive": false,
+      "httpOnly": false,
+      "secure": "https_only",
+      "sameSite": "Lax",
+      "path": "application_root_from_same_origin_script",
+      "maxAgeDays": 400,
+      "storesIdentity": false,
+      "values": [
+        "accepted",
+        "declined"
+      ],
+      "deletion": "Browser cookie controls; changing consent requires a separately reviewed revoke/reset control.",
+      "legacyRootCookieBehavior": "Do not read, reuse, overwrite, or delete legacy path=/ cookies without separate authorization."
+    },
+    {
+      "name": "promptos_vid_v2",
+      "classification": "optional_analytics",
+      "purpose": "Recognize the same consenting browser across public-site visits",
+      "owner": "browser",
+      "consentRequired": true,
+      "sensitive": false,
+      "httpOnly": false,
+      "secure": "https_only",
+      "sameSite": "Lax",
+      "path": "application_root_from_same_origin_script",
+      "maxAgeDays": 400,
+      "storesIdentity": true,
+      "identitySource": "cryptographically_random_browser_id",
+      "crossSite": false,
+      "deletion": "Browser cookie controls; no collection when consent is declined.",
+      "legacyRootCookieBehavior": "Do not read, reuse, overwrite, or delete legacy path=/ cookies without separate authorization."
+    }
+  ],
+  "nonCookieState": [
+    "Guest prompt stars/custom prompts/theme are in-memory session state; not persisted through login or these cookies.",
+    "Review proof-cookie strings bind exact source and test outcomes in audit files only; never written to document.cookie or sent as Set-Cookie.",
+    "Legacy root-path visitor cookies may remain in browsers until normal expiration; new code does not read or delete them."
+  ],
+  "externalCookieProviders": [
+    "Optional Google sign-in, provider-owned origin only"
+  ],
+  "prohibited": [
+    "Browser or device entropy-based fingerprinting",
+    "Cookie use for prompt content or credentials",
+    "Unconsented analytics identifier",
+    "Treating audit proof cookies as browser cookies or approval authority",
+    "Cross-product or cross-customer visitor correlation",
+    "Sharing visitor cookies with sibling GitHub Pages applications"
+  ],
+  "verification": {
+    "browserProof": "e2e/public-deploy-proof.mjs",
+    "contractTest": "test/public-deploy-proof-contract.test.mjs",
+    "independentlyObservedLiveSession": "unverified",
+    "browserCookieScope": "GitHub Pages /promptos/ or the standalone application's same-origin root"
+  }
+}

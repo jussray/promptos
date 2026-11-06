@@ -83,3 +83,19 @@ REALITY and RISK are where /truthmode and /confess actually live — no optimist
 
 Use `muse.connector_search` to find the current connector docs before following
 recovered instructions.
+
+## Opted-in auto-branch refresh and assisted code repair
+
+Use the existing `.github/workflows/founder-safe-pr-refresh.yml` and `scripts/safe-pr-autoupdate.mjs`. This workflow does not create replacement PRs: after default-branch integration, it checks opted-in `juss-auto-update` PRs on main pushes and a bounded six-hour schedule. It refreshes only founder-authored same-repository branches with GitHub's `expected_head_sha` compare-and-set; never force-push, merge past a conflict, delete code, or carry proof from the old SHA.
+
+A refresh is infrastructure synchronization, **not a code fix**. For test or merge failures inspect exact logs, run Red Team I/II, Devil, Lindy, L99, OODA and this Goalfix skill, modify the smallest root cause in that **same PR**, re-run focused tests and applicable Playwright, and leave a real receipt. GitHub's native Agent Merge may repair conflicts and failed Actions automatically *only after separately enabled and authorized* by an eligible account; Markdown alone doesn't install or run an AI agent, and tool billing may apply.
+
+**Safe merge gate (review correction):** Deferred native `--auto` is forbidden because it cannot preserve the founder's exact base/head approval after another writer pushes. Use `action=arm` only for a *one-shot immediate* merge of the current reviewed, non-draft PR after current-head checks, clean provider mergeability, and GitHub-enforced strict base freshness. The script must require a per-run event-producing GitHub App token minted from `JUSS_MERGE_APP_ID` and `JUSS_MERGE_APP_PRIVATE_KEY` only during the founder merge step; the ordinary `GITHUB_TOKEN` suppresses successor push workflows. If the token, strict ruleset, independent review, production deployment gate, or SHA binding is missing, report BLOCKED and do not queue or merge. For Chief, strict required-status freshness is currently not enabled on its inspected main rulesets, so founder/provider policy must be corrected separately before this merge mode can operate. Never bypass protection.
+
+Always identify `REALITY / FIX / PROOF / RISK / ROLLBACK / NEXT GATE`, with head SHA and missing verification explicitly shown.
+
+## Signed founder App merge proof (PromptOS)
+
+Use the existing `scripts/merge-authority-bridge.mjs` and `scripts/verify-main-push-authority.mjs`, never a second approval engine. For a permitted one-shot App merge, the founder must initiate `workflow_dispatch` on the trusted `main` workflow with exact PR, branch head, base and approval phrase. The scoped GitHub App issues a signed, fifteen-minute receipt **before** attempting the merge. On the resulting `main` push the verifier independently checks GitHub's commit-to-PR association, **full** merged PR details, merge actor, exact prior base, head and merge commit, signed App-authored receipt, and founder-run identity. A signature, comment, bot login, label, fingerprint, `APPROVE` text, green CI, or previous-head approval alone is insufficient.
+
+The HMAC signing key is a **GitHub Actions secret** named `JUSS_MERGE_RECEIPT_KEY`, used only by the trusted founder merge step and main authority verifier; do not log, disclose, copy into a repository, or pass it to an untrusted PR. Without the key or App installation credentials, **fail closed**. An unrelated direct founder push remains separately governed by the original founder-only authority contract. GitHub branch protections, required deployments, codeowner review, no-force history, exact-head CI, and real-path proof stay independent gates. A reviewed code change is not an activated webhook, deployment, or real provider receipt until those outcomes are observed.

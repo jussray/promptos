@@ -19,7 +19,7 @@
  * Visitor identification (separate from app-state persistence above):
  *   • Gated behind an explicit accept/decline consent banner shown once.
  *   • On accept: a cryptographically-random id is stored in a first-party
- *     cookie (`promptos_vid`, 400-day max per browser policy) so a
+ *     cookie (`promptos_vid_v2`, max 400 days, application-path scoped) so a
  *     returning visitor can be recognized across sessions. No canvas,
  *     WebGL, audio, font, or hardware/user-agent signal is collected —
  *     .control-room/browser-reality.contract.json (added to this repo for
@@ -134,10 +134,25 @@
    * See file header. Independent of the app-state persistence authority
    * above — this identifies a returning browser for analytics only.
    */
-  var CONSENT_COOKIE = 'promptos_consent';
-  var VISITOR_COOKIE = 'promptos_vid';
-  var VISITOR_COOKIE_DAYS = 400; /* Chrome's own max cookie lifetime cap */
+  /* Versioned names are deliberate. Legacy path=/ cookies remain untouched
+     pending separate user authorization for any deletion/migration. */
+  var CONSENT_COOKIE = 'promptos_consent_v2';
+  var VISITOR_COOKIE = 'promptos_vid_v2';
+  var VISITOR_COOKIE_DAYS = 400; /* Browser lifetime maximum */
   var VISITOR_ID = null;
+
+  function cookieScopePath() {
+    /* Resolve the current app root from its same-origin script URL.
+       GitHub Pages: /promptos/; standalone domain: /.
+       Prevent the analytics ID leaking to sibling apps under one origin. */
+    var script = document.currentScript;
+    if (script && script.src) {
+      var url = new URL('../', script.src);
+      if (url.origin === location.origin) return url.pathname;
+    }
+    return location.hostname === 'jussray.github.io' ? '/promptos/' : '/';
+  }
+  var COOKIE_PATH = cookieScopePath();
 
   function getCookie(name) {
     var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -147,7 +162,7 @@
   function setCookie(name, value, days) {
     var expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires +
-      '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+      '; path=' + COOKIE_PATH + '; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
   }
 
   /* Cryptographically-random id — no canvas/WebGL/audio/font/hardware
@@ -159,22 +174,25 @@
      cryptographically-random, first-party, disclosed, resettable, no
      cross-site correlation — so that is what this uses. */
   function randomId() {
-    if (window.crypto && crypto.getRandomValues) {
-      var bytes = crypto.getRandomValues(new Uint8Array(16));
-      return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-    }
-    /* Fallback for a browser without crypto.getRandomValues (none expected
-       in a modern evergreen browser, but never leave this unset). */
-    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+    /* Fail closed: never substitute predictable Math.random/Date.now for
+       cryptographic browser randomness when creating a persistent identifier. */
+    if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') return null;
+    var bytes = window.crypto.getRandomValues(new Uint8Array(16));
+    return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
 
   function ensureVisitorId() {
     var existing = getCookie(VISITOR_COOKIE);
-    if (existing) {
+    if (existing && /^[a-f0-9]{32}$/i.test(existing)) {
       VISITOR_ID = existing;
       return existing;
     }
     var id = randomId();
+    if (!id) {
+      VISITOR_ID = null;
+      console.warn('[PromptOS analytics] visitor id unavailable without secure random source');
+      return null;
+    }
     setCookie(VISITOR_COOKIE, id, VISITOR_COOKIE_DAYS);
     VISITOR_ID = id;
     return id;
@@ -212,7 +230,7 @@
       'background:var(--surface,#161513);color:var(--text,#e8e6e3);border-bottom:1px solid var(--border,rgba(255,255,255,.08));' +
       'padding:10px 16px;font-family:var(--sans,system-ui,sans-serif);font-size:12.5px;line-height:1.5';
     el.innerHTML =
-      '<div style="flex:1;min-width:220px">PromptOS sets a cookie with a random id to recognize you as a returning visitor. ' +
+      '<div style="flex:1;min-width:220px">PromptOS can set an app-scoped cookie with a random id to recognize a returning visitor after you accept. ' +
       'It does not read your device or browser to build a fingerprint. This is separate from your prompt library, which stays session-only either way.</div>' +
       '<div style="display:flex;gap:8px;flex-shrink:0">' +
       '<button id="cookieDecline" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:8px;' +

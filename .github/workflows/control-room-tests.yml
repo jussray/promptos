@@ -102,6 +102,8 @@ jobs:
         run: node scripts/verify-ai-mastery-v6.mjs
       - name: Verify migrated PromptOS catalog runtime
         run: node scripts/verify-catalog-runtime.mjs
+      - name: Verify browser proof and privacy cookie contract
+        run: node --test test/public-deploy-proof-contract.test.mjs
       - name: Verify current repo truth surface
         run: node scripts/verify-current-truth-surface.mjs
       - name: Generate PromptOS catalog quality receipt
