@@ -40,7 +40,7 @@ test('workflow runs only on trusted main, bounded schedule, and explicit manual 
   assert.doesNotMatch(workflow, /pull_request_target:/);
   assert.ok(workflow.includes('MERGE_GH_TOKEN: ${{ steps.merge-token.outputs.token }}'));
   assert.match(workflow, /create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510/);
-  assert.deepEqual([...workflow.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]), ['JUSS_MERGE_APP_ID', 'JUSS_MERGE_APP_PRIVATE_KEY']);
+  assert.deepEqual([...workflow.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]), ['JUSS_MERGE_APP_ID', 'JUSS_MERGE_APP_PRIVATE_KEY', 'JUSS_MERGE_RECEIPT_KEY']);
   assert.match(workflow, /permission-contents: write/);
   assert.match(workflow, /permission-pull-requests: write/);
 });
@@ -54,7 +54,8 @@ test('API compare-and-set and guarded one-shot merge are visible in source', () 
   assert.match(script, /--match-head-commit/);
   assert.match(script, /APP_IDENTITY_REQUIRED/);
   assert.match(script, /STRICT_BASE_GUARD_REQUIRED/);
-  assert.match(script, /MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED/);
+  assert.match(script, /SIGNED_FOUNDER_RECEIPT_FAILED/);
+  assert.doesNotMatch(script, /MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED/);
   assert.match(script, /mergeable_state !== 'clean'/);
   assert.match(script, /--squash/);
   assert.doesNotMatch(script, /['"]--auto['"]/);
