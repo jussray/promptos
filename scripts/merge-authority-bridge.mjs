@@ -90,8 +90,15 @@ export async function verifyAppMainPush(event, { secret, read }) {
     'Not a normal ancestry-preserving push.');
   required(typeof read === 'function', 'Trusted GitHub evidence reader missing.');
 
-  const prs = await read('/commits/' + after + '/pulls');
-  required(Array.isArray(prs), 'Provider did not return associated PRs.');
+  // GitHub's commit-to-PR association returns a summary, NOT merged_by or
+  // the full merged flag. Fetch the canonical PR detail for each candidate.
+  const associated = await read('/commits/' + after + '/pulls');
+  required(Array.isArray(associated) && associated.length > 0 && associated.length <= 10,
+    'Provider returned no unique, bounded set of associated PRs.');
+  const candidates = associated.filter((entry) =>
+    Number.isSafeInteger(entry.number) && entry.merge_commit_sha === after);
+  required(candidates.length > 0, 'Merge commit not associated with a PR.');
+  const prs = await Promise.all(candidates.map((entry) => read('/pulls/' + entry.number)));
   const matches = prs.filter((pr) => pr.merged === true && pr.merge_commit_sha === after
     && pr.base?.ref === 'main' && pr.head?.repo?.full_name === REPOSITORY
     && pr.user?.login === FOUNDER && pr.merged_by?.login === actor);
