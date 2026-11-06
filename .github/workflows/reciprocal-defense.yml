@@ -12,6 +12,10 @@ on:
       - test/full-attack-unit.test.mjs
       - test/security-event-trigger.test.mjs
       - scripts/safe-pr-autoupdate.mjs
+      - scripts/merge-authority-bridge.mjs
+      - scripts/verify-main-push-authority.mjs
+      - test/merge-authority-bridge.test.mjs
+      - .github/workflows/main-authority-contract.yml
       - test/safe-pr-autoupdate.test.mjs
       - .github/workflows/founder-safe-pr-refresh.yml
       - .github/workflows/reciprocal-defense.yml
@@ -27,6 +31,10 @@ on:
       - test/full-attack-unit.test.mjs
       - test/security-event-trigger.test.mjs
       - scripts/safe-pr-autoupdate.mjs
+      - scripts/merge-authority-bridge.mjs
+      - scripts/verify-main-push-authority.mjs
+      - test/merge-authority-bridge.test.mjs
+      - .github/workflows/main-authority-contract.yml
       - test/safe-pr-autoupdate.test.mjs
       - .github/workflows/founder-safe-pr-refresh.yml
       - .github/workflows/reciprocal-defense.yml
@@ -69,6 +77,8 @@ jobs:
           node workflows/continuity/verify.mjs
           node --test test/security-event-trigger.test.mjs
           node --test test/safe-pr-autoupdate.test.mjs
+          node --test test/merge-authority-bridge.test.mjs
+          node --check scripts/verify-main-push-authority.mjs
       - name: Record evidence of exact-head inspection, not skill execution
         if: always()
         shell: bash
