@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
+import { createApprovalComment } from './merge-authority-bridge.mjs';
 
 const LABEL = 'juss-auto-update';
 const OWNER = 'jussray';
@@ -66,12 +67,13 @@ async function armMerge(repo) {
   if (!n || !/^[a-f0-9]{40}$/.test(head) || !/^[a-f0-9]{40}$/.test(base)) {
     throw new Error('Exact PR number, head SHA and base SHA required.');
   }
-  // PromptOS main verifies founder identity on every push. An App-authored
-  // merge would be rejected until a separately reviewed exact-head receipt
-  // bridge is implemented in scripts/verify-main-push-authority.mjs.
-  // Fail closed rather than merging a candidate whose live authority gate fails.
-  if (repo === 'jussray/promptos') {
-    throw new Error('MAIN_PUSH_AUTHORITY_BRIDGE_REQUIRED: App-authored merge is not yet accepted by main authority verifier.');
+  // Only the founder's trusted main-branch workflow can issue a signed merge
+  // approval. A branch checkout, label or old review cannot issue this proof.
+  if (process.env.GITHUB_REF !== 'refs/heads/main'
+    || process.env.GITHUB_SHA !== base
+    || !Number.isSafeInteger(Number(process.env.GITHUB_RUN_ID))
+    || Number(process.env.GITHUB_RUN_ID) <= 0) {
+    throw new Error('FOUNDER_DISPATCH_IDENTITY_REQUIRED: main run and exact base must match.');
   }
   const mergeToken = process.env.MERGE_GH_TOKEN || '';
   if (!mergeToken || mergeToken === process.env.GH_TOKEN) {
@@ -126,6 +128,39 @@ async function armMerge(repo) {
     || fresh.mergeable_state !== 'clean') {
     throw new Error('Candidate or base moved before one-shot merge. Reapproval required.');
   }
+  // Post a short-lived signed intent with the scoped App identity just before
+  // the one-shot merge. The main-push verifier independently confirms this
+  // signature, founder workflow_dispatch run, PR head, base and merge result.
+  const receipt = createApprovalComment({
+    prNumber: n, headSha: head, baseSha: base,
+    workflowRunId: Number(process.env.GITHUB_RUN_ID),
+    issuedAt: new Date().toISOString(),
+  }, process.env.PROMPTOS_MERGE_RECEIPT_KEY || '');
+  const proofResponse = await fetch(
+    'https://api.github.com/repos/' + repo + '/issues/' + n + '/comments', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: 'Bearer ' + mergeToken,
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'juss-founder-merge-approval-v1',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ body: receipt }),
+      redirect: 'error',
+      signal: AbortSignal.timeout(18000),
+    },
+  );
+  if (proofResponse.status !== 201) {
+    throw new Error('SIGNED_FOUNDER_RECEIPT_FAILED: provider declined the App-authored approval.');
+  }
+  const proofComment = await proofResponse.json();
+  if (proofComment.user?.type !== 'Bot'
+    || !proofComment.user.login?.endsWith('[bot]')) {
+    throw new Error('SIGNED_FOUNDER_RECEIPT_FAILED: comment author is not a GitHub App.');
+  }
+  log('SIGNED_APPROVAL_ISSUED PR #' + n + ' comment=' + proofComment.id
+    + ' head=' + head + ' base=' + base + ' run=' + process.env.GITHUB_RUN_ID);
   const args = ['pr', 'merge', String(n), '--repo', repo, '--squash', '--match-head-commit', head];
   const ran = spawnSync('gh', args, {
     env: { ...process.env, GH_TOKEN: mergeToken },
