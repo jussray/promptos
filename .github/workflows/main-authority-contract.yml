@@ -9,6 +9,9 @@ on:
 
 permissions:
   contents: read
+  actions: read
+  issues: read
+  pull-requests: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -43,6 +46,8 @@ jobs:
       - name: Syntax-check main authority verifiers
         run: |
           node --check scripts/verify-main-push-authority.mjs
+          node --check scripts/merge-authority-bridge.mjs
+          node --test test/merge-authority-bridge.test.mjs
           node --check scripts/verify-main-provider-protection.mjs
 
       - name: Verify founder-owned non-force main push
@@ -55,6 +60,9 @@ jobs:
           PROMPTOS_FORCED: ${{ toJSON(github.event.forced) }}
           PROMPTOS_BEFORE_SHA: ${{ github.event.before }}
           PROMPTOS_AFTER_SHA: ${{ github.event.after }}
+          GITHUB_TOKEN: ${{ github.token }}
+          # Required only for App-authored main merges; founder direct pushes do not use it.
+          PROMPTOS_MERGE_RECEIPT_KEY: ${{ secrets.JUSS_MERGE_RECEIPT_KEY }}
         run: node scripts/verify-main-push-authority.mjs
 
       - name: Verify main push is an ancestry-preserving fast-forward
