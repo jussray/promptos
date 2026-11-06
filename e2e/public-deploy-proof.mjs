@@ -1,13 +1,14 @@
 /**
  * Proves that the deployed public PromptOS URL is:
  *   1. reachable anonymously, with no Access/login/provider wall in front of it;
- *   2. rendering the real guest-boot PromptOS UI (not a placeholder or error page);
+ *   2. rendering the real PromptOS welcome-to-onboarding-to-guest journey;
  *   3. serving the exact authorized source commit (runtime identity == source SHA);
  *   4. exercising both the legacy library CTA and the canonical 5,000-recipe Catalog compile path.
  */
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL;
 const EXPECTED_SHA = process.env.PROMPTOS_EXPECTED_SHA;
@@ -80,8 +81,9 @@ async function proveViewport(browser, {name, width, height}) {
   const finalUrl = new URL(page.url());
   assert(finalUrl.host === EXPECTED_HOST, `${name}: navigation redirected off the public host to ${finalUrl.host} (possible provider/login wall)`);
 
+  await enterGuestWorkspace(page);
   await page.locator('#appShell').waitFor({state: 'visible', timeout: 15000});
-  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding/login wall is visible on anonymous load`);
+  assert(await page.locator('#onboarding').isHidden(), `${name}: guest onboarding remained open`);
 
   const guestChipText = (await page.locator('#userChip').textContent()) || '';
   assert(/guest/i.test(guestChipText), `${name}: anonymous visitor was not booted as guest (chip: "${guestChipText.trim()}")`);
@@ -98,11 +100,18 @@ async function proveViewport(browser, {name, width, height}) {
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts > 0, `${name}: prompt registry did not render`);
 
-  // The canonical Catalog opens on boot. Use a *visible user control* to reach
-  // Quick Library before clicking its card; do not bypass navigation via evaluate().
-  const quickLibraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
-  await quickLibraryNav.waitFor({state: 'visible'});
-  await quickLibraryNav.click();
+  // The app mounts its catalog UI from a deferred dynamic import, and that
+  // one-time mount activates the Catalog page whenever the module lands.
+  // Over real network latency it can land after the navigation below and
+  // steal the active page back mid-click, hiding the card button under a
+  // display:none page. The catalog summary is bound in the same mount
+  // sequence (bindGlobalCatalogTruth), so wait for it before interacting:
+  // once it exists, the mount has settled and page state is stable.
+  await page.waitForFunction(() => typeof window.__PROMPTOS_CATALOG_SUMMARY__ !== 'undefined');
+
+  const libraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
+  await libraryNav.waitFor({state: 'visible'});
+  await libraryNav.click();
   await page.locator('#page-library.on').waitFor({state: 'visible'});
 
   const firstCard = page.locator('.pcard [data-open]').first();
@@ -130,7 +139,9 @@ async function proveViewport(browser, {name, width, height}) {
   const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
   const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
   assert(selectedRecipes === 5000, `${name}: deployed catalog selected recipe count drifted: ${selectedRecipes}`);
-  assert(candidateRecipes === 5400, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
+  // Candidates = 5,400 generated-valid + 398 curated (catalog candidateCount
+  // definition changed in ed2bc3f; verify-catalog-runtime.mjs reports 5,798).
+  assert(candidateRecipes === 5798, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
 
   await page.locator('#catalogFamily').selectOption('repo.audit.first');
   await page.locator('#catalogPlatform').selectOption('chatgpt');
@@ -176,7 +187,7 @@ async function proveViewport(browser, {name, width, height}) {
     deployedSha,
     totalPrompts,
     guestBoot: true,
-    onboardingWallHidden: true,
+    welcomeOnboardingSequence: true,
     primaryCtaWorked: true,
     catalog: {selectedRecipes, candidateRecipes, familyId: 'repo.audit.first', concreteInputCount: inputCount, compiledReady: true},
     localFailures,
