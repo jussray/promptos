@@ -31,9 +31,10 @@ const run = {
   path: '.github/workflows/founder-safe-pr-refresh.yml@refs/heads/main',
   created_at: '2026-11-06T17:00:00.000Z',
 };
-function reader({ prs = [pr], comments = [commentObj], workflow = run } = {}) {
+function reader({ prs = [{ number: 78, merge_commit_sha: after }], detail = pr, comments = [commentObj], workflow = run } = {}) {
   return async (path) => {
     if (path === '/commits/' + after + '/pulls') return prs;
+    if (path === '/pulls/78') return detail;
     if (path === '/issues/78/comments?per_page=100&page=1') return comments;
     if (path === '/actions/runs/' + runId) return workflow;
     throw new Error('Unexpected test evidence route: ' + path);
@@ -84,13 +85,13 @@ test('changed base, changed head, and different merger fail closed', async () =>
     { merged_by: { login: 'other-bot[bot]' } },
   ]) {
     await assert.rejects(() => verifyAppMainPush(event, {
-      secret, read: reader({ prs: [{ ...pr, ...delta }] }),
+      secret, read: reader({ detail: { ...pr, ...delta } }),
     }), /signed receipt|founder PR merged/);
   }
 });
 test('expired, duplicate, and unsigned records cannot authorize a merge', async () => {
   await assert.rejects(() => verifyAppMainPush(event, {
-    secret, read: reader({ prs: [{ ...pr, merged_at: '2026-11-06T18:00:00Z' }] }),
+    secret, read: reader({ detail: { ...pr, merged_at: '2026-11-06T18:00:00Z' } }),
   }), /signed receipt/);
   await assert.rejects(() => verifyAppMainPush(event, {
     secret, read: reader({ comments: [commentObj, commentObj] }),
@@ -144,4 +145,16 @@ test('live verifier entrypoint preserves direct founder flow and rejects unsuppo
   });
   assert.notEqual(denied.status, 0);
   assert.match(denied.stdout, /"founderAuthorized":false/);
+});
+
+
+test('provider commit associations are summaries; full PR detail must be fetched', async () => {
+  const readPaths = [];
+  const original = reader();
+  const res = await verifyAppMainPush(event, {
+    secret,
+    read: async (path) => { readPaths.push(path); return original(path); },
+  });
+  assert.equal(res.prNumber, 78);
+  assert.deepEqual(readPaths.slice(0, 2), ['/commits/' + after + '/pulls', '/pulls/78']);
 });
