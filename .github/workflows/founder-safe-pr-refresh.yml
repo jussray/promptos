@@ -86,6 +86,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.action == 'arm'
         env:
           MERGE_GH_TOKEN: ${{ steps.merge-token.outputs.token }}
+          # HMAC key is provided ONLY to the founder's one-shot merge step.
+          PROMPTOS_MERGE_RECEIPT_KEY: ${{ secrets.JUSS_MERGE_RECEIPT_KEY }}
         run: node scripts/safe-pr-autoupdate.mjs --run
       - name: No proof carry-forward
         if: always()
