@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import {
   createApprovalComment, verifyApprovalComment, verifyAppMainPush, isFounderDirectPush,
 } from '../scripts/merge-authority-bridge.mjs';
@@ -110,4 +111,37 @@ test('forced pushes, wrong repos, wrong actors and missing key cannot pass', asy
   await assert.rejects(() => verifyAppMainPush(event, {
     secret: '', read: reader(),
   }), /key/);
+});
+
+
+test('live verifier entrypoint preserves direct founder flow and rejects unsupported bots', () => {
+  const script = new URL('../scripts/verify-main-push-authority.mjs', import.meta.url);
+  const env = {
+    ...process.env,
+    PROMPTOS_REPOSITORY: 'jussray/promptos',
+    PROMPTOS_REF: 'refs/heads/main',
+    PROMPTOS_ACTOR: 'jussray',
+    PROMPTOS_TRIGGERING_ACTOR: 'jussray',
+    PROMPTOS_FORCED: 'false',
+    PROMPTOS_BEFORE_SHA: base,
+    PROMPTOS_AFTER_SHA: after,
+    PROMPTOS_MERGE_RECEIPT_KEY: '',
+    GITHUB_TOKEN: '',
+  };
+  const allowed = spawnSync(process.execPath, [script.pathname], {
+    encoding: 'utf8', env, timeout: 5000,
+  });
+  assert.equal(allowed.status, 0, allowed.stderr);
+  const receipt = JSON.parse(allowed.stdout.trim());
+  assert.equal(receipt.founderAuthorized, true);
+  assert.equal(receipt.authority, 'direct-founder-push');
+
+  const denied = spawnSync(process.execPath, [script.pathname], {
+    encoding: 'utf8',
+    env: { ...env, PROMPTOS_ACTOR: 'unapproved-bot[bot]',
+      PROMPTOS_TRIGGERING_ACTOR: 'unapproved-bot[bot]' },
+    timeout: 5000,
+  });
+  assert.notEqual(denied.status, 0);
+  assert.match(denied.stdout, /"founderAuthorized":false/);
 });
