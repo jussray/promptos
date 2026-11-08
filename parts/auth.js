@@ -252,6 +252,7 @@
   }
 
   function renderGuestChip() {
+    document.body.classList.remove('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -286,6 +287,7 @@
   }
 
   function renderUserChip(user) {
+    document.body.classList.add('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -326,11 +328,37 @@
     return el;
   }
 
-  function bootAsGuest() {
-    var ob = qs('#onboarding');
+  function showWelcome() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
     var app = qs('#appShell');
-    if (ob) ob.style.display = 'none';
+    if (welcome) welcome.style.display = 'flex';
+    if (onboarding) onboarding.style.display = 'none';
+    if (app) app.style.display = 'none';
+  }
+
+  function showOnboarding() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
+    var app = qs('#appShell');
+    if (welcome) welcome.style.display = 'none';
+    if (onboarding) onboarding.style.display = 'flex';
+    if (app) app.style.display = 'none';
+    var heading = onboarding && onboarding.querySelector('[data-onboarding-heading]');
+    if (heading) heading.focus();
+  }
+
+  function showWorkspace() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
+    var app = qs('#appShell');
+    if (welcome) welcome.style.display = 'none';
+    if (onboarding) onboarding.style.display = 'none';
     if (app) app.style.display = '';
+  }
+
+  function bootAsGuest() {
+    showWorkspace();
     SESSION.user = null;
     SESSION.startedAs = 'guest';
     renderGuestChip();
@@ -360,6 +388,7 @@
     };
 
     renderUserChip(SESSION.user);
+    showWorkspace();
     logEvent('google_signin_success');
     if (wasGuest) logEvent('guest_to_google_upgrade');
     window.dispatchEvent(new CustomEvent('promptos:authed', { detail: SESSION.user }));
@@ -412,9 +441,19 @@
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 
+  // Home sign-up card (guest only): delegates to the same Google sign-in the topbar chip uses.
+  document.addEventListener('click', function (e) {
+    var start = e.target && e.target.closest ? e.target.closest('[data-start-onboarding]') : null;
+    var guest = e.target && e.target.closest ? e.target.closest('[data-continue-as-guest]') : null;
+    var googleButton = e.target && e.target.closest ? e.target.closest('[data-google-signin]') : null;
+    if (start) showOnboarding();
+    if (guest) bootAsGuest();
+    if (googleButton) triggerGoogleSignIn();
+  });
+
   function boot() {
     initVisitorIdentification();
-    bootAsGuest();
+    showWelcome();
     renderPersistenceAuthority();
     loadGIS();
   }

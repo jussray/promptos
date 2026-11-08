@@ -37,8 +37,14 @@ async function proveViewport(browser, {name, width, height}) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
+  await page.locator('#welcomeScreen').waitFor({state: 'visible'});
+  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding skipped the welcome screen`);
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('#onboarding').waitFor({state: 'visible'});
+  assert(await page.locator('#welcomeScreen').isHidden(), `${name}: welcome screen remained after onboarding started`);
+  await page.locator('[data-continue-as-guest]').click();
   await page.locator('#appShell').waitFor({state: 'visible'});
-  assert(await page.locator('#onboarding').isHidden(), `${name}: guest boot left onboarding visible`);
+  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding remained visible after guest choice`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
   const catalogSummary = await page.evaluate(() => window.__PROMPTOS_CATALOG_SUMMARY__);
