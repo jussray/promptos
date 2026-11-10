@@ -17,6 +17,9 @@ var STATE = {
   recent: []          // session-only activity log for the home panel; never exported
 };
 
+// Saved custom prompts stay locked until a reviewed release flips this flag.
+var CUSTOM_PROMPTS_UNLOCKED = false;
+
 function serializeState(){
   return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
 }
@@ -417,9 +420,11 @@ function generateFreestyle(ask, plats){
 
 /* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
 function saveCustomPrompt(title, sub, cat, platforms, body){
+  if (!CUSTOM_PROMPTS_UNLOCKED) { toast('Saved prompts are locked in this build'); return false; }
   var id = 'c_' + Date.now();
   STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
   renderAll();
+  return true;
 }
 
 function deleteCustom(id){
@@ -429,6 +434,7 @@ function deleteCustom(id){
 
 function renderCustomList(){
   var el = qs('#customList'); if (!el) return;
+  if (!CUSTOM_PROMPTS_UNLOCKED) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">Saved prompts are locked in this build.</div>'; return; }
   if (!STATE.custom.length) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">No saved prompts yet.</div>'; return; }
   el.innerHTML = '';
   STATE.custom.forEach(function(p){
@@ -470,7 +476,7 @@ function importState(json){
     var data = JSON.parse(json);
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (Array.isArray(data.custom)) STATE.custom = data.custom;
+    if (CUSTOM_PROMPTS_UNLOCKED && Array.isArray(data.custom)) STATE.custom = data.custom;
     renderAll();
     toast('State imported');
   } catch(e) { toast('Invalid JSON'); }
@@ -577,8 +583,7 @@ function boot(){
   });
   qs('#saveBuilder').addEventListener('click', function(){
     var title = qs('#bTask').value.slice(0,60) || 'Builder prompt';
-    saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt());
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt())) toast('Saved to My Prompts');
   });
 
   var fsState = null;
@@ -628,8 +633,7 @@ function boot(){
   qs('#fsSave').addEventListener('click', function(){
     if (!fsState) return;
     var firstBody = fsState.versions[Object.keys(fsState.versions)[0]]||'';
-    saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody);
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody)) toast('Saved to My Prompts');
   });
   qs('#fsAsk').addEventListener('keydown', function(e){
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') runFreestyle();
@@ -643,7 +647,7 @@ function boot(){
     var plats = qs('#cPlatforms').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
     var body  = qs('#cBody').value.trim();
     if (!body) { toast('Add a prompt body'); return; }
-    saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body);
+    if (!saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body)) return;
     qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
     toast('Prompt saved');
   });
