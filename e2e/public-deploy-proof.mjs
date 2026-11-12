@@ -152,12 +152,33 @@ async function proveViewport(browser, {name, width, height}) {
   return result;
 }
 
+// Bounded retry for transient live-network slowness (cycle 28): on a fresh
+// Pages deploy the deferred catalog import (or any single wait) can exceed
+// Playwright's 30s default on the first attempt. A retry re-runs the FULL
+// viewport — every assertion still runs and must pass — so a persistent
+// defect still fails, only slower. Max 2 attempts; no timeout is extended,
+// no assertion is weakened. A failed attempt's browser context is reaped
+// by the outer browser.close().
+async function proveViewportWithRetry(browser, viewport) {
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      return await proveViewport(browser, viewport);
+    } catch (error) {
+      lastError = error;
+      console.log(`[${viewport.name}] attempt ${attempt} failed: ${error.message}`);
+      if (attempt === 2) throw error;
+    }
+  }
+  throw lastError;
+}
+
 await mkdir(OUTPUT_DIR, {recursive: true});
 const browser = await chromium.launch({headless: true});
 try {
   const results = [];
-  results.push(await proveViewport(browser, {name: 'public-desktop', width: 1440, height: 1000}));
-  results.push(await proveViewport(browser, {name: 'public-mobile', width: 390, height: 844}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-desktop', width: 1440, height: 1000}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-mobile', width: 390, height: 844}));
   const receipt = {
     schemaVersion: 1,
     baseUrl: BASE_URL,
