@@ -128,6 +128,53 @@ function renderHome(){
   set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
 }
 
+/* ── Mockup pieces: established prompts + status strip. Rollback: delete through wireEstablished's end + its boot() call. ── */
+function goTo(page){
+  var tab = document.querySelector('.mobile-nav [data-page="'+page+'"], .sidebar [data-page="'+page+'"]');
+  if (tab) { tab.click(); return true; }
+  if (qs('#page-'+page)) { switchPage(page); return true; }
+  return false;
+}
+function wireEstablished(){
+  var all = allPrompts();
+  document.querySelectorAll('.est-row[data-est]').forEach(function(btn){
+    var id = parseInt(btn.dataset.est, 10);
+    var p = all.find(function(x){ return x.id === id; });
+    if (!p) {
+      // the card names a prompt this build doesn't ship: say so instead of opening nothing
+      btn.disabled = true;
+      var miss = document.createElement('span'); miss.className = 'est-missing'; miss.textContent = 'Not in this build';
+      var tx = btn.querySelector('.est-text'); if (tx) tx.appendChild(miss);
+      return;
+    }
+    var sub = btn.querySelector('.est-text small'); if (sub && p.sub) sub.textContent = p.sub;
+    var label = btn.querySelector('.est-text b');
+    btn.setAttribute('aria-label', (label ? label.textContent : p.title) + ': opens ' + p.title);
+    btn.title = 'Opens ' + p.title;
+    btn.addEventListener('click', function(){ openModal(id); });
+  });
+  document.querySelectorAll('[data-go]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var page = btn.dataset.go;
+      if (!goTo(page)) { toast('That view is not available in this build'); return; }
+      if (btn.dataset.q) { var s = qs('#search'); if (s) { s.value = btn.dataset.q; s.dispatchEvent(new Event('input')); } }
+      if (page === 'library') setTimeout(function(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    });
+  });
+  // catalog count mirrors the canonical count pill written by src/catalog-ui.js
+  var pill = qs('#countPill'), ssCat = qs('#ssCatalog');
+  function syncCatalog(){
+    var m = pill && /([\d,]+)\s*recipes/i.exec(pill.textContent || '');
+    if (m && ssCat) { ssCat.textContent = m[1] + ' recipes'; return true; }
+    return false;
+  }
+  if (pill && ssCat && !syncCatalog()) {
+    var mo = new MutationObserver(function(){ if (syncCatalog()) mo.disconnect(); });
+    mo.observe(pill, { childList: true, characterData: true, subtree: true });
+    setTimeout(function(){ if (!syncCatalog()) { mo.disconnect(); ssCat.textContent = 'Catalog unavailable'; } }, 10000);
+  }
+}
+
 function allPrompts(){
   var base = (typeof PROMPTS !== 'undefined') ? PROMPTS : [];
   var custom = STATE.custom.map(function(p){
@@ -559,6 +606,7 @@ function boot(){
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
   }
+  wireEstablished();
 
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
