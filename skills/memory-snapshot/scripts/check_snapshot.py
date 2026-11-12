@@ -21,7 +21,8 @@ DEFAULT_HEADERS = [
     "Anything else durable",
 ]
 PLACEHOLDER = re.compile(r"^\s*[-*]\s*(n/?a|none|unknown|tbd|—|-)\s*\.?\s*$", re.I)
-FIRST_SECOND = re.compile(r"\b(I|I'm|I've|me|my|mine|you|your|yours)\b")
+# "I" stays case-sensitive so "i.e." is not flagged; the rest match at the start of a sentence too
+FIRST_SECOND = re.compile(r"\b(I|I'm|I've|(?i:me|my|mine|you|your|yours))\b")
 SENTENCE_END = re.compile(r"[.!?](?:\s+|$)(?=[A-Z])")
 
 
