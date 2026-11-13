@@ -152,6 +152,7 @@ jobs:
           exit 1
 
       - name: Prove staged deploy artifact desktop and mobile before publication
+        id: prove-staged
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
@@ -163,7 +164,7 @@ jobs:
         run: test ! -f /tmp/promptos-staged-server.pid || kill "$(cat /tmp/promptos-staged-server.pid)" || true
 
       - name: Retain pre-publish staged proof
-        if: always()
+        if: always() && steps.prove-staged.conclusion != 'skipped'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: promptos-staged-public-proof-${{ env.EXPECTED_HEAD_SHA }}
