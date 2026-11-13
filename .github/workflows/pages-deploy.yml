@@ -80,7 +80,10 @@ jobs:
           git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
           current_main="$(git rev-parse refs/remotes/origin/main)"
           printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
-          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+          guard_dir="$(mktemp -d)"
+          git show "$current_main:scripts/deploy_candidate_guard.py" > "$guard_dir/deploy_candidate_guard.py"
+          git show "$current_main:.deployment-authority.json" > "$guard_dir/deployment-authority.json"
+          python3 -I "$guard_dir/deploy_candidate_guard.py" "$EXPECTED_HEAD_SHA" "$current_main" --policy "$guard_dir/deployment-authority.json"
 
       - name: Attack deployment candidate lease before build
         run: |
@@ -219,7 +222,10 @@ jobs:
           git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
           current_main="$(git rev-parse refs/remotes/origin/main)"
           printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
-          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+          guard_dir="$(mktemp -d)"
+          git show "$current_main:scripts/deploy_candidate_guard.py" > "$guard_dir/deploy_candidate_guard.py"
+          git show "$current_main:.deployment-authority.json" > "$guard_dir/deployment-authority.json"
+          python3 -I "$guard_dir/deploy_candidate_guard.py" "$EXPECTED_HEAD_SHA" "$current_main" --policy "$guard_dir/deployment-authority.json"
 
       - name: Deploy to GitHub Pages
         id: deployment
