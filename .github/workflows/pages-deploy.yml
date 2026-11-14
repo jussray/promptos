@@ -80,7 +80,10 @@ jobs:
           git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
           current_main="$(git rev-parse refs/remotes/origin/main)"
           printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
-          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+          guard_dir="$(mktemp -d)"
+          git show "$current_main:scripts/deploy_candidate_guard.py" > "$guard_dir/deploy_candidate_guard.py"
+          git show "$current_main:.deployment-authority.json" > "$guard_dir/deployment-authority.json"
+          python3 -I "$guard_dir/deploy_candidate_guard.py" "$EXPECTED_HEAD_SHA" "$current_main" --policy "$guard_dir/deployment-authority.json"
 
       - name: Attack deployment candidate lease before build
         run: |
@@ -152,6 +155,7 @@ jobs:
           exit 1
 
       - name: Prove staged deploy artifact desktop and mobile before publication
+        id: prove-staged
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
@@ -163,7 +167,7 @@ jobs:
         run: test ! -f /tmp/promptos-staged-server.pid || kill "$(cat /tmp/promptos-staged-server.pid)" || true
 
       - name: Retain pre-publish staged proof
-        if: always()
+        if: always() && steps.prove-staged.conclusion != 'skipped'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: promptos-staged-public-proof-${{ env.EXPECTED_HEAD_SHA }}
@@ -219,7 +223,10 @@ jobs:
           git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
           current_main="$(git rev-parse refs/remotes/origin/main)"
           printf 'candidate=%s\ncurrent_main=%s\n' "$EXPECTED_HEAD_SHA" "$current_main"
-          python3 scripts/deploy_candidate_guard.py "$EXPECTED_HEAD_SHA" "$current_main"
+          guard_dir="$(mktemp -d)"
+          git show "$current_main:scripts/deploy_candidate_guard.py" > "$guard_dir/deploy_candidate_guard.py"
+          git show "$current_main:.deployment-authority.json" > "$guard_dir/deployment-authority.json"
+          python3 -I "$guard_dir/deploy_candidate_guard.py" "$EXPECTED_HEAD_SHA" "$current_main" --policy "$guard_dir/deployment-authority.json"
 
       - name: Deploy to GitHub Pages
         id: deployment
