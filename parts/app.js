@@ -67,12 +67,26 @@ function toast(msg, dur){
 }
 
 function copy(text){
-  navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); toast('<b>Copied</b>');
-  });
+  // Clipboard API exists only in secure contexts: on the public plain-HTTP
+  // origin navigator.clipboard is undefined, and reading .writeText off it
+  // throws synchronously (uncaught pageerror, no toast, proof's #mCopy step
+  // starves). Same guard pattern as parts/p10-cont-ops-growth.js and
+  // parts/p11-make-ui.mjs copyText: fall back to the textarea +
+  // execCommand path, which works on insecure origins.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
+      fallbackCopy(text);
+    });
+    return;
+  }
+  fallbackCopy(text);
+}
+
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); toast('<b>Copied</b>');
 }
 
 function applyTheme(t){
