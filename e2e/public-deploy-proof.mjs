@@ -22,12 +22,13 @@ assert(/^[0-9a-f]{40}$/.test(EXPECTED_SHA || ''), 'PROMPTOS_EXPECTED_SHA must be
 
 const EXPECTED_HOST = process.env.PROMPTOS_EXPECTED_HOST || new URL(BASE_URL).host;
 
-async function proveViewport(browser, {name, width, height}) {
+async function proveViewport(browser, {name, width, height}, evidence = {}) {
   const context = await browser.newContext({viewport: {width, height}});
   const page = await context.newPage();
   const pageErrors = [];
   const consoleErrors = [];
   const localFailures = [];
+  const requestFailures = [];
   const origin = new URL(BASE_URL).origin;
 
   page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -38,6 +39,18 @@ async function proveViewport(browser, {name, width, height}) {
     const url = new URL(response.url());
     if (url.origin === origin && response.status() >= 400) localFailures.push(`${response.status()} ${url.pathname}`);
   });
+  page.on('requestfailed', (request) => {
+    const url = new URL(request.url());
+    if (url.origin === origin) requestFailures.push(`${request.failure()?.errorText || 'request failed'} ${url.pathname}`);
+  });
+  // Cycle 33: hand the caller live references to everything this attempt
+  // collected, so a failure can print its own evidence (see the retry loop).
+  // Diagnostics only — the assertions at the end of this function are
+  // unchanged and still govern the verdict.
+  evidence.pageErrors = pageErrors;
+  evidence.consoleErrors = consoleErrors;
+  evidence.localFailures = localFailures;
+  evidence.requestFailures = requestFailures;
 
   const response = await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   assert(response, `${name}: navigation produced no response`);
@@ -152,12 +165,40 @@ async function proveViewport(browser, {name, width, height}) {
   return result;
 }
 
+// Bounded retry for transient live-network slowness (cycle 28): on a fresh
+// Pages deploy the deferred catalog import (or any single wait) can exceed
+// Playwright's 30s default on the first attempt. A retry re-runs the FULL
+// viewport — every assertion still runs and must pass — so a persistent
+// defect still fails, only slower. Max 2 attempts; no timeout is extended,
+// no assertion is weakened. A failed attempt's browser context is reaped
+// by the outer browser.close().
+// Cycle 33: a failed attempt also prints the page errors, console errors,
+// HTTP failures, and network failures it collected before throwing. Until
+// now that evidence was asserted only at the very end of proveViewport, so
+// any mid-proof failure (e.g. the catalog-settle wait) discarded it and the
+// run log named no cause.
+async function proveViewportWithRetry(browser, viewport) {
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const evidence = {};
+    try {
+      return await proveViewport(browser, viewport, evidence);
+    } catch (error) {
+      lastError = error;
+      console.log(`[${viewport.name}] attempt ${attempt} failed: ${error.message}`);
+      console.log(`[${viewport.name}] attempt ${attempt} diagnostics: pageErrors=${JSON.stringify(evidence.pageErrors || [])} consoleErrors=${JSON.stringify(evidence.consoleErrors || [])} localFailures=${JSON.stringify(evidence.localFailures || [])} requestFailures=${JSON.stringify(evidence.requestFailures || [])}`);
+      if (attempt === 2) throw error;
+    }
+  }
+  throw lastError;
+}
+
 await mkdir(OUTPUT_DIR, {recursive: true});
 const browser = await chromium.launch({headless: true});
 try {
   const results = [];
-  results.push(await proveViewport(browser, {name: 'public-desktop', width: 1440, height: 1000}));
-  results.push(await proveViewport(browser, {name: 'public-mobile', width: 390, height: 844}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-desktop', width: 1440, height: 1000}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-mobile', width: 390, height: 844}));
   const receipt = {
     schemaVersion: 1,
     baseUrl: BASE_URL,
