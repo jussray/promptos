@@ -1,5 +1,6 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_MEMORY_PROOF_DIR || 'artifacts/promptos-prompt-memory-proof';
@@ -37,7 +38,7 @@ async function proveViewport(browser, {name, width, height}) {
   });
 
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
-  await page.locator('#appShell').waitFor({state: 'visible'});
+  await enterGuestWorkspace(page);
   await waitForApi(page);
   await page.evaluate(async () => window.PromptOSPromptMemory.clearPromptMemory());
   await page.waitForFunction(async () => (await window.PromptOSPromptMemory.listPrompts()).length === 0);
@@ -108,7 +109,7 @@ async function proveViewport(browser, {name, width, height}) {
   // The proven card is the visual library surface; revision records remain outside it.
 
   await page.reload({waitUntil: 'domcontentloaded'});
-  await page.locator('#appShell').waitFor({state: 'visible'});
+  await enterGuestWorkspace(page);
   await waitForApi(page);
   await page.waitForFunction(async () => (await window.PromptOSPromptMemory.listPrompts({libraryVisibility: 'visual'})).length === 1);
   assert(await memoryCount(page, 'visual') === 1, `${name}: IndexedDB prompt memory did not survive reload`);

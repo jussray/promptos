@@ -1,4 +1,5 @@
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const NEW_PLATFORMS = ['gemini', 'muse', 'meta', 'deepseek', 'granola', 'obsidian'];
@@ -19,7 +20,7 @@ async function prove(browser, {name, width, height}) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
-  await page.locator('#appShell').waitFor({state: 'visible'});
+  await enterGuestWorkspace(page);
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
 
   // Freestyle: every new platform is selectable and produces its own tab.

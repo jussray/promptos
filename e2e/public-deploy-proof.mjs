@@ -1,12 +1,13 @@
 /**
  * Proves that the deployed public PromptOS URL is:
  *   1. reachable anonymously, with no Access/login/provider wall in front of it;
- *   2. rendering the real guest-boot PromptOS UI (not a placeholder or error page);
+ *   2. rendering the real PromptOS welcome-to-onboarding-to-guest journey;
  *   3. serving the exact authorized source commit (runtime identity == source SHA);
  *   4. exercising both the legacy library CTA and the canonical 5,000-recipe Catalog compile path.
  */
 import {mkdir, writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL;
 const EXPECTED_SHA = process.env.PROMPTOS_EXPECTED_SHA;
@@ -21,12 +22,13 @@ assert(/^[0-9a-f]{40}$/.test(EXPECTED_SHA || ''), 'PROMPTOS_EXPECTED_SHA must be
 
 const EXPECTED_HOST = process.env.PROMPTOS_EXPECTED_HOST || new URL(BASE_URL).host;
 
-async function proveViewport(browser, {name, width, height}) {
+async function proveViewport(browser, {name, width, height}, evidence = {}) {
   const context = await browser.newContext({viewport: {width, height}});
   const page = await context.newPage();
   const pageErrors = [];
   const consoleErrors = [];
   const localFailures = [];
+  const requestFailures = [];
   const origin = new URL(BASE_URL).origin;
 
   page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -37,6 +39,18 @@ async function proveViewport(browser, {name, width, height}) {
     const url = new URL(response.url());
     if (url.origin === origin && response.status() >= 400) localFailures.push(`${response.status()} ${url.pathname}`);
   });
+  page.on('requestfailed', (request) => {
+    const url = new URL(request.url());
+    if (url.origin === origin) requestFailures.push(`${request.failure()?.errorText || 'request failed'} ${url.pathname}`);
+  });
+  // Cycle 33: hand the caller live references to everything this attempt
+  // collected, so a failure can print its own evidence (see the retry loop).
+  // Diagnostics only — the assertions at the end of this function are
+  // unchanged and still govern the verdict.
+  evidence.pageErrors = pageErrors;
+  evidence.consoleErrors = consoleErrors;
+  evidence.localFailures = localFailures;
+  evidence.requestFailures = requestFailures;
 
   const response = await page.goto(BASE_URL, {waitUntil: 'domcontentloaded'});
   assert(response, `${name}: navigation produced no response`);
@@ -45,8 +59,7 @@ async function proveViewport(browser, {name, width, height}) {
   const finalUrl = new URL(page.url());
   assert(finalUrl.host === EXPECTED_HOST, `${name}: navigation redirected off the public host to ${finalUrl.host} (possible provider/login wall)`);
 
-  await page.locator('#appShell').waitFor({state: 'visible', timeout: 15000});
-  assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding/login wall is visible on anonymous load`);
+  await enterGuestWorkspace(page);
 
   const guestChipText = (await page.locator('#userChip').textContent()) || '';
   assert(/guest/i.test(guestChipText), `${name}: anonymous visitor was not booted as guest (chip: "${guestChipText.trim()}")`);
@@ -57,6 +70,20 @@ async function proveViewport(browser, {name, width, height}) {
 
   const totalPrompts = Number(await page.locator('#statTotal').textContent());
   assert(Number.isFinite(totalPrompts) && totalPrompts > 0, `${name}: prompt registry did not render`);
+
+  // The app mounts its catalog UI from a deferred dynamic import, and that
+  // one-time mount activates the Catalog page whenever the module lands.
+  // Over real network latency it can land after the navigation below and
+  // steal the active page back mid-click, hiding the card button under a
+  // display:none page. The catalog summary is bound in the same mount
+  // sequence (bindGlobalCatalogTruth), so wait for it before interacting:
+  // once it exists, the mount has settled and page state is stable.
+  await page.waitForFunction(() => typeof window.__PROMPTOS_CATALOG_SUMMARY__ !== 'undefined');
+
+  const libraryNav = page.locator('.mobile-nav [data-page="library"]:visible, .sidebar [data-page="library"]:visible').first();
+  await libraryNav.waitFor({state: 'visible'});
+  await libraryNav.click();
+  await page.locator('#page-library.on').waitFor({state: 'visible'});
 
   const firstCard = page.locator('.pcard [data-open]').first();
   await firstCard.waitFor({state: 'visible'});
@@ -82,7 +109,9 @@ async function proveViewport(browser, {name, width, height}) {
   const selectedRecipes = Number((await page.locator('#catalogTotal').textContent())?.replace(/,/g, ''));
   const candidateRecipes = Number((await page.locator('#catalogCandidateTotal').textContent())?.replace(/,/g, ''));
   assert(selectedRecipes === 5000, `${name}: deployed catalog selected recipe count drifted: ${selectedRecipes}`);
-  assert(candidateRecipes === 5400, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
+  // Candidates = 5,400 generated-valid + 398 curated (catalog candidateCount
+  // definition changed in ed2bc3f; verify-catalog-runtime.mjs reports 5,798).
+  assert(candidateRecipes === 5798, `${name}: deployed catalog candidate count drifted: ${candidateRecipes}`);
 
   await page.locator('#catalogFamily').selectOption('repo.audit.first');
   await page.locator('#catalogPlatform').selectOption('chatgpt');
@@ -124,7 +153,7 @@ async function proveViewport(browser, {name, width, height}) {
     deployedSha,
     totalPrompts,
     guestBoot: true,
-    onboardingWallHidden: true,
+    welcomeOnboardingSequence: true,
     primaryCtaWorked: true,
     catalog: {selectedRecipes, candidateRecipes, familyId: 'repo.audit.first', concreteInputCount: inputCount, compiledReady: true},
     localFailures,
@@ -136,12 +165,40 @@ async function proveViewport(browser, {name, width, height}) {
   return result;
 }
 
+// Bounded retry for transient live-network slowness (cycle 28): on a fresh
+// Pages deploy the deferred catalog import (or any single wait) can exceed
+// Playwright's 30s default on the first attempt. A retry re-runs the FULL
+// viewport — every assertion still runs and must pass — so a persistent
+// defect still fails, only slower. Max 2 attempts; no timeout is extended,
+// no assertion is weakened. A failed attempt's browser context is reaped
+// by the outer browser.close().
+// Cycle 33: a failed attempt also prints the page errors, console errors,
+// HTTP failures, and network failures it collected before throwing. Until
+// now that evidence was asserted only at the very end of proveViewport, so
+// any mid-proof failure (e.g. the catalog-settle wait) discarded it and the
+// run log named no cause.
+async function proveViewportWithRetry(browser, viewport) {
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const evidence = {};
+    try {
+      return await proveViewport(browser, viewport, evidence);
+    } catch (error) {
+      lastError = error;
+      console.log(`[${viewport.name}] attempt ${attempt} failed: ${error.message}`);
+      console.log(`[${viewport.name}] attempt ${attempt} diagnostics: pageErrors=${JSON.stringify(evidence.pageErrors || [])} consoleErrors=${JSON.stringify(evidence.consoleErrors || [])} localFailures=${JSON.stringify(evidence.localFailures || [])} requestFailures=${JSON.stringify(evidence.requestFailures || [])}`);
+      if (attempt === 2) throw error;
+    }
+  }
+  throw lastError;
+}
+
 await mkdir(OUTPUT_DIR, {recursive: true});
 const browser = await chromium.launch({headless: true});
 try {
   const results = [];
-  results.push(await proveViewport(browser, {name: 'public-desktop', width: 1440, height: 1000}));
-  results.push(await proveViewport(browser, {name: 'public-mobile', width: 390, height: 844}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-desktop', width: 1440, height: 1000}));
+  results.push(await proveViewportWithRetry(browser, {name: 'public-mobile', width: 390, height: 844}));
   const receipt = {
     schemaVersion: 1,
     baseUrl: BASE_URL,
