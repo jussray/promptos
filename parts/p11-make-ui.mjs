@@ -58,17 +58,24 @@ function renderDraft(workflow) {
   const copy = document.getElementById('foWorkflowCopy');
   if (!status || !gate || !output || !copy) return;
 
-  const badges = [
-    `<span class="badge">${workflow.id}@${workflow.version}</span>`,
-    `<span class="badge">${workflow.status.toUpperCase()}</span>`,
-    `<span class="badge">authority ${workflow.sourceMission.authorityCeiling}</span>`,
-    `<span class="badge">lineage ${workflow.lineage.length || 0}</span>`,
+  const badgeLabels = [
+    `${workflow.id}@${workflow.version}`,
+    workflow.status.toUpperCase(),
+    `authority ${workflow.sourceMission.authorityCeiling}`,
+    `lineage ${workflow.lineage.length || 0}`,
   ];
   if (workflow.modelExecution) {
-    badges.push(`<span class="badge">model ${workflow.modelExecution.modelProfileId}</span>`);
+    badgeLabels.push(`model ${workflow.modelExecution.modelProfileId}`);
   }
+  // Mission metadata can contain user input. Never parse it as HTML.
+  const badges = badgeLabels.map((label) => {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = label;
+    return badge;
+  });
   status.hidden = false;
-  status.innerHTML = badges.join('');
+  status.replaceChildren(...badges);
   gate.hidden = false;
   gate.textContent = 'Founder approval required before registry promotion. This preview cannot self-register or widen authority.';
   output.hidden = false;

@@ -47,6 +47,12 @@ async function proveViewport(browser, {name, width, height}) {
   assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding remained visible after guest choice`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});
+  // Catalog has an independent navigation entrypoint; the cinematic Explore
+  // view and family rail must appear on the ordinary path, not only via Account.
+  await page.locator('.main[data-view="explore"]').waitFor({state: 'visible'});
+  await page.locator('#exploreRail').waitFor({state: 'visible'});
+  assert((await page.locator('#exploreRail .explore-rail-btn').count()) > 1,
+    `${name}: canonical catalog family rail did not populate`);
   const catalogSummary = await page.evaluate(() => window.__PROMPTOS_CATALOG_SUMMARY__);
   const commandSummary = await page.evaluate(() => window.__PROMPTOS_COMMAND_SUMMARY__);
   assert(commandSummary?.commandCount === 30, `${name}: public command count drifted: ${commandSummary?.commandCount}`);
@@ -62,7 +68,7 @@ async function proveViewport(browser, {name, width, height}) {
   await page.locator('#commandRoute[data-state="resolved"]').waitFor({state:'visible'});
   assert((await page.locator('#commandRouteCapability').textContent())?.trim() === 'legal-navigation', `${name}: contract command capability did not resolve`);
   assert((await page.locator('#commandRouteSpecialist').textContent())?.trim() === 'truth-weaver', `${name}: contract command did not route to Truth Weaver`);
-  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'founder-control-room', `${name}: command route bypassed FCR authority`);
+  assert((await page.locator('#commandRouteAuthority').textContent())?.trim() === 'Advisory only · FCR not connected', `${name}: the public command route must not claim connected execution authority`);
   assert((await page.locator('#commandRouteArgs').textContent())?.trim() === 'vendor NDA', `${name}: command arguments were not preserved`);
 
   await commandProject.fill("Se'kret Bip");
@@ -91,7 +97,7 @@ async function proveViewport(browser, {name, width, height}) {
   await persistenceStatus.waitFor({state: 'visible'});
   const persistenceText = (await persistenceStatus.textContent())?.trim() || '';
   assert(persistenceText.includes('Session only'), `${name}: persistence status did not disclose session-only state`);
-  assert(persistenceText.includes('FCR') && persistenceText.includes('not connected'), `${name}: persistence status overstated FCR runtime persistence`);
+  assert(persistenceText.includes('cloud sync not connected'), `${name}: persistence status overstated FCR runtime persistence`);
 
   for (const selector of ['#syncToken', '#syncConnect', '#syncPush', '#syncPull']) {
     assert(await page.locator(selector).count() === 0, `${name}: legacy browser Gist control remains: ${selector}`);
@@ -102,7 +108,7 @@ async function proveViewport(browser, {name, width, height}) {
   assert(!bodyText.includes('persist across sessions'), `${name}: stale cross-session persistence claim is still visible`);
 
   const persistenceAuthority = await page.evaluate(() => window.__PROMPTOS_PERSISTENCE_AUTHORITY__);
-  assert(persistenceAuthority?.canonicalAuthority === 'Founder Control Room', `${name}: FCR is not declared as canonical persistence authority`);
+  assert(persistenceAuthority?.canonicalAuthority === 'browser-session', `${name}: browser session is not declared as the current persistence authority`);
   assert(persistenceAuthority?.runtimePersistence === 'not-connected', `${name}: runtime persistence should remain not-connected until a real FCR path exists`);
   assert(persistenceAuthority?.browserState === 'session-only', `${name}: browser state is not truthfully marked session-only`);
   assert(persistenceAuthority?.browserGitHubTokenAccepted === false, `${name}: browser GitHub token acceptance is not explicitly disabled`);

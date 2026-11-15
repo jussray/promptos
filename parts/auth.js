@@ -7,9 +7,9 @@
  *   • Signing in upgrades the session in-place.
  *
  * Persistence authority (app state — stars, custom prompts, theme):
- *   • Current browser app state is session-only.
- *   • Founder Control Room is the canonical runtime persistence authority.
- *   • FCR runtime persistence is not connected from this browser product yet.
+ *   • Current browser app state is session-only; decoded Google profile data is not server-verified.
+ *   • Standalone PromptOS has no connected account-level persistence service.
+ *   • Founder Control Room is a separate capability, not this app's state store.
  *   • Browser GitHub/Gist credentials are not accepted or implemented.
  *   • JSON Export / Import remains explicit backup and recovery.
  *   This is unrelated to visitor analytics identification below — a device
@@ -52,7 +52,9 @@
   var ANALYTICS_ENDPOINT = '';
 
   var persistenceAuthority = Object.freeze({
-    canonicalAuthority: 'Founder Control Room',
+    canonicalAuthority: 'browser-session',
+    productBoundary: 'standalone-promptos',
+    fcrCapabilityConnected: false,
     runtimePersistence: 'not-connected',
     browserState: 'session-only',
     browserGitHubTokenAccepted: false,
@@ -78,7 +80,7 @@
       status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       status.style.cssText = 'font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--text-muted);padding:8px 9px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2)';
-      status.textContent = 'Session only · FCR runtime persistence not connected';
+      status.textContent = 'Session only · cloud sync not connected';
 
       var recovery = document.createElement('div');
       recovery.style.cssText = 'font-size:10px;color:var(--text-faint);margin-top:8px;line-height:1.5';
@@ -99,7 +101,7 @@
       mobileStatus.setAttribute('aria-live', 'polite');
       mobileStatus.setAttribute('data-persistence-authority', 'session-only');
       mobileStatus.style.cssText = 'font-family:var(--mono);font-size:10.5px;line-height:1;white-space:nowrap;flex-shrink:0;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r-full);background:var(--surface-2);color:var(--text-muted)';
-      mobileStatus.textContent = 'Session only · FCR not connected';
+      mobileStatus.textContent = 'Session only · cloud sync not connected';
       mobileNav.insertBefore(mobileStatus, mobileNav.firstChild);
     }
   }
@@ -252,7 +254,6 @@
   }
 
   function renderGuestChip() {
-    document.body.classList.remove('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -279,7 +280,11 @@
       signInBtn.style.background = 'var(--primary-dim)';
       signInBtn.style.color = 'var(--primary)';
     });
-    signInBtn.addEventListener('click', function () { triggerGoogleSignIn(); });
+    signInBtn.addEventListener('click', function () {
+      var accountNav = qs('.sidebar .nav-item[data-page="account"]');
+      if (accountNav) accountNav.click();
+      else triggerGoogleSignIn();
+    });
 
     chip.appendChild(icon);
     chip.appendChild(label);
@@ -287,7 +292,6 @@
   }
 
   function renderUserChip(user) {
-    document.body.classList.add('signed-in');
     var chip = qs('#userChip');
     if (!chip) return;
     chip.innerHTML = '';
@@ -328,27 +332,8 @@
     return el;
   }
 
-  function showWelcome() {
-    var welcome = qs('#welcomeScreen');
-    var onboarding = qs('#onboarding');
-    var app = qs('#appShell');
-    if (welcome) welcome.style.display = 'flex';
-    if (onboarding) onboarding.style.display = 'none';
-    if (app) app.style.display = 'none';
-  }
-
-  function showOnboarding() {
-    var welcome = qs('#welcomeScreen');
-    var onboarding = qs('#onboarding');
-    var app = qs('#appShell');
-    if (welcome) welcome.style.display = 'none';
-    if (onboarding) onboarding.style.display = 'flex';
-    if (app) app.style.display = 'none';
-    var heading = onboarding && onboarding.querySelector('[data-onboarding-heading]');
-    if (heading) heading.focus();
-  }
-
-  function showWorkspace() {
+  // Welcome and onboarding are real public screens, not authentication gates.
+  function enterApp() {
     var welcome = qs('#welcomeScreen');
     var onboarding = qs('#onboarding');
     var app = qs('#appShell');
@@ -357,10 +342,22 @@
     if (app) app.style.display = '';
   }
 
+  function showOnboarding() {
+    var welcome = qs('#welcomeScreen');
+    var onboarding = qs('#onboarding');
+    var app = qs('#appShell');
+    if (welcome) welcome.style.display = 'none';
+    if (app) app.style.display = 'none';
+    if (!onboarding) return;
+    onboarding.style.display = 'flex';
+    onboarding.tabIndex = -1;
+    onboarding.focus({ preventScroll: true });
+  }
+
   function bootAsGuest() {
-    showWorkspace();
     SESSION.user = null;
     SESSION.startedAs = 'guest';
+    enterApp();
     renderGuestChip();
     logEvent('guest_session_started');
     window.dispatchEvent(new CustomEvent('promptos:guest'));
@@ -387,8 +384,8 @@
       picture: payload.picture || ''
     };
 
+    enterApp();
     renderUserChip(SESSION.user);
-    showWorkspace();
     logEvent('google_signin_success');
     if (wasGuest) logEvent('guest_to_google_upgrade');
     window.dispatchEvent(new CustomEvent('promptos:authed', { detail: SESSION.user }));
@@ -405,6 +402,27 @@
     window.dispatchEvent(new CustomEvent('promptos:signedout'));
   }
 
+  // The official Google button remains usable when One Tap is suppressed.
+  function renderGoogleButton() {
+    var mount = qs('#acctGsiButton');
+    var fallback = qs('#acctSignIn');
+    if (!mount || mount.dataset.gsiRendered === 'true') return !!mount && mount.dataset.gsiRendered === 'true';
+    if (!window.google || !google.accounts || !google.accounts.id || typeof google.accounts.id.renderButton !== 'function') return false;
+    try {
+      google.accounts.id.renderButton(mount, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'pill', width: 280
+      });
+      if (!mount.firstElementChild) return false;
+      mount.dataset.gsiRendered = 'true';
+      if (fallback) fallback.style.display = 'none';
+      return true;
+    } catch (e) {
+      console.warn('[PromptOS auth] Google button unavailable', e);
+      return false;
+    }
+  }
+
   function initGIS() {
     if (!window.google || !google.accounts || !google.accounts.id) {
       setTimeout(initGIS, 150);
@@ -416,6 +434,16 @@
       auto_select: false,
       cancel_on_tap_outside: true
     });
+    if (qs('#page-account.on')) renderGoogleButton();
+    var onboardingMount = qs('#gsiButton');
+    if (onboardingMount && !onboardingMount.dataset.gsiRendered &&
+        typeof google.accounts.id.renderButton === 'function') {
+      google.accounts.id.renderButton(onboardingMount, {
+        type: 'standard', theme: 'outline', size: 'large',
+        text: 'continue_with', shape: 'pill', width: 280
+      });
+      onboardingMount.dataset.gsiRendered = 'true';
+    }
   }
 
   function loadGIS(promptAfter) {
@@ -437,24 +465,34 @@
     document.head.appendChild(s);
   }
 
-  window.PromptOSAuth = { signOut: signOut, getUser: function () { return SESSION.user; }, isGuest: function () { return SESSION.user === null; } };
+  window.PromptOSAuth = {
+    // Returns false when Google sign-in cannot run here (localhost never loads the GIS SDK).
+    signIn: function () {
+      var local = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      var ready = !!(window.google && google.accounts && google.accounts.id);
+      if (!ready) return false;
+      triggerGoogleSignIn();
+      return true;
+    },
+    renderGoogleButton: renderGoogleButton,
+    // Browser display identity only; not a verified backend account session.
+    serverAuthenticated: false,
+    signOut: signOut,
+    getUser: function () { return SESSION.user; },
+    isGuest: function () { return SESSION.user === null; }
+  };
   window.promptOSSignOut = signOut;
   window.promptOSSession = SESSION;
 
-  // Home sign-up card (guest only): delegates to the same Google sign-in the topbar chip uses.
-  document.addEventListener('click', function (e) {
-    var start = e.target && e.target.closest ? e.target.closest('[data-start-onboarding]') : null;
-    var guest = e.target && e.target.closest ? e.target.closest('[data-continue-as-guest]') : null;
-    var googleButton = e.target && e.target.closest ? e.target.closest('[data-google-signin]') : null;
-    if (start) showOnboarding();
-    if (guest) bootAsGuest();
-    if (googleButton) triggerGoogleSignIn();
-  });
-
   function boot() {
     initVisitorIdentification();
-    showWelcome();
     renderPersistenceAuthority();
+    var start = qs('[data-start-onboarding]');
+    var guest = qs('#onboardingGuest');
+    if (start) start.addEventListener('click', showOnboarding);
+    if (guest) guest.addEventListener('click', bootAsGuest);
+    // Keep the Welcome screen in front. App state initializes behind it.
+    renderGuestChip();
     loadGIS();
   }
 

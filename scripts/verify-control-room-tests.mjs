@@ -37,13 +37,15 @@ const FORBIDDEN_BROWSER_GIST_MARKERS = [
   'sync via GitHub Gist',
 ];
 const REQUIRED_PERSISTENCE_TRUTH = [
-  "canonicalAuthority: 'Founder Control Room'",
+  "canonicalAuthority: 'browser-session'",
+  "productBoundary: 'standalone-promptos'",
+  'fcrCapabilityConnected: false',
   "runtimePersistence: 'not-connected'",
   "browserState: 'session-only'",
   'browserGitHubTokenAccepted: false',
   "recovery: Object.freeze(['export', 'import'])",
   'persistenceAuthorityStatus',
-  'Session only · FCR runtime persistence not connected',
+  'Session only · cloud sync not connected',
 ];
 const ALLOWED_KINDS = new Set([
   'typecheck',
@@ -153,6 +155,13 @@ for (const source of EXPECTED_INDEX_SCRIPTS) {
 const exactMatch = sameSequence(declaredSources, EXPECTED_INDEX_SCRIPTS);
 
 if (missingSources.length > 0) errors.push(`index references missing canonical sources: ${missingSources.join(', ')}`);
+if (!indexHtml.includes('<script type="module" src="./parts/p11-make-ui.mjs"></script>')) {
+  errors.push('public app must mount the existing governed /MAKE workflow UI');
+}
+for (const modulePath of ['parts/p11-make-ui.mjs', 'src/workflow-artifact.mjs', 'src/prompt-memory-ui.js', 'src/prompt-memory.js']) {
+  if (!(await exists(modulePath))) errors.push('governed workflow UI dependency is missing: ' + modulePath);
+}
+
 if (!exactMatch) {
   errors.push(`index script authority drifted; expected ${EXPECTED_INDEX_SCRIPTS.join(' -> ')}, got ${declaredSources.join(' -> ')}`);
 }
@@ -171,6 +180,15 @@ if (!assemblyManualOnly) errors.push('legacy assembly workflow must remain workf
 if (!assemblyWorkflow.includes('expected_head_sha:')) errors.push('manual source verifier must require an exact expected_head_sha input');
 if (!assemblyWorkflow.includes('node scripts/verify-control-room-tests.mjs')) {
   errors.push('legacy assembly workflow must delegate to the non-mutating source verifier');
+}
+
+const cloudflareBuildTests = spawnSync(process.execPath, ['--test', 'scripts/cloudflare-pages-build.test.mjs'], {
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+if (cloudflareBuildTests.status !== 0) {
+  errors.push('Cloudflare public publication guard failed: ' +
+    (cloudflareBuildTests.stderr || cloudflareBuildTests.stdout || '').trim().slice(0, 500));
 }
 
 const promptModules = (await readdir('parts'))
