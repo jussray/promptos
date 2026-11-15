@@ -69,9 +69,16 @@ jobs:
           test "$actual" = "$EXPECTED_HEAD_SHA"
 
       - name: Verify founder-gated GitHub Pages publication source
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/verify-pages-publication-source.mjs
+        run: |
+          set -euo pipefail
+          # Run the verifier from current main, never from the candidate tree.
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          verifier_dir="$(mktemp -d)"
+          git show "refs/remotes/origin/main:scripts/verify-pages-publication-source.mjs" > "$verifier_dir/verify-pages-publication-source.mjs"
+          node "$verifier_dir/verify-pages-publication-source.mjs"
 
       - name: Verify deployment candidate lease against live current main
         shell: bash
@@ -203,9 +210,16 @@ jobs:
           persist-credentials: false
 
       - name: Reverify GitHub Pages publication source immediately before Pages mutation
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/verify-pages-publication-source.mjs
+        run: |
+          set -euo pipefail
+          # Run the verifier from current main, never from the candidate tree.
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+          verifier_dir="$(mktemp -d)"
+          git show "refs/remotes/origin/main:scripts/verify-pages-publication-source.mjs" > "$verifier_dir/verify-pages-publication-source.mjs"
+          node "$verifier_dir/verify-pages-publication-source.mjs"
 
       - name: Revalidate founder and candidate lease immediately before Pages mutation
         shell: bash
