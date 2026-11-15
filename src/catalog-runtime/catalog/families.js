@@ -76,5 +76,13 @@ export const canonicalFamilies = {
     baseClauseIds: [...CORE_CLAUSES],
     seedOnly: true,
     seedCount: 24
+  },
+  'founder.slash110': {
+    id: 'founder.slash110', title: 'Founder 110 Slash Pack', pack: 'founder-110-pack',
+    allowedPlatforms: ['chatgpt','claude','perplexity'], allowedStages: ALL_STAGES, allowedModes: ALL_MODES, allowedRiskLenses: ALL_RISK_LENSES,
+    requiredInputs: [],
+    baseClauseIds: [...CORE_CLAUSES],
+    seedOnly: true,
+    seedCount: 110
   }
 };
