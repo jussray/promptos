@@ -531,7 +531,7 @@ button.ss-item:hover{border-color:var(--primary)}
     <button class="nav-item" id="importBtn">⬆️ Import JSON</button>
     <input type="file" id="importFile" accept="application/json" hidden>
     <button class="nav-item" id="resetBtn">🗑 Reset saved state</button>
-    <div class="side-foot">Stars, custom prompts &amp; theme persist across sessions.</div>
+    <div class="side-foot">Session-only browser state. Use explicit export/import recovery. Never paste secrets.</div>
   </aside>
 
   <nav class="mobile-nav" id="mobileNav">
@@ -800,22 +800,22 @@ button.ss-item:hover{border-color:var(--primary)}
 </div><!-- /#appShell -->
 
 <!-- MODAL -->
-<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true">
+<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mSub" tabindex="-1">
   <div class="modal">
     <div class="modal-head">
       <div style="flex:1;min-width:0">
         <h3 id="mTitle"></h3>
         <div class="sub" id="mSub"></div>
       </div>
-      <button class="star-btn" id="mStar" title="Star">☆</button>
-      <button class="icon-btn" id="mClose" aria-label="Close">✕</button>
+      <button class="star-btn" id="mStar" type="button" title="Star" aria-label="Add prompt to starred" aria-pressed="false">☆</button>
+      <button class="icon-btn" id="mClose" type="button" aria-label="Close prompt details">✕</button>
     </div>
     <div class="modal-note" id="mNote" hidden><b>When to use</b><span id="mNoteText"></span></div>
     <div class="ptabs" id="mTabs"></div>
     <div class="modal-body"><pre id="mBody"></pre></div>
     <div class="modal-foot">
-      <button class="mini-btn solid" id="mCopy">Copy this version</button>
-      <button class="mini-btn push" id="mClose2">Close</button>
+      <button class="mini-btn solid" id="mCopy" type="button">Copy this version</button>
+      <button class="mini-btn push" id="mClose2" type="button">Close</button>
     </div>
   </div>
 </div>
@@ -823,7 +823,7 @@ button.ss-item:hover{border-color:var(--primary)}
 <div class="toast" id="toast"></div>
 
 <!-- auth.js MUST load first — it controls #onboarding / #appShell visibility -->
-<script src="./parts/auth.js"></script>
+<script src="./parts/auth.js"></script>\n<script src="./parts/state.js"></script>
 <script src="./parts/p05-new-prompts.js"></script>
 <script src="./parts/p06-gap-prompts.js"></script>
 <script src="./parts/p07-ship-ultrathink-skills.js"></script>

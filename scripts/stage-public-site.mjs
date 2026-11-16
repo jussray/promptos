@@ -17,6 +17,7 @@ if (!/^[0-9a-f]{40}$/.test(expectedHead)) {
 const publicFiles = [
   'index.html',
   'parts/auth.js',
+  'parts/state.js',
   'parts/p05-new-prompts.js',
   'parts/p06-gap-prompts.js',
   'parts/p07-ship-ultrathink-skills.js',

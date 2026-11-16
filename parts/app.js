@@ -6,6 +6,9 @@
 (function(){
 'use strict';
 
+var PromptState = window.PromptOSState;
+if (!PromptState) throw new Error('PromptOS state boundary failed to load');
+
 /* ── 1. IN-MEMORY STATE (no localStorage — sandbox-safe) ──────────── */
 var STATE = {
   stars: {},          // { [promptId]: true }
@@ -21,7 +24,12 @@ var STATE = {
 var CUSTOM_PROMPTS_UNLOCKED = false;
 
 function serializeState(){
-  return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
+  return PromptState.serializeState({
+    schemaVersion: PromptState.SCHEMA_VERSION,
+    stars: STATE.stars,
+    custom: STATE.custom,
+    theme: STATE.theme
+  });
 }
 
 /* ── 2. BENCH DATA ────────────────────────────────────────────────── */
@@ -312,6 +320,8 @@ function toggleStar(id){
   if (mStar && mStar.dataset.id == id) {
     mStar.classList.toggle('on', !!STATE.stars[id]);
     mStar.textContent = STATE.stars[id] ? '★' : '☆';
+    mStar.setAttribute('aria-pressed', STATE.stars[id] ? 'true' : 'false');
+    mStar.setAttribute('aria-label', STATE.stars[id] ? 'Remove prompt from starred' : 'Add prompt to starred');
   }
 }
 
@@ -482,8 +492,10 @@ function generateFreestyle(ask, plats){
 /* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
 function saveCustomPrompt(title, sub, cat, platforms, body){
   if (!CUSTOM_PROMPTS_UNLOCKED) { toast('Saved prompts are locked in this build'); return false; }
-  var id = 'c_' + Date.now();
-  STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
+  var candidate = { id: 'c_' + Date.now(), emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() };
+  var validation = PromptState.validateState({ custom: [candidate], theme: STATE.theme });
+  if (!validation.ok || validation.findings.length) { toast('Prompt rejected by safety validation'); return false; }
+  STATE.custom.push(validation.value.custom[0]);
   renderAll();
   return true;
 }
@@ -527,6 +539,7 @@ function renderBench(){
 
 /* ── 12. EXPORT / IMPORT ──────────────────────────────────────────── */
 function exportState(){
+  if (!confirm('Export ' + STATE.custom.length + ' custom prompts and starred state? The file contains your prompt content.')) return false;
   var blob = new Blob([serializeState()], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'promptos-state.json'; a.click();
   toast('State exported');
@@ -534,13 +547,20 @@ function exportState(){
 
 function importState(json){
   try {
+    if (typeof json !== 'string' || json.length > PromptState.LIMITS.maxImportBytes) throw new Error('Import too large');
     var data = JSON.parse(json);
-    if (data.stars) STATE.stars = data.stars;
-    if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (CUSTOM_PROMPTS_UNLOCKED && Array.isArray(data.custom)) STATE.custom = data.custom;
+    var validation = PromptState.validateState(data);
+    if (!validation.ok) throw new Error(validation.errors[0]);
+    if (validation.findings.length) throw new Error('Sensitive-looking material detected');
+    var review = PromptState.summarizeImport(validation.value, { custom: STATE.custom });
+    if (!confirm('Import review: ' + review.additions + ' additions, ' + review.updates + ' updates, ' + review.conflicts + ' conflicts. Continue?')) return false;
+    if (validation.value.stars) STATE.stars = validation.value.stars;
+    if (validation.value.theme) { STATE.theme = validation.value.theme; applyTheme(STATE.theme); }
+    if (CUSTOM_PROMPTS_UNLOCKED) STATE.custom = validation.value.custom;
     renderAll();
     toast('State imported');
-  } catch(e) { toast('Invalid JSON'); }
+    return true;
+  } catch(e) { toast('Import blocked: ' + (e.message || 'invalid state')); return false; }
 }
 
 /* ── 13. NAV / PAGE SWITCHING ─────────────────────────────────────── */
