@@ -74,7 +74,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          count="$(grep -c 'node scripts/verify-pages-publication-source.mjs' .github/workflows/pages-deploy.yml)"
+          count="$(grep -cF 'git show "refs/remotes/origin/main:scripts/verify-pages-publication-source.mjs"' .github/workflows/pages-deploy.yml)"
           printf 'provider_authority_readbacks=%s\n' "$count"
           test "$count" -ge 2
           grep -q 'Reverify GitHub Pages publication source immediately before Pages mutation' .github/workflows/pages-deploy.yml
