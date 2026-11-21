@@ -7,12 +7,19 @@ const views = [{ name: 'desktop', width: 1440, height: 960 }, { name: 'mobile', 
 const failures = [];
 const nav = (_width, name) => '.mobile-nav [data-page="' + name + '"]:visible, .sidebar [data-page="' + name + '"]:visible';
 
+async function enterAsGuest(page) {
+  // Current main intentionally opens on a public welcome and onboarding sequence.
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('[data-continue-as-guest]').click();
+  await page.locator('#appShell').waitFor({ state: 'visible' });
+}
+
 try {
   for (const view of views) {
     const page = await browser.newPage({ viewport: { width: view.width, height: view.height } });
     page.on('pageerror', error => failures.push(view.name + ': ' + error.message));
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-    await page.locator('#appShell').waitFor({ state: 'visible' });
+    await enterAsGuest(page);
 
     // Every save entry point must fail closed while the paid endpoint is unconfigured.
     await page.locator(nav(view.width, 'custom')).first().click();
@@ -81,7 +88,7 @@ try {
     await route.continue();
   });
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-  await page.locator('#appShell').waitFor({ state: 'visible' });
+  await enterAsGuest(page);
   await page.evaluate(() => {
     window.PromptOSAuth.getIdToken = () => 'test-id-token';
   });

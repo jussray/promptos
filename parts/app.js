@@ -17,6 +17,9 @@ var STATE = {
   recent: []          // session-only activity log for the home panel; never exported
 };
 
+// Saved custom prompts stay locked until a reviewed release flips this flag.
+var CUSTOM_PROMPTS_UNLOCKED = false;
+
 function serializeState(){
   return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
 }
@@ -64,12 +67,26 @@ function toast(msg, dur){
 }
 
 function copy(text){
-  navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); toast('<b>Copied</b>');
-  });
+  // Clipboard API exists only in secure contexts: on the public plain-HTTP
+  // origin navigator.clipboard is undefined, and reading .writeText off it
+  // throws synchronously (uncaught pageerror, no toast, proof's #mCopy step
+  // starves). Same guard pattern as parts/p10-cont-ops-growth.js and
+  // parts/p11-make-ui.mjs copyText: fall back to the textarea +
+  // execCommand path, which works on insecure origins.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
+      fallbackCopy(text);
+    });
+    return;
+  }
+  fallbackCopy(text);
+}
+
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); toast('<b>Copied</b>');
 }
 
 function applyTheme(t){
@@ -123,6 +140,53 @@ function renderHome(){
   var set = function(sel, v){ var el = qs(sel); if (el) el.textContent = v; };
   set('#hsPrompts', all.length); set('#hsStarred', starred);
   set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
+}
+
+/* ── Mockup pieces: established prompts + status strip. Rollback: delete through wireEstablished's end + its boot() call. ── */
+function goTo(page){
+  var tab = document.querySelector('.mobile-nav [data-page="'+page+'"], .sidebar [data-page="'+page+'"]');
+  if (tab) { tab.click(); return true; }
+  if (qs('#page-'+page)) { switchPage(page); return true; }
+  return false;
+}
+function wireEstablished(){
+  var all = allPrompts();
+  document.querySelectorAll('.est-row[data-est]').forEach(function(btn){
+    var id = parseInt(btn.dataset.est, 10);
+    var p = all.find(function(x){ return x.id === id; });
+    if (!p) {
+      // the card names a prompt this build doesn't ship: say so instead of opening nothing
+      btn.disabled = true;
+      var miss = document.createElement('span'); miss.className = 'est-missing'; miss.textContent = 'Not in this build';
+      var tx = btn.querySelector('.est-text'); if (tx) tx.appendChild(miss);
+      return;
+    }
+    var sub = btn.querySelector('.est-text small'); if (sub && p.sub) sub.textContent = p.sub;
+    var label = btn.querySelector('.est-text b');
+    btn.setAttribute('aria-label', (label ? label.textContent : p.title) + ': opens ' + p.title);
+    btn.title = 'Opens ' + p.title;
+    btn.addEventListener('click', function(){ openModal(id); });
+  });
+  document.querySelectorAll('[data-go]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var page = btn.dataset.go;
+      if (!goTo(page)) { toast('That view is not available in this build'); return; }
+      if (btn.dataset.q) { var s = qs('#search'); if (s) { s.value = btn.dataset.q; s.dispatchEvent(new Event('input')); } }
+      if (page === 'library') setTimeout(function(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    });
+  });
+  // catalog count mirrors the canonical count pill written by src/catalog-ui.js
+  var pill = qs('#countPill'), ssCat = qs('#ssCatalog');
+  function syncCatalog(){
+    var m = pill && /([\d,]+)\s*recipes/i.exec(pill.textContent || '');
+    if (m && ssCat) { ssCat.textContent = m[1] + ' recipes'; return true; }
+    return false;
+  }
+  if (pill && ssCat && !syncCatalog()) {
+    var mo = new MutationObserver(function(){ if (syncCatalog()) mo.disconnect(); });
+    mo.observe(pill, { childList: true, characterData: true, subtree: true });
+    setTimeout(function(){ if (!syncCatalog()) { mo.disconnect(); ssCat.textContent = 'Catalog unavailable'; } }, 10000);
+  }
 }
 
 function allPrompts(){
@@ -423,6 +487,8 @@ async function saveCustomPrompt(title, sub, cat, platforms, body){
     toast('Paid account required. Sign in / Upgrade in My Prompts.');
     return false;
   }
+  // The default lock remains closed until this request is admitted by the server.
+  CUSTOM_PROMPTS_UNLOCKED = true;
   var id = 'c_' + Date.now();
   STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
   renderAll();
@@ -436,6 +502,7 @@ function deleteCustom(id){
 
 function renderCustomList(){
   var el = qs('#customList'); if (!el) return;
+  if (!CUSTOM_PROMPTS_UNLOCKED) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">Saved prompts are locked in this build.</div>'; return; }
   if (!STATE.custom.length) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">No saved prompts yet.</div>'; return; }
   el.innerHTML = '';
   STATE.custom.forEach(function(p){
@@ -480,9 +547,10 @@ async function importState(json){
       toast('Paid account required to import personal prompts');
       return;
     }
+    if (Array.isArray(data.custom) && data.custom.length) CUSTOM_PROMPTS_UNLOCKED = true;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (Array.isArray(data.custom)) STATE.custom = data.custom;
+    if (CUSTOM_PROMPTS_UNLOCKED && Array.isArray(data.custom)) STATE.custom = data.custom;
     renderAll();
     toast('State imported');
   } catch(e) { toast('Invalid JSON'); }
@@ -565,6 +633,7 @@ function boot(){
     on('#askGlobe', function(){ switchPage('bench'); });
     on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
   }
+  wireEstablished();
 
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
@@ -678,6 +747,11 @@ function boot(){
     applyTheme('dark'); renderAll(); toast('State reset');
   });
 }
+
+window.addEventListener('promptos:signedout', function(){
+  CUSTOM_PROMPTS_UNLOCKED = false;
+  renderCustomList();
+});
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();

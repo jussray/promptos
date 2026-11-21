@@ -25,30 +25,22 @@ try {
   const navigation = await page.goto(`${publicUrl}/`, { waitUntil: 'domcontentloaded' });
   assert(navigation?.ok(), `PromptOS public UI returned ${navigation?.status()}`);
 
-  const identity = await page.evaluate(async ({ baseUrl, key }) => {
-    const response = await fetch(`${baseUrl}/runtime-identity`, {
-      headers: { Authorization: `Bearer ${key}` },
-      cache: 'no-store',
-    });
-    return { status: response.status, body: await response.json() };
-  }, { baseUrl: providerUrl, key: operatorKey });
+  // Keep operator credentials in the runner's HTTP client, outside public-page JS.
+  const identityResponse = await page.context().request.get(`${providerUrl}/runtime-identity`, {
+    headers: { Authorization: `Bearer ${operatorKey}` }, maxRedirects: 0,
+  });
+  const identity = { status: identityResponse.status(), body: await identityResponse.json() };
 
   assert(identity.status === 200, `runtime identity returned ${identity.status}`);
   assert(identity.body?.service === 'promptos', 'runtime identity service mismatch');
   assert(identity.body?.release_sha === expectedSha, `runtime SHA mismatch: ${identity.body?.release_sha}`);
   assert(identity.body?.providers?.[provider]?.state !== 'ABSENT', `${provider} is not configured on deployed runtime`);
 
-  const proof = await page.evaluate(async ({ baseUrl, key, selectedProvider }) => {
-    const response = await fetch(`${baseUrl}/runtime-proof`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ provider: selectedProvider }),
-    });
-    return { status: response.status, body: await response.json() };
-  }, { baseUrl: providerUrl, key: operatorKey, selectedProvider: provider });
+  const proofResponse = await page.context().request.post(`${providerUrl}/runtime-proof`, {
+    headers: { Authorization: `Bearer ${operatorKey}` },
+    data: { provider }, maxRedirects: 0,
+  });
+  const proof = { status: proofResponse.status(), body: await proofResponse.json() };
 
   assert(proof.status === 200, `runtime proof returned ${proof.status}: ${proof.body?.error || 'unknown error'}`);
   assert(proof.body?.service === 'promptos', 'runtime proof service mismatch');

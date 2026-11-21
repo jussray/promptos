@@ -154,6 +154,32 @@ async function verifiedStripeEvent(request, env) {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
+async function verifiedPromptosCheckout(env, eventSession) {
+  const sessionId = eventSession?.id;
+  if (!/^cs_(?:test_)?[A-Za-z0-9_]+$/.test(sessionId || '')) return null;
+  const [session, lineItems] = await Promise.all([
+    stripeRequest(env, '/checkout/sessions/' + encodeURIComponent(sessionId)),
+    stripeRequest(env, '/checkout/sessions/' + encodeURIComponent(sessionId) + '/line_items?limit=10')
+  ]);
+  const subject = session?.client_reference_id;
+  const entry = lineItems?.data?.[0];
+  const isLive = env.PROMPTOS_STRIPE_SECRET_KEY?.startsWith('sk_live_') === true;
+  if (!session || session.id !== sessionId || session.mode !== 'subscription' ||
+      session.status !== 'complete' || session.payment_status !== 'paid' ||
+      session.livemode !== isLive || session.currency !== 'usd' || session.amount_total !== 100 ||
+      !/^[A-Za-z0-9_-]{1,255}$/.test(subject || '') ||
+      session.metadata?.purpose !== 'promptos_personal_prompts' ||
+      session.metadata?.subject !== subject ||
+      session.customer !== eventSession.customer ||
+      session.client_reference_id !== eventSession.client_reference_id ||
+      !/^cus_[A-Za-z0-9]+$/.test(session.customer || '') ||
+      lineItems?.has_more !== false || !Array.isArray(lineItems.data) ||
+      lineItems.data.length !== 1 || entry?.quantity !== 1 ||
+      entry.price?.id !== env.PROMPTOS_STRIPE_PRICE_ID ||
+      entry.price?.currency !== 'usd' || entry.price?.type !== 'recurring') return null;
+  return { subject, customer: session.customer };
+}
+
 export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
   const method = request.method.toUpperCase();
   const headers = corsHeaders;
@@ -161,13 +187,14 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
     const event = await verifiedStripeEvent(request, env);
     if (!event) return reply({ error: 'invalid signature' }, 400, headers);
     if (event.type === 'checkout.session.completed') {
-      const session = event.data?.object;
-      if (session?.mode === 'subscription' && session?.payment_status === 'paid' &&
-          /^cus_[A-Za-z0-9]+$/.test(session.customer || '') &&
-          typeof session.client_reference_id === 'string' &&
-          /^[A-Za-z0-9_-]{1,255}$/.test(session.client_reference_id)) {
-        if (!env.PROMPTOS_BILLING_KV) return reply({ error: 'billing storage unavailable' }, 503, headers);
-        await env.PROMPTOS_BILLING_KV.put('customer:' + session.client_reference_id, session.customer);
+      if (!env.PROMPTOS_BILLING_KV || !env.PROMPTOS_STRIPE_SECRET_KEY ||
+          !env.PROMPTOS_STRIPE_PRICE_ID) return reply({ error: 'billing storage unavailable' }, 503, headers);
+      try {
+        const paid = await verifiedPromptosCheckout(env, event.data?.object);
+        if (paid) await env.PROMPTOS_BILLING_KV.put('customer:' + paid.subject, paid.customer);
+      } catch {
+        // Stripe readback failures must be retried; never acknowledge unverified fulfillment.
+        return reply({ error: 'checkout verification unavailable' }, 503, headers);
       }
     }
     return reply({ received: true }, 200, headers);
@@ -219,6 +246,8 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
         'line_items[0][price]': env.PROMPTOS_STRIPE_PRICE_ID,
         'line_items[0][quantity]': '1',
         client_reference_id: identity.sub,
+        'metadata[purpose]': 'promptos_personal_prompts',
+        'metadata[subject]': identity.sub,
         success_url: env.PROMPTOS_BILLING_SUCCESS_URL,
         cancel_url: env.PROMPTOS_BILLING_CANCEL_URL,
         ...(customer && /^cus_[A-Za-z0-9]+$/.test(customer) ? { customer } :

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const EXPECTED_CHAIN = 'DISCOVER -> GOAL -> AUTHORITY -> BATNA -> VALUE -> EVIDENCE -> STRUCTURE -> TERMS -> RECEIPT';
@@ -11,7 +12,7 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMo
 
 try {
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-  await page.locator('#appShell').waitFor({ state: 'visible' });
+  await enterGuestWorkspace(page);
 
   const prompt = await page.evaluate((id) => {
     const registry = typeof PROMPTS !== 'undefined' && Array.isArray(PROMPTS) ? PROMPTS : [];

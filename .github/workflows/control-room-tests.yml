@@ -33,6 +33,9 @@ on:
       - "scripts/verify-catalog-runtime.mjs"
       - "scripts/generate-catalog.mjs"
       - "scripts/stage-public-site.mjs"
+      - "scripts/public-site-files.mjs"
+      - "scripts/staged-reference-check.mjs"
+      - "scripts/verify-staged-reference-check.mjs"
       - "scripts/verify-stage-public-site-safety.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -141,6 +144,8 @@ jobs:
         run: npm --prefix tools/zapier run typecheck
       - name: Verify public staging path cannot erase sources
         run: node scripts/verify-stage-public-site-safety.mjs
+      - name: Verify staged artifact has no dangling local references
+        run: node scripts/verify-staged-reference-check.mjs
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
       - name: Install Chromium
@@ -168,6 +173,8 @@ jobs:
         run: node e2e/council-platforms-proof.mjs
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
+      - name: Prove home mockup pieces (established prompts, status strip, two-column)
+        run: node e2e/home-v2-proof.mjs
       - name: Stop static source server
         if: always()
         shell: bash
@@ -209,6 +216,10 @@ jobs:
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
         run: node e2e/council-platforms-proof.mjs
+      - name: Prove home mockup pieces in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/home-v2-proof.mjs
       - name: Stop staged public-site server
         if: always()
         shell: bash

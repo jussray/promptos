@@ -74,6 +74,7 @@ async function runtimeProof(request, env) {
       provider,
       prompt: `Return exactly ${RUNTIME_PROOF_MARKER} and nothing else.`,
       sensitivity: 'standard',
+      source: 'founder',
     });
     if (result.text.trim() !== RUNTIME_PROOF_MARKER) {
       return json({ error: 'provider proof marker mismatch' }, 502);
@@ -150,7 +151,7 @@ export default {
             throw new Error('unsupported Anthropic batch operation');
           }
         } else {
-          result = await invokeProvider(env, input);
+          result = await invokeProvider(env, { ...input, source: 'founder' });
         }
         return json({ service: 'promptos', result });
       } catch (error) {

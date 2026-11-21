@@ -60,11 +60,27 @@ globalThis.fetch = async (url, init = {}) => {
     const active = map.get('subscriptionStatus') || 'active';
     return Response.json({ data: [{ status: active, items: { data: [{ price: { id: 'price_test_one' } }] } }] });
   }
+  if (href === 'https://api.stripe.com/v1/checkout/sessions/cs_test_valid') {
+    if (map.get('receiptScenario') === 'provider_down') throw new Error('provider unavailable');
+    return Response.json({ id: 'cs_test_valid', mode: 'subscription', status: 'complete',
+      livemode: false, payment_status: 'paid', currency: 'usd',
+      amount_total: map.get('receiptScenario') === 'wrong_amount' ? 500 : 100,
+      client_reference_id: 'user-123', customer: 'cus_test002',
+      metadata: { purpose: map.get('receiptScenario') === 'other_product' ? 'other_app' :
+        'promptos_personal_prompts', subject: 'user-123' } });
+  }
+  if (href === 'https://api.stripe.com/v1/checkout/sessions/cs_test_valid/line_items?limit=10') {
+    return Response.json({ has_more: false, data: [{ quantity: 1,
+      price: { id: map.get('receiptScenario') === 'wrong_price' ? 'price_other' :
+        'price_test_one', type: 'recurring', currency: 'usd' } }] });
+  }
   if (href === 'https://api.stripe.com/v1/checkout/sessions' && init.method === 'POST') {
     const params = new URLSearchParams(init.body);
     assert.equal(params.get('client_reference_id'), 'user-123');
     assert.equal(params.get('line_items[0][price]'), 'price_test_one');
     assert.equal(params.get('discounts[0][coupon]'), 'coupon_first_month_one_dollar');
+    assert.equal(params.get('metadata[purpose]'), 'promptos_personal_prompts');
+    assert.equal(params.get('metadata[subject]'), 'user-123');
     return Response.json({ url: 'https://checkout.stripe.com/pay/cs_test_valid' });
   }
   throw new Error('Unexpected network call ' + href);
@@ -132,8 +148,9 @@ test('intro checkout fails closed without approval or with unverified billing te
 test('webhooks reject unsigned events; signed paid checkout maps verified customer', async () => {
   map.clear();
   const event = JSON.stringify({
+    id: 'evt_promptos_valid', livemode: false,
     type: 'checkout.session.completed', data: { object: {
-      mode: 'subscription', payment_status: 'paid',
+      id: 'cs_test_valid', mode: 'subscription', payment_status: 'paid',
       client_reference_id: 'user-123', customer: 'cus_test002'
     } }
   });
@@ -148,6 +165,16 @@ test('webhooks reject unsigned events; signed paid checkout maps verified custom
   assert.equal((await run('/billing/webhook', 'POST', null,
     { 'Stripe-Signature': 't=' + t + ',v1=' + hmac }, event)).status, 200);
   assert.equal(map.get('customer:user-123'), 'cus_test002');
+  for (const scenario of ['wrong_amount', 'wrong_price', 'other_product', 'provider_down']) {
+    map.delete('customer:user-123');
+    map.set('receiptScenario', scenario);
+    const result = await run('/billing/webhook', 'POST', null,
+      { 'Stripe-Signature': 't=' + t + ',v1=' + hmac }, event);
+    assert.equal(result.status, scenario === 'provider_down' ? 503 : 200);
+    assert.equal(map.has('customer:user-123'), false,
+      scenario + ' must never grant access');
+  }
+  map.delete('receiptScenario');
 });
 
 test.after(() => { globalThis.fetch = before; });

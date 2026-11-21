@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 
 const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
 const OUTPUT_DIR = process.env.PROMPTOS_RESEARCH_PROOF_DIR || 'artifacts/promptos-research-expansion-proof';
@@ -27,7 +28,7 @@ async function proveViewport(browser, { name, width, height }) {
   });
 
   await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-  await page.locator('#appShell').waitFor({ state: 'visible' });
+  await enterGuestWorkspace(page);
 
   const catalogNav = page.locator('.mobile-nav [data-page="catalog"]:visible, .sidebar [data-page="catalog"]:visible').first();
   await catalogNav.waitFor({ state: 'visible' });
