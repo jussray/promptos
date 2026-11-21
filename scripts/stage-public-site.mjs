@@ -27,6 +27,19 @@ for (const file of publicFiles) {
 
 const stagedIndexPath = path.join(outputDir, 'index.html');
 let index = await readFile(stagedIndexPath, 'utf8');
+const billingApiInput = (process.env.PROMPTOS_BILLING_API_URL || '').trim();
+if (billingApiInput) {
+  const billingApi = new URL(billingApiInput);
+  if (billingApi.protocol !== 'https:' || billingApi.username || billingApi.password ||
+      billingApi.search || billingApi.hash || !billingApi.hostname) {
+    throw new Error('PROMPTOS_BILLING_API_URL must be an HTTPS Worker endpoint without query or credentials');
+  }
+  const marker = '<meta name="promptos-billing-api" content="">';
+  if (!index.includes(marker)) throw new Error('public billing API configuration marker missing');
+  index = index.replace(marker,
+    '<meta name="promptos-billing-api" content="' + billingApi.href.replace(/\/$/, '') + '">');
+}
+
 if (index.includes('name="promptos-deploy-sha"')) {
   throw new Error('checked-in index.html must not contain a deployed SHA marker');
 }

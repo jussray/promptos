@@ -18,19 +18,19 @@ test("saved custom prompts are locked by default", () => {
   assert.match(src, /var CUSTOM_PROMPTS_UNLOCKED = false;/);
 });
 
-test("saveCustomPrompt checks the lock before storing and reports whether it stored", () => {
+test("saveCustomPrompt requires server admission before unlocking and writing", () => {
   const body = fnBody("saveCustomPrompt");
-  const gate = body.indexOf("if (!CUSTOM_PROMPTS_UNLOCKED)");
+  const gate = body.indexOf("window.PromptOSBilling.admit()");
+  const unlock = body.indexOf("CUSTOM_PROMPTS_UNLOCKED = true");
   const push = body.indexOf("STATE.custom.push(");
-  assert.notEqual(gate, -1, "lock check must exist");
-  assert.notEqual(push, -1, "push must still exist when unlocked");
-  assert.ok(gate < push, "lock check must run before any push");
+  assert.ok(gate >= 0 && unlock > gate && push > unlock, "server admission must precede unlock and write");
   assert.match(body, /return false;/);
   assert.match(body, /return true;/);
 });
 
-test("importState cannot repopulate saved prompts while locked", () => {
+test("importState gates custom prompts and only unlocks after admission", () => {
   const body = fnBody("importState");
+  assert.match(body, /window\.PromptOSBilling\.admit\(\)/);
   assert.match(body, /if \(CUSTOM_PROMPTS_UNLOCKED && Array\.isArray\(data\.custom\)\)/);
 });
 
@@ -40,11 +40,9 @@ test("renderCustomList shows a locked placeholder instead of an empty list", () 
   assert.match(body, /locked/i);
 });
 
-test("all three save call sites are gated on the boolean result", () => {
+test("all three save call sites await server admission", () => {
   const total = (src.match(/saveCustomPrompt\(/g) || []).length;
   assert.equal(total, 4, "one definition plus exactly three call sites");
-  const gatedTrue = (src.match(/if \(saveCustomPrompt\(/g) || []).length;
-  const gatedFalse = (src.match(/if \(!saveCustomPrompt\(/g) || []).length;
-  assert.equal(gatedTrue, 2, "builder and freestyle toast success only when stored");
-  assert.equal(gatedFalse, 1, "custom form keeps the draft and returns when locked");
+  const awaits = (src.match(/if \(await saveCustomPrompt\(/g) || []).length;
+  assert.equal(awaits, 3, "every save must await the server decision");
 });

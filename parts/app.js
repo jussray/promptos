@@ -480,8 +480,15 @@ function generateFreestyle(ask, plats){
 }
 
 /* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
-function saveCustomPrompt(title, sub, cat, platforms, body){
-  if (!CUSTOM_PROMPTS_UNLOCKED) { toast('Saved prompts are locked in this build'); return false; }
+async function saveCustomPrompt(title, sub, cat, platforms, body){
+  // One server-side paid subscription check for every personal-prompt write.
+  // Do not rely on a client-side flag or Google profile alone.
+  if (!window.PromptOSBilling || !(await window.PromptOSBilling.admit())) {
+    toast('Paid account required. Sign in / Upgrade in My Prompts.');
+    return false;
+  }
+  // The default lock remains closed until this request is admitted by the server.
+  CUSTOM_PROMPTS_UNLOCKED = true;
   var id = 'c_' + Date.now();
   STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
   renderAll();
@@ -532,9 +539,15 @@ function exportState(){
   toast('State exported');
 }
 
-function importState(json){
+async function importState(json){
   try {
     var data = JSON.parse(json);
+    if (Array.isArray(data.custom) && data.custom.length &&
+        (!window.PromptOSBilling || !(await window.PromptOSBilling.admit()))) {
+      toast('Paid account required to import personal prompts');
+      return;
+    }
+    if (Array.isArray(data.custom) && data.custom.length) CUSTOM_PROMPTS_UNLOCKED = true;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
     if (CUSTOM_PROMPTS_UNLOCKED && Array.isArray(data.custom)) STATE.custom = data.custom;
@@ -643,9 +656,11 @@ function boot(){
   qs('#copyBuilder').addEventListener('click', function(){
     copy(buildPrompt());
   });
-  qs('#saveBuilder').addEventListener('click', function(){
+  qs('#saveBuilder').addEventListener('click', async function(){
     var title = qs('#bTask').value.slice(0,60) || 'Builder prompt';
-    if (saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt())) toast('Saved to My Prompts');
+    if (await saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt())) {
+      toast('Saved to My Prompts');
+    }
   });
 
   var fsState = null;
@@ -692,16 +707,18 @@ function boot(){
   qs('#fsCopy').addEventListener('click', function(){
     var body = qs('#fsBody'); if (body) copy(body.textContent);
   });
-  qs('#fsSave').addEventListener('click', function(){
+  qs('#fsSave').addEventListener('click', async function(){
     if (!fsState) return;
     var firstBody = fsState.versions[Object.keys(fsState.versions)[0]]||'';
-    if (saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody)) toast('Saved to My Prompts');
+    if (await saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody)) {
+      toast('Saved to My Prompts');
+    }
   });
   qs('#fsAsk').addEventListener('keydown', function(e){
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') runFreestyle();
   });
 
-  qs('#saveCustom').addEventListener('click', function(){
+  qs('#saveCustom').addEventListener('click', async function(){
     var title = qs('#cTitle').value.trim();
     if (!title) { toast('Add a title'); return; }
     var sub   = qs('#cSub').value.trim();
@@ -709,9 +726,10 @@ function boot(){
     var plats = qs('#cPlatforms').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
     var body  = qs('#cBody').value.trim();
     if (!body) { toast('Add a prompt body'); return; }
-    if (!saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body)) return;
-    qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
-    toast('Prompt saved');
+    if (await saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body)) {
+      qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
+      toast('Prompt saved');
+    }
   });
 
   qs('#exportBtn').addEventListener('click', exportState);
@@ -729,6 +747,11 @@ function boot(){
     applyTheme('dark'); renderAll(); toast('State reset');
   });
 }
+
+window.addEventListener('promptos:signedout', function(){
+  CUSTOM_PROMPTS_UNLOCKED = false;
+  renderCustomList();
+});
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
