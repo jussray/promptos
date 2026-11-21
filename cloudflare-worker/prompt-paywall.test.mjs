@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { webcrypto } from 'node:crypto';
@@ -104,6 +105,13 @@ test('$1 checkout and webhook cannot bypass the JussPay commerce authority', asy
   assert.equal((await run('/billing/webhook', 'POST', token)).status, 404);
   assert.equal((await run('/billing/checkout', 'GET', token)).status, 405);
   assert.equal(calls.length, 0);
+});
+
+test('PromptOS Worker declares a private JussPay service binding for premium access',()=>{
+  const config=JSON.parse(readFileSync(new URL('../wrangler.provider.jsonc',import.meta.url),'utf8'));
+  assert(config.services.some(s=>s.binding==='PROMPTOS_JUSSPAY'&&s.service==='jusspay'));
+  assert.equal(config.secrets.required.includes('PROMPTOS_STRIPE_SECRET_KEY'),false);
+  assert.equal(config.secrets.required.includes('PROMPTOS_AI_OPERATOR_KEY'),true);
 });
 
 test.after(() => { globalThis.fetch = oldFetch; });

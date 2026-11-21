@@ -10,6 +10,8 @@ The curated PromptOS catalog and guest onboarding stay free. Saving personal pro
 
 JussPay (`jussray/JussPay`) is the canonical Juss&Co. subscription and entitlement authority. **PromptOS must not create separate Stripe subscriptions or accept independent Stripe payment webhooks.** Eligible Juss&Co. digital applications may eventually offer USD $1 for the **first monthly billing period**, followed by a founder-approved product-specific renewal price, with terms disclosed before purchase. Existing free tiers stay free. Juss Beautiful Hair/hair-product checkout is categorically excluded. Children's products require guardian-controlled billing.
 
+The source Wrangler binding contracts are now declared: `PROMPTOS_JUSSPAY` on the PromptOS provider Worker targets the existing `jusspay` Worker; JussPay declares `AUTH` targeting the private `jusspay-auth` Worker. The private AUTH Worker must be separately deployed and verified before JussPay source configuration is deployable. These declarations are **not** evidence of live service bindings or production entitlement delivery.
+
 The server-side Worker route `GET /billing/entitlement` and `POST /prompts/admit`:
 
 1. Require a signed Google ID token. Verify the RS256 signature, Google issuer, configured audience and expiry against Google's public keys. This is defense-in-depth, **not** JussPay subject authority.
