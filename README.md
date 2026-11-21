@@ -1,5 +1,20 @@
 # PromptOS
 
+<!-- public-summary:start -->
+## Product overview
+
+**PromptOS makes human instructions for AI systems structured, reusable, and reviewable.** It organizes a curated prompt and workflow catalog, keeps founder intent and authority explicit, and supports portability across tools without claiming that a connected model owns the founder's decisions.
+
+**What to demonstrate:** catalog browsing, controlled instruction composition, visible approval boundaries, and the versioned, project-owned contracts described in this repository. PromptOS is its **own product**; Founder Control Room and Chief AI Machine are separate, optional peers.
+
+**Evidence boundary (21 November 2026):** GitHub `main` at `0c81c56` had six successful recorded checks, including catalog-adjacent exact-head and architecture checks. These are engineering checks, **not** evidence that every provider integration works live, that autonomous execution is authorized, or that a commercial deployment is complete.
+
+**Public demonstration rule:** show sanitized examples only. Do not publish private prompt material, credentials, customer data, agent privileges, or internal governance receipts in showcase material.
+
+---
+<!-- public-summary:end -->
+
+
 PromptOS is Juss Ray's **standalone governed prompt, skill, instruction, and founder-intent system**. It began as a 159-prompt library and has since grown into a governed catalog runtime with executable contracts, portable Juss command parity, plugin-management boundaries, research-grounded prompt packs, a founder-intent mission compiler, and desktop/mobile browser proof.
 
 PromptOS can interoperate with Founder Control Room, Chief AI Machine, SolContinuity, and other first-party systems through explicit contracts without becoming a module, shell, or subordinate runtime of another product.
