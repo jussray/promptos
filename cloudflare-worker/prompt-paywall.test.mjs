@@ -19,6 +19,9 @@ const env = {
   },
   PROMPTOS_STRIPE_SECRET_KEY: 'sk_test_fake_not_a_real_secret',
   PROMPTOS_STRIPE_PRICE_ID: 'price_test_one',
+  PROMPTOS_INTRO_OFFER_APPROVED: 'true',
+  PROMPTOS_INTRO_COUPON_ID: 'coupon_first_month_one_dollar',
+  PROMPTOS_APPROVED_RENEWAL_MINOR: '1000',
   PROMPTOS_BILLING_SUCCESS_URL: 'https://example.com/thanks',
   PROMPTOS_BILLING_CANCEL_URL: 'https://example.com/canceled',
   PROMPTOS_STRIPE_WEBHOOK_SECRET: 'whsec_fake_not_a_real_secret'
@@ -44,6 +47,15 @@ globalThis.fetch = async (url, init = {}) => {
   if (href === 'https://www.googleapis.com/oauth2/v3/certs') {
     return Response.json({ keys: [jwk] });
   }
+  if (href === 'https://api.stripe.com/v1/prices/price_test_one') {
+    return Response.json({ id: 'price_test_one', active: true, currency: 'usd',
+      type: 'recurring', unit_amount: 1000, product: 'prod_promptos',
+      recurring: { interval: 'month', interval_count: 1 } });
+  }
+  if (href === 'https://api.stripe.com/v1/coupons/coupon_first_month_one_dollar') {
+    return Response.json({ id: 'coupon_first_month_one_dollar', valid: true,
+      duration: 'once', amount_off: 900, currency: 'usd', percent_off: null });
+  }
   if (href.startsWith('https://api.stripe.com/v1/subscriptions?')) {
     const active = map.get('subscriptionStatus') || 'active';
     return Response.json({ data: [{ status: active, items: { data: [{ price: { id: 'price_test_one' } }] } }] });
@@ -52,6 +64,7 @@ globalThis.fetch = async (url, init = {}) => {
     const params = new URLSearchParams(init.body);
     assert.equal(params.get('client_reference_id'), 'user-123');
     assert.equal(params.get('line_items[0][price]'), 'price_test_one');
+    assert.equal(params.get('discounts[0][coupon]'), 'coupon_first_month_one_dollar');
     return Response.json({ url: 'https://checkout.stripe.com/pay/cs_test_valid' });
   }
   throw new Error('Unexpected network call ' + href);
@@ -94,6 +107,26 @@ test('checkout requires a verified identity and uses configured price, not brows
   const response = await run('/billing/checkout', 'POST', token);
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { url: 'https://checkout.stripe.com/pay/cs_test_valid' });
+});
+
+test('intro checkout fails closed without approval or with unverified billing terms', async () => {
+  const token = await jwt();
+  map.clear();
+  const noApproval = await run('/billing/checkout', 'POST', token, undefined, undefined,
+    { ...env, PROMPTOS_INTRO_OFFER_APPROVED: 'false' });
+  assert.equal(noApproval.status, 503);
+  const noCoupon = await run('/billing/checkout', 'POST', token, undefined, undefined,
+    { ...env, PROMPTOS_INTRO_COUPON_ID: '' });
+  assert.equal(noCoupon.status, 503);
+  const wrongRenewal = await run('/billing/checkout', 'POST', token, undefined, undefined,
+    { ...env, PROMPTOS_APPROVED_RENEWAL_MINOR: '900' });
+  assert.equal(wrongRenewal.status, 503);
+  const missingRenewal = await run('/billing/checkout', 'POST', token, undefined, undefined,
+    { ...env, PROMPTOS_APPROVED_RENEWAL_MINOR: undefined });
+  assert.equal(missingRenewal.status, 503);
+  const noPrice = await run('/billing/checkout', 'POST', token, undefined, undefined,
+    { ...env, PROMPTOS_STRIPE_PRICE_ID: '' });
+  assert.equal(noPrice.status, 503);
 });
 
 test('webhooks reject unsigned events; signed paid checkout maps verified customer', async () => {
