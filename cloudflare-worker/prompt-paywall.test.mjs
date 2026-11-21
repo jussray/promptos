@@ -11,170 +11,99 @@ const { privateKey, publicKey } = await c.subtle.generateKey(
 const jwk = await c.subtle.exportKey('jwk', publicKey);
 jwk.kid = 'test-key';
 jwk.alg = 'RS256';
-const map = new Map();
+const now = () => Math.floor(Date.now() / 1000);
+const calls = [];
+let upstream;
 const env = {
-  PROMPTOS_BILLING_KV: {
-    async get(key) { return map.get(key) || null; },
-    async put(key, value) { map.set(key, value); }
-  },
-  PROMPTOS_STRIPE_SECRET_KEY: 'sk_test_fake_not_a_real_secret',
-  PROMPTOS_STRIPE_PRICE_ID: 'price_test_one',
-  PROMPTOS_INTRO_OFFER_APPROVED: 'true',
-  PROMPTOS_INTRO_COUPON_ID: 'coupon_first_month_one_dollar',
-  PROMPTOS_APPROVED_RENEWAL_MINOR: '1000',
-  PROMPTOS_BILLING_SUCCESS_URL: 'https://example.com/thanks',
-  PROMPTOS_BILLING_CANCEL_URL: 'https://example.com/canceled',
-  PROMPTOS_STRIPE_WEBHOOK_SECRET: 'whsec_fake_not_a_real_secret'
+  PROMPTOS_JUSSPAY: {
+    async fetch(request) {
+      calls.push({ url: request.url, method: request.method, auth: request.headers.get('Authorization') });
+      if (upstream === 'outage') throw new Error('unavailable');
+      if (upstream === 'unauthorized') return Response.json({ error: 'unauthorized' }, { status: 401 });
+      if (upstream === 'invalid') return Response.json({ paid: true });
+      return Response.json({ entitlements: upstream ?? [] });
+    }
+  }
 };
-const request = (path, method, token, headers = {}, body) => new Request('https://worker.example' + path, {
-  method, headers: { ...headers, ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body
-});
-const run = (path, method = 'GET', token, headers, body, config = env) =>
-  handlePromptPaywall(request(path, method, token, headers, body), config, path, { 'Access-Control-Allow-Origin': '*' });
-const b64 = input => Buffer.from(typeof input === 'string' ? input : JSON.stringify(input)).toString('base64url');
+const run = (path, method = 'GET', token, config = env) => handlePromptPaywall(
+  new Request('https://promptos.example' + path, { method,
+    headers: token ? { Authorization: 'Bearer ' + token } : {} }),
+  config, path, { 'Access-Control-Allow-Origin': 'https://jussray.github.io' }
+);
+const b64 = value => Buffer.from(JSON.stringify(value)).toString('base64url');
 async function jwt(overrides = {}) {
-  const now = Math.floor(Date.now() / 1000);
-  const text = b64({ alg: 'RS256', kid: 'test-key' }) + '.' + b64({
+  const value = b64({ alg: 'RS256', kid: 'test-key' }) + '.' + b64({
     iss: 'https://accounts.google.com', aud: audience, sub: 'user-123',
-    iat: now, exp: now + 3600, ...overrides
+    iat: now(), exp: now() + 3600, ...overrides
   });
-  const signature = await c.subtle.sign('RSASSA-PKCS1-v1_5', privateKey, new TextEncoder().encode(text));
-  return text + '.' + Buffer.from(signature).toString('base64url');
+  const signature = await c.subtle.sign('RSASSA-PKCS1-v1_5', privateKey, new TextEncoder().encode(value));
+  return value + '.' + Buffer.from(signature).toString('base64url');
 }
-const before = globalThis.fetch;
-globalThis.fetch = async (url, init = {}) => {
-  const href = String(url);
-  if (href === 'https://www.googleapis.com/oauth2/v3/certs') {
-    return Response.json({ keys: [jwk] });
-  }
-  if (href === 'https://api.stripe.com/v1/prices/price_test_one') {
-    return Response.json({ id: 'price_test_one', active: true, currency: 'usd',
-      type: 'recurring', unit_amount: 1000, product: 'prod_promptos',
-      recurring: { interval: 'month', interval_count: 1 } });
-  }
-  if (href === 'https://api.stripe.com/v1/coupons/coupon_first_month_one_dollar') {
-    return Response.json({ id: 'coupon_first_month_one_dollar', valid: true,
-      duration: 'once', amount_off: 900, currency: 'usd', percent_off: null });
-  }
-  if (href.startsWith('https://api.stripe.com/v1/subscriptions?')) {
-    const active = map.get('subscriptionStatus') || 'active';
-    return Response.json({ data: [{ status: active, items: { data: [{ price: { id: 'price_test_one' } }] } }] });
-  }
-  if (href === 'https://api.stripe.com/v1/checkout/sessions/cs_test_valid') {
-    if (map.get('receiptScenario') === 'provider_down') throw new Error('provider unavailable');
-    return Response.json({ id: 'cs_test_valid', mode: 'subscription', status: 'complete',
-      livemode: false, payment_status: 'paid', currency: 'usd',
-      amount_total: map.get('receiptScenario') === 'wrong_amount' ? 500 : 100,
-      client_reference_id: 'user-123', customer: 'cus_test002',
-      metadata: { purpose: map.get('receiptScenario') === 'other_product' ? 'other_app' :
-        'promptos_personal_prompts', subject: 'user-123' } });
-  }
-  if (href === 'https://api.stripe.com/v1/checkout/sessions/cs_test_valid/line_items?limit=10') {
-    return Response.json({ has_more: false, data: [{ quantity: 1,
-      price: { id: map.get('receiptScenario') === 'wrong_price' ? 'price_other' :
-        'price_test_one', type: 'recurring', currency: 'usd' } }] });
-  }
-  if (href === 'https://api.stripe.com/v1/checkout/sessions' && init.method === 'POST') {
-    const params = new URLSearchParams(init.body);
-    assert.equal(params.get('client_reference_id'), 'user-123');
-    assert.equal(params.get('line_items[0][price]'), 'price_test_one');
-    assert.equal(params.get('discounts[0][coupon]'), 'coupon_first_month_one_dollar');
-    assert.equal(params.get('metadata[purpose]'), 'promptos_personal_prompts');
-    assert.equal(params.get('metadata[subject]'), 'user-123');
-    return Response.json({ url: 'https://checkout.stripe.com/pay/cs_test_valid' });
-  }
-  throw new Error('Unexpected network call ' + href);
+const oldFetch = globalThis.fetch;
+globalThis.fetch = async url => {
+  assert.equal(String(url), 'https://www.googleapis.com/oauth2/v3/certs', 'Never contact Stripe directly from PromptOS');
+  return Response.json({ keys: [jwk] });
 };
 
-test('rejects unconfigured billing and unauthenticated, forged or expired tokens', async () => {
-  const empty = await run('/prompts/admit', 'POST', await jwt(), undefined, undefined, {});
-  assert.equal(empty.status, 503);
-  assert.equal((await run('/prompts/admit', 'POST')).status, 401);
-  assert.equal((await run('/prompts/admit', 'POST', 'x.y.z')).status, 401);
-  assert.equal((await run('/prompts/admit', 'POST', await jwt({ aud: 'attacker' }))).status, 401);
-  assert.equal((await run('/prompts/admit', 'POST', await jwt({ exp: 123456 }))).status, 401);
-  const good = await jwt();
-  assert.equal((await run('/prompts/admit', 'POST', good.slice(0, -8) + 'fakeeeee')).status, 401);
+test('unconfigured JussPay denies all personal prompt admissions', async () => {
+  const token = await jwt();
+  assert.equal((await run('/prompts/admit', 'POST', token, {})).status, 503);
+  assert.equal((await run('/billing/entitlement', 'GET', token, {})).status, 503);
 });
 
-test('free user cannot admit personal prompt; paid price+status allows it', async () => {
+test('unsigned, expired, wrong-audience or forged Google credentials never reach JussPay', async () => {
+  calls.length = 0;
+  assert.equal((await run('/prompts/admit', 'POST')).status, 401);
+  assert.equal((await run('/prompts/admit', 'POST', 'not-a-jwt')).status, 401);
+  assert.equal((await run('/prompts/admit', 'POST', await jwt({ exp: now() - 100 }))).status, 401);
+  assert.equal((await run('/prompts/admit', 'POST', await jwt({ aud: 'malicious-app' }))).status, 401);
+  const signed = await jwt();
+  assert.equal((await run('/prompts/admit', 'POST', signed.slice(0, -8) + 'invalidx')).status, 401);
+  assert.equal(calls.length, 0);
+});
+
+test('free user and other product subscriptions cannot save personal prompts', async () => {
   const token = await jwt();
-  map.clear();
+  upstream = [];
   assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
   assert.deepEqual(await (await run('/billing/entitlement', 'GET', token)).json(), { paid: false });
-  map.set('customer:user-123', 'cus_test001');
-  const admit = await run('/prompts/admit', 'POST', token);
-  assert.equal(admit.status, 200);
-  assert.deepEqual(await admit.json(), { admitted: true, persistence: 'session-only' });
+  upstream = [{ product: 'thinktank', entitlements: ['promptos.personal_prompts'], until: now() + 1000 }];
+  assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
+  upstream = [{ product: 'promptos', entitlements: ['read_library'], until: now() + 1000 }];
+  assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
+  upstream = [{ product: 'promptos', entitlements: ['promptos.personal_prompts'], until: now() - 10 }];
+  assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
+});
+
+test('verified Google bearer is forwarded to the private JussPay binding for its own subject check', async () => {
+  const token = await jwt();
+  calls.length = 0;
+  upstream = [{ product: 'promptos', entitlements: ['promptos.personal_prompts'], until: now() + 1000 }];
   assert.deepEqual(await (await run('/billing/entitlement', 'GET', token)).json(), { paid: true });
-  map.set('subscriptionStatus', 'past_due');
-  assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
-  map.set('subscriptionStatus', 'canceled');
-  assert.equal((await run('/prompts/admit', 'POST', token)).status, 402);
-  map.delete('subscriptionStatus');
+  const admitted = await run('/prompts/admit', 'POST', token);
+  assert.equal(admitted.status, 200);
+  assert.deepEqual(await admitted.json(), { admitted: true, persistence: 'session-only' });
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls.map(v => v.url), ['https://jusspay.internal/entitlements', 'https://jusspay.internal/entitlements']);
+  assert(calls.every(v => v.method === 'GET' && v.auth === 'Bearer ' + token));
 });
 
-test('checkout requires a verified identity and uses configured price, not browser price', async () => {
+test('JussPay auth failures, provider outage and malformed data fail closed', async () => {
   const token = await jwt();
-  map.set('customer:user-123', 'cus_test001');
-  assert.equal((await run('/billing/checkout', 'POST', token)).status, 409, 'active subscribers must not purchase twice');
-  map.clear();
-  assert.equal((await run('/billing/checkout', 'POST')).status, 401);
-  const response = await run('/billing/checkout', 'POST', token);
-  assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { url: 'https://checkout.stripe.com/pay/cs_test_valid' });
-});
-
-test('intro checkout fails closed without approval or with unverified billing terms', async () => {
-  const token = await jwt();
-  map.clear();
-  const noApproval = await run('/billing/checkout', 'POST', token, undefined, undefined,
-    { ...env, PROMPTOS_INTRO_OFFER_APPROVED: 'false' });
-  assert.equal(noApproval.status, 503);
-  const noCoupon = await run('/billing/checkout', 'POST', token, undefined, undefined,
-    { ...env, PROMPTOS_INTRO_COUPON_ID: '' });
-  assert.equal(noCoupon.status, 503);
-  const wrongRenewal = await run('/billing/checkout', 'POST', token, undefined, undefined,
-    { ...env, PROMPTOS_APPROVED_RENEWAL_MINOR: '900' });
-  assert.equal(wrongRenewal.status, 503);
-  const missingRenewal = await run('/billing/checkout', 'POST', token, undefined, undefined,
-    { ...env, PROMPTOS_APPROVED_RENEWAL_MINOR: undefined });
-  assert.equal(missingRenewal.status, 503);
-  const noPrice = await run('/billing/checkout', 'POST', token, undefined, undefined,
-    { ...env, PROMPTOS_STRIPE_PRICE_ID: '' });
-  assert.equal(noPrice.status, 503);
-});
-
-test('webhooks reject unsigned events; signed paid checkout maps verified customer', async () => {
-  map.clear();
-  const event = JSON.stringify({
-    id: 'evt_promptos_valid', livemode: false,
-    type: 'checkout.session.completed', data: { object: {
-      id: 'cs_test_valid', mode: 'subscription', payment_status: 'paid',
-      client_reference_id: 'user-123', customer: 'cus_test002'
-    } }
-  });
-  const missing = await run('/billing/webhook', 'POST', null, {}, event);
-  assert.equal(missing.status, 400);
-  const t = Math.floor(Date.now() / 1000);
-  const key = await c.subtle.importKey('raw', new TextEncoder().encode(env.PROMPTOS_STRIPE_WEBHOOK_SECRET),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const hmac = Buffer.from(await c.subtle.sign('HMAC', key, new TextEncoder().encode(t + '.' + event))).toString('hex');
-  assert.equal((await run('/billing/webhook', 'POST', null,
-    { 'Stripe-Signature': 't=' + (t - 3600) + ',v1=' + hmac }, event)).status, 400);
-  assert.equal((await run('/billing/webhook', 'POST', null,
-    { 'Stripe-Signature': 't=' + t + ',v1=' + hmac }, event)).status, 200);
-  assert.equal(map.get('customer:user-123'), 'cus_test002');
-  for (const scenario of ['wrong_amount', 'wrong_price', 'other_product', 'provider_down']) {
-    map.delete('customer:user-123');
-    map.set('receiptScenario', scenario);
-    const result = await run('/billing/webhook', 'POST', null,
-      { 'Stripe-Signature': 't=' + t + ',v1=' + hmac }, event);
-    assert.equal(result.status, scenario === 'provider_down' ? 503 : 200);
-    assert.equal(map.has('customer:user-123'), false,
-      scenario + ' must never grant access');
+  for (const response of ['unauthorized', 'outage', 'invalid']) {
+    upstream = response;
+    assert.equal((await run('/prompts/admit', 'POST', token)).status, 503);
+    assert.equal((await run('/billing/entitlement', 'GET', token)).status, 503);
   }
-  map.delete('receiptScenario');
 });
 
-test.after(() => { globalThis.fetch = before; });
+test('$1 checkout and webhook cannot bypass the JussPay commerce authority', async () => {
+  const token = await jwt();
+  calls.length = 0;
+  assert.equal((await run('/billing/checkout', 'POST', token)).status, 503);
+  assert.equal((await run('/billing/webhook', 'POST', token)).status, 404);
+  assert.equal((await run('/billing/checkout', 'GET', token)).status, 405);
+  assert.equal(calls.length, 0);
+});
+
+test.after(() => { globalThis.fetch = oldFetch; });

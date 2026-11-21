@@ -1,43 +1,36 @@
-# PromptOS paid personal-prompt gate
+# PromptOS paid personal-prompt gate, JussPay authority
 
-**Source candidate:** `fix/paid-user-prompts-20261018` at PR review head, not automatically deployed.
+**Candidate only:** Existing PR #60, not automatically deployed. No live checkout enabled.
 
 ## Product rule
 
-The curated prompt catalog stays free. Personal prompt **saving** (New prompt, Builder save, Freestyle save, and importing custom prompts) requires an authenticated paid account. Guests and free users can still browse the catalog and use free discovery surfaces. Rejecting a save does not discard a user's unsaved form fields.
+The curated PromptOS catalog and guest onboarding stay free. Saving personal prompts (New Prompt, Builder save, Freestyle save and custom JSON import) requires a signed-in visitor with a current JussPay entitlement: `product: promptos`, `entitlements` including `promptos.personal_prompts`, `until` strictly in the future. Rejected saves preserve unsaved form inputs. Saved custom prompts are session-only; there is no claim of FCR-backed persistence.
 
-## Authority and flow
+## Payment authority
 
-1. Google Identity Services signs in a browser user. The ID token stays in memory and is sent over HTTPS only to the PromptOS Worker on billing actions. Decoded browser profiles and client-side flags do not prove entitlement.
-2. Worker checks Google RS256 signature, issuer, audience, expiration, and the `sub` against Google JWKS on each request.
-3. Worker reads the customer's Stripe ID from `PROMPTOS_BILLING_KV` then queries Stripe for an **active subscription containing exactly** `PROMPTOS_STRIPE_PRICE_ID`. Unpaid, missing, canceled and past-due subscriptions are denied.
-4. `POST /prompts/admit` must return server-verified admission before the existing session-only client can save or import a custom prompt. It accepts no prompt body and stores no personal prompt text. This does not create cross-device prompt persistence and does not replace FCR's canonical runtime-persistence authority.
-5. Upgrade uses `POST /billing/checkout` to create a hosted Stripe subscription checkout session, using **only the server-configured price**. A completed paid checkout event delivered to the HMAC-verified webhook binds the Google subject to the Stripe customer. The checkout success page is never proof of payment.
+JussPay (`jussray/JussPay`) is the canonical Juss&Co. subscription and entitlement authority. **PromptOS must not create separate Stripe subscriptions or accept independent Stripe payment webhooks.** Eligible Juss&Co. digital applications may eventually offer USD $1 for the **first monthly billing period**, followed by a founder-approved product-specific renewal price, with terms disclosed before purchase. Existing free tiers stay free. Juss Beautiful Hair/hair-product checkout is categorically excluded. Children's products require guardian-controlled billing.
 
-### Configuration required before accepting payments
+The server-side Worker route `GET /billing/entitlement` and `POST /prompts/admit`:
 
-Deploy the existing `cloudflare-worker/analytics.js` entrypoint and configure:
-- Cloudflare KV binding `PROMPTOS_BILLING_KV` for the Google-subject to Stripe-customer mapping.
-- Worker secret `PROMPTOS_STRIPE_SECRET_KEY`, never committed or exposed to the browser.
-- Worker secret `PROMPTOS_STRIPE_WEBHOOK_SECRET` and a Stripe webhook endpoint pointing to `POST /billing/webhook`, receiving `checkout.session.completed`.
-- Worker setting `PROMPTOS_STRIPE_PRICE_ID` for the founder-approved Stripe recurring price.
-- Worker HTTPS return URLs `PROMPTOS_BILLING_SUCCESS_URL` and `PROMPTOS_BILLING_CANCEL_URL`, on an approved PromptOS site origin.
-- Worker `PROMPTOS_GOOGLE_CLIENT_ID` matching the Google Identity Services browser audience if changing the current approved Google client.
-- Set the **public, nonsecret** build variable `PROMPTOS_BILLING_API_URL` to the verified HTTPS Worker origin for the public site staging command. It injects the URL into the public HTML meta tag. If missing, the browser fails closed for all personal-prompt saves.
+1. Require a signed Google ID token. Verify the RS256 signature, Google issuer, configured audience and expiry against Google's public keys. This is defense-in-depth, **not** JussPay subject authority.
+2. Call the **private, fixed-origin** `PROMPTOS_JUSSPAY` Cloudflare Worker service binding for `GET https://jusspay.internal/entitlements`, forwarding only the already-verified visitor Bearer token.
+3. JussPay's **own private `AUTH` service binding must independently validate** this token for audience `jusspay`, issuer, stable user mapping, session revocation policy and expiry. Do not infer that PromptOS's Google login is already compatible with JussPay's deployed identity adapter.
+4. Accept only that caller's current JussPay `promptos.personal_prompts` entitlement, and deny missing, other-product, wrong-permission, expired, unauthenticated or unavailable responses. Browser values, success URLs, and cookies do not grant admission.
+5. The UI remains a browser client. Private JussPay and `AUTH` service bindings are never configured as browser URLs or sent to the client.
 
-Do not invent prices, Stripe product IDs, Worker hostnames, production payment state or checkout success. No Stripe charge or publication is authorized merely by merging this code.
+## $1 offer configuration and release blockers
 
-## Verification
+`POST /billing/checkout` returns `503` until **JussPay** implements and verifies the complete introductory-offer contract, including product-specific approved renewal price, exact initial invoice of USD $1.00, single first-period discount, unique customer/subject linkage, duplicate and re-subscribe protection, signed webhook and fresh Stripe provider readback. `POST /billing/webhook` on PromptOS returns `404`: Stripe webhooks belong to JussPay. The client has no fallback to direct Stripe or Shopify success redirects.
 
-- `node --test cloudflare-worker/prompt-paywall.test.mjs` exercises bad/unconfigured auth, invalid RS256 tokens, unpaid and active subscriptions, past-due/canceled denial, no duplicate paid checkout, and Stripe webhook HMAC validation.
-- `node e2e/paid-prompt-proof.mjs` runs desktop/mobile Chromium against the source or staged site: saves and custom imports denied for free accounts; free catalog remains visible. A **mock billing API** proves the UI's positive path separately from the server tests. Neither mock establishes a live Stripe account, billing domain or payment.
-- Existing `e2e/rendered-proof.mjs` and the staged browser lane remain mandatory. Require exact-head CI and provider-side readback before any production claim.
+The founder must approve the PromptOS regular monthly renewal price and complete tax, refund, cancellation and billing terms before creating/activating a recurring offer. Shopify product publication can complement an approved storefront offer, but it is never a second entitlement authority.
 
-## Risks and rollback
+## Verification (what is and is not proved)
 
-- **Present limitation:** custom prompts remain browser session data. The server guards official save/admission requests, but the web browser is user-controlled. A malicious user can alter local JavaScript/JSON; this is not a server-side storage/paywall boundary for prompt content. Full tamper-resistant paid prompt storage needs a governed, authenticated server persistence path with FCR coordination.
-- Webhook delivery must succeed for newly paid users to be recognized; a missed webhook is a temporary paid-access denial. Reconcile Stripe customer mapping rather than trusting a checkout redirect.
-- Stripe billing keys, price, webhook and deployment URLs are **unverified** until the provider configuration and real checkout are read back.
-- Roll back by reverting the focused paywall commits or disabling the billing URL injection; if billing is unavailable, personal prompt saves will fail closed. Do not disable the gate to conceal outages, and do not clear user session data without a specific approved recovery procedure.
+- `node --test cloudflare-worker/prompt-paywall.test.mjs` verifies rejection and the private-binding protocol using mock Google JWKS and mock JussPay responses.
+- `node e2e/paid-prompt-proof.mjs` checks desktop/mobile unpaid-user denial and simulated paid UI. Positive-path billing in the browser is mocked; this is **not** a real JussPay OAuth or Stripe payment transaction.
+- `node scripts/verify-control-room-tests.mjs` and the staged browser tests protect source and public artifact behavior.
+- **Not proved:** deployed Cloudflare `PROMPTOS_JUSSPAY` binding; JussPay's actual `AUTH` mapping for PromptOS Google tokens; real paid subscription readback; real $1 test payment; duplicate redemptions; production checkout, feature fulfillment, or actual Stripe live mode.
 
-**Next gate:** founder-approved price/plan and confirmed Stripe/Cloudflare configuration, followed by exact-head browser and real paid/free/canceled account proofs. Separate publication and exact PR merge approvals still apply.
+## Rollback
+
+PR #60 is unmerged. The branch can be reverted to its previous commit without touching production. For any future released bridge, restore the previously proven Worker artifact and keep its billing disabled until authorization works again. Preserve JussPay Durable Object/Stripe customer, payment and webhook receipts on rollback; never erase financial evidence. No production deployment is authorized by this document.
