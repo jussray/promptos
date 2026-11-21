@@ -78,6 +78,38 @@ function configReady(env) {
     env.PROMPTOS_BILLING_CANCEL_URL);
 }
 
+// An introductory promise is a billing contract, not marketing copy.
+// Refuse checkout unless the Stripe monthly price and one-use discount
+// mathematically produce exactly USD 1.00 for the first invoice.
+// Renewal amount is the server-approved Stripe Price, never supplied by a browser.
+async function verifiedIntroOffer(env) {
+  if (env.PROMPTOS_INTRO_OFFER_APPROVED !== 'true' ||
+      !/^price_[A-Za-z0-9_]+$/.test(env.PROMPTOS_STRIPE_PRICE_ID || '') ||
+      !/^coupon_[A-Za-z0-9_]+$/.test(env.PROMPTOS_INTRO_COUPON_ID || '') ||
+      !Number.isSafeInteger(Number(env.PROMPTOS_APPROVED_RENEWAL_MINOR)) ||
+      Number(env.PROMPTOS_APPROVED_RENEWAL_MINOR) <= 100) {
+    throw new Error('intro offer not approved');
+  }
+  const [price, coupon] = await Promise.all([
+    stripeRequest(env, '/prices/' + encodeURIComponent(env.PROMPTOS_STRIPE_PRICE_ID)),
+    stripeRequest(env, '/coupons/' + encodeURIComponent(env.PROMPTOS_INTRO_COUPON_ID))
+  ]);
+  const renewal = Number(env.PROMPTOS_APPROVED_RENEWAL_MINOR);
+  if (!price || price.id !== env.PROMPTOS_STRIPE_PRICE_ID ||
+      price.active !== true || price.currency !== 'usd' ||
+      price.type !== 'recurring' || price.recurring?.interval !== 'month' ||
+      price.recurring?.interval_count !== 1 || price.unit_amount !== renewal ||
+      typeof price.product !== 'string' || !price.product.startsWith('prod_') ||
+      !coupon || coupon.id !== env.PROMPTOS_INTRO_COUPON_ID ||
+      coupon.valid !== true || coupon.duration !== 'once' ||
+      coupon.percent_off != null || coupon.amount_off !== renewal - 100 ||
+      coupon.currency !== 'usd' ||
+      (coupon.applies_to?.products && !coupon.applies_to.products.includes(price.product))) {
+    throw new Error('intro offer provider mismatch');
+  }
+  return { couponId: coupon.id, renewal };
+}
+
 function verifiedReturnUrl(value) {
   try {
     const u = new URL(value);
@@ -171,11 +203,18 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
       return reply({ error: 'checkout return URLs not configured' }, 503, headers);
     }
     try {
+      const offer = await verifiedIntroOffer(env);
       if (await paidSubscription(env, identity.sub)) {
         return reply({ error: 'already subscribed' }, 409, headers);
       }
       const customer = await env.PROMPTOS_BILLING_KV.get('customer:' + identity.sub);
+      if (customer) {
+        // A returning customer must not be offered another first-month promotion.
+        // A separately approved returning-customer offer is required.
+        return reply({ error: 'intro offer requires a new customer' }, 409, headers);
+      }
       const checkout = await stripeRequest(env, '/checkout/sessions', {
+        'discounts[0][coupon]': offer.couponId,
         mode: 'subscription',
         'line_items[0][price]': env.PROMPTOS_STRIPE_PRICE_ID,
         'line_items[0][quantity]': '1',
