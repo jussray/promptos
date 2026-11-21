@@ -168,6 +168,14 @@ This quantum gate routes evidence and attention only. It does not grant authorit
 - **Boundary:** decision support only. It separates source, execution, and outcome truth; secondary signals cannot declare primary success; changed fingerprints invalidate predecessor proof.
 - **Authority:** the skill may recommend a next gate but cannot grant merge, deploy, publish, send, spend, delete, permission, or production authority.
 
+### `memory-snapshot`
+
+- **File:** [`skills/memory-snapshot/SKILL.md`](skills/memory-snapshot/SKILL.md)
+- **Load when:** a user wants a portable profile of themselves to move to another AI assistant, asks what an assistant knows about them, or wants to clean up a memory export pasted from another assistant.
+- **Do not load when:** the task is importing someone else's export into the current assistant's memory, or summarizing a project rather than a person.
+- **Boundary:** source-bound. Only facts the user stated, or a source they own shows, make it into the snapshot. A single incidental act is a guess and gets dropped. Claims from another assistant that the user's own words don't back up go to an "unconfirmed" list, not into the snapshot. With no sources at all, it hands over an intake template instead of a profile.
+- **Privacy:** health, mental-health, and financial details stay out unless the user explicitly asked for that item to be remembered. Pronouns are never inferred from a name. The output is a profile of a person, so it is saved locally and never committed, posted, or uploaded without an explicit request.
+
 The remembrance loop, repository-local instructions, privacy/safety rules, approval gates, exact-head proof, rollback requirements, Founder Control Room release truth, and non-deletion rules remain stronger authority. If a portable command conflicts with a stricter PromptOS rule, the stricter rule wins. Governed skills follow the same precedence and cannot weaken a stricter repository rule.
 
 This entrypoint supplements repository-local agent instructions and never weakens privacy, safety, approval, rollback, evidence, or non-deletion rules.

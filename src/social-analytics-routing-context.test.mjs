@@ -137,3 +137,42 @@ test('routing hash changes when the evidence lineage changes', () => {
   });
   assert.notEqual(first.routing_hash, second.routing_hash);
 });
+
+test('rejects a Chief decision that tries to turn repository instructions into persistent publishing authority', () => {
+  const chief = decision();
+  const sol = continuity(chief);
+  for (const authorityPatch of [
+    { execution_authorized: true },
+    { publish_authorized: true },
+    { content_mutation_authorized: true },
+    { may_increase_authority: true },
+    { learning_authority: 'standing_write' },
+  ]) {
+    assert.throws(
+      () => buildSocialAnalyticsRoutingContext({
+        decision: { ...chief, authority: { ...chief.authority, ...authorityPatch } },
+        continuity: sol,
+      }),
+      /Chief authority must remain advisory-only/,
+    );
+  }
+});
+
+test('rejects a Sol marker that claims approval carry-forward or publishing authority', () => {
+  const chief = decision();
+  const sol = continuity(chief);
+  for (const authorityPatch of [
+    { creates_authority: true },
+    { publish_authorized: true },
+    { execution_authorized: true },
+    { state_lineage_only: false },
+  ]) {
+    assert.throws(
+      () => buildSocialAnalyticsRoutingContext({
+        decision: chief,
+        continuity: { ...sol, authority: { ...sol.authority, ...authorityPatch } },
+      }),
+      /Sol continuity authority must remain lineage-only/,
+    );
+  }
+});

@@ -1,0 +1,37 @@
+name: ACTUAL-FLOW V4 Proof
+
+on:
+  pull_request:
+    paths:
+      - "workflows/actual-flow-v4/**"
+      - "workflows/actual-flow-v4.workflow.json"
+      - "workflows/continuity/**"
+      - ".github/workflows/actual-flow-v4-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify ACTUAL-FLOW V4 proof contract
+    runs-on: ubuntu-22.04
+    timeout-minutes: 6
+    steps:
+      - name: Check out exact head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify existing continuity contract
+        run: node workflows/continuity/verify.mjs
+      - name: Verify ACTUAL-FLOW V4 evidence gate
+        run: node workflows/actual-flow-v4/verify.mjs

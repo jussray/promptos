@@ -56,3 +56,7 @@ Each Council member distinguishes `VERIFIED`, `INFERRED`, `UNKNOWN`, and `BLOCKE
 Return one packet: `REALITY / COUNCIL / FIX / PROOF / RISK / ROLLBACK / NEXT GATE`.
 
 When GitHub, Supabase, or Cloudflare enter the path, verify each layer independently. A green source check does not certify data/auth, deployment/runtime, or user-visible behavior.
+
+## Court
+
+For consequential prompt decisions, convene the architectural court in `.control-room/promptos-court.contract.json` (`juss/promptos-court@v1`): Craft, Lineage, and Evidence councils under the Founder Council. No second authority plane. Founder rules; prompt promotion never becomes execution authority.
