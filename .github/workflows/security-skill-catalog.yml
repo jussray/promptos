@@ -5,11 +5,15 @@ on:
     paths:
       - 'docs/security-skill-catalog.v1.json'
       - 'scripts/check-security-skill-catalog.cjs'
+      - 'src/catalog-ui.js'
+      - 'tests/security-catalog-handoff.test.mjs'
       - '.github/workflows/security-skill-catalog.yml'
   pull_request:
     paths:
       - 'docs/security-skill-catalog.v1.json'
       - 'scripts/check-security-skill-catalog.cjs'
+      - 'src/catalog-ui.js'
+      - 'tests/security-catalog-handoff.test.mjs'
       - '.github/workflows/security-skill-catalog.yml'
 permissions:
   contents: read
@@ -22,3 +26,4 @@ jobs:
         with:
           persist-credentials: false
       - run: node scripts/check-security-skill-catalog.cjs
+      - run: node --test tests/security-catalog-handoff.test.mjs
