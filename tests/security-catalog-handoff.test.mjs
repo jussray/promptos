@@ -9,8 +9,9 @@ test('existing catalog has a founder-only handoff', () => {
 });
 test('handoff is fixed to intended FCR origin without credentials or query parameters', () => {
   const href = section?.match(/href="([^"]+)"/)?.[1];
-  assert.equal(href, 'https://www.foundercontrolroom.org/control-room/security.html');
+  assert.equal(href, 'https://foundercontrolroom.org/control-room/security.html');
   const url = new URL(href);
+  assert.equal(url.origin, 'https://foundercontrolroom.org');
   assert.equal(url.search, '');
   assert.equal(url.hash, '');
   assert.equal(url.username, '');
