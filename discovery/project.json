@@ -1,0 +1,15 @@
+{
+  "protocol": "JSC-ADRP",
+  "version": "1.0.0-draft",
+  "project": "promptos",
+  "name": "PromptOS",
+  "url": "https://promptos.jussco.company",
+  "description": "Standalone human-AI instruction governance product",
+  "useCases": [
+    "Prompt, skill and instruction lifecycle governance",
+    "Reusable workflows and instruction testing"
+  ],
+  "publicationStatus": "draft",
+  "verifiedCapabilities": [],
+  "evidence": []
+}
