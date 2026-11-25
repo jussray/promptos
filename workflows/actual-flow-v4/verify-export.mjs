@@ -15,13 +15,22 @@ const workflow = {
 };
 const registry = {workflows: [{id:workflow.id, version:workflow.version,
   status:'approved', path:'workflows/actual-flow-v4.workflow.json'}]};
-const input = {workflow, registry, expectedHead:sha, observedHead:sha};
+const input = {workflow, registry, expectedHead:sha, observedHead:sha, observedRef:'refs/heads/main'};
 const build = overrides => buildProjectExport({...input, ...overrides});
 const output = build();
 
 assert.equal(output.schema, 'juss/promptos-workflow-project-export@v1');
 assert.equal(output.artifact.id, 'actual-flow-v4');
 assert.equal(output.source.exactHeadSha, sha);
+assert.equal(output.source.observedRef, 'refs/heads/main');
+assert.equal(output.source.isCanonicalMain, true);
+assert.equal(output.verification.registrationEffective, true);
+const candidate = build({observedRef:'refs/heads/feat/example'});
+assert.equal(candidate.source.isCanonicalMain, false);
+assert.equal(candidate.runtime.status, 'candidate-definition-only');
+assert.equal(candidate.verification.registrationEffective, false);
+assert.throws(() => build({observedRef:'unsupported-ref'}), /invalid source ref/);
+assert.throws(() => build({observedRef:'refs/heads/../main'}), /invalid source ref/);
 assert.equal(output.source.canonicalBranch, 'main');
 assert.equal(output.runtime.automaticExecution, false);
 assert.equal(output.runtime.providerPrivilegesGranted, false);
@@ -44,7 +53,7 @@ const [realWorkflow, realRegistry] = await Promise.all([
   readFile(new URL('../registry.json', import.meta.url), 'utf8').then(JSON.parse),
 ]);
 const realExport = buildProjectExport({workflow: realWorkflow, registry: realRegistry,
-  expectedHead:sha, observedHead:sha});
+  expectedHead:sha, observedHead:sha, observedRef:'refs/heads/main'});
 assert.equal(realExport.artifact.version, realWorkflow.version);
 assert.equal(realExport.runtime.status, 'definition-only');
 console.log('PASS actual-flow-v4 project-export and registry checks');
