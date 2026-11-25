@@ -10,6 +10,8 @@
  * Checkout is intentionally unavailable until the $1 first-billing-period
  * contract is supported and verified in JussPay itself.
  */
+import { handleIntroBilling } from './intro-billing.mjs';
+
 const GOOGLE_ISSUERS = ['https://accounts.google.com', 'accounts.google.com'];
 const GOOGLE_KEYS = 'https://www.googleapis.com/oauth2/v3/certs';
 const GOOGLE_AUDIENCE = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
@@ -78,18 +80,21 @@ async function eligibleInJussPay(request, env) {
 export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
   const method = request.method.toUpperCase();
   const replyJson = (value, status) => reply(value, status, corsHeaders);
-  if (!['/billing/entitlement', '/billing/checkout', '/prompts/admit'].includes(pathname)) {
+  if (!['/billing/entitlement', '/billing/offer', '/billing/checkout', '/prompts/admit'].includes(pathname)) {
     return replyJson({ error: 'not found' }, 404);
   }
-  const expected = pathname === '/billing/entitlement' ? 'GET' : 'POST';
+  const expected = ['/billing/entitlement', '/billing/offer'].includes(pathname) ? 'GET' : 'POST';
   if (method !== expected) return replyJson({ error: 'method not allowed' }, 405);
-  if (pathname === '/billing/checkout') {
-    // Do not bypass JussPay with a product-specific Stripe Checkout link.
-    // $1 first invoice + product-specific renewal must be verified in JussPay.
-    return replyJson({ error: 'introductory checkout not yet verified in JussPay' }, 503);
+  const checkoutRoute = ['/billing/offer', '/billing/checkout'].includes(pathname);
+  if (checkoutRoute && env.PROMPTOS_INTRO_SANDBOX_ENABLED !== 'true') {
+    return replyJson({ error: 'sandbox_checkout_disabled' }, 503);
   }
   if (!env.PROMPTOS_JUSSPAY?.fetch) return replyJson({ error: 'billing unavailable', paid: false }, 503);
   if (!(await verifyIdentity(request, env))) return replyJson({ error: 'sign in required', paid: false }, 401);
+  if (checkoutRoute) {
+    const result = await handleIntroBilling(request, env, pathname);
+    return replyJson(result.body, result.status);
+  }
   try {
     const paid = await eligibleInJussPay(request, env);
     if (pathname === '/billing/entitlement') return replyJson({ paid }, 200);

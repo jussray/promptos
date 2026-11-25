@@ -160,3 +160,53 @@ test('billing CORS admits only exact PromptOS origins and never bypasses authent
   const operator = await worker.fetch(new Request('https://promptos.example/runtime-identity', { method: 'OPTIONS', headers: { Origin: 'https://promptos.jussco.company' } }), env);
   assert.equal(operator.headers.get('Access-Control-Allow-Origin'), 'https://jussray.github.io');
 });
+
+test('sandbox billing requires verified identity, explicit current terms and a matching JussPay receipt', async () => {
+  const token = await jwt();
+  const termsUrl = 'https://merchant.example/terms';
+  const row = {id:'promptos', purchaseStatus:'requires_provider_validation', offerConfigured:true,
+    currency:'usd',interval:'month',unitAmount:1900,termsUrl,entitlements:['promptos.personal_prompts'],
+    introOffer:{approved:true,billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:1900,renewalInterval:'month'}};
+  const receipt = {billingMode:'test',currency:'usd',interval:'month',termsUrl,firstInvoiceAmountMinor:100,
+    renewalAmountMinor:1900,url:'https://checkout.stripe.com/c/test_fixture'};
+  const consent = {acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,
+    renewalAmountMinor:1900,interval:'month',termsUrl};
+  const requests = [];
+  let catalog = row, checkoutReceipt = receipt;
+  const config = {PROMPTOS_INTRO_SANDBOX_ENABLED:'true',PROMPTOS_JUSSPAY:{fetch:async request => {
+    const path = new URL(request.url).pathname;
+    requests.push({path, auth:request.headers.get('Authorization'), body:path==='/checkout'?await request.json():null});
+    return Response.json(path==='/catalog'?[catalog]:checkoutReceipt);
+  }}};
+  const call = (path, method, credential, body, settings=config) => handlePromptPaywall(
+    new Request('https://promptos.example'+path, {method,headers:{
+      ...(credential?{Authorization:'Bearer '+credential}:{}),...(body?{'Content-Type':'application/json'}:{})},
+      ...(body?{body:JSON.stringify(body)}:{})}),settings,path,{});
+  assert.equal((await call('/billing/offer','GET',token,null,{})).status,503);
+  assert.equal((await call('/billing/offer','GET',null)).status,401);
+  assert.equal(requests.length,0);
+  const offer = await call('/billing/offer','GET',token);
+  assert.equal(offer.status,200);
+  assert.equal((await offer.json()).offer.renewalAmountMinor,1900);
+  for (const invalid of [{...consent,acceptsAutomaticRenewal:false},{...consent,renewalAmountMinor:1},{...consent,termsUrl:'https://evil.example'}]) {
+    assert.equal((await call('/billing/checkout','POST',token,invalid)).status,409);
+  }
+  assert.equal(requests.filter(r=>r.path==='/checkout').length,0);
+  catalog={...row,introOffer:{...row.introOffer,billingMode:'live'}};
+  assert.equal((await call('/billing/checkout','POST',token,consent)).status,503);
+  assert.equal(requests.filter(r=>r.path==='/checkout').length,0);
+  catalog=row;
+  const checkout = await call('/billing/checkout','POST',token,{...consent,product:'other',priceId:'attacker'});
+  assert.equal(checkout.status,200);
+  const body=await checkout.json();
+  assert.equal(body.billingMode,'test');
+  assert.equal(body.url,receipt.url);
+  assert.equal(body.paid,undefined);
+  const forwarded=requests.at(-1);
+  assert.equal(forwarded.auth,'Bearer '+token);
+  assert.deepEqual(forwarded.body,{product:'promptos',introConsent:consent});
+  for (const bad of [{...receipt,billingMode:'live'},{...receipt,renewalAmountMinor:1},{...receipt,url:'https://checkout.stripe.com.evil.example/c/test'},{...receipt,url:'https://user@checkout.stripe.com/c/test'}]) {
+    checkoutReceipt=bad;
+    assert.equal((await call('/billing/checkout','POST',token,consent)).status,503);
+  }
+});

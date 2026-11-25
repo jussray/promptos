@@ -24,5 +24,8 @@
       "binding": "PROMPTOS_JUSSPAY",
       "service": "jusspay"
     }
-  ]
+  ],
+  "vars": {
+    "PROMPTOS_INTRO_SANDBOX_ENABLED": "false"
+  }
 }
