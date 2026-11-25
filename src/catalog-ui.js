@@ -127,6 +127,11 @@ function createPage() {
       <h2>5,000 bounded recipes. Compile only what the task needs.</h2>
       <p>398 curated prompts anchor the canonical recipe index. Filter the catalog, add concrete context, and compile a provider-ready prompt with provenance and proof guardrails.</p>
     </div>
+    <section class="promptos-command-deck" aria-label="Founder-only security catalog">
+      <h3>Security Skills Library</h3>
+      <p>Read-only catalog access is verified by Founder Control Room. A PromptOS browser session does not grant founder access. Deployment of the catalog is not yet confirmed.</p>
+      <a class="mini-btn" href="https://foundercontrolroom.org/control-room/security.html" rel="noreferrer">Open protected catalog in Founder Control Room</a>
+    </section>
     <div class="promptos-command-deck" aria-label="PromptOS public command palette">
       <div class="promptos-command-head">
         <div>
