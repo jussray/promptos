@@ -652,11 +652,16 @@ function boot(){
   function getSelectedPlats(){
     return Array.from(document.querySelectorAll('.pcheck input:checked')).map(function(c){ return c.value; });
   }
+  var petChoice=qs('#promptosPetChoice');
+  if(petChoice) petChoice.addEventListener('change',function(){document.querySelectorAll('#promptosPet [data-pet]').forEach(function(p){p.hidden=p.dataset.pet!==petChoice.value;});});
+  function petStatus(message,busy){var p=qs('#promptosPet'),s=qs('#promptosPetStatus');if(p)p.dataset.busy=String(busy);if(s)s.textContent=message;}
   function runFreestyle(){
     var ask = qs('#fsAsk').value.trim();
     if (!ask) { toast('Describe what you need first'); return; }
     var plats = getSelectedPlats();
     if (!plats.length) { toast('Select at least one platform'); return; }
+    petStatus('Composing locally…',true);
+    try {
     fsState = generateFreestyle(ask, plats);
     var tabs = Object.keys(fsState.versions);
     var activeTab = tabs[0];
@@ -682,11 +687,13 @@ function boot(){
       tabEl.appendChild(btn);
     });
     qs('#fsBody').textContent = fsState.versions[activeTab]||'';
+    petStatus('Prompt prepared locally.',false);
+    } catch(error){petStatus('Composition failed.',false);throw error;}
   }
 
   qs('#fsGenerate').addEventListener('click', runFreestyle);
   qs('#fsClear').addEventListener('click', function(){
-    qs('#fsAsk').value = ''; qs('#fsPlaceholder').style.display = ''; qs('#fsPreview').classList.remove('on'); fsState = null;
+    qs('#fsAsk').value = ''; qs('#fsPlaceholder').style.display = ''; qs('#fsPreview').classList.remove('on'); fsState = null; petStatus('Ready to compose locally.',false);
   });
   qs('#fsRegenerate').addEventListener('click', runFreestyle);
   qs('#fsCopy').addEventListener('click', function(){
