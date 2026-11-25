@@ -1,0 +1,30 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.jussco.company/#organization",
+      "name": "Juss & Co",
+      "url": "https://www.jussco.company/"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://promptos.jussco.company/#website",
+      "name": "PromptOS",
+      "url": "https://promptos.jussco.company/",
+      "publisher": {
+        "@id": "https://www.jussco.company/#organization"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://promptos.jussco.company/#application",
+      "name": "PromptOS",
+      "url": "https://promptos.jussco.company/",
+      "description": "Standalone human-AI instruction governance product",
+      "publisher": {
+        "@id": "https://www.jussco.company/#organization"
+      }
+    }
+  ]
+}
