@@ -100,7 +100,12 @@ node workflows/actual-flow-v4/export-project.mjs \
 ```
 
 The export contains the complete versioned workflow definition, exact SHA and a
-fail-closed project envelope. It refuses stale SHA, missing/duplicate registry
+fail-closed project envelope.
+It also records the actual checked-out branch ref. Exports made from feature branches
+are explicitly `candidate-definition-only`, with `registrationEffective: false`; only
+a checkout on `refs/heads/main` can report the definition as registered on canonical
+main. The CLI refuses detached or unknown branch refs rather than treating a PR head
+as production. It refuses stale SHA, missing/duplicate registry
 entries, unapproved definitions and unknown project identifiers. It creates a
 new file without overwriting existing exports. Never treat the exported JSON as
 an execution credential, authenticated account, provider connector, deployment,
