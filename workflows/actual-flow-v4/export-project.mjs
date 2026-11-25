@@ -6,13 +6,18 @@ import { resolve, dirname } from 'node:path';
 const REPOSITORY = 'jussray/promptos';
 const WORKFLOW_ID = 'actual-flow-v4';
 const SHA = /^[0-9a-f]{40}$/;
+const HEAD_REF = /^refs\/heads\/[a-zA-Z0-9][a-zA-Z0-9._/-]{0,127}$/;
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
-export function buildProjectExport({workflow, registry, expectedHead, observedHead, project = 'promptos'}) {
+export function buildProjectExport({workflow, registry, expectedHead, observedHead, observedRef, project = 'promptos'}) {
   if (project !== 'promptos') throw new Error('unverified project binding: only canonical PromptOS is supported');
   if (!SHA.test(expectedHead ?? '') || expectedHead !== observedHead) {
     throw new Error('stale or invalid exact-head source; export denied');
   }
+  if (!HEAD_REF.test(observedRef ?? '') || observedRef.includes('..') || observedRef.includes('//')) {
+    throw new Error('invalid source ref; exact checked-out branch is required');
+  }
+  const onMain = observedRef === 'refs/heads/main';
   if (workflow?.schemaVersion !== 1 || workflow?.artifactType !== 'promptos-workflow'
       || workflow?.id !== WORKFLOW_ID || workflow?.status !== 'approved'
       || workflow?.registrationAuthority !== 'founder-approved') {
@@ -36,10 +41,10 @@ export function buildProjectExport({workflow, registry, expectedHead, observedHe
   return {
     schema: 'juss/promptos-workflow-project-export@v1',
     project: 'promptos',
-    source: { repository: REPOSITORY, canonicalBranch: 'main', exactHeadSha: expectedHead },
+    source: { repository: REPOSITORY, canonicalBranch: 'main', observedRef, isCanonicalMain: onMain, exactHeadSha: expectedHead },
     artifact: structuredClone(workflow),
     runtime: {
-      status: 'definition-only',
+      status: onMain ? 'definition-only' : 'candidate-definition-only',
       automaticExecution: false,
       providerPrivilegesGranted: false,
       authenticatedAccountRequiredForUse: true,
@@ -50,6 +55,7 @@ export function buildProjectExport({workflow, registry, expectedHead, observedHe
     verification: {
       exactHeadMatched: true,
       approvalRegistryMatched: true,
+      registrationEffective: onMain,
       guarantees: ['definition-integrity', 'source-head-identity'],
       notProven: ['ChatGPT Sites binding', 'deployment', 'browser parity', 'authenticated execution'],
     },
@@ -70,8 +76,9 @@ async function cli(args) {
     readFile(resolve(ROOT, 'workflows/registry.json'), 'utf8').then(JSON.parse),
   ]);
   const observedHead = execFileSync('git', ['rev-parse', 'HEAD'], {cwd: ROOT, encoding: 'utf8'}).trim();
+  const observedRef = execFileSync('git', ['symbolic-ref', '-q', 'HEAD'], {cwd: ROOT, encoding: 'utf8'}).trim();
   const payload = buildProjectExport({workflow, registry, expectedHead: options['expected-head'],
-    observedHead, project: options.project || 'promptos'});
+    observedHead, observedRef, project: options.project || 'promptos'});
   const dest = resolve(process.cwd(), options.output);
   await mkdir(dirname(dest), {recursive: true});
   await writeFile(dest, JSON.stringify(payload, null, 2) + '\n', {flag: 'wx', mode: 0o600});
