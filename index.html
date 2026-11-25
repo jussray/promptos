@@ -749,6 +749,12 @@ button.ss-item:hover{border-color:var(--primary)}
         <p>Save and import personal prompts with a verified paid account. The curated prompt library stays free. Custom prompts currently remain session-only, with Export / Import for backup.</p>
         <p id="billingStatus" role="status" aria-live="polite">Paid account required to save personal prompts.</p>
         <button type="button" class="mini-btn" id="billingUpgrade">Sign in / Upgrade</button>
+        <div id="billingConsent" hidden>
+          <p id="billingOfferSummary" role="status"></p>
+          <p><a id="billingTerms" target="_blank" rel="noopener noreferrer">Read subscription terms</a></p>
+          <p><label><input type="checkbox" id="billingRenewalConsent"> I accept the displayed terms and automatic monthly renewal in sandbox mode.</label></p>
+          <button type="button" class="mini-btn" id="billingCheckout" disabled>Continue to Stripe test checkout</button>
+        </div>
       </div>
       <div class="split">
         <div class="panel">

@@ -59,6 +59,7 @@ try {
   // This is NOT a claim of production Stripe configuration or entitlement.
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   const writes = [];
+  const sampleOffer = {billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:1900,currency:'usd',interval:'month',termsUrl:'https://merchant.example/terms'};
   await page.route('**/*', async route => {
     const req = route.request();
     const url = new URL(req.url());
@@ -66,16 +67,17 @@ try {
       if (req.method() === 'OPTIONS') {
         await route.fulfill({ status: 204, headers: {
           'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization'
+          'Access-Control-Allow-Headers': 'Authorization, Content-Type'
         } });
         return;
       }
-      writes.push({ url: url.pathname, auth: req.headers().authorization });
+      writes.push({ url: url.pathname, auth: req.headers().authorization, body: req.postDataJSON?.() });
       await route.fulfill({ status: 200, contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify(url.pathname === '/prompts/admit' ? { admitted: true } : { paid: true }) });
+        body: JSON.stringify(url.pathname === '/prompts/admit' ? { admitted: true } : url.pathname === '/billing/offer' ? {offer:sampleOffer} : url.pathname === '/billing/checkout' ? {...sampleOffer,url:'https://checkout.stripe.com/c/test_fixture'} : { paid: true }) });
       return;
     }
+    if (url.hostname === 'checkout.stripe.com') { await route.fulfill({status:200,contentType:'text/html',body:'<title>Mock Stripe sandbox</title>'}); return; }
     if (req.isNavigationRequest() && url.origin === new URL(BASE_URL).origin) {
       const response = await route.fetch();
       const html = (await response.text()).replace(
@@ -98,7 +100,22 @@ try {
   await page.locator('#saveCustom').click();
   await page.waitForFunction(() => document.querySelectorAll('#customList .citem').length === 1);
   assert(writes.some(x => x.url === '/prompts/admit' && x.auth === 'Bearer test-id-token'), 'Paid save never called backend');
-  console.log('Paywall mocked paid-account UI proof: PASS (backend independently tested)');
+  await page.locator('#billingUpgrade').click();
+  await page.locator('#billingConsent').waitFor({state:'visible'});
+  assert.match(await page.locator('#billingOfferSummary').textContent(), /USD \$1\.00.*USD \$19\.00/);
+  assert.equal(await page.locator('#billingCheckout').isDisabled(),true);
+  assert.equal(writes.filter(x=>x.url==='/billing/checkout').length,0);
+  await page.locator('#billingRenewalConsent').check();
+  await page.evaluate(() => window.dispatchEvent(new Event('promptos:signedout')));
+  assert.equal(await page.locator('#billingConsent').isHidden(),true);
+  assert.equal(await page.locator('#billingRenewalConsent').isChecked(),false);
+  await page.locator('#billingUpgrade').click();
+  await page.locator('#billingConsent').waitFor({state:'visible'});
+  await page.locator('#billingRenewalConsent').check();
+  await Promise.all([page.waitForURL('https://checkout.stripe.com/c/test_fixture'),page.locator('#billingCheckout').click()]);
+  const sent=writes.find(x=>x.url==='/billing/checkout');
+  assert.deepEqual(sent.body,{acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,renewalAmountMinor:1900,interval:'month',termsUrl:sampleOffer.termsUrl});
+  console.log('Paywall and introductory checkout mocked browser proof: PASS (no real transaction)');
   await page.close();
 
   assert.deepEqual(failures, [], 'Unexpected browser errors');
