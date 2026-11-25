@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { webcrypto } from 'node:crypto';
 import { handlePromptPaywall } from './prompt-paywall.js';
+import worker from './analytics.js';
 
 const c = globalThis.crypto || webcrypto;
 const audience = '813638397474-6pibutsimcafimrcttq7idnmugsin01c.apps.googleusercontent.com';
@@ -130,3 +131,32 @@ test('PromptOS Worker declares a private JussPay service binding for premium acc
 });
 
 test.after(() => { globalThis.fetch = oldFetch; });
+
+test('billing CORS admits only exact PromptOS origins and never bypasses authentication', async () => {
+  for (const origin of ['https://promptos.jussco.company', 'https://promptos.foundercontrolroom.org', 'https://jussray.github.io']) {
+    const url = 'https://promptos.example/billing/entitlement';
+    const preflight = await worker.fetch(new Request(url, { method: 'OPTIONS', headers: {
+      Origin: origin, 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization'
+    } }), env);
+    assert.equal(preflight.status, 204);
+    assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), origin);
+    assert.equal(preflight.headers.get('Vary'), 'Origin');
+    assert.equal(preflight.headers.get('Access-Control-Allow-Credentials'), null);
+    const response = await worker.fetch(new Request(url, { headers: { Origin: origin } }), env);
+    assert.equal(response.status, 401);
+    assert.equal(response.headers.get('Access-Control-Allow-Origin'), origin);
+    assert.equal(response.headers.get('Vary'), 'Origin');
+  }
+  for (const origin of ['https://promptos.jussco.company.evil.example', 'https://evil.example', 'null', 'http://promptos.jussco.company']) {
+    for (const method of ['OPTIONS', 'GET']) {
+      const response = await worker.fetch(new Request('https://promptos.example/billing/entitlement', { method, headers: { Origin: origin } }), env);
+      assert.equal(response.status, 403);
+      assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
+    }
+  }
+  const server = await worker.fetch(new Request('https://promptos.example/billing/entitlement'), env);
+  assert.equal(server.status, 401);
+  assert.equal(server.headers.get('Access-Control-Allow-Origin'), null);
+  const operator = await worker.fetch(new Request('https://promptos.example/runtime-identity', { method: 'OPTIONS', headers: { Origin: 'https://promptos.jussco.company' } }), env);
+  assert.equal(operator.headers.get('Access-Control-Allow-Origin'), 'https://jussray.github.io');
+});
