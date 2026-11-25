@@ -2,13 +2,30 @@
   "name": "promptos-provider",
   "main": "cloudflare-worker/analytics.js",
   "compatibility_date": "2026-07-15",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "workers_dev": true,
   "secrets": {
-    "required": ["OPENAI_API_KEY", "PROMPTOS_AI_OPERATOR_KEY"]
+    "required": [
+      "OPENAI_API_KEY",
+      "PROMPTOS_AI_OPERATOR_KEY"
+    ]
   },
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "invocation_logs": false }
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false
+    }
+  },
+  "services": [
+    {
+      "binding": "PROMPTOS_JUSSPAY",
+      "service": "jusspay"
+    }
+  ],
+  "vars": {
+    "PROMPTOS_INTRO_SANDBOX_ENABLED": "false"
   }
 }

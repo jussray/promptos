@@ -1,0 +1,124 @@
+import assert from 'node:assert/strict';
+import { chromium } from 'playwright';
+
+const BASE_URL = process.env.PROMPTOS_BASE_URL || 'http://127.0.0.1:4173';
+const browser = await chromium.launch({ headless: true });
+const views = [{ name: 'desktop', width: 1440, height: 960 }, { name: 'mobile', width: 390, height: 844 }];
+const failures = [];
+const nav = (_width, name) => '.mobile-nav [data-page="' + name + '"]:visible, .sidebar [data-page="' + name + '"]:visible';
+
+async function enterAsGuest(page) {
+  // Current main intentionally opens on a public welcome and onboarding sequence.
+  await page.locator('[data-start-onboarding]').click();
+  await page.locator('[data-continue-as-guest]').click();
+  await page.locator('#appShell').waitFor({ state: 'visible' });
+}
+
+try {
+  for (const view of views) {
+    const page = await browser.newPage({ viewport: { width: view.width, height: view.height } });
+    page.on('pageerror', error => failures.push(view.name + ': ' + error.message));
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    await enterAsGuest(page);
+
+    // Every save entry point must fail closed while the paid endpoint is unconfigured.
+    await page.locator(nav(view.width, 'custom')).first().click();
+    await page.locator('#cTitle').fill('Should remain a draft');
+    await page.locator('#cBody').fill('This must never be added to the free account.');
+    await page.locator('#saveCustom').click();
+    assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': custom save bypassed paywall');
+    assert.equal(await page.locator('#cTitle').inputValue(), 'Should remain a draft', 'Denied save discarded draft');
+
+    await page.locator(nav(view.width, 'builder')).first().click();
+    await page.locator('#saveBuilder').click();
+    assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': builder save bypassed paywall');
+
+    await page.locator(nav(view.width, 'freestyle')).first().click();
+    await page.locator('#fsAsk').fill('Write a governance prompt with a rollback path');
+    await page.locator('#fsGenerate').click();
+    await page.locator('#fsSave').click();
+    assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': freestyle save bypassed paywall');
+
+    await page.locator('#importFile').setInputFiles({
+      name: 'import.json', mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify({ custom: [{
+        id: 'imported', title: 'Free import bypass', body: 'not admitted',
+        cat: 'custom', platforms: ['chatgpt']
+      }] }))
+    });
+    await page.waitForTimeout(50);
+    assert.equal(await page.locator('#customList .citem').count(), 0, view.name + ': import bypassed paywall');
+    await page.locator(nav(view.width, 'library')).first().click();
+    assert(await page.locator('#page-library').isVisible(), view.name + ': free library blocked');
+
+    console.log('Paywall free-account browser proof: ' + view.name + ' PASS');
+    await page.close();
+  }
+
+  // Positive-path UI test uses an explicitly mocked billing server.
+  // This is NOT a claim of production Stripe configuration or entitlement.
+  const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  const writes = [];
+  const sampleOffer = {billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:1900,currency:'usd',interval:'month',termsUrl:'https://merchant.example/terms'};
+  await page.route('**/*', async route => {
+    const req = route.request();
+    const url = new URL(req.url());
+    if (url.hostname === 'billing.test') {
+      if (req.method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: {
+          'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Authorization, Content-Type'
+        } });
+        return;
+      }
+      writes.push({ url: url.pathname, auth: req.headers().authorization, body: req.postDataJSON?.() });
+      await route.fulfill({ status: 200, contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(url.pathname === '/prompts/admit' ? { admitted: true } : url.pathname === '/billing/offer' ? {offer:sampleOffer} : url.pathname === '/billing/checkout' ? {...sampleOffer,url:'https://checkout.stripe.com/c/test_fixture'} : { paid: true }) });
+      return;
+    }
+    if (url.hostname === 'checkout.stripe.com') { await route.fulfill({status:200,contentType:'text/html',body:'<title>Mock Stripe sandbox</title>'}); return; }
+    if (req.isNavigationRequest() && url.origin === new URL(BASE_URL).origin) {
+      const response = await route.fetch();
+      const html = (await response.text()).replace(
+        '<meta name="promptos-billing-api" content="">',
+        '<meta name="promptos-billing-api" content="https://billing.test">'
+      );
+      await route.fulfill({ response, body: html });
+      return;
+    }
+    await route.continue();
+  });
+  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+  await enterAsGuest(page);
+  await page.evaluate(() => {
+    window.PromptOSAuth.getIdToken = () => 'test-id-token';
+  });
+  await page.locator(nav(1440, 'custom')).first().click();
+  await page.locator('#cTitle').fill('Paid user prompt');
+  await page.locator('#cBody').fill('Only admitted after authenticated billing request');
+  await page.locator('#saveCustom').click();
+  await page.waitForFunction(() => document.querySelectorAll('#customList .citem').length === 1);
+  assert(writes.some(x => x.url === '/prompts/admit' && x.auth === 'Bearer test-id-token'), 'Paid save never called backend');
+  await page.locator('#billingUpgrade').click();
+  await page.locator('#billingConsent').waitFor({state:'visible'});
+  assert.match(await page.locator('#billingOfferSummary').textContent(), /USD \$1\.00.*USD \$19\.00/);
+  assert.equal(await page.locator('#billingCheckout').isDisabled(),true);
+  assert.equal(writes.filter(x=>x.url==='/billing/checkout').length,0);
+  await page.locator('#billingRenewalConsent').check();
+  await page.evaluate(() => window.dispatchEvent(new Event('promptos:signedout')));
+  assert.equal(await page.locator('#billingConsent').isHidden(),true);
+  assert.equal(await page.locator('#billingRenewalConsent').isChecked(),false);
+  await page.locator('#billingUpgrade').click();
+  await page.locator('#billingConsent').waitFor({state:'visible'});
+  await page.locator('#billingRenewalConsent').check();
+  await Promise.all([page.waitForURL('https://checkout.stripe.com/c/test_fixture'),page.locator('#billingCheckout').click()]);
+  const sent=writes.find(x=>x.url==='/billing/checkout');
+  assert.deepEqual(sent.body,{acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,renewalAmountMinor:1900,interval:'month',termsUrl:sampleOffer.termsUrl});
+  console.log('Paywall and introductory checkout mocked browser proof: PASS (no real transaction)');
+  await page.close();
+
+  assert.deepEqual(failures, [], 'Unexpected browser errors');
+} finally {
+  await browser.close();
+}

@@ -5,6 +5,7 @@
 export const PUBLIC_SITE_FILES = Object.freeze([
   'index.html',
   'parts/auth.js',
+  'parts/billing.js',
   'parts/p05-new-prompts.js',
   'parts/p06-gap-prompts.js',
   'parts/p07-ship-ultrathink-skills.js',
