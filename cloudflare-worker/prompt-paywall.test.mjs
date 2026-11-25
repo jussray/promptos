@@ -35,7 +35,7 @@ const b64 = value => Buffer.from(JSON.stringify(value)).toString('base64url');
 async function jwt(overrides = {}) {
   const value = b64({ alg: 'RS256', kid: 'test-key' }) + '.' + b64({
     iss: 'https://accounts.google.com', aud: audience, sub: 'user-123',
-    iat: now(), exp: now() + 3600, ...overrides
+    iat: now(), exp: now() + 3600, email: 'verified@example.com', email_verified: true, ...overrides
   });
   const signature = await c.subtle.sign('RSASSA-PKCS1-v1_5', privateKey, new TextEncoder().encode(value));
   return value + '.' + Buffer.from(signature).toString('base64url');
@@ -61,6 +61,21 @@ test('unsigned, expired, wrong-audience or forged Google credentials never reach
   const signed = await jwt();
   assert.equal((await run('/prompts/admit', 'POST', signed.slice(0, -8) + 'invalidx')).status, 401);
   assert.equal(calls.length, 0);
+});
+
+test('signed Google credentials without verified email never reach JussPay', async () => {
+  calls.length = 0;
+  upstream = [{ product: 'promptos', entitlements: ['promptos.personal_prompts'], until: now() + 1000 }];
+  for (const claims of [
+    { email_verified: false }, { email_verified: undefined }, { email_verified: 'false' },
+    { email_verified: 1 }, { email: undefined }, { email: '' }
+  ]) {
+    const token = await jwt(claims);
+    assert.equal((await run('/prompts/admit', 'POST', token)).status, 401);
+    assert.equal((await run('/billing/entitlement', 'GET', token)).status, 401);
+  }
+  assert.equal(calls.length, 0);
+  assert.equal((await run('/prompts/admit', 'POST', await jwt({ email_verified: 'true' }))).status, 200);
 });
 
 test('free user and other product subscriptions cannot save personal prompts', async () => {

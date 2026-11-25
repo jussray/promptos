@@ -41,6 +41,8 @@ async function verifyIdentity(request, env) {
     const now = Math.floor(Date.now() / 1000);
     const audience = env.PROMPTOS_GOOGLE_CLIENT_ID || GOOGLE_AUDIENCE;
     if (!GOOGLE_ISSUERS.includes(claims.iss) || claims.aud !== audience ||
+        typeof claims.email !== 'string' || !claims.email.trim() ||
+        (claims.email_verified !== true && claims.email_verified !== 'true') ||
         !Number.isInteger(claims.exp) || claims.exp <= now ||
         (claims.iat && claims.iat > now + 60) ||
         (claims.nbf && claims.nbf > now)) return false;
