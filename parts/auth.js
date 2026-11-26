@@ -359,6 +359,7 @@
   }
 
   function bootAsGuest() {
+    verifiedIdToken = null;
     showWorkspace();
     SESSION.user = null;
     SESSION.startedAs = 'guest';
