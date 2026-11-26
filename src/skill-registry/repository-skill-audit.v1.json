@@ -1776,7 +1776,7 @@
     },
     {
       "repository": "jussray/jussbeautifulhair-site",
-      "profile": "juss-beautiful-hair-storefront",
+      "profile": "juss-beautiful-hair",
       "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
@@ -3068,6 +3068,22 @@
         "pathGroupCounts": {}
       },
       "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": null,
+      "profile": "games-hub",
+      "inventoryStatus": "unresolved-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "sourceRepositories": [
+        "jussray/sync-party-game",
+        "jussray/chatQuest",
+        "jussray/jussray-bip-and-seek",
+        "jussray/LUMORA"
+      ],
+      "notes": [
+        "No canonical Games Hub repository was identified. The four related game repositories were recursively scanned; none contains SKILL.md files in main."
+      ]
     }
   ],
   "retirementReview": {
