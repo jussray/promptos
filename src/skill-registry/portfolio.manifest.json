@@ -1,0 +1,399 @@
+{
+  "schemaVersion": "1.0",
+  "registry": "promptos/app-aligned-skills",
+  "authority": "catalog-and-compatibility-only",
+  "sharedSkillSource": "jussray/ULTRATHINK-",
+  "sharedSkills": [
+    {
+      "id": "goalfix",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "smallest reversible repair and verification"
+    },
+    {
+      "id": "ultrathink",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "structured deep analysis"
+    },
+    {
+      "id": "redteam",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "adversarial review and failure discovery"
+    },
+    {
+      "id": "l99",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "evidence, authority, state and rollback discipline"
+    },
+    {
+      "id": "ooda",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "observe-orient-decide-act loop"
+    },
+    {
+      "id": "proofmode",
+      "source": "jussray/ULTRATHINK-",
+      "authority": "advisory",
+      "purpose": "verification and evidence receipts"
+    }
+  ],
+  "apps": [
+    {
+      "id": "founder-control-room",
+      "name": "Founder Control Room",
+      "repository": "jussray/founder-control-room",
+      "role": "founder-decision-execution-authority-evidence-plane",
+      "authorityOwner": "founder-control-room",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "portfolio-governance",
+        "founder-authorization",
+        "cross-app-evidence",
+        "distribution-governance",
+        "deployment-oversight"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "chief-ai-machine",
+      "name": "Chief AI Machine",
+      "repository": "jussray/chief-ai-machine",
+      "role": "governed-ai-cognition-proposal-layer",
+      "authorityOwner": "chief-ai-machine",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "agent-orchestration",
+        "capability-routing",
+        "agent-identity",
+        "tool-governance",
+        "execution-receipts"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "worker",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "promptos",
+      "name": "PromptOS",
+      "repository": "jussray/promptos",
+      "role": "human-ai-operating-layer",
+      "authorityOwner": "promptos",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "intent-capture",
+        "context-shaping",
+        "workflow-composition",
+        "skill-catalog-management",
+        "portable-operating-patterns"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "catalog"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "solcontinuity",
+      "name": "SolContinuity",
+      "repository": "jussray/solcontinuity",
+      "role": "independent-continuity-and-resilience-system",
+      "authorityOwner": "solcontinuity",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "continuity-state",
+        "recovery-planning",
+        "drift-detection",
+        "resilience-evaluation"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "service",
+          "api"
+        ],
+        "requiresPlaywrightForUi": false
+      }
+    },
+    {
+      "id": "sekret-bip",
+      "name": "Se’kret Bip",
+      "repository": "jussray/Sekret-Bip",
+      "role": "teen-and-family-wellness-companion",
+      "authorityOwner": "sekret-bip",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "age-assurance",
+        "guardian-consent",
+        "teen-privacy",
+        "parent-bridge",
+        "companion-safety",
+        "character-world-continuity"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "mobile",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "storyengine",
+      "name": "StoryEngine",
+      "repository": "jussray/StoryEngine",
+      "role": "creator-studio",
+      "authorityOwner": "storyengine",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "story-structure",
+        "chapter-production",
+        "image-asset-lifecycle",
+        "creator-workflows"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "truth-weaver",
+      "name": "Truth Weaver",
+      "repository": "jussray/truth-weaver",
+      "role": "legal-navigation-product",
+      "authorityOwner": "truth-weaver",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "legal-navigation",
+        "document-analysis",
+        "evidence-organization",
+        "legal-content-boundaries"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "juss-pay",
+      "name": "JussPay",
+      "repository": "jussray/JussPay",
+      "role": "payment-routing-infrastructure",
+      "authorityOwner": "juss-pay",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "payment-routing",
+        "payment-state-reconciliation",
+        "webhook-verification",
+        "live-mode-safety"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "api",
+          "worker"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "juss-beautiful-hair",
+      "name": "Juss Beautiful Hair",
+      "repository": "jussray/Juss-Beautiful-Hair",
+      "role": "commerce-storefront",
+      "authorityOwner": "juss-beautiful-hair",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "storefront-integrity",
+        "catalog-operations",
+        "cart-checkout-integrity",
+        "commerce-seo"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "storefront"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "think-tank",
+      "name": "Think Tank",
+      "repository": "jussray/THINK-TANK",
+      "role": "research-and-idea-development",
+      "authorityOwner": "think-tank",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "idea-evaluation",
+        "research-synthesis",
+        "opportunity-mapping",
+        "evidence-backed-recommendations"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "games-hub",
+      "name": "Games Hub",
+      "repository": "jussray/Games-Hub",
+      "role": "gaming-ecosystem",
+      "authorityOwner": "games-hub",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "game-hub-routing",
+        "multiplayer-safety",
+        "game-state-verification",
+        "player-progression"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "game-client",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    },
+    {
+      "id": "drift",
+      "name": "DRIFT",
+      "repository": "jussray/DRIFT",
+      "role": "verification-drift-system",
+      "authorityOwner": "drift",
+      "sharedSkills": [
+        "goalfix",
+        "ultrathink",
+        "redteam",
+        "l99",
+        "ooda",
+        "proofmode"
+      ],
+      "ownedSkills": [
+        "baseline-drift-detection",
+        "verification-receipts",
+        "request-access-governance",
+        "drift-remediation"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "worker",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      }
+    }
+  ],
+  "invariants": [
+    "PromptOS catalogs and resolves skills; it does not grant execution authority.",
+    "Every app remains the authority owner for its own product-specific skills.",
+    "Shared skills are references to ULTRATHINK source packages, not copied app instructions.",
+    "Skill discovery is not installation, execution, approval, or authorization.",
+    "A skill must explicitly declare compatibility with the requesting app.",
+    "External skills remain quarantined until their independent intake gates pass."
+  ]
+}
