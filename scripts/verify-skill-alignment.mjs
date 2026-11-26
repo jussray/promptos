@@ -17,7 +17,8 @@ for (const manifest of manifests) {
  assert.equal(resolved.executionAuthority,"none");
  assert.equal(resolved.sharedSkills.length,4);
  assert.ok(resolved.sharedSkills.every(skill=>skill.sourceRepository==="jussray/ULTRATHINK-"&&skill.sourceRevision==="4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca"&&skill.lifecycle==="candidate"&&skill.mode==="reference-only"));
- assert.ok(resolved.plugins.length>0&&resolved.plugins.every(plugin=>plugin.connectionState==="runtime-discovery-required"&&plugin.authority==="none"&&plugin.writePolicy==="explicit-action-approval-required"));
+ assert.ok(resolved.plugins.length>0&&resolved.plugins.every(plugin=>plugin.connectionState==="runtime-discovery-required"&&plugin.authority==="none"&&plugin.writePolicy==="explicit-action-approval-required"&&typeof plugin.displayName==="string"&&!Object.hasOwn(plugin,"installed")));
+ assert.ok(resolved.plugins.every(plugin=>plugin.kind==="chatgpt-plugin"?(typeof plugin.canonicalPluginId==="string"&&plugin.canonicalPluginId.startsWith("plugin_")&&plugin.catalogStatus==="listed"):plugin.canonicalPluginId===null));
  assert.equal(resolved.compatibility.issues.length,0);
  assert.deepEqual(manifest.app.localManifestPaths,[".juss/app.manifest.json",".juss/skills.manifest.json"]);
 }
@@ -25,11 +26,15 @@ for (const manifest of manifests) {
 const byId=new Map(manifests.map(item=>[item.app.id,item]));
 const fcr=byId.get("founder-control-room"), chief=byId.get("chief-ai-machine"), bip=byId.get("sekret-bip"), pay=byId.get("juss-pay");
 assert.ok(fcr.skills.owned.some(skill=>skill.id==="portfolio-control-plane"));
+assert.ok(["atlassian","gmail","google-calendar","asana","linear","notion","slack"].every(id=>fcr.plugins.some(plugin=>plugin.id===id)));
+assert.ok(fcr.plugins.some(plugin=>plugin.id==="atlassian"&&plugin.resolutionNote?.includes("distinct Rovo Legacy plugin entry was not found")));
 assert.ok(chief.skills.owned.some(skill=>skill.id==="chief-ai-operator"));
+assert.ok(chief.skills.owned.some(skill=>skill.id==="gmail-resolve"&&skill.lifecycle==="draft"));
+assert.ok(["gmail","google-calendar","atlassian"].every(id=>chief.plugins.some(plugin=>plugin.id===id)));
 assert.ok(!chief.skills.owned.some(skill=>skill.id==="founder-authorization"),"Chief must not absorb FCR founder approval");
 assert.ok(bip.skills.owned.some(skill=>skill.id==="bip-privacy-redteam"));
 assert.ok(bip.skills.owned.some(skill=>skill.id==="bip-auth-onboarding"));
-assert.ok(pay.plugins.some(plugin=>plugin.id==="stripe"&&plugin.safetyMode==="test-only"&&plugin.liveActions==="blocked-by-product-contract"));
+assert.ok(pay.plugins.some(plugin=>plugin.id==="stripe"&&plugin.safetyMode==="test-only"&&plugin.liveActions==="blocked-by-product-contract"&&plugin.canonicalPluginId==="plugin_connector_690ab09fa43c8191bca40280e4563238"));
 assert.ok(pay.skills.owned.every(skill=>skill.mode==="proposal"),"JussPay skills remain proposed until source-audited");
 const sol=byId.get("solcontinuity");
 assert.ok(sol.skills.owned.some(skill=>skill.id==="goalfix"&&skill.sourcePath===".ai-skills/skills/goalfix.md"&&skill.status==="source-path-verified"));
