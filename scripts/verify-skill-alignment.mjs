@@ -17,6 +17,8 @@ for (const app of manifest.apps) {
   assert.equal(resolved.authority, 'catalog-and-compatibility-only');
   assert.equal(resolved.governanceAuthority, 'jussray/founder-control-room');
   assert.equal(resolved.skillContext, 'repository-operator-only');
+  assert.equal(resolved.sourceAudit.record, app.id);
+  assert.ok(['partial', 'unresolved'].includes(resolved.sourceAudit.status));
   assert.ok(resolved.sharedSkills.every((skill) => skill.audience === 'founder-operator' && skill.distribution === 'reference-only' && skill.scope === 'repository-operator-shared-reference'));
   assert.ok(resolved.ownedSkills.every((skill) => skill.scope === 'proposed-app-owned' && skill.status === 'proposed-awaiting-source-audit'));
   assert.equal(resolved.sharedSkills.length, 8, `${app.id} must resolve all declared shared references`);
@@ -68,7 +70,8 @@ assert.equal(audit.governance.promptosBoundary, 'PromptOS owns catalog and compa
 assert.equal(audit.coverageStatus, 'partial', 'an initial search pass must not be mislabeled complete');
 assert.ok(Array.isArray(audit.records) && audit.records.length >= 12);
 for (const record of audit.records) {
-  assert.ok(record.repository && record.inventoryStatus);
+  assert.ok(record.profile && record.inventoryStatus);
+  if (record.repository === null) assert.equal(record.inventoryStatus, 'unresolved-repository');
   for (const skill of record.skillSources ?? []) {
     assert.ok(skill.id && skill.path && /^[0-9a-f]{40}$/.test(skill.blobSha), `source evidence must be pinned: ${record.repository}`);
   }
@@ -83,6 +86,7 @@ assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build')
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
 assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
 assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
+assert.ok(audit.records.some((record) => record.profile === 'drift' && record.repository === null));
 assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
 assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
 console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
