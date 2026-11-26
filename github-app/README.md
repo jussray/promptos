@@ -13,6 +13,8 @@ This adapter is a read-only GitHub event observer. It verifies GitHub webhook HM
 - FCR remains the only execution-authority owner. Relay receipts explicitly deny execution authorization, authority transfer, and approval carry-forward.
 - Only events from repository `jussray/promptos` (GitHub repository ID `1299823134`) and the configured exact GitHub App installation ID are forwarded. Comment text is never copied into the relay payload; only a bounded command classification is retained.
 
+- Webhook identity is pinned to the immutable GitHub repository ID `1299823134` and the exact `GITHUB_INSTALLATION_ID`; a valid HMAC from a different installation or same-name replacement repository is rejected before relay forwarding.
+
 ## Runtime
 
 `worker.mjs` is a dependency-free Cloudflare Worker module. Required secrets:
