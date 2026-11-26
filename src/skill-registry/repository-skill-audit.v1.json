@@ -3,14 +3,15 @@
   "registry": "promptos/repository-skill-audit",
   "authority": "read-only-source-audit",
   "coverageStatus": "partial",
-  "scope": "Initial 12 PromptOS app profiles plus related portfolio repositories discovered during the first source pass.",
-  "method": [
-    "GitHub repository-scoped code search for SKILL.md",
-    "Direct reads of discovered skill files, skill metadata, AGENTS.md and skills-lock.json",
-    "Blob SHA recorded for each directly fetched file",
-    "Search-index misses are not treated as proof that a repository has no skills",
-    "Recursive Git tree inventory of the default main branch, recording commit SHA, all SKILL.md paths and blob SHAs, skill.yaml counts, and path-root classifications."
-  ],
+  "scope": "Recursive main-tree skill inventories for the resolved product repositories plus the exact pinned ULTRATHINK shared-skill source; source-content review and runtime activation remain partial.",
+  "method": {
+    "sourceOfTruth": "GitHub recursive Git trees at recorded commit and tree SHAs",
+    "pathRule": "SKILL.md files are inventoried by exact path and blob SHA; AGENTS instruction files are recorded separately.",
+    "statusRule": "Prior classifications are retained only when the current blob SHA matches. New or changed skill files are source-present-unreviewed, never assumed active.",
+    "privateRepositoryRule": "Private repository source paths are not expanded in the public PromptOS audit; only aggregate counts and tree evidence are recorded.",
+    "runtimeRule": "Lockfiles and source files do not prove runtime installation or activation.",
+    "refreshedAt": "2026-11-26"
+  },
   "records": [
     {
       "repository": "jussray/founder-control-room",
@@ -841,7 +842,8 @@
           "systems": 22
         },
         "contentReview": "pending-for-newly-discovered-sources"
-      }
+      },
+      "visibility": "public"
     },
     {
       "repository": "jussray/chief-ai-machine",
@@ -1286,13 +1288,63 @@
           "systems": 22
         },
         "contentReview": "pending-for-newly-discovered-sources"
-      }
+      },
+      "visibility": "public"
     },
     {
       "repository": "jussray/promptos",
       "profile": "promptos",
-      "inventoryStatus": "verified-exported-operating-skills",
+      "inventoryStatus": "verified-recursive-tree-inventory-pending-content-review",
       "skillSources": [
+        {
+          "id": "goalfix",
+          "path": ".claude/skills/goalfix/SKILL.md",
+          "blobSha": "ad98549169946b5b69a9a073811eadb4669c8b1a",
+          "status": "source-present-unreviewed",
+          "classification": "promptos-agent-adapter"
+        },
+        {
+          "id": "artifact-template-creator-response",
+          "path": "skills/artifact-template-creator-response/SKILL.md",
+          "blobSha": "e011cf3e3a065fe19ac28c5f9ff90e97916007df",
+          "status": "source-present-unreviewed",
+          "classification": "promptos-native-portable-skill"
+        },
+        {
+          "id": "browser-reality-inspector",
+          "path": "skills/browser-reality-inspector/SKILL.md",
+          "blobSha": "f051514290025ca21f3b9b18117bfecd105a6399",
+          "status": "source-present-unreviewed",
+          "classification": "promptos-native-portable-skill"
+        },
+        {
+          "id": "evidence-decision-loop",
+          "path": "skills/evidence-decision-loop/SKILL.md",
+          "blobSha": "0ac0179672664886430ba54eace0d242d88d0f4e",
+          "status": "source-present-unreviewed",
+          "classification": "promptos-native-portable-skill"
+        },
+        {
+          "id": "memory-snapshot",
+          "path": "skills/memory-snapshot/SKILL.md",
+          "blobSha": "71ffbdf60f857f0f30d85271ad1ddcc405606f75",
+          "status": "source-present-unreviewed",
+          "classification": "promptos-native-portable-skill"
+        },
+        {
+          "id": "local-80-20",
+          "path": "systems/skills/local-80-20/SKILL.md",
+          "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-antiadvice",
+          "path": "systems/skills/local-antiadvice/SKILL.md",
+          "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
         {
           "id": "local-build",
           "path": "systems/skills/local-build/SKILL.md",
@@ -1301,23 +1353,16 @@
           "classification": "shared-operating-skill-export"
         },
         {
+          "id": "local-capability-mode-router",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md",
+          "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
           "id": "local-cortex",
           "path": "systems/skills/local-cortex/SKILL.md",
           "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
-          "status": "active-export",
-          "classification": "shared-operating-skill-export"
-        },
-        {
-          "id": "local-socrates",
-          "path": "systems/skills/local-socrates/SKILL.md",
-          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
-          "status": "question-led-only",
-          "classification": "shared-operating-skill-export"
-        },
-        {
-          "id": "local-minimal-token-protocol",
-          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
-          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
           "status": "active-export",
           "classification": "shared-operating-skill-export"
         },
@@ -1329,10 +1374,115 @@
           "classification": "shared-operating-skill-export"
         },
         {
+          "id": "local-first-principles",
+          "path": "systems/skills/local-first-principles/SKILL.md",
+          "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-futureyou",
+          "path": "systems/skills/local-futureyou/SKILL.md",
+          "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-goalfix",
+          "path": "systems/skills/local-goalfix/SKILL.md",
+          "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-hormozi",
+          "path": "systems/skills/local-hormozi/SKILL.md",
+          "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-humanize",
+          "path": "systems/skills/local-humanize/SKILL.md",
+          "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-intent-repair-reader",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+          "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
           "id": "local-lean-build-orchestrator",
           "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
           "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
           "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "active-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-moscow",
+          "path": "systems/skills/local-moscow/SKILL.md",
+          "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-prompts",
+          "path": "systems/skills/local-prompts/SKILL.md",
+          "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-regression-stagnation-guard",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+          "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-runtime-kernel",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md",
+          "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "question-led-only",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truth-research-optimizer",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+          "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truthmode",
+          "path": "systems/skills/local-truthmode/SKILL.md",
+          "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-urlfix",
+          "path": "systems/skills/local-urlfix/SKILL.md",
+          "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+          "status": "source-present-unreviewed",
           "classification": "shared-operating-skill-export"
         }
       ],
@@ -1340,7 +1490,9 @@
       "notes": [
         "systems/EXPORT-INDEX.md describes a 22-skill exported set, while local-cortex says twenty-seven skills; reconcile the inventory count before calling it complete.",
         "The inspected local-socrates source asks decision-changing questions and does not contain the full Devil steelman procedure.",
-        "The existing PromptOS app registry is catalog-only; proposed app-owned IDs are not verified installed skills."
+        "The existing PromptOS app registry is catalog-only; proposed app-owned IDs are not verified installed skills.",
+        "Recursive main tree inventory is pinned to commit 7a0ea3356528cad4594de07d944a6a2fe34c0a38 and tree f229f2f4502ff69aea33ec1accde3eaa130a2816; 27 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "PromptOS contains 27 SKILL.md files: 22 shared systems exports, four PromptOS portable skills, and one Claude adapter. Retired export copies remain retired; local-socrates remains question-led only."
       ],
       "retirementMetadata": [
         {
@@ -1355,19 +1507,242 @@
           "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
           "declaredStatus": "retired"
         }
-      ]
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "7e7e8f7c60b62fba4d566b8fabdc5ee89d07888d",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "21d1bb643c5a496f3456c7cd84da05cd24d926b7",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "7a0ea3356528cad4594de07d944a6a2fe34c0a38",
+          "treeSha": "f229f2f4502ff69aea33ec1accde3eaa130a2816",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 297,
+          "skillFileCount": 27,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/Sekret-Bip",
       "profile": "sekret-bip",
-      "inventoryStatus": "verified-product-specific-skill-and-lockfile",
+      "inventoryStatus": "verified-recursive-tree-inventory-pending-content-review",
       "skillSources": [
+        {
+          "id": "bip-ai-review",
+          "path": ".agents/skills/bip-ai-review/SKILL.md",
+          "blobSha": "f2ce29967786c1c7994ca462df02eb1b9c309528",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-architecture",
+          "path": ".agents/skills/bip-architecture/SKILL.md",
+          "blobSha": "86c24068d33fe6967ed8d9a71f84e0965a6a4cfb",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-auth-onboarding",
+          "path": ".agents/skills/bip-auth-onboarding/SKILL.md",
+          "blobSha": "607c31a6f89988b7b168fe86a1b2591fe7b237bc",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-beta-checklist",
+          "path": ".agents/skills/bip-beta-checklist/SKILL.md",
+          "blobSha": "b5588129776eb6b951636ff1425c4da2c8b5dd28",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-companion-lab",
+          "path": ".agents/skills/bip-companion-lab/SKILL.md",
+          "blobSha": "3afb85915a2dc847f2b7825d33cecbafd6ae55a5",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-companion-style-engine",
+          "path": ".agents/skills/bip-companion-style-engine/SKILL.md",
+          "blobSha": "36661c12be1ac1440ec0f5a77c72626c651287ab",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-control-room",
+          "path": ".agents/skills/bip-control-room/SKILL.md",
+          "blobSha": "e2086cb9d7de8eead56518fa81825ad04a1c382e",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
         {
           "id": "bip-current-state",
           "path": ".agents/skills/bip-current-state/SKILL.md",
           "blobSha": "8c2703ff10116b142b60b12284bd4d5c6d9615ea",
           "status": "source-present",
           "classification": "bip-native-founder-operator-skill"
+        },
+        {
+          "id": "bip-founding-preview",
+          "path": ".agents/skills/bip-founding-preview/SKILL.md",
+          "blobSha": "d475a3635f02ad2f5b15b63d8067ec6fe83e0cdd",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-l4-memory",
+          "path": ".agents/skills/bip-l4-memory/SKILL.md",
+          "blobSha": "cc5e05ef4510dc1b88fde8b462362a1d0b2ccbe7",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-performance",
+          "path": ".agents/skills/bip-performance/SKILL.md",
+          "blobSha": "71a95b39054015e6d704b5ab639a665779722b45",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-privacy-redteam",
+          "path": ".agents/skills/bip-privacy-redteam/SKILL.md",
+          "blobSha": "4aea3ba3c793ea7ff530274af96c8f6919a8ef2f",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-product-design-gate",
+          "path": ".agents/skills/bip-product-design-gate/SKILL.md",
+          "blobSha": "444f8b2a1300a9f716938c77a45c529ec56ef347",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-release-gate",
+          "path": ".agents/skills/bip-release-gate/SKILL.md",
+          "blobSha": "28f9a99e209f9be17284aa1a07af8087701822e3",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-repo-truth",
+          "path": ".agents/skills/bip-repo-truth/SKILL.md",
+          "blobSha": "cbe85fed79030867b803cc1e148b06a9f48401cc",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-sekret-identity",
+          "path": ".agents/skills/bip-sekret-identity/SKILL.md",
+          "blobSha": "5c0c5ba19ee07f15ee8c542140399bdadb535f32",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-supabase-guardian",
+          "path": ".agents/skills/bip-supabase-guardian/SKILL.md",
+          "blobSha": "4c5909960670bcab68a9595a42bb5b67454566fd",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-typescript-audit",
+          "path": ".agents/skills/bip-typescript-audit/SKILL.md",
+          "blobSha": "e40961be35fc72046f8eda678e8f2033018fa6f9",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-typescript-behavior-tests",
+          "path": ".agents/skills/bip-typescript-behavior-tests/SKILL.md",
+          "blobSha": "75b84e19a2e6759c9b88826da9c3daeb8592bbc9",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-typescript-minimal-patch",
+          "path": ".agents/skills/bip-typescript-minimal-patch/SKILL.md",
+          "blobSha": "1dd31963e63769d7c9701cf7f97675589585df77",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-typescript-root-cause-debugger",
+          "path": ".agents/skills/bip-typescript-root-cause-debugger/SKILL.md",
+          "blobSha": "f3ef15d8acbd4aee4288a48a7639c4d99cdb7e8a",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-typescript-strict-review",
+          "path": ".agents/skills/bip-typescript-strict-review/SKILL.md",
+          "blobSha": "286a27ff0b6a75ca67dfcb59d0f793a2eb07a27f",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-voice-guard",
+          "path": ".agents/skills/bip-voice-guard/SKILL.md",
+          "blobSha": "e692a6752ef0fec68cbe0ea8ac046d7e23323c47",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "bip-worker-guardian",
+          "path": ".agents/skills/bip-worker-guardian/SKILL.md",
+          "blobSha": "0bc922f41c7b1bc68067e317ca1b328951d66183",
+          "status": "source-present-unreviewed",
+          "classification": "bip-native-product-skill-source"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "a477decd588c0966001c8106a767a1e1f78a25b0",
+          "status": "source-present-unreviewed",
+          "classification": "repository-agent-skill-source-pending-review"
+        },
+        {
+          "id": "founder-dev-flow",
+          "path": ".agents/skills/founder-dev-flow/SKILL.md",
+          "blobSha": "aadd56a375220d27eed96669c9e92ed9e94f5d44",
+          "status": "source-present-unreviewed",
+          "classification": "repository-agent-skill-source-pending-review"
+        },
+        {
+          "id": "supabase-postgres-best-practices",
+          "path": ".agents/skills/supabase-postgres-best-practices/SKILL.md",
+          "blobSha": "01e7df4417a5abd7a27a8c1b348ce28caf9ef65c",
+          "status": "source-present-unreviewed",
+          "classification": "repository-agent-skill-source-pending-review"
+        },
+        {
+          "id": "supabase",
+          "path": ".agents/skills/supabase/SKILL.md",
+          "blobSha": "707424eca28ef60f597046afd36d2ab3a8adfdda",
+          "status": "source-present-unreviewed",
+          "classification": "repository-agent-skill-source-pending-review"
+        },
+        {
+          "id": "makevideo",
+          "path": ".claude/skills/makevideo/SKILL.md",
+          "blobSha": "367465953b9f8696fbf967e6337de51566b6ae04",
+          "status": "source-present-unreviewed",
+          "classification": "repository-claude-skill-source-pending-review"
         }
       ],
       "lockfiles": [
@@ -1381,21 +1756,43 @@
       ],
       "notes": [
         "AGENTS.md explicitly separates FCR governance, Chief orchestration, PromptOS skill ownership, SolContinuity verification, and Se’kret Bip product privacy and safety.",
-        "docs/MCP_SKILL_ROUTING.md is routing policy, not itself a SKILL.md package."
-      ]
+        "docs/MCP_SKILL_ROUTING.md is routing policy, not itself a SKILL.md package.",
+        "Recursive main tree inventory is pinned to commit 36a7bdccec848f0ef61be6ba5daac6ce9e40919c and tree ff2bc58361c0deb65fc66115b3dfa079bbf45ab2; 29 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "Twenty-nine SKILL.md source files are present, including Bip-prefixed product skills and shared/tool adapters; unreviewed entries are not marked active."
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "42ea85297817b7d49c80ea998b1add1bd6835acf",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "826e77a8ede8d85d6d7a01838c8f9ff6f9c8e717",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "36a7bdccec848f0ef61be6ba5daac6ce9e40919c",
+          "treeSha": "ff2bc58361c0deb65fc66115b3dfa079bbf45ab2",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 2438,
+          "skillFileCount": 29,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/StoryEngine",
       "profile": "storyengine",
-      "inventoryStatus": "verified-product-and-engineering-skills",
+      "inventoryStatus": "verified-recursive-tree-inventory-pending-content-review",
       "skillSources": [
-        {
-          "id": "makevideo",
-          "path": ".claude/skills/makevideo/SKILL.md",
-          "blobSha": "857134ffca54f93072c0db776e67d32021004e69",
-          "status": "source-present",
-          "classification": "storyengine-native-creator-skill"
-        },
         {
           "id": "l99-operator",
           "path": ".agents/skills/l99-operator/SKILL.md",
@@ -1404,11 +1801,18 @@
           "classification": "storyengine-native-operator-skill"
         },
         {
-          "id": "typescript-debugging-chain",
-          "path": "skills/typescript-debugging-chain/SKILL.md",
-          "blobSha": "1f9f00e6c9c995edd84caf0e8a16afe336fe387d",
+          "id": "makevideo",
+          "path": ".claude/skills/makevideo/SKILL.md",
+          "blobSha": "857134ffca54f93072c0db776e67d32021004e69",
           "status": "source-present",
-          "classification": "storyengine-native-engineering-skill"
+          "classification": "storyengine-native-creator-skill"
+        },
+        {
+          "id": "makevideo",
+          "path": "skills/makevideo/SKILL.md",
+          "blobSha": "91675b279b3c46e9724db5a6e50ca0b938cd3324",
+          "status": "source-present-unreviewed",
+          "classification": "storyengine-skill-source-pending-review"
         },
         {
           "id": "typescript-behavior-tests",
@@ -1418,10 +1822,45 @@
           "classification": "storyengine-native-engineering-skill"
         },
         {
+          "id": "typescript-debugging-chain",
+          "path": "skills/typescript-debugging-chain/SKILL.md",
+          "blobSha": "1f9f00e6c9c995edd84caf0e8a16afe336fe387d",
+          "status": "source-present",
+          "classification": "storyengine-native-engineering-skill"
+        },
+        {
+          "id": "visual-grammar",
+          "path": "skills/visual-grammar/SKILL.md",
+          "blobSha": "9eb8ea886ab0d9f8efb25b1775a1b804963ce564",
+          "status": "source-present-unreviewed",
+          "classification": "storyengine-skill-source-pending-review"
+        },
+        {
+          "id": "local-80-20",
+          "path": "systems/skills/local-80-20/SKILL.md",
+          "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-antiadvice",
+          "path": "systems/skills/local-antiadvice/SKILL.md",
+          "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
           "id": "local-build",
           "path": "systems/skills/local-build/SKILL.md",
           "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
           "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-capability-mode-router",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md",
+          "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+          "status": "source-present-unreviewed",
           "classification": "shared-operating-skill-export"
         },
         {
@@ -1430,24 +1869,263 @@
           "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
           "status": "shared-export",
           "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-first-principles",
+          "path": "systems/skills/local-first-principles/SKILL.md",
+          "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-futureyou",
+          "path": "systems/skills/local-futureyou/SKILL.md",
+          "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-goalfix",
+          "path": "systems/skills/local-goalfix/SKILL.md",
+          "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-hormozi",
+          "path": "systems/skills/local-hormozi/SKILL.md",
+          "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-humanize",
+          "path": "systems/skills/local-humanize/SKILL.md",
+          "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-intent-repair-reader",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+          "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-moscow",
+          "path": "systems/skills/local-moscow/SKILL.md",
+          "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-prompts",
+          "path": "systems/skills/local-prompts/SKILL.md",
+          "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-regression-stagnation-guard",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+          "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-runtime-kernel",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md",
+          "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truth-research-optimizer",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+          "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truthmode",
+          "path": "systems/skills/local-truthmode/SKILL.md",
+          "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-urlfix",
+          "path": "systems/skills/local-urlfix/SKILL.md",
+          "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+          "status": "source-present-unreviewed",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "lockfiles": [],
       "notes": [
-        "AGENTS.md directly references l99-operator and typescript-debugging-chain; this is stronger evidence than code-search results alone."
-      ]
+        "AGENTS.md directly references l99-operator and typescript-debugging-chain; this is stronger evidence than code-search results alone.",
+        "Recursive main tree inventory is pinned to commit 794e70d7847c93a072e7bc21e6b137d2859b2895 and tree 361c8a2e2b3b8109b1ad4d2143f35aa56f728c29; 28 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "Twenty-eight SKILL.md source files are present, including product/engineering skills and shared systems exports; unreviewed entries are not marked active."
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "4c5f2fc91e2568391fbbbdd5d0459e475eccee92",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "9873c11789cf9f7686bc24cb44448c812d092874",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "794e70d7847c93a072e7bc21e6b137d2859b2895",
+          "treeSha": "361c8a2e2b3b8109b1ad4d2143f35aa56f728c29",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 569,
+          "skillFileCount": 28,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/solcontinuity",
       "profile": "solcontinuity",
-      "inventoryStatus": "verified-vendor-skill-imports",
+      "inventoryStatus": "verified-recursive-tree-inventory-pending-content-review",
       "skillSources": [
+        {
+          "id": "agents-sdk",
+          "path": ".agents/skills/agents-sdk/SKILL.md",
+          "blobSha": "d9f1c8a9eaeb271888fb82ecda5d79ebf264944a",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "cloudflare-email-service",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md",
+          "blobSha": "fb3565111a2ce94761e5ad6642d20d02e7707946",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "cloudflare-one-migrations",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md",
+          "blobSha": "53c770fb2cad0339cccffbc85b68b2b9810dbcb4",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "cloudflare-one",
+          "path": ".agents/skills/cloudflare-one/SKILL.md",
+          "blobSha": "753ab60c176e82f11097caa958cd4646ecd67078",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "cloudflare",
+          "path": ".agents/skills/cloudflare/SKILL.md",
+          "blobSha": "2c7da21964ab4168422c5775ec8eeb469c89b1f7",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "durable-objects",
+          "path": ".agents/skills/durable-objects/SKILL.md",
+          "blobSha": "b595f1c2182f3b7d6f944d7ba0ac59667fba78aa",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "sandbox-migrate-to-next",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md",
+          "blobSha": "745bcc5655dec3b690d6df4c31141a2b46a6d4c3",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "sandbox-next",
+          "path": ".agents/skills/sandbox-next/SKILL.md",
+          "blobSha": "6384327710feced81e896501510bd76dd57770ff",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "sandbox-stable",
+          "path": ".agents/skills/sandbox-stable/SKILL.md",
+          "blobSha": "8faf22bf1a77afdcfbf419e7de49762b9fff7d7f",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
         {
           "id": "turnstile-spin",
           "path": ".agents/skills/turnstile-spin/SKILL.md",
           "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7",
           "status": "external-cloudflare-skill-copy",
           "classification": "vendor-capability-skill"
+        },
+        {
+          "id": "web-perf",
+          "path": ".agents/skills/web-perf/SKILL.md",
+          "blobSha": "0fb166e8e8cb12e42dff4a40905ee4d3d626fcda",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "workers-best-practices",
+          "path": ".agents/skills/workers-best-practices/SKILL.md",
+          "blobSha": "bebd018cdcae1771eacdee30cfb96af3ad3bd936",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "wrangler",
+          "path": ".agents/skills/wrangler/SKILL.md",
+          "blobSha": "07d4dbbee98b6a55db42a2a01cb2c84df864a8e6",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
+        },
+        {
+          "id": "actions-mail-audit",
+          "path": ".github/skills/actions-mail-audit/SKILL.md",
+          "blobSha": "798089692c7642b2ce461f58bb920ffa7d6d4069",
+          "status": "source-present-unreviewed",
+          "classification": "solcontinuity-tool-or-vendor-skill-source"
         }
       ],
       "lockfiles": [
@@ -1461,13 +2139,41 @@
       ],
       "notes": [
         "systems/live-branding-rule.md is a system instruction, not a skill package.",
-        "No SolContinuity-native domain skill was confirmed in this first source pass."
-      ]
+        "Recursive main tree inventory is pinned to commit 2390af375b9980f5015abc146328ff90e24e4660 and tree 80e6a1159677c30852324323d163e3157653a5c7; 14 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "Fourteen SKILL.md source files are present; only the previously reviewed Turnstile source retains its prior status."
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "3315bb459a27c4da8f7d65d0882e090c8d8fc500",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "976ff3789ab6e7daa056f1b5590b2818514e0277",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "2390af375b9980f5015abc146328ff90e24e4660",
+          "treeSha": "80e6a1159677c30852324323d163e3157653a5c7",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 568,
+          "skillFileCount": 14,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/jbh-private",
       "profile": "juss-beautiful-hair",
-      "inventoryStatus": "verified-private-operations-skills",
+      "inventoryStatus": "verified-private-recursive-tree-inventory-details-redacted",
       "skillSources": [
         {
           "id": "juss-beautiful-hair-private",
@@ -1500,8 +2206,24 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Juss-beautiful-hair- and jussbeautifulhair-site are separate repositories; the private operator skill is verified in jbh-private, not assumed to be present in the storefront repo."
-      ]
+        "Juss-beautiful-hair- and jussbeautifulhair-site are separate repositories; the private operator skill is verified in jbh-private, not assumed to be present in the storefront repo.",
+        "Private repository tree verified on main. Newly discovered private skill paths and names are intentionally not expanded in the public PromptOS audit."
+      ],
+      "visibility": "private",
+      "privateSkillSourceCount": 5,
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "f4af09360c2405d568c82d9dfddea5314593c282",
+          "treeSha": "8b1a2ac551ae4458d3ed32b234a53df17d85b542",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 322,
+          "skillFileCount": 5,
+          "recordedAt": "2026-11-26",
+          "detailsRedacted": true
+        }
+      }
     },
     {
       "repository": "jussray/THINK-TANK",
@@ -1679,47 +2401,164 @@
           "systems": 22
         },
         "contentReview": "pending-for-newly-discovered-sources"
-      }
+      },
+      "visibility": "public"
     },
     {
       "repository": "jussray/truth-weaver",
       "profile": "truth-weaver",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "verified-recursive-tree-inventory-no-skill-packages-found",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "AGENTS.md was inspected; no direct SKILL.md references were found in the inspected excerpt. Absence is not established."
-      ]
+        "AGENTS.md was inspected; no direct SKILL.md references were found in the inspected excerpt. Absence is not established.",
+        "Recursive main tree inventory is pinned to commit 8bd3a0cbac516a00ea76c8b72364ba78e025a957 and tree 660486a11ebf791cf7290e8a6489cbe6e3f17551; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No SKILL.md package was found in the recursive tree; repository instruction files still exist."
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "5fa3975de348f7924c847c4076739143ddf8c1c5",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "6ea8d49ec2923f87f0a4d47f3f85916f5f8b4435",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "8bd3a0cbac516a00ea76c8b72364ba78e025a957",
+          "treeSha": "660486a11ebf791cf7290e8a6489cbe6e3f17551",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 353,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/JussPay",
       "profile": "juss-pay",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "verified-recursive-tree-inventory-no-skill-packages-found",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass. Repository tree and alternate instruction formats remain to be inspected."
-      ]
+        "Recursive main tree inventory is pinned to commit c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1 and tree 48c513eba362f826a36fd8fdfcecb2f27300df79; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No SKILL.md or AGENTS instruction file was found in the recursive tree."
+      ],
+      "visibility": "public",
+      "instructionSources": [],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1",
+          "treeSha": "48c513eba362f826a36fd8fdfcecb2f27300df79",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 41,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/Juss-beautiful-hair-",
       "profile": "juss-beautiful-hair-main",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "verified-private-recursive-tree-inventory-details-redacted",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "Private app repository is distinct from jbh-private and jussbeautifulhair-site; no indexed SKILL.md match in this pass."
-      ]
+        "Private repository tree verified on main. Newly discovered private skill paths and names are intentionally not expanded in the public PromptOS audit."
+      ],
+      "visibility": "private",
+      "privateSkillSourceCount": 1,
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "90998e44e249b565c8a10014440d559beed74230",
+          "treeSha": "5e10517cdac56261805a404222dc65630cfd2e71",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 136,
+          "skillFileCount": 1,
+          "recordedAt": "2026-11-26",
+          "detailsRedacted": true
+        }
+      }
     },
     {
       "repository": "jussray/jussbeautifulhair-site",
       "profile": "juss-beautiful-hair-storefront",
-      "inventoryStatus": "search-index-no-skill-match",
-      "skillSources": [],
+      "inventoryStatus": "verified-recursive-tree-inventory-pending-content-review",
+      "skillSources": [
+        {
+          "id": "devil",
+          "path": ".agents/skills/devil/SKILL.md",
+          "blobSha": "3aa9a96eadea04fa25dbc85af32dc52433380a81",
+          "status": "source-present-unreviewed",
+          "classification": "jbh-storefront-skill-source-pending-review"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "8b7e62ce6b131a6ad7f7cd1c77e23b0ce02fe7a8",
+          "status": "source-present-unreviewed",
+          "classification": "jbh-storefront-skill-source-pending-review"
+        },
+        {
+          "id": "jbh-storefront-operator",
+          "path": ".agents/skills/jbh-storefront-operator/SKILL.md",
+          "blobSha": "5371307aba0117d88a7081ee85c8672e47752aeb",
+          "status": "source-present-unreviewed",
+          "classification": "jbh-storefront-skill-source-pending-review"
+        },
+        {
+          "id": "sales",
+          "path": ".agents/skills/sales/SKILL.md",
+          "blobSha": "abdf5325f9737d0be1cf90e19764600ebea95cb2",
+          "status": "source-present-unreviewed",
+          "classification": "jbh-storefront-skill-source-pending-review"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match in this pass; storefront agent instructions and other skill formats remain to be inspected."
-      ]
+        "Recursive main tree inventory is pinned to commit 3968e79ab0a8ea2e4a285b295531996f29788684 and tree 908fd9040f192792f32a59004cea1f0db759201e; 4 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "Four storefront skill sources are present in this public storefront repository; they remain separate from the private operator repository."
+      ],
+      "visibility": "public",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "d3a8b1b23c4e17b9515f1b822f15d294431f3657",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "f31f4f5c868a3ae64984ed92d5a6a41370251d97",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "3968e79ab0a8ea2e4a285b295531996f29788684",
+          "treeSha": "908fd9040f192792f32a59004cea1f0db759201e",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 323,
+          "skillFileCount": 4,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/sync-party-game",
@@ -1729,7 +2568,9 @@
       "lockfiles": [],
       "notes": [
         "README and AGENTS define SYNC as an independent game authority; FCR observes privacy-safe evidence only.",
-        "discovery/capabilities.json still declares verifiedCapabilities as an empty array; capability evidence here is repository-source inspection, not a promoted runtime discovery claim."
+        "discovery/capabilities.json still declares verifiedCapabilities as an empty array; capability evidence here is repository-source inspection, not a promoted runtime discovery claim.",
+        "Recursive main tree inventory is pinned to commit ed90db9ea3d25beee95744ce3438ff7e7e79c157 and tree 7a87f555153ecb6a287796d331ccf031bceb59d1; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No native SKILL.md package was found; source-verified capabilities remain in capabilityEvidence and are not represented as installed skills."
       ],
       "sourceCommit": "ed90db9ea3d25beee95744ce3438ff7e7e79c157",
       "capabilityEvidence": [
@@ -1794,7 +2635,34 @@
           "path": "e2e/multiplayer.spec.js",
           "blobSha": "cf7e5de510ad2bcb5dc6cf580b7763655586f7f1"
         }
-      ]
+      ],
+      "visibility": "unknown",
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "1bfaee2b794868e1f86ce49e591640fe5eb1f882",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        },
+        {
+          "path": "AGENTS_FOUNDER_INTELLIGENCE.md",
+          "blobSha": "88b30619f84661ddf623c745940a187555c3b1f1",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "ed90db9ea3d25beee95744ce3438ff7e7e79c157",
+          "treeSha": "7a87f555153ecb6a287796d331ccf031bceb59d1",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 203,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/chatQuest",
@@ -1804,7 +2672,9 @@
       "lockfiles": [],
       "notes": [
         "ChatQuest is a private concept preview with simulated play, not a live multiplayer service.",
-        "Guardian switches in the UI are local demonstration controls, not authenticated or server-enforced parental controls."
+        "Guardian switches in the UI are local demonstration controls, not authenticated or server-enforced parental controls.",
+        "Recursive main tree inventory is pinned to commit 99db2095746a71d3cdf17f7c5c4c9b3aa4639439 and tree c5690a5c7327e3b82b92f21e4579b16dcbd9577f; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No native SKILL.md package was found; source-verified capabilities remain in capabilityEvidence and are not represented as installed skills."
       ],
       "sourceCommit": "99db2095746a71d3cdf17f7c5c4c9b3aa4639439",
       "capabilityEvidence": [
@@ -1861,7 +2731,21 @@
           "path": "tests/browser.test.mjs",
           "blobSha": "03317f580eea2105f9f76b27202d1076ea88825f"
         }
-      ]
+      ],
+      "visibility": "unknown",
+      "instructionSources": [],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "99db2095746a71d3cdf17f7c5c4c9b3aa4639439",
+          "treeSha": "c5690a5c7327e3b82b92f21e4579b16dcbd9577f",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 8,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/jussray-bip-and-seek",
@@ -1871,7 +2755,9 @@
       "lockfiles": [],
       "notes": [
         "The Roblox experience is an independent codebase and remains distinct from the Games Hub website.",
-        "README lists Studio/runtime launch gates; source presence does not establish a public launch or verified live Studio pass."
+        "README lists Studio/runtime launch gates; source presence does not establish a public launch or verified live Studio pass.",
+        "Recursive main tree inventory is pinned to commit 5c9c3d16cc92e76cc9661b65b3233b6ed71eacab and tree ca2dcd42ae6833627278938045afba6c9ce7746d; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No native SKILL.md package was found; source-verified capabilities remain in capabilityEvidence and are not represented as installed skills."
       ],
       "sourceCommit": "5c9c3d16cc92e76cc9661b65b3233b6ed71eacab",
       "capabilityEvidence": [
@@ -1928,7 +2814,21 @@
           "path": "src/shared/Config.luau",
           "blobSha": "49c3a208c4f122333b75bc53adc86ea0035b7801"
         }
-      ]
+      ],
+      "visibility": "unknown",
+      "instructionSources": [],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "5c9c3d16cc92e76cc9661b65b3233b6ed71eacab",
+          "treeSha": "ca2dcd42ae6833627278938045afba6c9ce7746d",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 18,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/LUMORA",
@@ -1938,7 +2838,9 @@
       "lockfiles": [],
       "notes": [
         "Trust and Delivery marks design adopted and integration unverified.",
-        "Current index.html is explicitly a prototype, not production architecture; browser proof and engine benchmark remain open."
+        "Current index.html is explicitly a prototype, not production architecture; browser proof and engine benchmark remain open.",
+        "Recursive main tree inventory is pinned to commit 51d35db03a6460c452a581c899d131a6082d83be and tree 106f844f3273aaaa5c6a94a08db4b3db99d2e563; 0 SKILL.md files were found. Source presence does not prove runtime activation.",
+        "No native SKILL.md package was found; source-verified capabilities remain in capabilityEvidence and are not represented as installed skills."
       ],
       "sourceCommit": "51d35db03a6460c452a581c899d131a6082d83be",
       "capabilityEvidence": [
@@ -1987,7 +2889,21 @@
           "path": ".control-room/model-capabilities.v1.json",
           "blobSha": "01096fe1c70b8cfb60d33d5e8ff59575511f2727"
         }
-      ]
+      ],
+      "visibility": "unknown",
+      "instructionSources": [],
+      "evidence": {
+        "treeInventory": {
+          "ref": "main",
+          "commitSha": "51d35db03a6460c452a581c899d131a6082d83be",
+          "treeSha": "106f844f3273aaaa5c6a94a08db4b3db99d2e563",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 4,
+          "skillFileCount": 0,
+          "recordedAt": "2026-11-26"
+        }
+      }
     },
     {
       "repository": "jussray/juss-protect-me",
@@ -2018,7 +2934,8 @@
           ".claude": 1
         },
         "contentReview": "pending-for-newly-discovered-sources"
-      }
+      },
+      "visibility": "public"
     },
     {
       "repository": "jussray/juss-protect-me-2",
@@ -2064,7 +2981,8 @@
           "contract": 2
         },
         "contentReview": "pending-for-newly-discovered-sources"
-      }
+      },
+      "visibility": "public"
     },
     {
       "profile": "drift",
@@ -2074,7 +2992,8 @@
       "lockfiles": [],
       "notes": [
         "DRIFT's authoritative repository has not been identified; no repository was guessed."
-      ]
+      ],
+      "visibility": "unknown"
     },
     {
       "profile": "games-hub",
@@ -2432,6 +3351,95 @@
         "The recursive main tree at the pinned commit contains 43 SKILL.md files, but none is under site/games/. These are workspace-level operator skills, Claude skill-path exports, or FCR reference exports, not Games Hub product skills.",
         "The five .agents/skills files are Codex repository-discovery skills. The single .claude/skills Medusa file is explicitly not auto-discovered by Codex. The skills/juss-authored path is configured in .claude/settings.json; its fcr-set subtree remains FCR-owned reference material.",
         "The four Games Hub owned skill IDs remain proposed capabilities only until game-hub-specific source contracts and runtime activation are verified."
+      ],
+      "visibility": "public"
+    },
+    {
+      "repository": "jussray/ULTRATHINK-",
+      "profile": "ultrathink-shared-source",
+      "inventoryStatus": "verified-pinned-shared-skill-source",
+      "visibility": "public",
+      "skillSources": [
+        {
+          "id": "confess",
+          "path": ".claude/skills/confess/SKILL.md",
+          "blobSha": "3dbfdc5c2f0e672de35fb899f23175e7322e1230",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "futureyou-me-v10",
+          "path": ".claude/skills/futureyou-me-v10/SKILL.md",
+          "blobSha": "17afd83e2d1d645a7393a80180945a8c57fc0e92",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "godmode-devil-ultrathink",
+          "path": ".claude/skills/godmode-devil-ultrathink/SKILL.md",
+          "blobSha": "ef413ffff6bb0f301342064538879310dbff34e4",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "juss-af-skills-pack",
+          "path": ".claude/skills/juss-af-skills-pack/SKILL.md",
+          "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "juss-command-codex",
+          "path": ".claude/skills/juss-command-codex/SKILL.md",
+          "blobSha": "f4475f6aae17c0a5aead25dd39dcedf9fc8fea21",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "juss-os",
+          "path": ".claude/skills/juss-os/SKILL.md",
+          "blobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "reasoning-stack",
+          "path": ".claude/skills/reasoning-stack/SKILL.md",
+          "blobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        },
+        {
+          "id": "truthmode",
+          "path": ".claude/skills/truthmode/SKILL.md",
+          "blobSha": "a9962d8ad3b15a4e5671717e8b4821f66a9b8f5e",
+          "status": "pinned-shared-reference",
+          "classification": "shared-founder-operator-skill"
+        }
+      ],
+      "instructionSources": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "1627143ce72263e899149d2fe2a599fde358fa03",
+          "status": "source-present",
+          "classification": "repository-instruction-contract"
+        }
+      ],
+      "lockfiles": [],
+      "evidence": {
+        "treeInventory": {
+          "ref": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+          "commitSha": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+          "treeSha": "4caf0cbde45101f729579a0aab9052f8a23e22b7",
+          "recursive": true,
+          "truncated": false,
+          "entryCount": 43,
+          "skillFileCount": 8,
+          "recordedAt": "2026-11-26"
+        }
+      },
+      "notes": [
+        "Eight shared skill paths match the exact source revision pinned by PromptOS; references remain advisory and repository-operator-only, not execution grants."
       ]
     }
   ],
@@ -2452,11 +3460,13 @@
     }
   },
   "knownGaps": [
-    "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
     "DRIFT repository remains unresolved.",
-    "Confirm whether the canonical workspace's 27 logical dispatch roles map to the 22 packaged SKILL.md exports; current repository evidence supports different counting scopes, not five missing skill files.",
-    "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete.",
-    "Games Hub and its four independent game codebases have no native SKILL.md packages in the audited main trees. Their source-verified capabilities are mapped to proposed, app-owned skill IDs in PromptOS; none is marked installed or runtime-activated. SYNC discovery capabilities remain draft with an empty verifiedCapabilities list; ChatQuest is a private simulated prototype; LUMORA integration and runtime remain unverified."
+    "Recursive inventories cover the resolved product repositories, but source-content review and runtime activation remain incomplete for many skill files.",
+    "Confirm whether the canonical workspace's 27 logical dispatch roles map to the 22 packaged systems/skills exports; these are different counting scopes, not evidence of five missing skill files.",
+    "Private Juss Beautiful Hair repositories are represented by aggregate counts in the public audit; full private source review belongs in protected source context.",
+    "Repository instructions and agent adapters may reference capabilities that are not packaged as SKILL.md files; inspect those contracts before marking an app library complete.",
+    "The eight ULTRATHINK shared references are pinned and advisory-only; PromptOS does not install or execute them.",
+    "Games Hub and its four independent game codebases have no native SKILL.md packages in the audited main trees. Their source-verified capabilities are mapped to proposed app-owned skill IDs; none is marked installed or runtime-activated."
   ],
   "governance": {
     "owner": "Juss",

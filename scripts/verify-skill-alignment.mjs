@@ -131,6 +131,37 @@ assert.ok(promptosInventory.some((skill) => skill.id === 'local-build' && skill.
 assert.ok(promptosInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'retired-export-copy'));
 assert.ok(!promptosInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'active-export'), 'retired exports must never be promoted to active');
 
+const promptosSourceInventory = resolveAppSkillSet(manifest, 'promptos', audit).sourceInventory;
+assert.equal(promptosSourceInventory.records.length, 2);
+assert.equal(promptosSourceInventory.skills.length, 35, 'PromptOS must resolve 27 local skill sources and eight pinned shared references');
+assert.equal(promptosSourceInventory.repositoriesWithoutInventoryRecord.length, 0);
+assert.ok(promptosSourceInventory.skills.some((skill) => skill.sourceRepository === 'jussray/ULTRATHINK-' && skill.status === 'pinned-shared-reference'));
+assert.equal(promptosSourceInventory.records.find((record) => record.repository === 'jussray/promptos').skillCount, 27);
+assert.equal(promptosSourceInventory.records.find((record) => record.repository === 'jussray/ULTRATHINK-').skillCount, 8);
+
+const solInventory = resolveAppSkillSet(manifest, 'solcontinuity', audit).sourceInventory;
+assert.equal(solInventory.skills.length, 14);
+const bipInventory = resolveAppSkillSet(manifest, 'sekret-bip', audit).sourceInventory;
+assert.equal(bipInventory.skills.length, 29);
+const storyEngineInventory = resolveAppSkillSet(manifest, 'storyengine', audit).sourceInventory;
+assert.equal(storyEngineInventory.skills.length, 28);
+
+const jbhInventory = resolveAppSkillSet(manifest, 'juss-beautiful-hair', audit).sourceInventory;
+assert.equal(jbhInventory.records.length, 3);
+assert.equal(jbhInventory.skills.length, 4, 'only public storefront skill details may be surfaced');
+assert.ok(jbhInventory.skills.every((skill) => skill.sourceRepository === 'jussray/jussbeautifulhair-site'));
+assert.equal(jbhInventory.records.find((record) => record.repository === 'jussray/jbh-private').skillCount, 5);
+assert.equal(jbhInventory.records.find((record) => record.repository === 'jussray/jbh-private').listedSkillCount, 0);
+assert.equal(jbhInventory.records.find((record) => record.repository === 'jussray/jbh-private').detailsRedacted, true);
+assert.equal(jbhInventory.records.find((record) => record.repository === 'jussray/Juss-beautiful-hair-').skillCount, 1);
+assert.equal(jbhInventory.records.find((record) => record.repository === 'jussray/Juss-beautiful-hair-').detailsRedacted, true);
+
+const truthWeaverInventory = resolveAppSkillSet(manifest, 'truth-weaver', audit).sourceInventory;
+assert.equal(truthWeaverInventory.skills.length, 0);
+const jussPayInventory = resolveAppSkillSet(manifest, 'juss-pay', audit).sourceInventory;
+assert.equal(jussPayInventory.skills.length, 0);
+
+
 const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceInventory;
 assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canonical Juss & Co. workspace and all four related game repositories');
 for (const appId of ['sync-party-game', 'chatquest', 'bip-and-seek', 'lumora']) {
@@ -171,4 +202,9 @@ const invalidAudit = structuredClone(audit);
 invalidAudit.records[0].skillSources[0].blobSha = 'not-a-blob-sha';
 assert.ok(validateRepositorySkillAudit(invalidAudit).some((error) => error.includes('blob SHA must be pinned')));
 assert.throws(() => resolveAppSkillSet(manifest, 'founder-control-room', invalidAudit), /Invalid repository skill audit/);
+
+const invalidPrivateAudit = structuredClone(audit);
+invalidPrivateAudit.records.find((record) => record.repository === 'jussray/jbh-private').privateSkillSourceCount = 1;
+assert.ok(validateRepositorySkillAudit(invalidPrivateAudit).some((error) => error.includes('private skill count cannot be less than listed source count')));
+
 console.log('Source-bound app skill inventories verified: ownership, provenance, retired status, and unresolved repositories remain explicit.');

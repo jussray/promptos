@@ -86,6 +86,7 @@ export function validateRepositorySkillAudit(audit) {
   for (const record of audit.records) {
     if (!record.profile || profiles.has(record.profile)) errors.push(`missing or duplicate audit profile: ${record.profile}`);
     profiles.add(record.profile);
+    if (!['public', 'private', 'unknown'].includes(record.visibility)) errors.push(`audit visibility must be explicit: ${record.profile}`);
     if (record.repository === null) {
       if (record.inventoryStatus !== 'unresolved-repository') errors.push(`null repository must be explicitly unresolved: ${record.profile}`);
     } else {
@@ -94,6 +95,31 @@ export function validateRepositorySkillAudit(audit) {
       repositories.add(record.repository);
     }
     if (!record.inventoryStatus || !Array.isArray(record.skillSources)) errors.push(`audit inventory metadata incomplete: ${record.profile}`);
+    if (record.visibility === 'private' && (!Number.isInteger(record.privateSkillSourceCount) || record.privateSkillSourceCount < record.skillSources.length)) {
+      errors.push(`private skill count cannot be less than listed source count: ${record.profile}`);
+    }
+    if (record.visibility !== 'private' && record.privateSkillSourceCount !== undefined) {
+      errors.push(`private skill count is only valid for private repositories: ${record.profile}`);
+    }
+    if (record.instructionSources !== undefined && !Array.isArray(record.instructionSources)) {
+      errors.push(`instructionSources must be an array: ${record.profile}`);
+    }
+    for (const instruction of record.instructionSources ?? []) {
+      if (typeof instruction.path !== 'string' || !instruction.path || instruction.path.startsWith('/') || instruction.path.includes('..')) errors.push(`invalid instruction source path: ${record.profile}`);
+      if (!/^[0-9a-f]{40}$/.test(instruction.blobSha ?? '')) errors.push(`instruction source blob SHA must be pinned: ${record.profile}`);
+      if (!instruction.status || !instruction.classification) errors.push(`instruction source classification incomplete: ${record.profile}`);
+    }
+    const treeInventory = record.evidence?.treeInventory;
+    if (treeInventory) {
+      if (treeInventory.recursive !== true || treeInventory.truncated !== false) errors.push(`tree inventory must be complete and recursive: ${record.profile}`);
+      const commitSha = treeInventory.commitSha ?? treeInventory.commit;
+      if (commitSha !== undefined && !/^[0-9a-f]{40}$/.test(commitSha)) errors.push(`tree inventory commit SHA must be pinned: ${record.profile}`);
+      if (treeInventory.treeSha !== undefined && !/^[0-9a-f]{40}$/.test(treeInventory.treeSha)) errors.push(`tree inventory tree SHA must be pinned: ${record.profile}`);
+      if (Number.isInteger(treeInventory.skillFileCount)) {
+        const expectedCount = record.visibility === 'private' ? record.privateSkillSourceCount : record.skillSources.length;
+        if (treeInventory.skillFileCount !== expectedCount) errors.push(`tree inventory skill count mismatch: ${record.profile}`);
+      }
+    }
     const sourcePaths = new Set();
     for (const source of record.skillSources ?? []) {
       if (!source.id || !source.status || !source.classification) errors.push(`skill source classification incomplete: ${record.profile}`);
@@ -112,7 +138,8 @@ export function resolveAppSourceInventory(audit, app) {
   const expectedRepositories = new Set(app.sourceAuditRepositories ?? []);
   const records = audit.records.filter((record) => record.repository && expectedRepositories.has(record.repository));
   const representedRepositories = new Set(records.map((record) => record.repository));
-  const skills = records.flatMap((record) => record.skillSources.map((source) => ({
+  const publicRecords = records.filter((record) => record.visibility === 'public');
+  const skills = publicRecords.flatMap((record) => record.skillSources.map((source) => ({
     id: source.id,
     sourceRepository: record.repository,
     sourceProfile: record.profile,
@@ -122,12 +149,20 @@ export function resolveAppSourceInventory(audit, app) {
     classification: source.classification,
   })));
   return {
-    records: records.map((record) => ({
-      profile: record.profile,
-      repository: record.repository,
-      inventoryStatus: record.inventoryStatus,
-      skillCount: record.skillSources.length,
-    })),
+    records: records.map((record) => {
+      const detailsVisible = record.visibility === 'public';
+      return {
+        profile: record.profile,
+        repository: record.repository,
+        visibility: record.visibility,
+        inventoryStatus: record.inventoryStatus,
+        skillCount: record.visibility === 'private' ? record.privateSkillSourceCount : record.skillSources.length,
+        listedSkillCount: detailsVisible ? record.skillSources.length : 0,
+        instructionSourceCount: detailsVisible ? (record.instructionSources?.length ?? 0) : null,
+        treeInventory: record.evidence?.treeInventory ?? null,
+        detailsRedacted: !detailsVisible,
+      };
+    }),
     skills,
     repositoriesWithoutInventoryRecord: [...expectedRepositories].filter((repository) => !representedRepositories.has(repository)),
   };
