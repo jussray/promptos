@@ -132,12 +132,18 @@ const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceIn
 assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canonical Juss & Co. workspace and all four related game repositories');
 assert.equal(gamesInventory.skills.length, 0, 'a repository search with no skill matches must not fabricate skills');
 assert.equal(gamesInventory.repositoriesWithoutInventoryRecord.length, 0, 'every Games Hub source repository must have an audit record');
-assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-no-native-skill-package-confirmed');
+assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-and-43-skill-files-no-game-specific-package');
 const gamesAudit = audit.records.find((record) => record.profile === 'games-hub');
 assert.equal(gamesAudit.evidence.runtime.domain, 'https://games.jussco.company/');
 assert.equal(gamesAudit.evidence.runtime.worker, 'jussco-games');
 assert.equal(gamesAudit.evidence.runtime.deploymentConfig, 'wrangler.games.jsonc');
-assert.equal(gamesAudit.skillSources.length, 0, 'proposed Games Hub skills must not be represented as installed packages');
+assert.equal(gamesAudit.skillSources.length, 43, 'Games Hub audit must inventory actual repository-level skills without relabeling them as product skills');
+assert.equal(gamesAudit.evidence.treeInventory.gameScopedSkillFileCount, 0, 'no game-specific skill file is present under site/games');
+assert.equal(gamesInventory.skills.filter((skill) => skill.classification === 'jussco-workspace-repository-operator').length, 5);
+assert.equal(gamesInventory.skills.filter((skill) => skill.classification === 'jussco-shared-founder-operator').length, 16);
+assert.equal(gamesInventory.skills.filter((skill) => skill.classification === 'fcr-owned-export-not-games-hub-owned').length, 21);
+assert.equal(gamesInventory.skills.filter((skill) => skill.classification === 'workspace-security-assessment-not-codex-discovered').length, 1);
+assert.ok(gamesInventory.skills.every((skill) => !skill.sourcePath.startsWith('site/games/')));
 
 const driftInventory = resolveAppSkillSet(manifest, 'drift', audit).sourceInventory;
 assert.equal(driftInventory.records.length, 0);
