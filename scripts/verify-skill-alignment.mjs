@@ -5,7 +5,7 @@ import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } 
 const manifest = loadPortfolioManifest();
 const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
-assert.equal(manifest.apps.length, 12, 'registry must cover the currently declared 12 standalone apps');
+assert.equal(manifest.apps.length, 14, 'registry must cover the currently declared 14 standalone app profiles');
 
 for (const app of manifest.apps) {
   const resolved = resolveAppSkillSet(manifest, app.id);
@@ -87,6 +87,19 @@ assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal
 assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
 assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
 assert.ok(audit.records.some((record) => record.profile === 'drift' && record.repository === null));
+const protectOne = resolveAppSkillSet(manifest, 'protect-me-model-one');
+assert.equal(protectOne.app.repository, 'jussray/juss-protect-me');
+assert.ok(protectOne.sourceAudit.repositories.includes('jussray/juss-protect-me'));
+const protectTwo = resolveAppSkillSet(manifest, 'protect-me-model-two');
+assert.equal(protectTwo.app.repository, 'jussray/juss-protect-me-2');
+assert.ok(protectTwo.sourceAudit.repositories.includes('jussray/juss-protect-me-2'));
+for (const record of audit.records.filter((entry) => entry.treeSnapshot)) {
+  assert.equal(record.treeSnapshot.truncated, false, `tree snapshot must be complete: ${record.repository}`);
+  assert.equal(record.treeSnapshot.skillCount, record.treeSnapshot.skillFiles.length, `tree skill count mismatch: ${record.repository}`);
+  assert.ok(record.treeSnapshot.skillFiles.every((entry) => entry.path.endsWith('/SKILL.md') && /^[0-9a-f]{40}$/.test(entry.blobSha)));
+}
+assert.equal(audit.records.find((record) => record.profile === 'protect-me-model-one').treeSnapshot.skillCount, 1);
+assert.equal(audit.records.find((record) => record.profile === 'protect-me-model-two').treeSnapshot.skillCount, 3);
 assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
 assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
 console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
