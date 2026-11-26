@@ -2,8 +2,8 @@
  * auth.js — PromptOS Auth + Analytics + Persistence Truth
  *
  * Boot behaviour:
- *   • App opens immediately as Guest — no sign-in wall.
- *   • Google sign-in is optional (topbar chip shows “Sign in” button).
+ *   • Public welcome only until a verified account is established.
+ *   • Google sign-in is required; free accounts receive beginner prompts only.
  *   • Signing in upgrades the session in-place.
  *
  * Persistence authority (app state — stars, custom prompts, theme):
@@ -329,43 +329,66 @@
     return el;
   }
 
-  function showWelcome() {
-    var welcome = qs('#welcomeScreen');
-    var onboarding = qs('#onboarding');
+  var accessGeneration = 0;
+  var currentAccess = null;
+
+  function lockWorkspace() {
     var app = qs('#appShell');
-    if (welcome) welcome.style.display = 'flex';
-    if (onboarding) onboarding.style.display = 'none';
-    if (app) app.style.display = 'none';
+    if (app) { app.inert = true; app.style.display = 'none'; }
+    var modal = qs('#modalWrap');
+    if (modal) modal.classList.remove('open');
+    var catalogDialog = qs('#catalogDialog');
+    if (catalogDialog && catalogDialog.open && typeof catalogDialog.close === 'function') catalogDialog.close();
+    document.body.style.overflow = '';
+    document.body.classList.remove('paid-workspace');
   }
 
-  function showOnboarding() {
-    var welcome = qs('#welcomeScreen');
-    var onboarding = qs('#onboarding');
-    var app = qs('#appShell');
-    if (welcome) welcome.style.display = 'none';
-    if (onboarding) onboarding.style.display = 'flex';
-    if (app) app.style.display = 'none';
-    var heading = onboarding && onboarding.querySelector('[data-onboarding-heading]');
-    if (heading) heading.focus();
+  function showWelcome() {
+    lockWorkspace();
+    if (qs('#welcomeScreen')) qs('#welcomeScreen').style.display = 'flex';
+    if (qs('#onboarding')) qs('#onboarding').style.display = 'none';
+    if (qs('#beginnerLibrary')) qs('#beginnerLibrary').hidden = true;
+    if (qs('#accountBilling')) qs('#accountBilling').hidden = true;
+  }
+
+  function showOnboarding(access) {
+    lockWorkspace();
+    if (qs('#welcomeScreen')) qs('#welcomeScreen').style.display = 'none';
+    if (qs('#onboarding')) qs('#onboarding').style.display = 'flex';
+    if (qs('#beginnerLibrary')) qs('#beginnerLibrary').hidden = access !== 'free';
+    if (qs('#accountBilling')) qs('#accountBilling').hidden = !verifiedIdToken;
+    if (qs('#billingUpgrade')) qs('#billingUpgrade').disabled = access !== 'free';
   }
 
   function showWorkspace() {
-    var welcome = qs('#welcomeScreen');
-    var onboarding = qs('#onboarding');
+    if (currentAccess !== 'paid' || !verifiedIdToken) return;
+    if (qs('#welcomeScreen')) qs('#welcomeScreen').style.display = 'none';
+    if (qs('#onboarding')) qs('#onboarding').style.display = 'none';
+    if (qs('#beginnerLibrary')) qs('#beginnerLibrary').hidden = true;
+    if (qs('#accountBilling')) qs('#accountBilling').hidden = true;
     var app = qs('#appShell');
-    if (welcome) welcome.style.display = 'none';
-    if (onboarding) onboarding.style.display = 'none';
-    if (app) app.style.display = '';
+    if (app) { app.inert = false; app.style.display = ''; }
+    document.body.classList.add('paid-workspace');
   }
 
-  function bootAsGuest() {
-    verifiedIdToken = null;
+  async function refreshWorkspace() {
+    var credential = verifiedIdToken;
+    var generation = ++accessGeneration;
+    if (!credential) return;
+    var access = null;
+    try {
+      if (window.PromptOSBilling) access = await window.PromptOSBilling.accessStatus();
+    } catch { /* Provider outage does not unlock any library. */ }
+    if (generation !== accessGeneration || credential !== verifiedIdToken) return;
+    var previous = currentAccess;
+    currentAccess = access;
+    if (access !== 'paid') {
+      showOnboarding(access === 'free' ? 'free' : null);
+      if (previous === 'paid') window.dispatchEvent(new CustomEvent('promptos:access-revoked'));
+      return;
+    }
+    renderUserChip(SESSION.user);
     showWorkspace();
-    SESSION.user = null;
-    SESSION.startedAs = 'guest';
-    renderGuestChip();
-    logEvent('guest_session_started');
-    window.dispatchEvent(new CustomEvent('promptos:guest'));
   }
 
   function triggerGoogleSignIn() {
@@ -380,7 +403,10 @@
     if (!response || !response.credential) return;
     var payload = decodeJwt(response.credential);
     if (!payload) return;
+    accessGeneration++;
+    currentAccess = null;
     verifiedIdToken = response.credential;
+    showOnboarding(null);
 
     var wasGuest = SESSION.startedAs === 'guest' && SESSION.user === null;
     SESSION.user = {
@@ -390,15 +416,17 @@
       picture: payload.picture || ''
     };
 
-    renderUserChip(SESSION.user);
-    showWorkspace();
     logEvent('google_signin_success');
     if (wasGuest) logEvent('guest_to_google_upgrade');
     window.dispatchEvent(new CustomEvent('promptos:authed', { detail: SESSION.user }));
+    refreshWorkspace();
   };
 
   function signOut() {
+    accessGeneration++;
+    currentAccess = null;
     verifiedIdToken = null;
+    showWelcome();
     SESSION.user = null;
     SESSION.startedAs = 'guest';
     if (window.google && google.accounts && google.accounts.id) {
@@ -448,14 +476,18 @@
   // Home sign-up card (guest only): delegates to the same Google sign-in the topbar chip uses.
   document.addEventListener('click', function (e) {
     var start = e.target && e.target.closest ? e.target.closest('[data-start-onboarding]') : null;
-    var guest = e.target && e.target.closest ? e.target.closest('[data-continue-as-guest]') : null;
     var googleButton = e.target && e.target.closest ? e.target.closest('[data-google-signin]') : null;
-    if (start) showOnboarding();
-    if (guest) bootAsGuest();
+    if (start) { if (currentAccess === 'paid') showWorkspace(); else showOnboarding(currentAccess); }
     if (googleButton) triggerGoogleSignIn();
   });
 
+  window.addEventListener('focus', refreshWorkspace);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) refreshWorkspace(); });
+  setInterval(function(){ if (verifiedIdToken) refreshWorkspace(); }, 60000);
+
   function boot() {
+    qs('#billingRecheck')?.addEventListener('click', refreshWorkspace);
+    qs('#onboardingSignOut')?.addEventListener('click', signOut);
     initVisitorIdentification();
     showWelcome();
     renderPersistenceAuthority();
