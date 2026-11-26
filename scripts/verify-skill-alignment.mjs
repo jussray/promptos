@@ -130,7 +130,7 @@ assert.ok(!promptosInventory.some((skill) => skill.id === 'local-devil' && skill
 
 const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceInventory;
 assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canonical Juss & Co. workspace and all four related game repositories');
-assert.equal(gamesInventory.skills.length, 0, 'a repository search with no skill matches must not fabricate skills');
+assert.equal(gamesInventory.skills.length, 43, 'Games Hub inventory must expose all real workspace-level skill sources');
 assert.equal(gamesInventory.repositoriesWithoutInventoryRecord.length, 0, 'every Games Hub source repository must have an audit record');
 assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-and-43-skill-files-no-game-specific-package');
 const gamesAudit = audit.records.find((record) => record.profile === 'games-hub');
