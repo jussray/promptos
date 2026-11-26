@@ -1858,22 +1858,27 @@
         "files": [
           {
             "path": "AGENTS.md",
-            "blobSha": ""
+            "blobSha": "84a07154697564e158370dc5879a4a59079acce3"
           },
           {
             "path": "CLAUDE.md",
-            "blobSha": ""
+            "blobSha": "bce746aaff597d6a307f68c008fe516504bd10fb"
           },
           {
             "path": "site/games/index.html",
             "blobSha": "dbcf00f933fe5bee5251c66b3ac9ac06557c4958"
+          },
+          {
+            "path": "wrangler.games.jsonc",
+            "blobSha": "1054786e2bed421016c2f16be35716d6b60cd7e2"
           }
         ],
         "runtime": {
           "domain": "https://games.jussco.company/",
           "sourcePath": "site/games/",
-          "worker": "jussray",
-          "deploymentConfig": "wrangler.jsonc"
+          "worker": "jussco-games",
+          "deploymentConfig": "wrangler.games.jsonc",
+          "mainSiteWorker": "jussray"
         },
         "classification": "Juss & Co. product hub; sibling game repositories remain independent codebases and identities"
       },
