@@ -126,7 +126,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "founder-control-room",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/founder-control-room"
+      ]
     },
     {
       "id": "chief-ai-machine",
@@ -161,7 +166,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "chief-ai-machine",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/chief-ai-machine"
+      ]
     },
     {
       "id": "promptos",
@@ -195,7 +205,13 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "promptos",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/promptos",
+        "jussray/ULTRATHINK-"
+      ]
     },
     {
       "id": "solcontinuity",
@@ -228,7 +244,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "solcontinuity",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/solcontinuity"
+      ]
     },
     {
       "id": "sekret-bip",
@@ -264,7 +285,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "sekret-bip",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/Sekret-Bip"
+      ]
     },
     {
       "id": "storyengine",
@@ -297,7 +323,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "storyengine",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/StoryEngine"
+      ]
     },
     {
       "id": "truth-weaver",
@@ -330,7 +361,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "truth-weaver",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/truth-weaver"
+      ]
     },
     {
       "id": "juss-pay",
@@ -363,7 +399,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "juss-pay",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/JussPay"
+      ]
     },
     {
       "id": "juss-beautiful-hair",
@@ -396,7 +437,14 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "juss-beautiful-hair",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/Juss-beautiful-hair-",
+        "jussray/jbh-private",
+        "jussray/jussbeautifulhair-site"
+      ]
     },
     {
       "id": "think-tank",
@@ -429,7 +477,12 @@
       },
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "think-tank",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/THINK-TANK"
+      ]
     },
     {
       "id": "games-hub",
@@ -470,7 +523,15 @@
       ],
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "games-hub",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/sync-party-game",
+        "jussray/chatQuest",
+        "jussray/jussray-bip-and-seek",
+        "jussray/LUMORA"
+      ]
     },
     {
       "id": "drift",
@@ -505,7 +566,10 @@
       "repositoryStatus": "unresolved",
       "catalogStatus": "proposed-awaiting-source-audit",
       "ownedSkillsStatus": "proposed-awaiting-source-audit",
-      "sharedSkillContext": "repository-operator-only"
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "drift",
+      "sourceAuditStatus": "unresolved",
+      "sourceAuditRepositories": []
     }
   ],
   "invariants": [
@@ -517,9 +581,11 @@
     "External skills remain quarantined until their independent intake gates pass.",
     "Shared operating skills resolve only for authorized repository operators and are never implicitly exposed to product end users.",
     "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active.",
-    "FCR remains the portfolio governance and approval authority; PromptOS must not create a competing approval or distribution authority."
+    "FCR remains the portfolio governance and approval authority; PromptOS must not create a competing approval or distribution authority.",
+    "A partial repository skill audit is not evidence of absence; every app profile carries explicit audit coverage and source repositories."
   ],
   "sharedSkillDistribution": "repository-operator-only",
   "governanceAuthority": "jussray/founder-control-room",
-  "governanceContract": "config/founder-intelligence.inheritance.json"
+  "governanceContract": "config/founder-intelligence.inheritance.json",
+  "sourceAudit": "src/skill-registry/repository-skill-audit.v1.json"
 }
