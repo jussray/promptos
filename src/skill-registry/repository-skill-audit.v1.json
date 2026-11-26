@@ -1870,7 +1870,7 @@
     "Protect Me Model One and Two are not yet represented in the PromptOS app manifest.",
     "Games Hub has related repositories but no canonical hub repository is established in this audit.",
     "DRIFT repository remains unresolved.",
-    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory.",
+    "Confirm whether the canonical workspace's 27 logical dispatch roles map to the 22 packaged SKILL.md exports; current repository evidence supports different counting scopes, not five missing skill files.",
     "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete."
   ],
   "governance": {
