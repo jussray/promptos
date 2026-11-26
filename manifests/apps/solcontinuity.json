@@ -106,7 +106,7 @@
     ],
     "owned": [
       {
-        "id": "goalfix",
+        "id": "solcontinuity-goalfix",
         "sourceRepository": "jussray/solcontinuity",
         "sourcePath": ".ai-skills/skills/goalfix.md",
         "sourceRevision": "2390af375b9980f5015abc146328ff90e24e4660",

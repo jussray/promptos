@@ -92,7 +92,7 @@
     ],
     "owned": [
       {
-        "id": "goalfix",
+        "id": "promptos-goalfix",
         "sourceRepository": "jussray/promptos",
         "sourcePath": ".claude/skills/goalfix/SKILL.md",
         "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",

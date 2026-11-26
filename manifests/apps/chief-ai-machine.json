@@ -153,7 +153,7 @@
         }
       },
       {
-        "id": "goalfix",
+        "id": "chief-goalfix",
         "sourceRepository": "jussray/chief-ai-machine",
         "sourcePath": ".claude/skills/goalfix/SKILL.md",
         "sourceRevision": "c154767b8e570cf50bfb7f5d8d042dbab76d7358",

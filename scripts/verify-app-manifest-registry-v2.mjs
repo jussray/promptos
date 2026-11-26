@@ -38,7 +38,9 @@ assert.ok(bip.skills.owned.some(skill=>skill.id==="bip-auth-onboarding"));
 assert.ok(pay.plugins.some(plugin=>plugin.id==="stripe"&&plugin.safetyMode==="test-only"&&plugin.liveActions==="blocked-by-product-contract"&&plugin.canonicalPluginId==="plugin_connector_690ab09fa43c8191bca40280e4563238"));
 assert.ok(pay.skills.owned.every(skill=>skill.mode==="proposal"),"JussPay skills remain proposed until source-audited");
 const sol=byId.get("solcontinuity");
-assert.ok(sol.skills.owned.some(skill=>skill.id==="goalfix"&&skill.sourcePath===".ai-skills/skills/goalfix.md"&&skill.status==="source-path-verified"));
+assert.ok(chief.skills.owned.some(skill=>skill.id==="chief-goalfix"&&skill.sourcePath===".claude/skills/goalfix/SKILL.md"));
+assert.ok(byId.get("promptos").skills.owned.some(skill=>skill.id==="promptos-goalfix"&&skill.sourcePath===".claude/skills/goalfix/SKILL.md"));
+assert.ok(sol.skills.owned.some(skill=>skill.id==="solcontinuity-goalfix"&&skill.sourcePath===".ai-skills/skills/goalfix.md"&&skill.status==="source-path-verified"));
 assert.ok(sol.skills.owned.some(skill=>skill.id==="recovery-planning"&&skill.mode==="proposal"));
 
 const duplicate=[...manifests,structuredClone(manifests[0])];
