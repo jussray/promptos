@@ -1512,7 +1512,7 @@
     },
     {
       "repository": "jussray/jbh-private",
-      "profile": "juss-beautiful-hair",
+      "profile": "juss-beautiful-hair-private-ops",
       "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
@@ -1546,7 +1546,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Juss-beautiful-hair- and jussbeautifulhair-site are separate repositories; the private operator skill is verified in jbh-private, not assumed to be present in the storefront repo."
+        "Private owner/admin, order-processing, webhook, vendor and customer-data services belong here; do not treat it as the public storefront."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -1743,7 +1743,7 @@
     },
     {
       "repository": "jussray/Juss-beautiful-hair-",
-      "profile": "juss-beautiful-hair-main",
+      "profile": "juss-beautiful-hair-archived",
       "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
@@ -1756,7 +1756,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Repository is archived. Its legacy storefront operator skill is historical only."
+        "Repository is archived. Its jbh-legacy-storefront-operator package is historical only."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2064,7 +2064,7 @@
     },
     {
       "repository": "jussray/Sekret-Bip-Parents",
-      "profile": "related-repository",
+      "profile": "sekret-bip-parent-side",
       "skillSources": [
         {
           "id": "do-not-use-archive",
@@ -2076,7 +2076,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Dedicated parent-side product repository for parent.sekretbip.net; active parent-only scope is confirmed by AGENTS.md and PARENT_APP_ROLE.md.",
+        "Dedicated parent-side product repository for parent.sekretbip.net; active parent-only scope is confirmed by AGENTS.md, PARENT_APP_ROLE.md and PARENT_PORTAL.md.",
         "The only SKILL.md path is do-not-use-archive, a preserved legacy instruction pointing at an unrelated historical repo; do not load it as the active parent skill."
       ],
       "treeSnapshot": {
@@ -2098,7 +2098,7 @@
     },
     {
       "repository": "jussray/Sekret-Bip-Bridge",
-      "profile": "related-repository",
+      "profile": "sekret-bip-bridge-redirect-only",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
@@ -2116,7 +2116,7 @@
     },
     {
       "repository": "jussray/Bip-Jr",
-      "profile": "related-repository",
+      "profile": "bip-jr-redirect-only",
       "skillSources": [
         {
           "id": "sekret-bip-jr-operator",
@@ -2149,7 +2149,7 @@
     },
     {
       "repository": "jussray/jussbeautifulhair1",
-      "profile": "related-repository",
+      "profile": "juss-beautiful-hair-historical",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
@@ -2185,7 +2185,7 @@
     },
     {
       "repository": "jussray/untold-stories-storefront",
-      "profile": "related-repository",
+      "profile": "untold-stories-storefront",
       "skillSources": [
         {
           "id": "devil",
@@ -2218,7 +2218,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "Standalone Shopify Hydrogen storefront; current main is source authority, but production readiness still requires live Shopify/catalog/cart/checkout evidence."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2256,8 +2256,7 @@
       "lockfiles": [],
       "notes": [
         "skills/juss-authored/MANIFEST.md reports 36 first-party exported skills; the complete repository tree has 43 SKILL.md file instances across multiple adapter/export locations.",
-        "skills/juss-authored/README.md describes this as a first-party export/mirror and records known byte differences from ULTRATHINK and FCR copies; do not silently overwrite divergent copies.",
-        "MANIFEST.md blob: 63e0f9d23ec0464abf5b707c4ead5c66fe7aa87f; README blob: 747f2bcc7b2c38f61c203009183a7c6259a8b6c8; SHA256SUMS blob: e834653d7fa89c5be0f9c7dbe2cc3c48ada9f448."
+        "skills/juss-authored/README.md describes this as a first-party export/mirror and records known byte differences from ULTRATHINK and FCR copies; do not silently overwrite divergent copies."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2718,7 +2717,7 @@
     },
     {
       "repository": "jussray/make-video-",
-      "profile": "related-repository",
+      "profile": "makevideo",
       "skillSources": [
         {
           "id": "cinematic-image-to-code",
@@ -2730,7 +2729,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "Standalone browser storyboard and animatic studio; README explicitly says it is not the production AI renderer. StoryEngine owns provider rendering; FCR owns publication authority."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2913,7 +2912,7 @@
     },
     {
       "repository": "jussray/steel-city",
-      "profile": "related-repository",
+      "profile": "steel-city-game",
       "skillSources": [
         {
           "id": "cinematic-image-to-code",
@@ -2925,7 +2924,7 @@
       ],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "Existing Pittsburgh-inspired browser game. AGENTS.md requires the shared cinematic-image-to-code skill for approved visual implementation and real browser proof."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -4715,7 +4714,8 @@
       "name": "aegis",
       "version": "1.1",
       "classification": "standalone-defensive-security-skill",
-      "executionStatus": "catalog-only"
+      "executionStatus": "catalog-only",
+      "governance": "FCR external security skill catalog is read-only; execution, auto-fetch and auto-handoff are disabled."
     },
     {
       "repository": "jussray/sarissa",
@@ -4724,7 +4724,8 @@
       "name": "sarissa",
       "version": "1.0",
       "classification": "standalone-authorized-security-assessment-skill",
-      "executionStatus": "catalog-only"
+      "executionStatus": "catalog-only",
+      "governance": "FCR external security skill catalog is read-only; execution, auto-fetch and auto-handoff are disabled."
     },
     {
       "repository": "jussray/medusa",
@@ -4733,7 +4734,8 @@
       "name": "medusa",
       "version": "1.1",
       "classification": "standalone-deep-red-team-skill",
-      "executionStatus": "catalog-only"
+      "executionStatus": "catalog-only",
+      "governance": "FCR external security skill catalog is read-only; execution, auto-fetch and auto-handoff are disabled."
     }
   ]
 }
