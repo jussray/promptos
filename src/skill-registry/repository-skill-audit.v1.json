@@ -1723,42 +1723,270 @@
     },
     {
       "repository": "jussray/sync-party-game",
-      "profile": "games-hub-related-sync",
-      "inventoryStatus": "search-index-no-skill-match",
+      "profile": "sync-party-game",
+      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "AGENTS.md exists and defines the product/runtime contract; no indexed SKILL.md package was found in this pass."
+        "README and AGENTS define SYNC as an independent game authority; FCR observes privacy-safe evidence only.",
+        "discovery/capabilities.json still declares verifiedCapabilities as an empty array; capability evidence here is repository-source inspection, not a promoted runtime discovery claim."
+      ],
+      "sourceCommit": "ed90db9ea3d25beee95744ce3438ff7e7e79c157",
+      "capabilityEvidence": [
+        {
+          "id": "room-state-authority",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/game.js",
+            "AGENTS.md"
+          ],
+          "summary": "GameRoom/Durable Object owns multiplayer room state and enforces host, phase, choice and round rules."
+        },
+        {
+          "id": "private-choice-reveal",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/game.js",
+            "test/game.test.mjs"
+          ],
+          "summary": "Choices stay private through locked phase and reveal only after the server-controlled reveal transition."
+        },
+        {
+          "id": "multiplayer-reconnect",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "README.md",
+            "e2e/multiplayer.spec.js"
+          ],
+          "summary": "Product contract includes player identity separate from connection identity and reconnect after refresh/drop."
+        },
+        {
+          "id": "privacy-safe-leaderboard",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/leaderboard.js"
+          ],
+          "summary": "Public leaderboard excludes names, room codes, player IDs, answers, tokens and exact timestamps."
+        }
+      ],
+      "evidenceFiles": [
+        {
+          "path": "AGENTS.md",
+          "blobSha": "1bfaee2b794868e1f86ce49e591640fe5eb1f882"
+        },
+        {
+          "path": "README.md",
+          "blobSha": "ef45b96ff8fcdd923b977864489a167d592f3ba7"
+        },
+        {
+          "path": "src/game.js",
+          "blobSha": "23901cc2c725409d7882c71d4f4897dcc9584580"
+        },
+        {
+          "path": "src/leaderboard.js",
+          "blobSha": "d7fbce487f45de0c2a1407c37de251dec8b648cd"
+        },
+        {
+          "path": "test/game.test.mjs",
+          "blobSha": "29a8a28fa405e29e12936d736c02811b91274fa2"
+        },
+        {
+          "path": "e2e/multiplayer.spec.js",
+          "blobSha": "cf7e5de510ad2bcb5dc6cf580b7763655586f7f1"
+        }
       ]
     },
     {
       "repository": "jussray/chatQuest",
-      "profile": "games-hub-related-chatquest",
-      "inventoryStatus": "search-index-no-skill-match",
+      "profile": "chatquest",
+      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+        "ChatQuest is a private concept preview with simulated play, not a live multiplayer service.",
+        "Guardian switches in the UI are local demonstration controls, not authenticated or server-enforced parental controls."
+      ],
+      "sourceCommit": "99db2095746a71d3cdf17f7c5c4c9b3aa4639439",
+      "capabilityEvidence": [
+        {
+          "id": "guardian-room-authorization",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/room-rules.mjs",
+            "tests/room-rules.test.mjs"
+          ],
+          "summary": "Pure room rules require guardian approval and approved membership; this is not yet a deployed authenticated guardian service."
+        },
+        {
+          "id": "preset-message-safety",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/room-rules.mjs",
+            "tests/room-rules.test.mjs"
+          ],
+          "summary": "Room actions accept only fixed preset phrases, reject unapproved members and locked rooms."
+        },
+        {
+          "id": "prototype-safety-boundary",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "index.html",
+            "tests/prototype.test.mjs"
+          ],
+          "summary": "UI explicitly labels simulated play and disables live network multiplayer, free-text chat, child accounts and external AI calls."
+        }
+      ],
+      "evidenceFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "87339b0924755e5255ddd30e4a9f2b3ab7166d91"
+        },
+        {
+          "path": "index.html",
+          "blobSha": "9b45f55822100aeeb9f8c3fc663b02b2e4ffa9c5"
+        },
+        {
+          "path": "src/room-rules.mjs",
+          "blobSha": "18fd2661e01de7390eb233706219627ef242453a"
+        },
+        {
+          "path": "tests/room-rules.test.mjs",
+          "blobSha": "760aece55f097723f054fe966adbd143cf02d952"
+        },
+        {
+          "path": "tests/prototype.test.mjs",
+          "blobSha": "47739f89717ac85be452b5475c6f37ae85f6e0ec"
+        },
+        {
+          "path": "tests/browser.test.mjs",
+          "blobSha": "03317f580eea2105f9f76b27202d1076ea88825f"
+        }
       ]
     },
     {
       "repository": "jussray/jussray-bip-and-seek",
-      "profile": "games-hub-related-bip-and-seek",
-      "inventoryStatus": "search-index-no-skill-match",
+      "profile": "bip-and-seek",
+      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+        "The Roblox experience is an independent codebase and remains distinct from the Games Hub website.",
+        "README lists Studio/runtime launch gates; source presence does not establish a public launch or verified live Studio pass."
+      ],
+      "sourceCommit": "5c9c3d16cc92e76cc9661b65b3233b6ed71eacab",
+      "capabilityEvidence": [
+        {
+          "id": "private-player-assignment",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/server/BipPlacer.luau",
+            "src/server/init.server.luau"
+          ],
+          "summary": "Server assigns a per-player hiding spot and sends only that player's assignment to their client."
+        },
+        {
+          "id": "server-validated-rewards",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/server/RewardService.luau"
+          ],
+          "summary": "Server validates round ID, assigned spot, timer, duplicate find state and distance before awarding rewards."
+        },
+        {
+          "id": "progression-persistence",
+          "status": "source-verified-capability-not-installed-skill",
+          "evidence": [
+            "src/server/RewardService.luau",
+            "src/server/DataStore.luau",
+            "README.md"
+          ],
+          "summary": "Server owns coins, streaks, finds, Bip Book, cosmetics and retrying profile persistence."
+        }
+      ],
+      "evidenceFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "fb30204751929ca24bfe09dd0f8285ce1c0a786f"
+        },
+        {
+          "path": "src/server/init.server.luau",
+          "blobSha": "f49759eb695023affb336a30fba8df2d5480f34d"
+        },
+        {
+          "path": "src/server/BipPlacer.luau",
+          "blobSha": "93754e0551a2577c782cf9c204dfe1fc48bd8b79"
+        },
+        {
+          "path": "src/server/RewardService.luau",
+          "blobSha": "9404cab3b381f2531f893ec6fc8eac15850abac7"
+        },
+        {
+          "path": "src/server/DataStore.luau",
+          "blobSha": "4fcaaa51d67fda1a38d118b0c7f96a61227cd631"
+        },
+        {
+          "path": "src/shared/Config.luau",
+          "blobSha": "49c3a208c4f122333b75bc53adc86ea0035b7801"
+        }
       ]
     },
     {
       "repository": "jussray/LUMORA",
-      "profile": "games-hub-related-lumora",
-      "inventoryStatus": "search-index-no-skill-match",
+      "profile": "lumora",
+      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+        "Trust and Delivery marks design adopted and integration unverified.",
+        "Current index.html is explicitly a prototype, not production architecture; browser proof and engine benchmark remain open."
+      ],
+      "sourceCommit": "51d35db03a6460c452a581c899d131a6082d83be",
+      "capabilityEvidence": [
+        {
+          "id": "learning-progression",
+          "status": "design-verified-capability-not-installed-skill",
+          "evidence": [
+            "docs/TRUST_AND_DELIVERY.md",
+            "README.md"
+          ],
+          "summary": "LUMORA owns learning progression; current prototype demonstrates tracing letters and numbers with local stars/progress."
+        },
+        {
+          "id": "guardian-safety-boundary",
+          "status": "design-verified-capability-not-installed-skill",
+          "evidence": [
+            "docs/TRUST_AND_DELIVERY.md",
+            "index.html"
+          ],
+          "summary": "Single-player local play is default; multiplayer, chat, profiles and online rooms are disabled in the current prototype."
+        },
+        {
+          "id": "single-player-runtime",
+          "status": "prototype-source-verified-not-production",
+          "evidence": [
+            "index.html",
+            "docs/TRUST_AND_DELIVERY.md"
+          ],
+          "summary": "Current HTML prototype has local movement and tracing; engine selection and production migration remain unverified."
+        }
+      ],
+      "evidenceFiles": [
+        {
+          "path": "README.md",
+          "blobSha": "3dc6ffddd880cd6e3ff575bbdb87303d9c936675"
+        },
+        {
+          "path": "docs/TRUST_AND_DELIVERY.md",
+          "blobSha": "4e304db96393cb22c15d9fa8416a43dfbc3bf363"
+        },
+        {
+          "path": "index.html",
+          "blobSha": "a12c6fb795b354e7f583c2676476354144fd1ecf"
+        },
+        {
+          "path": ".control-room/model-capabilities.v1.json",
+          "blobSha": "01096fe1c70b8cfb60d33d5e8ff59575511f2727"
+        }
       ]
     },
     {
@@ -2228,7 +2456,7 @@
     "DRIFT repository remains unresolved.",
     "Confirm whether the canonical workspace's 27 logical dispatch roles map to the 22 packaged SKILL.md exports; current repository evidence supports different counting scopes, not five missing skill files.",
     "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete.",
-    "Games Hub's canonical Juss & Co. workspace is verified at jussray/jussray (site/games/, Worker jussco-games). Its 43 repository-level SKILL.md files are not Games Hub-specific: none is under site/games/. The four proposed app-owned skill IDs remain unverified capabilities, not active installed skills."
+    "Games Hub and its four independent game codebases have no native SKILL.md packages in the audited main trees. Their source-verified capabilities are mapped to proposed, app-owned skill IDs in PromptOS; none is marked installed or runtime-activated. SYNC discovery capabilities remain draft with an empty verifiedCapabilities list; ChatQuest is a private simulated prototype; LUMORA integration and runtime remain unverified."
   ],
   "governance": {
     "owner": "Juss",
