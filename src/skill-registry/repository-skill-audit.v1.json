@@ -1745,10 +1745,18 @@
       "repository": "jussray/Juss-beautiful-hair-",
       "profile": "juss-beautiful-hair-main",
       "inventoryStatus": "recursive-tree-audited",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "jbh-legacy-storefront-operator",
+          "path": ".agents/skills/jbh-legacy-storefront-operator/SKILL.md",
+          "blobSha": "aaee04e8166cf5a3e05e30c6496cb307f294a7a8",
+          "status": "archived-repository-only",
+          "classification": "legacy-storefront-operator-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "Private app repository is distinct from jbh-private and jussbeautifulhair-site; no indexed SKILL.md match in this pass."
+        "Repository is archived. Its legacy storefront operator skill is historical only."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -1770,10 +1778,39 @@
       "repository": "jussray/jussbeautifulhair-site",
       "profile": "juss-beautiful-hair-storefront",
       "inventoryStatus": "recursive-tree-audited",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "devil",
+          "path": ".agents/skills/devil/SKILL.md",
+          "blobSha": "3aa9a96eadea04fa25dbc85af32dc52433380a81",
+          "status": "source-present",
+          "classification": "jbh-storefront-operator-skill"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "8b7e62ce6b131a6ad7f7cd1c77e23b0ce02fe7a8",
+          "status": "source-present",
+          "classification": "jbh-storefront-operator-skill"
+        },
+        {
+          "id": "jbh-storefront-operator",
+          "path": ".agents/skills/jbh-storefront-operator/SKILL.md",
+          "blobSha": "5371307aba0117d88a7081ee85c8672e47752aeb",
+          "status": "source-present",
+          "classification": "jbh-storefront-operator-skill"
+        },
+        {
+          "id": "sales",
+          "path": ".agents/skills/sales/SKILL.md",
+          "blobSha": "abdf5325f9737d0be1cf90e19764600ebea95cb2",
+          "status": "source-present",
+          "classification": "jbh-storefront-operator-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "No indexed SKILL.md match in this pass; storefront agent instructions and other skill formats remain to be inspected."
+        "README confirms this is the canonical public storefront authority. Private owner/admin, order-processing, webhook, and vendor control belong only in jussray/jbh-private."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2028,10 +2065,19 @@
     {
       "repository": "jussray/Sekret-Bip-Parents",
       "profile": "related-repository",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "do-not-use-archive",
+          "path": ".agents/skills/do-not-use-archive/SKILL.md",
+          "blobSha": "8576154eb7cc981310886697f0f15f147c292136",
+          "status": "legacy-archive-only",
+          "classification": "legacy-parent-portal-archive-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "Dedicated parent-side product repository for parent.sekretbip.net; active parent-only scope is confirmed by AGENTS.md and PARENT_APP_ROLE.md.",
+        "The only SKILL.md path is do-not-use-archive, a preserved legacy instruction pointing at an unrelated historical repo; do not load it as the active parent skill."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2056,7 +2102,7 @@
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "AGENTS.md explicitly marks this repository as noncanonical and investigate-only; active Se’kret Bip work belongs in jussray/Sekret-Bip."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2071,10 +2117,18 @@
     {
       "repository": "jussray/Bip-Jr",
       "profile": "related-repository",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "sekret-bip-jr-operator",
+          "path": ".agents/skills/sekret-bip-jr-operator/SKILL.md",
+          "blobSha": "ff0f8a577c3a1e4f3fca4374bb738a7f68348183",
+          "status": "redirect-only",
+          "classification": "historical-redirect-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "README describes a child-safe 5–12 experience, but AGENTS.md explicitly marks this repository investigate-only and redirects active work to jussray/Sekret-Bip. Do not treat its operator skill as active runtime authority."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2099,7 +2153,7 @@
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "README explicitly marks this repository historical source only; current public storefront authority is jussray/jussbeautifulhair-site and private owner/admin/order services belong to jussray/jbh-private."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2132,7 +2186,36 @@
     {
       "repository": "jussray/untold-stories-storefront",
       "profile": "related-repository",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "devil",
+          "path": ".agents/skills/devil/SKILL.md",
+          "blobSha": "351fef741e26d4a58de4eb918a58f3cf803bc78c",
+          "status": "source-present",
+          "classification": "untold-stories-storefront-operator-skill"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "c4302fe242f628d23f0ae160e9acb98bd78f73ff",
+          "status": "source-present",
+          "classification": "untold-stories-storefront-operator-skill"
+        },
+        {
+          "id": "sales",
+          "path": ".agents/skills/sales/SKILL.md",
+          "blobSha": "6f202595c3a906f7d3891988252704117ba11134",
+          "status": "source-present",
+          "classification": "untold-stories-storefront-operator-skill"
+        },
+        {
+          "id": "untold-stories-operator",
+          "path": ".agents/skills/untold-stories-operator/SKILL.md",
+          "blobSha": "816a45aca2175ce08ec4628ca138bd98ccc1a7fd",
+          "status": "source-present",
+          "classification": "untold-stories-storefront-operator-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
         "Repository discovered in the accessible GitHub account inventory; product classification pending."
@@ -2168,11 +2251,13 @@
     },
     {
       "repository": "jussray/jussray",
-      "profile": "related-repository",
+      "profile": "shared-skill-mirror",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
-        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+        "skills/juss-authored/MANIFEST.md reports 36 first-party exported skills; the complete repository tree has 43 SKILL.md file instances across multiple adapter/export locations.",
+        "skills/juss-authored/README.md describes this as a first-party export/mirror and records known byte differences from ULTRATHINK and FCR copies; do not silently overwrite divergent copies.",
+        "MANIFEST.md blob: 63e0f9d23ec0464abf5b707c4ead5c66fe7aa87f; README blob: 747f2bcc7b2c38f61c203009183a7c6259a8b6c8; SHA256SUMS blob: e834653d7fa89c5be0f9c7dbe2cc3c48ada9f448."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -2634,7 +2719,15 @@
     {
       "repository": "jussray/make-video-",
       "profile": "related-repository",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "cinematic-image-to-code",
+          "path": ".agents/skills/cinematic-image-to-code/SKILL.md",
+          "blobSha": "a1b081f96a7f13fa19d56687679baf19ed43e5c1",
+          "status": "source-present",
+          "classification": "shared-creative-pipeline-adapter"
+        }
+      ],
       "lockfiles": [],
       "notes": [
         "Repository discovered in the accessible GitHub account inventory; product classification pending."
@@ -2821,7 +2914,15 @@
     {
       "repository": "jussray/steel-city",
       "profile": "related-repository",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "cinematic-image-to-code",
+          "path": ".agents/skills/cinematic-image-to-code/SKILL.md",
+          "blobSha": "f52a7e341b302b2919869a57f410bf06ee51f308",
+          "status": "source-present",
+          "classification": "shared-creative-pipeline-adapter"
+        }
+      ],
       "lockfiles": [],
       "notes": [
         "Repository discovered in the accessible GitHub account inventory; product classification pending."
@@ -2993,7 +3094,8 @@
     "Games Hub has related repositories but no canonical hub repository is established.",
     "DRIFT's authoritative repository remains unresolved.",
     "Recursive tree coverage is complete for the 59 repositories visible in the connected GitHub account; repositories outside that account or other systems remain outside this snapshot.",
-    "The recursive tree records SKILL.md files only; nonstandard skill artifacts, manifests, loaders, prompt packs, and other instruction formats need separate reconciliation."
+    "The recursive tree records SKILL.md files only; nonstandard skill artifacts, manifests, loaders, prompt packs, and other instruction formats need separate reconciliation.",
+    "The account contains 59 repositories; the tree scan is complete for their main branches, but product role and skill lifecycle classification still require review for some related repositories."
   ],
   "governance": {
     "owner": "Juss",
@@ -4585,6 +4687,53 @@
       "defaultBranch": "main",
       "visibility": "public",
       "archived": false
+    }
+  ],
+  "sharedSkillLibraries": [
+    {
+      "repository": "jussray/ULTRATHINK-",
+      "role": "canonical-shared-operating-skill-source",
+      "treeSha": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "skillCount": 8,
+      "authority": "source-of-truth-for-the-eight-pinned-packages"
+    },
+    {
+      "repository": "jussray/jussray",
+      "role": "first-party-account-synced-skill-export-mirror",
+      "manifestPath": "skills/juss-authored/MANIFEST.md",
+      "manifestBlobSha": "63e0f9d23ec0464abf5b707c4ead5c66fe7aa87f",
+      "manifestDeclaredSkillCount": 36,
+      "treeSkillFileInstances": 43,
+      "authority": "mirror-export-not-canonical-for-divergent-packages"
+    }
+  ],
+  "nonstandardSkillArtifacts": [
+    {
+      "repository": "jussray/aegis",
+      "path": "skill v1",
+      "blobSha": "64ad1ca2a26a6582dbcce8a299a20692276daec3",
+      "name": "aegis",
+      "version": "1.1",
+      "classification": "standalone-defensive-security-skill",
+      "executionStatus": "catalog-only"
+    },
+    {
+      "repository": "jussray/sarissa",
+      "path": "skill v1",
+      "blobSha": "b4d322071a8461d3da71f1996fa2a50588ec5a97",
+      "name": "sarissa",
+      "version": "1.0",
+      "classification": "standalone-authorized-security-assessment-skill",
+      "executionStatus": "catalog-only"
+    },
+    {
+      "repository": "jussray/medusa",
+      "path": "medusa-v1_1-SKILL.md",
+      "blobSha": "e83d073902930b68415561b6e9ffc953467a6506",
+      "name": "medusa",
+      "version": "1.1",
+      "classification": "standalone-deep-red-team-skill",
+      "executionStatus": "catalog-only"
     }
   ]
 }
