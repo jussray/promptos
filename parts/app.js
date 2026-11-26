@@ -654,13 +654,13 @@ function boot(){
   }
   var petChoice=qs('#promptosPetChoice');
   if(petChoice) petChoice.addEventListener('change',function(){document.querySelectorAll('#promptosPet [data-pet]').forEach(function(p){p.hidden=p.dataset.pet!==petChoice.value;});});
-  function petStatus(message,busy){var p=qs('#promptosPet'),s=qs('#promptosPetStatus');if(p)p.dataset.busy=String(busy);if(s)s.textContent=message;}
+  function petStatus(message,busy,pose){var p=qs('#promptosPet'),s=qs('#promptosPetStatus');if(p){p.dataset.busy=String(busy);p.dataset.pose=pose||'idle';}if(s)s.textContent=message;}
   function runFreestyle(){
     var ask = qs('#fsAsk').value.trim();
     if (!ask) { toast('Describe what you need first'); return; }
     var plats = getSelectedPlats();
     if (!plats.length) { toast('Select at least one platform'); return; }
-    petStatus('Composing locally…',true);
+    petStatus('Composing locally…',true,'process');
     try {
     fsState = generateFreestyle(ask, plats);
     var tabs = Object.keys(fsState.versions);
@@ -687,8 +687,8 @@ function boot(){
       tabEl.appendChild(btn);
     });
     qs('#fsBody').textContent = fsState.versions[activeTab]||'';
-    petStatus('Prompt prepared locally.',false);
-    } catch(error){petStatus('Composition failed.',false);throw error;}
+    petStatus('Prompt prepared locally.',false,'inspect');
+    } catch(error){petStatus('Composition failed.',false,'error');throw error;}
   }
 
   qs('#fsGenerate').addEventListener('click', runFreestyle);
