@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto';
-
 export const AI_MASTERY_V6_CONTRACT = 'promptos/ai-mastery-v6@6.0.0';
 export const SIGNAL_CONTRACT = 'juss/founder-signal@v1';
 
@@ -142,7 +140,13 @@ const REPAIR_OS_LABELS = Object.freeze({
 function clean(value, max = 2000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
-function sha(value) { return createHash('sha256').update(value).digest('hex'); }
+async function sha(value) {
+  if (!globalThis.crypto?.subtle || typeof TextEncoder === 'undefined') {
+    throw new Error('Web Crypto SHA-256 is unavailable; signal fingerprint was not created');
+  }
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
 function uniq(values = []) { return [...new Set(Array.isArray(values) ? values.map(v => clean(v, 200)).filter(Boolean) : [])]; }
 
 function kernelOrderText() {
@@ -220,7 +224,7 @@ export function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unk
     selectedMode: MODE_SET.has(mode) ? mode : '', fingerprint: clean(fingerprint, 256),
     proofCookie: clean(proofCookie, 512), correlationId: clean(correlationId, 160),
   };
-  body.signalHash = sha(JSON.stringify(body));
+  body.signalHash = await sha(JSON.stringify(body));
   return body;
 }
 
