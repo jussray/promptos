@@ -54,7 +54,8 @@ async function verifyIdentity(request, env) {
     const jwk = keys.keys?.find(k => k.kid === header.kid && k.kty === 'RSA' && (!k.alg || k.alg === 'RS256'));
     if (!jwk) return false;
     const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
-    return await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, decode64(parts[2]), enc.encode(parts[0] + '.' + parts[1]));
+    const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, decode64(parts[2]), enc.encode(parts[0] + '.' + parts[1]));
+    return valid ? 'https://accounts.google.com#' + claims.sub : false;
   } catch { return false; }
 }
 
@@ -90,7 +91,8 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
     return replyJson({ error: 'sandbox_checkout_disabled' }, 503);
   }
   if (!env.PROMPTOS_JUSSPAY?.fetch) return replyJson({ error: 'billing unavailable', paid: false }, 503);
-  if (!(await verifyIdentity(request, env))) return replyJson({ error: 'sign in required', paid: false }, 401);
+  const subject = await verifyIdentity(request, env);
+  if (!subject) return replyJson({ error: 'sign in required', paid: false }, 401);
   if (checkoutRoute) {
     const result = await handleIntroBilling(request, env, pathname);
     return replyJson(result.body, result.status);
@@ -99,7 +101,7 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
     const paid = await eligibleInJussPay(request, env);
     if (pathname === '/billing/entitlement') return replyJson({ paid }, 200);
     return paid
-      ? replyJson({ admitted: true, persistence: 'session-only' }, 200)
+      ? replyJson({ admitted: true, persistence: 'session-only', subject }, 200)
       : replyJson({ error: 'paid account required' }, 402);
   } catch {
     return replyJson({ error: 'JussPay verification unavailable', paid: false }, 503);
