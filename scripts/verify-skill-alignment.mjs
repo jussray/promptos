@@ -39,7 +39,7 @@ for (const app of manifest.apps) {
 }
 
 assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
-assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, null, 'unverified Games Hub repository must not be invented');
+assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, 'jussray/jussray', 'Games Hub belongs to the canonical Juss & Co. workspace');
 assert.equal(manifest.apps.find((app) => app.id === 'drift').repository, null, 'unverified DRIFT repository must not be invented');
 
 const chief = resolveAppSkillSet(manifest, 'chief-ai-machine');
@@ -129,8 +129,10 @@ assert.ok(promptosInventory.some((skill) => skill.id === 'local-devil' && skill.
 assert.ok(!promptosInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'active-export'), 'retired exports must never be promoted to active');
 
 const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceInventory;
-assert.equal(gamesInventory.records.length, 4, 'Games Hub must preserve all four related repository inventories without inventing a canonical hub repository');
+assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canonical Juss & Co. workspace and all four related game repositories');
 assert.equal(gamesInventory.skills.length, 0, 'a repository search with no skill matches must not fabricate skills');
+assert.equal(gamesInventory.repositoriesWithoutInventoryRecord.length, 0, 'every Games Hub source repository must have an audit record');
+assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-no-native-skill-package-confirmed');
 
 const driftInventory = resolveAppSkillSet(manifest, 'drift', audit).sourceInventory;
 assert.equal(driftInventory.records.length, 0);
