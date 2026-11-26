@@ -13,6 +13,8 @@ export function validatePortfolioManifest(manifest) {
   if (manifest.authority !== 'catalog-and-compatibility-only') errors.push('registry authority must remain catalog-and-compatibility-only');
   if (manifest.sharedSkillDistribution !== 'repository-operator-only') errors.push('shared skills must remain repository-operator-only');
   if (manifest.governanceAuthority !== 'jussray/founder-control-room' || manifest.governanceContract !== 'config/founder-intelligence.inheritance.json') errors.push('FCR governance authority reference is required');
+  if (!Array.isArray(manifest.sharedSkillMirrors) || manifest.sharedSkillMirrors.some((mirror) => mirror.authority !== 'export-mirror-not-canonical')) errors.push('shared skill mirrors must remain non-canonical');
+  if (!Array.isArray(manifest.additionalSkillLibraries) || manifest.additionalSkillLibraries.some((library) => library.executionAllowed !== false || library.autoFetch !== false || library.autoHandoff !== false)) errors.push('additional skill libraries must remain discovery-only and execution-disabled');
   if (!Array.isArray(manifest.sharedSkills) || !Array.isArray(manifest.apps)) {
     return [...errors, 'sharedSkills and apps must be arrays'];
   }
@@ -89,6 +91,9 @@ export function resolveAppSkillSet(manifest, appId) {
     sourceAudit: { record: app.sourceAuditRecord, status: app.sourceAuditStatus, repositories: [...app.sourceAuditRepositories] },
     compatibility: { ...app.compatibility },
     governanceAuthority: manifest.governanceAuthority,
+    sharedSkillSource: manifest.sharedSkillSource,
+    sharedSkillMirrors: manifest.sharedSkillMirrors,
+    additionalSkillLibraries: manifest.additionalSkillLibraries,
     authority: 'catalog-and-compatibility-only',
   };
 }
