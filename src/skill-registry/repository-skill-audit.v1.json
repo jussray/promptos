@@ -1812,7 +1812,7 @@
           "classification": "repository-skill-source-pending-review"
         },
         {
-          "id": "juss-os",
+          "id": "protect-me-juss-os-profile",
           "path": "contract/profiles/juss-os/SKILL.md",
           "blobSha": "f670131625d7c4fe2e3a226a2477ad88117b250c",
           "status": "source-present-pending-content-review",
