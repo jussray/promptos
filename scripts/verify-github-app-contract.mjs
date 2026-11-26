@@ -62,6 +62,8 @@ for (const requiredSignal of [
   'approvalCarriedForward: false',
 ]) {
   assert.ok(relay.includes(requiredSignal), 'relay contract drifted: ' + requiredSignal);
+assert.ok(relay.includes('stableDeliveryIds(deliveryId, issuedAt)'), 'delivery retries must retain deterministic relay IDs');
+assert.ok(relay.includes('issueComment.updated_at || issueComment.created_at'), 'edited comments must use a stable event timestamp');
 }
 
 for (const forbidden of [
