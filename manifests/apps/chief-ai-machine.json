@@ -6,7 +6,7 @@
     "name": "Chief AI Machine",
     "repository": "chief-ai-machine",
     "defaultBranch": "main",
-    "sourceHeadAtAudit": "ed859f441d45a1258fa7d579d3eb9082d9ca3135",
+    "sourceHeadAtAudit": "c154767b8e570cf50bfb7f5d8d042dbab76d7358",
     "identityStatus": "source-verified",
     "role": "standalone-agent-orchestration-cognition-and-capability-proposal-layer",
     "authorityOwner": "chief-ai-machine",
@@ -220,6 +220,29 @@
             "mobile"
           ]
         }
+      },
+      {
+        "id": "gmail-resolve",
+        "sourceRepository": "jussray/chief-ai-machine",
+        "sourcePath": "skills/gmail-resolve/SKILL.md",
+        "sourceRevision": "c154767b8e570cf50bfb7f5d8d042dbab76d7358",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "draft",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "chief-ai-machine",
+        "compatibility": {
+          "apps": [
+            "chief-ai-machine"
+          ],
+          "surfaces": [
+            "web",
+            "worker",
+            "api",
+            "mobile"
+          ]
+        }
       }
     ],
     "ownedSkillsStatus": "source-path-verified"
@@ -296,6 +319,63 @@
       "capabilities": [
         "aws.resource.read",
         "aws.infrastructure.inspect"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "atlassian",
+      "provider": "Atlassian",
+      "purpose": "Jira, Confluence, Bitbucket and internal engineering knowledge.",
+      "capabilities": [
+        "jira.issue.read",
+        "confluence.page.read",
+        "bitbucket.repo.read"
+      ],
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "chief-ai-machine"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "gmail",
+      "provider": "Gmail",
+      "purpose": "Scoped mail search, thread reading, and draft creation for outcome-oriented workflows.",
+      "capabilities": [
+        "mail.search",
+        "mail.thread.read",
+        "mail.draft.create"
+      ],
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "chief-ai-machine"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "google-calendar",
+      "provider": "Google Calendar",
+      "purpose": "Availability and event evidence for scheduling workflows.",
+      "capabilities": [
+        "calendar.availability.read",
+        "calendar.event.read",
+        "calendar.event.draft"
+      ],
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "chief-ai-machine"
       ],
       "writePolicy": "explicit-action-approval-required",
       "secretsPolicy": "never-store-in-manifest"
