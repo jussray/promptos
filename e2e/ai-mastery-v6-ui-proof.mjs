@@ -70,10 +70,12 @@ async function prove(browser, viewport) {
     executionAuthorized: false,
     nextRequiredContract: 'juss-v10/capability-plan@v1',
   };
+  await page.locator('#v6Mode').selectOption('task-prioritizer');
   await page.locator('#v6Inbound').fill(JSON.stringify(fcrResponse));
   await page.locator('#v6Receive').click();
   const received = JSON.parse(await page.locator('#v6InboundOutput').innerText());
-  assert(received.valid === true && received.selectedMode === 'workflow-optimizer', 'FCR/Chief intake did not compile');
+  assert(received.valid === true && received.selectedMode === 'workflow-optimizer', 'FCR/Chief intake did not preserve the original specialist mode');
+  assert(received.goal === 'Connect the existing V6 compiler to the actual PromptOS UI without granting authority.', 'FCR/Chief intake did not recover the original goal');
   assert(received.senderAuthenticated === false && received.signalFingerprintVerified === false, 'pasted FCR receipt must not be treated as authenticated');
   assert(received.approvalVerified === false && received.executionAuthorized === false && received.authorityState === 'unresolved', 'FCR/Chief intake crossed an authority boundary');
 
