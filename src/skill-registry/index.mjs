@@ -74,17 +74,82 @@ export function validatePortfolioManifest(manifest) {
   return errors;
 }
 
-export function resolveAppSkillSet(manifest, appId) {
+export function validateRepositorySkillAudit(audit) {
+  const errors = [];
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) return ['repository skill audit must be an object'];
+  if (audit.schemaVersion !== '1.0') errors.push('repository skill audit schemaVersion must be 1.0');
+  if (audit.registry !== 'promptos/repository-skill-audit') errors.push('unexpected repository skill audit identity');
+  if (!Array.isArray(audit.records)) return [...errors, 'repository skill audit records must be an array'];
+
+  const profiles = new Set();
+  const repositories = new Set();
+  for (const record of audit.records) {
+    if (!record.profile || profiles.has(record.profile)) errors.push(`missing or duplicate audit profile: ${record.profile}`);
+    profiles.add(record.profile);
+    if (record.repository === null) {
+      if (record.inventoryStatus !== 'unresolved-repository') errors.push(`null repository must be explicitly unresolved: ${record.profile}`);
+    } else {
+      if (typeof record.repository !== 'string' || !record.repository.includes('/')) errors.push(`invalid repository identity: ${record.profile}`);
+      if (repositories.has(record.repository)) errors.push(`duplicate repository inventory: ${record.repository}`);
+      repositories.add(record.repository);
+    }
+    if (!record.inventoryStatus || !Array.isArray(record.skillSources)) errors.push(`audit inventory metadata incomplete: ${record.profile}`);
+    const sourcePaths = new Set();
+    for (const source of record.skillSources ?? []) {
+      if (!source.id || !source.status || !source.classification) errors.push(`skill source classification incomplete: ${record.profile}`);
+      if (typeof source.path !== 'string' || !source.path.endsWith('/SKILL.md') || source.path.startsWith('/') || source.path.includes('..')) errors.push(`invalid skill source path: ${record.profile}/${source.id}`);
+      if (!/^[0-9a-f]{40}$/.test(source.blobSha ?? '')) errors.push(`skill source blob SHA must be pinned: ${record.profile}/${source.id}`);
+      if (sourcePaths.has(source.path)) errors.push(`duplicate skill source path: ${record.profile}/${source.path}`);
+      sourcePaths.add(source.path);
+    }
+  }
+  return errors;
+}
+
+export function resolveAppSourceInventory(audit, app) {
+  const errors = validateRepositorySkillAudit(audit);
+  if (errors.length) throw new Error(`Invalid repository skill audit: ${errors.join('; ')}`);
+  const expectedRepositories = new Set(app.sourceAuditRepositories ?? []);
+  const records = audit.records.filter((record) => record.repository && expectedRepositories.has(record.repository));
+  const representedRepositories = new Set(records.map((record) => record.repository));
+  const skills = records.flatMap((record) => record.skillSources.map((source) => ({
+    id: source.id,
+    sourceRepository: record.repository,
+    sourceProfile: record.profile,
+    sourcePath: source.path,
+    blobSha: source.blobSha,
+    status: source.status,
+    classification: source.classification,
+  })));
+  return {
+    records: records.map((record) => ({
+      profile: record.profile,
+      repository: record.repository,
+      inventoryStatus: record.inventoryStatus,
+      skillCount: record.skillSources.length,
+    })),
+    skills,
+    repositoriesWithoutInventoryRecord: [...expectedRepositories].filter((repository) => !representedRepositories.has(repository)),
+  };
+}
+
+export function loadRepositorySkillAudit(path = new URL('./repository-skill-audit.v1.json', import.meta.url)) {
+  return JSON.parse(fs.readFileSync(path, 'utf8'));
+}
+
+export function resolveAppSkillSet(manifest, appId, audit = loadRepositorySkillAudit()) {
   const errors = validatePortfolioManifest(manifest);
   if (errors.length) throw new Error(`Invalid skill manifest: ${errors.join('; ')}`);
   const app = manifest.apps.find((entry) => entry.id === appId);
   if (!app) throw new Error(`Unknown app: ${appId}`);
   const sharedById = new Map(manifest.sharedSkills.map((skill) => [skill.id, skill]));
+  const sourceInventory = resolveAppSourceInventory(audit, app);
   return {
     app: { id: app.id, name: app.name, repository: app.repository, role: app.role, catalogStatus: app.catalogStatus, ownedSkillsStatus: app.ownedSkillsStatus },
     authorityOwner: app.authorityOwner,
     sharedSkills: app.sharedSkills.map((id) => ({ ...sharedById.get(id), scope: 'repository-operator-shared-reference' })),
     ownedSkills: app.ownedSkills.map((id) => ({ id, scope: 'proposed-app-owned', owner: app.id, status: app.ownedSkillsStatus })),
+    sourceInventory,
     skillContext: app.sharedSkillContext,
     sourceAudit: { record: app.sourceAuditRecord, status: app.sourceAuditStatus, repositories: [...app.sourceAuditRepositories] },
     compatibility: { ...app.compatibility },
