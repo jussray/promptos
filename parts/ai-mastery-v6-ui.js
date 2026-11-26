@@ -1,4 +1,4 @@
-import { MODES, compileV6Prompt, buildPromptOSSignal, validateFounderSignal } from '../src/ai-mastery-v6.mjs';
+import { MODES, compileV6Prompt, validateFounderSignal } from '../src/ai-mastery-v6.mjs';
 
 const MODE_LABELS = {
   'mission-sprint': 'Deep Work / Mission Sprint',
@@ -67,6 +67,7 @@ function installPage() {
             <div class="v6-section">01 · Founder intent</div>
             <div class="v6-field"><label for="v6Mode">Specialist mode</label><select id="v6Mode"></select></div>
             <div class="v6-field"><label for="v6Intent">Intent / command</label><input id="v6Intent" value="repair verify workflow" maxlength="120"></div>
+            <div class="v6-field"><label for="v6Project">FCR project slug</label><input id="v6Project" value="promptos" maxlength="80" pattern="[a-z0-9][a-z0-9-]{0,79}"></div>
             <div class="v6-field"><label for="v6Goal">Desired outcome</label><textarea id="v6Goal" placeholder="Describe the outcome, not just the activity.">Connect the approved AI Mastery V6 workflow to the real PromptOS application and governed Chief/FCR handoffs.</textarea></div>
             <div class="v6-actions"><button class="mini-btn solid" id="v6Compile" type="button">Compile V6 prompt</button><button class="mini-btn" id="v6CopyPrompt" type="button">Copy prompt</button></div>
             <div class="v6-status" id="v6CompileStatus" role="status" aria-live="polite"></div>
@@ -77,18 +78,17 @@ function installPage() {
           </section>
           <section class="v6-panel">
             <div class="v6-section">03 · Receive Chief / FCR proposal</div>
-            <div class="v6-field"><label for="v6Inbound">Paste inbound JSON signal</label><textarea id="v6Inbound" placeholder='{"contract":"juss/founder-signal@v1","source":"chief","target":"promptos","intent":"plan","goal":"..."}'></textarea></div>
+            <div class="v6-field"><label for="v6Inbound">Paste the FCR response JSON</label><textarea id="v6Inbound" placeholder='{"intake":{"contract":"juss/fcr-public-command-intake@v1","receivedFrom":"chief-ai-machine","authorityState":"unresolved",...},"proposalOnly":true,"executionAuthorized":false}'></textarea></div>
             <div class="v6-actions"><button class="mini-btn solid" id="v6Receive" type="button">Validate &amp; compile proposal</button></div>
             <div class="v6-status" id="v6ReceiveStatus" role="status" aria-live="polite"></div>
             <pre class="v6-output" id="v6InboundOutput">No inbound proposal received in this session.</pre>
           </section>
           <section class="v6-panel">
-            <div class="v6-section">04 · Prepare outbound handoff</div>
-            <div class="v6-field"><label for="v6Target">Recipient</label><select id="v6Target"><option value="fcr">Founder Control Room (authority &amp; execution)</option><option value="chief">Chief (reasoning &amp; decomposition)</option></select></div>
-            <div class="v6-note">Outbound signals are advisory. Approval is always false, authority is none, and evidence remains UNKNOWN until independently established by the receiving system.</div>
-            <div class="v6-actions"><button class="mini-btn solid" id="v6BuildSignal" type="button">Build handoff JSON</button><button class="mini-btn" id="v6CopySignal" type="button">Copy handoff</button></div>
+            <div class="v6-section">04 · Prepare the canonical FCR → Chief request</div>
+            <div class="v6-note">This emits the existing <b>promptos/public-command-intent@v1</b> contract accepted by FCR's founder-authenticated <code>/promptos/command-intake</code> route. It does not transmit the request or grant authority.</div>
+            <div class="v6-actions"><button class="mini-btn solid" id="v6BuildSignal" type="button">Build FCR command request</button><button class="mini-btn" id="v6CopySignal" type="button">Copy request JSON</button></div>
             <div class="v6-status" id="v6SignalStatus" role="status" aria-live="polite"></div>
-            <pre class="v6-output" id="v6SignalOutput">No outbound signal prepared.</pre>
+            <pre class="v6-output" id="v6SignalOutput">No FCR command request prepared.</pre>
           </section>
           <section class="v6-panel v6-full">
             <div class="v6-section">Operating contract</div>
@@ -98,7 +98,7 @@ Chief: interpret, reason, prioritize and propose.
 PromptOS: own the V6 workflow, compiler and signal contract.
 FCR: resolve current project authority, execute only approved capabilities, verify outcomes and issue receipts.
 
-Fingerprints and SHA-256 signal hashes are integrity/continuity markers only. They are not signatures, sender authentication, consent, approval or execution authority.</div>
+The canonical PromptOS → FCR → Chief path is proposal-only. FCR authenticates the founder before its private Chief RPC. Chief's response remains unresolved until FCR independently resolves authority. Copied fingerprints and release identifiers are not verified by this browser.</div>
           </section>
         </div>
       </section>`);
@@ -182,6 +182,65 @@ async function init() {
   $('#v6Receive').addEventListener('click', () => {
     try {
       const raw = JSON.parse($('#v6Inbound').value);
+      const intake = raw?.intake;
+      if (intake && intake.contract === 'juss/fcr-public-command-intake@v1') {
+        const valid = raw.proposalOnly === true
+          && raw.acceptedForAuthorityResolution === false
+          && raw.executionAuthorized === false
+          && intake.receivedFrom === 'chief-ai-machine'
+          && intake.acceptedForCapabilityPlanning === true
+          && intake.acceptedForAuthorityResolution === false
+          && intake.authorityState === 'unresolved'
+          && intake.actionAuthority === false
+          && intake.executionAuthorized === false
+          && intake.nextRequiredContract === 'juss-v10/capability-plan@v1'
+          && typeof intake.requestedOutcome === 'string'
+          && intake.requestedOutcome.trim().length > 0
+          && typeof intake.project === 'string'
+          && typeof intake.chiefReleaseSha === 'string';
+        if (!valid) {
+          $('#v6InboundOutput').textContent = JSON.stringify({valid:false, reason:'FCR intake did not satisfy the proposal-only contract'}, null, 2);
+          setStatus('#v6ReceiveStatus', 'Rejected: FCR intake contract or authority boundary invalid.');
+          return;
+        }
+        const input = {
+          contract: 'juss/founder-signal@v1',
+          source: 'chief',
+          target: 'promptos',
+          intent: 'plan',
+          goal: intake.requestedOutcome,
+          evidenceClass: 'unknown',
+          authority: 'none',
+          approved: false,
+          requestedMode: $('#v6Mode').value,
+        };
+        const compiled = compileV6Prompt(input);
+        if (!compiled.selected) {
+          $('#v6InboundOutput').textContent = JSON.stringify({valid:true, selected:false, reason:compiled.reason, errors:compiled.errors}, null, 2);
+          setStatus('#v6ReceiveStatus', 'Received but not routed: no safe specialist match.');
+          return;
+        }
+        $('#v6InboundOutput').textContent = JSON.stringify({
+          valid: true,
+          receivedFrom: intake.receivedFrom,
+          senderAuthenticated: false,
+          signalFingerprintVerified: false,
+          chiefReleaseShaClaim: intake.chiefReleaseSha,
+          project: intake.project,
+          sourceIntentFingerprint: intake.sourceIntentFingerprint,
+          chiefHandoffFingerprint: intake.chiefHandoffFingerprint,
+          authorityState: intake.authorityState,
+          approvalVerified: false,
+          executionAuthorized: false,
+          authorityEffect: 'none',
+          selectedMode: compiled.mode,
+          goal: intake.requestedOutcome,
+          compiledPrompt: compiled.prompt,
+        }, null, 2);
+        setStatus('#v6ReceiveStatus', 'FCR proposal received and compiled. Release identity, sender, and approval are not independently verified here.');
+        return;
+      }
+
       const input = {
         ...raw,
         requestedMode: raw.requestedMode || raw.selectedMode || '',
@@ -218,28 +277,33 @@ async function init() {
       setStatus('#v6ReceiveStatus', 'Rejected: inbound content is not valid JSON.');
     }
   });
-  $('#v6BuildSignal').addEventListener('click', async () => {
-    try {
-      const input = readIntent();
-      const signal = await buildPromptOSSignal({
-        target: $('#v6Target').value,
-        intent: input.intent,
-        goal: input.goal,
-        evidenceClass: 'unknown',
-        authority: 'none',
-        approved: false,
-        mode: input.requestedMode,
-      });
-      $('#v6SignalOutput').textContent = JSON.stringify(signal, null, 2);
-      setStatus('#v6SignalStatus', `Prepared advisory signal for ${signal.target}. Not transmitted.`);
-    } catch (error) {
-      $('#v6SignalOutput').textContent = error instanceof Error ? error.message : 'Signal creation failed.';
-      setStatus('#v6SignalStatus', 'Signal creation failed.');
+  $('#v6BuildSignal').addEventListener('click', () => {
+    const project = $('#v6Project').value.trim().toLowerCase();
+    const goal = $('#v6Goal').value.trim().slice(0, 2000);
+    const mode = $('#v6Mode').value;
+    if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(project) || !goal) {
+      $('#v6SignalOutput').textContent = 'A valid project slug and a non-empty goal are required.';
+      setStatus('#v6SignalStatus', 'Request not built: check project slug and goal.');
+      return;
     }
+    const intent = {
+      schema: 'promptos/public-command-intent@v1',
+      command: { id: 'ai-mastery-v6', token: '/ai-mastery-v6', category: 'ai-mastery', label: 'AI Mastery V6' },
+      arguments: `Mode: ${mode}. Outcome: ${goal}`,
+      project,
+      capabilityId: 'ai-mastery-v6',
+      route: { owner: 'promptos', reasoningPlane: 'chief-ai-machine', specialistProduct: project, authorityPlane: 'founder-control-room' },
+      authorityCeiling: 'advisory-only',
+      execution: { status: 'not-executed', mutationAuthorized: false },
+      evidence: { contract: 'current-authority', staleOnStateChange: true },
+      catalogQuery: `AI Mastery V6 ${mode}`,
+    };
+    $('#v6SignalOutput').textContent = JSON.stringify({intent}, null, 2);
+    setStatus('#v6SignalStatus', 'Canonical FCR request prepared. Founder authentication is required before FCR forwards it to Chief.');
   });
   $('#v6CopySignal').addEventListener('click', async () => {
     const value = $('#v6SignalOutput').textContent;
-    if (!value || value.startsWith('No outbound signal')) return;
+    if (!value || value.startsWith('No FCR command request')) return;
     setStatus('#v6SignalStatus', await copyText(value) ? 'Handoff JSON copied.' : 'Clipboard unavailable; select and copy the output.');
   });
   window.PROMPTOS_AI_MASTERY_V6_UI_VERSION = 'promptos-ai-mastery-v6-ui-v1';
