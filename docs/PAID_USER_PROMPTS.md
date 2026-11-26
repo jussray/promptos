@@ -4,7 +4,7 @@
 
 ## Product rule
 
-The curated PromptOS catalog and guest onboarding stay free. Saving personal prompts (New Prompt, Builder save, Freestyle save and custom JSON import) requires a signed-in visitor with a current JussPay entitlement: `product: promptos`, `entitlements` including `promptos.personal_prompts`, `until` strictly in the future. Rejected saves preserve unsaved form inputs. Saved custom prompts are session-only; there is no claim of FCR-backed persistence.
+Anonymous visitors see only the public welcome and explicit account onboarding. A server-verified free account receives a separate beginner-only library; the full curated catalog, builder, freestyle, workflows and personal prompt tools require paid admission. The initial beginner collection is a candidate selection, not a verified canonical catalog classification. Current static app assets still require server-side protection before a production release. Saving personal prompts (New Prompt, Builder save, Freestyle save and custom JSON import) requires a signed-in visitor with a current JussPay entitlement: `product: promptos`, `entitlements` including `promptos.personal_prompts`, `until` strictly in the future. Rejected saves preserve unsaved form inputs. Saved custom prompts are session-only; there is no claim of FCR-backed persistence.
 
 ## Payment authority
 
