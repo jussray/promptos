@@ -522,6 +522,16 @@
       "notes": [
         "Protect Me Model Two is outside the initial 12-profile manifest; include it in the next portfolio pass."
       ]
+    },
+    {
+      "profile": "drift",
+      "repository": null,
+      "inventoryStatus": "unresolved-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "DRIFT's authoritative repository has not been identified; no repository was guessed."
+      ]
     }
   ],
   "retirementReview": {
