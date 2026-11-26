@@ -74,6 +74,18 @@ export const CHALLENGE_LENS_SEMANTICS = Object.freeze({
       'do-not-scale-an-unproven-path',
     ]),
   }),
+  garyvee: Object.freeze({
+    role: 'founder-value-and-distribution',
+    objective: 'real_human_and_market_outcomes',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'test-practical-founder-and-customer-value',
+      'identify-audience-reality-and-specific-user-need',
+      'remove-distribution-and-adoption-friction',
+      'prefer-authentic-proof-over-hype-or-vanity-metrics',
+      'measure-real-human-outcomes-without-inventing-demand-or-earnings',
+    ]),
+  }),
   elonmusk: Object.freeze({
     role: 'first-principles-execution',
     objective: 'upside_growth',
@@ -166,8 +178,10 @@ function repairOSOrderText() {
 function challengeLensText() {
   const bill = CHALLENGE_LENS_SEMANTICS.billgates;
   const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
+  const gary = CHALLENGE_LENS_SEMANTICS.garyvee;
   return [
     `BILLGATES lens (${bill.objective}): identify the bottleneck and highest-leverage point; prefer stable options, reversible changes, generated docs, shared fixtures, and reusable artifacts; standardize proven paths before scaling and do not scale unproven paths. Authority effect: ${bill.authorityEffect}.`,
+    `GARYVEE lens (${gary.objective}): test practical founder and customer value; identify the real audience and user need; remove distribution and adoption friction; prefer authentic proof over hype or vanity metrics; measure human outcomes without inventing demand or earnings. Authority effect: ${gary.authorityEffect}.`,
     `ELONMUSK lens (${elon.objective}): question requirements; delete before optimizing; simplify from first principles; prefer fast small reversible experiments; accelerate feedback and automate last. Authority effect: ${elon.authorityEffect}.`,
   ];
 }
