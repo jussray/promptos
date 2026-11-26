@@ -175,7 +175,7 @@ function challengeLensText() {
 export function normalizeFounderSignal(input = {}) {
   const signal = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   return {
-    contract: SIGNAL_CONTRACT,
+    contract: clean(signal.contract, 80),
     source: clean(signal.source, 40).toLowerCase(),
     target: clean(signal.target, 40).toLowerCase() || 'promptos',
     intent: clean(signal.intent, 120).toLowerCase(),
@@ -194,6 +194,7 @@ export function normalizeFounderSignal(input = {}) {
 export function validateFounderSignal(input) {
   const signal = normalizeFounderSignal(input);
   const errors = [];
+  if (signal.contract !== SIGNAL_CONTRACT) errors.push('contract must be juss/founder-signal@v1');
   if (!SOURCES.has(signal.source)) errors.push('source must be fcr, chief, promptos, or founder');
   if (signal.target !== 'promptos') errors.push('target must be promptos for inbound routing');
   if (!signal.intent) errors.push('intent is required');
