@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } from '../src/skill-registry/index.mjs';
+import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest, validateRepositorySkillAudit } from '../src/skill-registry/index.mjs';
 
 const manifest = loadPortfolioManifest();
 const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
+assert.deepEqual(validateRepositorySkillAudit(audit), [], 'repository skill inventory must have pinned, classified source evidence');
 assert.equal(manifest.apps.length, 14, 'registry must cover the currently declared 14 standalone apps');
 
 for (const app of manifest.apps) {
-  const resolved = resolveAppSkillSet(manifest, app.id);
+  const resolved = resolveAppSkillSet(manifest, app.id, audit);
   assert.equal(resolved.authorityOwner, app.id, `${app.id} must retain its own authority`);
   assert.equal(resolved.app.repository, app.repository);
   assert.equal(app.catalogStatus, 'proposed-awaiting-source-audit');
@@ -25,6 +26,16 @@ for (const app of manifest.apps) {
   assert.ok(resolved.sharedSkills.every((skill) => skill.resolution === 'source-path-verified' && /^[0-9a-f]{40}$/.test(skill.sourceRevision)), `${app.id} shared source refs must be pinned`);
   assert.ok(resolved.ownedSkills.length > 0, `${app.id} must declare app-specific skills`);
   assert.ok(resolved.compatibility.surfaces.length > 0);
+  assert.ok(Array.isArray(resolved.sourceInventory.records));
+  assert.ok(Array.isArray(resolved.sourceInventory.skills));
+  assert.ok(resolved.sourceInventory.skills.every((skill) =>
+    app.sourceAuditRepositories.includes(skill.sourceRepository) &&
+    skill.sourcePath.endsWith('/SKILL.md') &&
+    /^[0-9a-f]{40}$/.test(skill.blobSha) &&
+    skill.status &&
+    skill.classification
+  ), `${app.id} source inventory must retain repository, path, blob SHA, status and classification`);
+  assert.ok(resolved.sourceInventory.records.every((record) => app.sourceAuditRepositories.includes(record.repository)));
 }
 
 assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
@@ -101,3 +112,32 @@ assert.ok(audit.records.some((record) => record.profile === 'drift' && record.re
 assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
 assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
 console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
+
+
+const fcrInventory = resolveAppSkillSet(manifest, 'founder-control-room', audit).sourceInventory.skills;
+assert.ok(fcrInventory.some((skill) => skill.id === 'devil' && skill.status === 'active' && skill.classification === 'fcr-native-founder-skill'));
+assert.ok(fcrInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'retired-export-copy'));
+assert.ok(!fcrInventory.some((skill) => skill.id === 'chief-ai-operator'), 'FCR inventory must not absorb Chief-native skills');
+
+const chiefInventory = resolveAppSkillSet(manifest, 'chief-ai-machine', audit).sourceInventory.skills;
+assert.ok(chiefInventory.some((skill) => skill.id === 'chief-ai-operator'));
+assert.ok(!chiefInventory.some((skill) => skill.id === 'portfolio-control-plane'), 'Chief inventory must not absorb FCR-native skills');
+
+const promptosInventory = resolveAppSkillSet(manifest, 'promptos', audit).sourceInventory.skills;
+assert.ok(promptosInventory.some((skill) => skill.id === 'local-build' && skill.status === 'active-export'));
+assert.ok(promptosInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'retired-export-copy'));
+assert.ok(!promptosInventory.some((skill) => skill.id === 'local-devil' && skill.status === 'active-export'), 'retired exports must never be promoted to active');
+
+const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceInventory;
+assert.equal(gamesInventory.records.length, 4, 'Games Hub must preserve all four related repository inventories without inventing a canonical hub repository');
+assert.equal(gamesInventory.skills.length, 0, 'a repository search with no skill matches must not fabricate skills');
+
+const driftInventory = resolveAppSkillSet(manifest, 'drift', audit).sourceInventory;
+assert.equal(driftInventory.records.length, 0);
+assert.equal(driftInventory.skills.length, 0);
+
+const invalidAudit = structuredClone(audit);
+invalidAudit.records[0].skillSources[0].blobSha = 'not-a-blob-sha';
+assert.ok(validateRepositorySkillAudit(invalidAudit).some((error) => error.includes('blob SHA must be pinned')));
+assert.throws(() => resolveAppSkillSet(manifest, 'founder-control-room', invalidAudit), /Invalid repository skill audit/);
+console.log('Source-bound app skill inventories verified: ownership, provenance, retired status, and unresolved repositories remain explicit.');
