@@ -95,8 +95,8 @@ const promptosAudit = audit.records.find((record) => record.repository === 'juss
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-socrates' && skill.status === 'question-led-only'));
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build'));
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
-assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
-assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
+assert.ok(audit.knownGaps.some((gap) => gap.includes('canonical workspace\'s 27 logical dispatch roles')));
+assert.ok(audit.knownGaps.some((gap) => gap.includes('different counting scopes')));
 assert.ok(audit.records.some((record) => record.profile === 'drift' && record.repository === null));
 assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
 assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
