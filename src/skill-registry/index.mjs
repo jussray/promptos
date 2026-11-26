@@ -12,6 +12,7 @@ export function validatePortfolioManifest(manifest) {
   if (manifest.registry !== 'promptos/app-aligned-skills') errors.push('unexpected registry identity');
   if (manifest.authority !== 'catalog-and-compatibility-only') errors.push('registry authority must remain catalog-and-compatibility-only');
   if (manifest.sharedSkillDistribution !== 'repository-operator-only') errors.push('shared skills must remain repository-operator-only');
+  if (manifest.governanceAuthority !== 'jussray/founder-control-room' || manifest.governanceContract !== 'config/founder-intelligence.inheritance.json') errors.push('FCR governance authority reference is required');
   if (!Array.isArray(manifest.sharedSkills) || !Array.isArray(manifest.apps)) {
     return [...errors, 'sharedSkills and apps must be arrays'];
   }
@@ -85,6 +86,7 @@ export function resolveAppSkillSet(manifest, appId) {
     ownedSkills: app.ownedSkills.map((id) => ({ id, scope: 'proposed-app-owned', owner: app.id, status: app.ownedSkillsStatus })),
     skillContext: app.sharedSkillContext,
     compatibility: { ...app.compatibility },
+    governanceAuthority: manifest.governanceAuthority,
     authority: 'catalog-and-compatibility-only',
   };
 }
