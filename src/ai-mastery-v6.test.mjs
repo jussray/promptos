@@ -111,12 +111,13 @@ test('compiled prompt preserves V6 kernel order, canonical challenge lenses, and
   assert.match(result.prompt, /never creates or renews authority/);
 });
 
-test('PromptOS emits deterministic bounded signals to FCR or Chief', () => {
-  const a = buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
-  const b = buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
+test('PromptOS emits deterministic bounded signals to FCR or Chief', async () => {
+  const a = await buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
+  const b = await buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
   assert.equal(a.signalHash, b.signalHash);
   assert.equal(a.source, 'promptos');
   assert.equal(a.target, 'chief');
   assert.equal(a.selectedMode, 'goal-to-action');
+  assert.match(a.signalHash, /^[a-f0-9]{64}$/);
   assert.throws(() => buildPromptOSSignal({ target: 'random-system' }), /target must be fcr or chief/);
 });
