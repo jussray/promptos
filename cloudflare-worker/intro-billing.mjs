@@ -1,6 +1,8 @@
 // Sandbox-only PromptOS checkout bridge. JussPay remains the payment authority.
 const BASE = 'https://jusspay.internal';
 const permission = 'promptos.personal_prompts';
+// Approved PromptOS renewal, USD minor units. Stripe/JussPay must match exactly.
+const RENEWAL_AMOUNT_MINOR = 999;
 function result(status, body) { return { status, body }; }
 function secureUrl(value) {
   if (typeof value !== 'string' || value.length > 2048) return null;
@@ -16,7 +18,7 @@ function offerFromCatalog(rows) {
   const row = matches[0], intro = row.introOffer;
   if (row.purchaseStatus !== 'requires_provider_validation' || row.offerConfigured !== true ||
       row.currency !== 'usd' || row.interval !== 'month' ||
-      !Number.isSafeInteger(row.unitAmount) || row.unitAmount <= 100 ||
+      row.unitAmount !== RENEWAL_AMOUNT_MINOR ||
       !secureUrl(row.termsUrl) || !Array.isArray(row.entitlements) ||
       !row.entitlements.includes(permission) ||
       intro?.approved !== true || intro.billingMode !== 'test' ||
