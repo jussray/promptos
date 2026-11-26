@@ -51,7 +51,7 @@ assert.ok(!protectOne.ownedSkills.some((skill) => skill.id === 'protect-me-contr
 const protectTwo = resolveAppSkillSet(manifest, 'protect-me-model-two');
 assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'medusa'));
 assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'protect-me-contract'));
-assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'juss-os'));
+assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'protect-me-juss-os-profile'));
 assert.equal(protectTwo.authorityOwner, 'protect-me-model-two');
 
 const mutated = structuredClone(manifest);
