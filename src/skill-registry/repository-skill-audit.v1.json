@@ -2636,7 +2636,7 @@
           "blobSha": "cf7e5de510ad2bcb5dc6cf580b7763655586f7f1"
         }
       ],
-      "visibility": "unknown",
+      "visibility": "public",
       "instructionSources": [
         {
           "path": "AGENTS.md",
@@ -2667,7 +2667,7 @@
     {
       "repository": "jussray/chatQuest",
       "profile": "chatquest",
-      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
+      "inventoryStatus": "verified-private-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
@@ -2732,7 +2732,7 @@
           "blobSha": "03317f580eea2105f9f76b27202d1076ea88825f"
         }
       ],
-      "visibility": "unknown",
+      "visibility": "private",
       "instructionSources": [],
       "evidence": {
         "treeInventory": {
@@ -2745,12 +2745,13 @@
           "skillFileCount": 0,
           "recordedAt": "2026-11-26"
         }
-      }
+      },
+      "privateSkillSourceCount": 0
     },
     {
       "repository": "jussray/jussray-bip-and-seek",
       "profile": "bip-and-seek",
-      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
+      "inventoryStatus": "verified-private-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
@@ -2815,7 +2816,7 @@
           "blobSha": "49c3a208c4f122333b75bc53adc86ea0035b7801"
         }
       ],
-      "visibility": "unknown",
+      "visibility": "private",
       "instructionSources": [],
       "evidence": {
         "treeInventory": {
@@ -2828,12 +2829,13 @@
           "skillFileCount": 0,
           "recordedAt": "2026-11-26"
         }
-      }
+      },
+      "privateSkillSourceCount": 0
     },
     {
       "repository": "jussray/LUMORA",
       "profile": "lumora",
-      "inventoryStatus": "verified-recursive-tree-no-native-skill-package-capabilities-mapped",
+      "inventoryStatus": "verified-private-recursive-tree-no-native-skill-package-capabilities-mapped",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
@@ -2890,7 +2892,7 @@
           "blobSha": "01096fe1c70b8cfb60d33d5e8ff59575511f2727"
         }
       ],
-      "visibility": "unknown",
+      "visibility": "private",
       "instructionSources": [],
       "evidence": {
         "treeInventory": {
@@ -2903,7 +2905,8 @@
           "skillFileCount": 0,
           "recordedAt": "2026-11-26"
         }
-      }
+      },
+      "privateSkillSourceCount": 0
     },
     {
       "repository": "jussray/juss-protect-me",
