@@ -51,6 +51,8 @@ on:
       - "scripts/verify-control-room-tests.mjs"
       - "scripts/verify-skill-alignment.mjs"
       - "src/skill-registry/**"
+      - "src/integration-registry/**"
+      - "scripts/verify-integration-registry.mjs"
       - "scripts/verify-prompt-state.mjs"
       - "parts/**"
       - "index.html"
@@ -130,6 +132,8 @@ jobs:
         run: node scripts/verify-control-room-tests.mjs
       - name: Verify app-aligned skill registry and authority boundaries
         run: node scripts/verify-skill-alignment.mjs
+      - name: Verify host integration catalog and execution boundary
+        run: node scripts/verify-integration-registry.mjs
       - name: Verify versioned prompt state boundary
         run: node scripts/verify-prompt-state.mjs
       - name: Verify legacy build entrypoint is non-mutating
