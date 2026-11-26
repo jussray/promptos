@@ -5,46 +5,76 @@
   "sharedSkillSource": "jussray/ULTRATHINK-",
   "sharedSkills": [
     {
-      "id": "goalfix",
+      "id": "confess",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/confess/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "smallest reversible repair and verification",
-      "resolution": "source-path-unverified"
+      "purpose": "structured truth and accountability",
+      "resolution": "source-path-verified"
     },
     {
-      "id": "ultrathink",
+      "id": "futureyou-me-v10",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/futureyou-me-v10/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "structured deep analysis",
-      "resolution": "source-path-unverified"
+      "purpose": "future-oriented decision perspective",
+      "resolution": "source-path-verified"
     },
     {
-      "id": "redteam",
+      "id": "godmode-devil-ultrathink",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/godmode-devil-ultrathink/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "adversarial review and failure discovery",
-      "resolution": "source-path-unverified"
+      "purpose": "deep reasoning and adversarial challenge",
+      "resolution": "source-path-verified"
     },
     {
-      "id": "l99",
+      "id": "juss-af-skills-pack",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-af-skills-pack/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "evidence, authority, state and rollback discipline",
-      "resolution": "source-path-unverified"
+      "purpose": "reusable Juss operating skill pack",
+      "resolution": "source-path-verified"
     },
     {
-      "id": "ooda",
+      "id": "juss-command-codex",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-command-codex/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "observe-orient-decide-act loop",
-      "resolution": "source-path-unverified"
+      "purpose": "portable command semantics",
+      "resolution": "source-path-verified"
     },
     {
-      "id": "proofmode",
+      "id": "juss-os",
       "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-os/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
-      "purpose": "verification and evidence receipts",
-      "resolution": "source-path-unverified"
+      "purpose": "shared operating system conventions",
+      "resolution": "source-path-verified"
+    },
+    {
+      "id": "reasoning-stack",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/reasoning-stack/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "structured reasoning workflows",
+      "resolution": "source-path-verified"
+    },
+    {
+      "id": "truthmode",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/truthmode/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "truth and evidence discipline",
+      "resolution": "source-path-verified"
     }
   ],
   "apps": [
@@ -55,12 +85,14 @@
       "role": "founder-decision-execution-authority-evidence-plane",
       "authorityOwner": "founder-control-room",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "portfolio-governance",
@@ -86,12 +118,14 @@
       "role": "governed-ai-cognition-proposal-layer",
       "authorityOwner": "chief-ai-machine",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "agent-orchestration",
@@ -118,12 +152,14 @@
       "role": "human-ai-operating-layer",
       "authorityOwner": "promptos",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "intent-capture",
@@ -149,12 +185,14 @@
       "role": "independent-continuity-and-resilience-system",
       "authorityOwner": "solcontinuity",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "continuity-state",
@@ -179,12 +217,14 @@
       "role": "teen-and-family-wellness-companion",
       "authorityOwner": "sekret-bip",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "age-assurance",
@@ -212,12 +252,14 @@
       "role": "creator-studio",
       "authorityOwner": "storyengine",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "story-structure",
@@ -242,12 +284,14 @@
       "role": "legal-navigation-product",
       "authorityOwner": "truth-weaver",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "legal-navigation",
@@ -272,12 +316,14 @@
       "role": "payment-routing-infrastructure",
       "authorityOwner": "juss-pay",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "payment-routing",
@@ -302,12 +348,14 @@
       "role": "commerce-storefront",
       "authorityOwner": "juss-beautiful-hair",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "storefront-integrity",
@@ -332,12 +380,14 @@
       "role": "research-and-idea-development",
       "authorityOwner": "think-tank",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "idea-evaluation",
@@ -362,12 +412,14 @@
       "role": "gaming-ecosystem",
       "authorityOwner": "games-hub",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "game-hub-routing",
@@ -400,12 +452,14 @@
       "role": "verification-drift-system",
       "authorityOwner": "drift",
       "sharedSkills": [
-        "goalfix",
-        "ultrathink",
-        "redteam",
-        "l99",
-        "ooda",
-        "proofmode"
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
       ],
       "ownedSkills": [
         "baseline-drift-detection",
