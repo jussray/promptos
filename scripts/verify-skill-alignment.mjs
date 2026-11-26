@@ -5,7 +5,7 @@ import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } 
 const manifest = loadPortfolioManifest();
 const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
-assert.equal(manifest.apps.length, 14, 'registry must cover the currently declared 14 standalone app profiles');
+assert.equal(manifest.apps.length, 18, 'registry must cover the currently declared 18 standalone app profiles');
 
 for (const app of manifest.apps) {
   const resolved = resolveAppSkillSet(manifest, app.id);
@@ -102,6 +102,19 @@ for (const record of audit.records.filter((entry) => entry.treeSnapshot)) {
 }
 assert.equal(audit.records.find((record) => record.profile === 'protect-me-model-one').treeSnapshot.skillCount, 1);
 assert.equal(audit.records.find((record) => record.profile === 'protect-me-model-two').treeSnapshot.skillCount, 3);
+for (const id of ['sekret-bip-parent-side','untold-stories-storefront','makevideo','steel-city-game']) {
+  const resolved = resolveAppSkillSet(manifest, id);
+  assert.equal(resolved.app.id, id);
+  assert.equal(resolved.sourceAudit.status, 'partial');
+}
+assert.equal(resolveAppSkillSet(manifest, 'sekret-bip-parent-side').app.repository, 'jussray/Sekret-Bip-Parents');
+assert.equal(resolveAppSkillSet(manifest, 'untold-stories-storefront').app.repository, 'jussray/untold-stories-storefront');
+assert.equal(resolveAppSkillSet(manifest, 'makevideo').app.repository, 'jussray/make-video-');
+assert.equal(resolveAppSkillSet(manifest, 'steel-city-game').app.repository, 'jussray/steel-city');
+assert.ok(manifest.sharedSkillMirrors.some((mirror) => mirror.repository === 'jussray/jussray' && mirror.authority === 'export-mirror-not-canonical'));
+assert.ok(manifest.additionalSkillLibraries.every((library) => library.executionAllowed === false && library.autoFetch === false && library.autoHandoff === false));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/Sekret-Bip-Parents').skillSources.some((skill) => skill.status === 'legacy-archive-only'));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/Bip-Jr').notes.some((note) => note.includes('investigate-only')));
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.total, 8);
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.exactCopies, 3);
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.byteDifferent, 5);
