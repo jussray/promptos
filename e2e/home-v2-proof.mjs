@@ -1,3 +1,4 @@
+import {enterGuestWorkspace} from './workspace-entry.mjs';
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
@@ -24,8 +25,7 @@ try {
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
     await page.locator('#welcomeScreen').waitFor({ state: 'visible' });
     await page.locator('[data-start-onboarding]').click();
-    await page.locator('[data-continue-as-guest]').click();
-    await page.locator('#appShell').waitFor({ state: 'visible' });
+    await enterGuestWorkspace(page);
     await page.locator('#page-catalog.on').waitFor({ state: 'attached' });
     await page.locator('#homeEstablished').waitFor({ state: 'visible' });
 
@@ -55,12 +55,7 @@ try {
     }));
     assert(counts.pill.includes(counts.strip.replace(' recipes', '')), `${view.name}: strip count "${counts.strip}" not in count pill "${counts.pill}"`);
 
-    // wide screens: the guest account card sits in the right column beside the prompts
-    const est = await page.locator('#homeEstablished').boundingBox();
-    const card = await page.locator('.signup-card').boundingBox();
-    assert(est && card, `${view.name}: established section or account card not rendered`);
-    if (view.name === 'desktop') assert(card.x >= est.x + est.width, 'desktop: account card is not in the right column');
-    else assert(card.y < est.y, 'mobile: account card should stay above the established prompts');
+    assert(await page.locator('.signup-card').isHidden(), `${view.name}: paid account sees guest signup card`);
 
     // no mockup placeholder statistics
     const body = await page.locator('body').innerText();
