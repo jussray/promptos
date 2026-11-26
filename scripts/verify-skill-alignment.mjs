@@ -13,7 +13,8 @@ for (const app of manifest.apps) {
   assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
   if (app.repository === null) assert.equal(app.repositoryStatus, 'unresolved');
   assert.equal(resolved.authority, 'catalog-and-compatibility-only');
-  assert.equal(resolved.sharedSkills.length, 6, `${app.id} must resolve all six shared references`);
+  assert.equal(resolved.sharedSkills.length, 8, `${app.id} must resolve all six shared references`);
+  assert.ok(resolved.sharedSkills.every((skill) => skill.resolution === 'source-path-verified' && /^[0-9a-f]{40}$/.test(skill.sourceRevision)), `${app.id} shared source refs must be pinned`);
   assert.ok(resolved.ownedSkills.length > 0, `${app.id} must declare app-specific skills`);
   assert.ok(resolved.compatibility.surfaces.length > 0);
 }
