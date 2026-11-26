@@ -21,7 +21,16 @@ var STATE = {
 var CUSTOM_PROMPTS_UNLOCKED = false;
 var personalSessionGeneration = 0;
 // Preserve detached session data in memory; never expose it to another identity.
-var detachedPersonalSessions = [];
+var detachedPersonalSessions = new Map();
+var activePersonalSubject = null;
+function selectPersonalSubject(subject){
+  if (typeof subject !== 'string' || !subject.startsWith('https://accounts.google.com#')) return false;
+  if (activePersonalSubject === subject) return true;
+  if (activePersonalSubject) detachedPersonalSessions.set(activePersonalSubject, STATE.custom);
+  activePersonalSubject = subject;
+  STATE.custom = detachedPersonalSessions.get(subject) || [];
+  return true;
+}
 
 function serializeState(){
   return JSON.stringify({ stars: STATE.stars, custom: CUSTOM_PROMPTS_UNLOCKED ? STATE.custom : [], theme: STATE.theme, _v: Date.now() }, null, 2);
@@ -487,11 +496,12 @@ async function saveCustomPrompt(title, sub, cat, platforms, body){
   var generation = personalSessionGeneration;
   // One server-side paid subscription check for every personal-prompt write.
   // Do not rely on a client-side flag or Google profile alone.
-  if (!window.PromptOSBilling || !(await window.PromptOSBilling.admit())) {
+  var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
+  if (!subject) {
     toast('Paid account required. Sign in / Upgrade in My Prompts.');
     return false;
   }
-  if (generation !== personalSessionGeneration) return false;
+  if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return false;
   // The default lock remains closed until this request is admitted by the server.
   CUSTOM_PROMPTS_UNLOCKED = true;
   var id = 'c_' + Date.now();
@@ -548,13 +558,13 @@ async function importState(json){
   var generation = personalSessionGeneration;
   try {
     var data = JSON.parse(json);
-    if (Array.isArray(data.custom) && data.custom.length &&
-        (!window.PromptOSBilling || !(await window.PromptOSBilling.admit()))) {
-      toast('Paid account required to import personal prompts');
-      return;
+    if (Array.isArray(data.custom) && data.custom.length) {
+      var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
+      if (!subject) { toast('Paid account required to import personal prompts'); return; }
+      if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
+      CUSTOM_PROMPTS_UNLOCKED = true;
     }
     if (generation !== personalSessionGeneration) return;
-    if (Array.isArray(data.custom) && data.custom.length) CUSTOM_PROMPTS_UNLOCKED = true;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
     if (CUSTOM_PROMPTS_UNLOCKED && Array.isArray(data.custom)) STATE.custom = data.custom;
@@ -759,7 +769,8 @@ function lockPersonalSession(){
   personalSessionGeneration++;
   CUSTOM_PROMPTS_UNLOCKED = false;
   // Detach, not delete, session-only personal data. It cannot be used by the next account.
-  if (STATE.custom.length) detachedPersonalSessions.push(STATE.custom);
+  if (activePersonalSubject) detachedPersonalSessions.set(activePersonalSubject, STATE.custom);
+  activePersonalSubject = null;
   STATE.custom = [];
   STATE.stars = {};
   STATE.recent = [];
@@ -772,6 +783,14 @@ function lockPersonalSession(){
 }
 ['promptos:authed', 'promptos:guest', 'promptos:signedout'].forEach(function(event){
   window.addEventListener(event, lockPersonalSession);
+});
+window.addEventListener('promptos:authed', async function(){
+  if (!detachedPersonalSessions.size || !window.PromptOSBilling) return;
+  var generation = personalSessionGeneration;
+  var subject = await window.PromptOSBilling.admit();
+  if (generation !== personalSessionGeneration || !subject || !selectPersonalSubject(subject)) return;
+  CUSTOM_PROMPTS_UNLOCKED = true;
+  renderAll();
 });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
