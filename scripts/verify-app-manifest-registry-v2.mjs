@@ -14,7 +14,7 @@ for (const manifest of manifests) {
  assert.equal(resolved.app.authorityOwner,manifest.app.id,"each app retains its own authority owner");
  assert.ok(manifest.app.repository.startsWith("jussray/"),"each app pins its canonical owner/repository identity");
  assert.equal(resolved.authority,"catalog-and-compatibility-only");
- assert.equal(resolved.installationState,"not-asserted");
+ assert.equal(resolved.installationState,"not-asserted","target paths are not proof of installation");
  assert.equal(resolved.executionAuthority,"none");
  assert.equal(resolved.sharedSkills.length,4);
  assert.ok(resolved.sharedSkills.every(skill=>skill.sourceRepository==="jussray/ULTRATHINK-"&&skill.sourceRevision==="4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca"&&skill.lifecycle==="candidate"&&skill.mode==="reference-only"));
@@ -47,6 +47,8 @@ const duplicate=[...manifests,structuredClone(manifests[0])];
 assert.ok(validateRegistry(duplicate).some(error=>error.includes("duplicate app id")));
 const ownerMutation=structuredClone(manifests[0]); ownerMutation.app.authorityOwner="chief-ai-machine";
 assert.ok(validateRegistry([ownerMutation]).some(error=>error.includes("authority owner mismatch")));
+const installationMutation=structuredClone(manifests[0]); installationMutation.installationState="installed";
+assert.ok(validateRegistry([installationMutation]).some(error=>error.includes("installation state must not be inferred")),"registry must reject inferred app-local installation");
 const pluginMutation=structuredClone(manifests[0]); pluginMutation.plugins[0].connectionState="connected";
 assert.ok(validateRegistry([pluginMutation]).some(error=>error.includes("connection state must be discovered")));
 const skillMutation=structuredClone(manifests[0]); skillMutation.skills.shared[0].authority="execute";
