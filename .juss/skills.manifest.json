@@ -19,7 +19,7 @@
         "lifecycle": "candidate",
         "mode": "reference-only",
         "authority": "advisory",
-        "owner": "ultrathink",
+        "owner": "promptos",
         "compatibility": {
           "apps": [
             "*"
@@ -39,7 +39,7 @@
         "lifecycle": "candidate",
         "mode": "reference-only",
         "authority": "advisory",
-        "owner": "ultrathink",
+        "owner": "promptos",
         "compatibility": {
           "apps": [
             "*"
@@ -59,7 +59,7 @@
         "lifecycle": "candidate",
         "mode": "reference-only",
         "authority": "advisory",
-        "owner": "ultrathink",
+        "owner": "promptos",
         "compatibility": {
           "apps": [
             "*"
@@ -79,7 +79,7 @@
         "lifecycle": "candidate",
         "mode": "reference-only",
         "authority": "advisory",
-        "owner": "ultrathink",
+        "owner": "promptos",
         "compatibility": {
           "apps": [
             "*"
