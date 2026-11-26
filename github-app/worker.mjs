@@ -2,7 +2,6 @@ import { sendFcrObservation } from './federated-relay.mjs';
 
 const CONTRACT = 'promptos/github-app@v2';
 const MAX_WEBHOOK_BYTES = 1024 * 1024;
-const SOURCE_REPOSITORY_ID = 1299823134;
 const textEncoder = new TextEncoder();
 
 function json(data, status = 200) {

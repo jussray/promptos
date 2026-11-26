@@ -2,6 +2,7 @@ const RELAY_CONTRACT = 'juss/federated-agent-relay@v3';
 const RELAY_URL = 'https://api.foundercontrolroom.org/api/federated-relay/v3';
 const SOURCE_MEMBER = 'promptos';
 const SOURCE_REPOSITORY = 'jussray/promptos';
+const SOURCE_REPOSITORY_ID = 1299823134;
 const TARGET_MEMBER = 'founder-control-room';
 const TARGET_REPOSITORY = 'jussray/founder-control-room';
 const GENESIS_PROOF_COOKIE = 'Q4R:v3:genesis:promptos';
@@ -101,10 +102,20 @@ function safeCommand(body) {
   return value.startsWith('/promptos') ? 'unrecognized-promptos-command' : 'not-a-promptos-command';
 }
 
-function buildObservation(event, payload, deliveryId, issuedAt) {
+function buildObservation(event, payload, deliveryId, issuedAt, env) {
   const repository = record(payload.repository) ? payload.repository.full_name : null;
-  if (repository !== SOURCE_REPOSITORY) throw new Error('github-repository-not-allowlisted');
+  const repositoryId = record(payload.repository) ? payload.repository.id : null;
+  if (repository !== SOURCE_REPOSITORY || repositoryId !== SOURCE_REPOSITORY_ID) {
+    throw new Error('github-repository-not-allowlisted');
+  }
+  const expectedInstallationId = Number(env.GITHUB_INSTALLATION_ID);
   const installationId = record(payload.installation) ? payload.installation.id : null;
+  if (!Number.isSafeInteger(expectedInstallationId) || expectedInstallationId <= 0) {
+    throw new Error('invalid-env:GITHUB_INSTALLATION_ID');
+  }
+  if (!Number.isSafeInteger(installationId) || installationId !== expectedInstallationId) {
+    throw new Error('github-installation-not-allowlisted');
+  }
   const issueNumber = record(payload.issue) && Number.isSafeInteger(payload.issue.number)
     ? payload.issue.number
     : undefined;
@@ -164,7 +175,7 @@ export async function sendFcrObservation(input) {
 
   const issuedAt = eventTimestamp(event, payload);
   const expiresAt = new Date(issuedAt.getTime() + 10 * 60 * 1000);
-  const observation = buildObservation(event, payload, deliveryId, issuedAt);
+  const observation = buildObservation(event, payload, deliveryId, issuedAt, env);
   const payloadBody = JSON.stringify(observation);
   const payloadDigest = await sha256Hex(payloadBody);
   const contextFingerprint = await sha256Hex(canonicalize({
