@@ -55,7 +55,6 @@ if (bill?.objective !== 'durable_growth' || bill?.role !== 'durable-leverage') f
 if (elon?.objective !== 'upside_growth' || elon?.role !== 'first-principles-execution') fail('Elon Musk reasoning lens identity drift');
 if (gary?.role !== 'founder-value-and-distribution' || gary?.objective !== 'real_human_and_market_outcomes') fail('GaryVee reasoning lens identity drift');
 if (gary?.authorityEffect !== 'none') fail('GaryVee reasoning lens must not create authority');
-if (!compiled.prompt.includes('GARYVEE lens (real_human_and_market_outcomes)')) fail('compiled prompt does not pin GaryVee semantics');
 if (bill?.authorityEffect !== 'none' || elon?.authorityEffect !== 'none') fail('challenge lenses must not create authority');
 for (const behavior of [
   'identify-the-bottleneck-and-highest-leverage-point',
@@ -102,6 +101,7 @@ const compiled = compileV6Prompt({
   requestedMode: 'workflow-optimizer',
 });
 if (!compiled.selected || !compiled.prompt) fail('canonical V6 prompt did not compile');
+if (!compiled.prompt.includes('GARYVEE lens (real_human_and_market_outcomes)')) fail('compiled prompt does not pin GaryVee semantics');
 if (!/BILLGATES lens \(durable_growth\)/.test(compiled.prompt || '')) fail('compiled prompt does not pin Bill Gates semantics');
 if (!/standardize proven paths before scaling and do not scale unproven paths/i.test(compiled.prompt || '')) fail('compiled prompt lost Bill Gates scale boundary');
 if (!/ELONMUSK lens \(upside_growth\)/.test(compiled.prompt || '')) fail('compiled prompt does not pin Elon Musk semantics');
