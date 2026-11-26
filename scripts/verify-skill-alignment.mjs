@@ -6,7 +6,7 @@ const manifest = loadPortfolioManifest();
 const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
 assert.deepEqual(validateRepositorySkillAudit(audit), [], 'repository skill inventory must have pinned, classified source evidence');
-assert.equal(manifest.apps.length, 14, 'registry must cover the currently declared 14 standalone apps');
+assert.equal(manifest.apps.length, 18, 'registry must cover the 14 existing apps plus four independently owned game codebases');
 
 for (const app of manifest.apps) {
   const resolved = resolveAppSkillSet(manifest, app.id, audit);
