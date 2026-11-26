@@ -2817,6 +2817,157 @@
         "pathGroupCounts": {}
       },
       "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/steel-city",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "a085db14292487f9599568d5f4c26474b7544557",
+        "truncated": false,
+        "skillCount": 1,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/cinematic-image-to-code/SKILL.md",
+            "blobSha": "f52a7e341b302b2919869a57f410bf06ee51f308"
+          }
+        ],
+        "pathGroupCounts": {
+          ".agents": 1
+        }
+      },
+      "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/ImInYoCity",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "fa0fc73bf64c06fc717007af801cfec65c32f91c",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/demo-repository",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "dc5b0c9946eca79eab9b0184111971abf20a8a2e",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/ProofPrint",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "5927add2606fda267a1011908b8c9bdfeda0953d",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/visual-makeover",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "fc7d9d59bc126ae852f8302c6031680e30075bf5",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/sarissa",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "6bccef6a3f18430fa82532423027321426ed0ffd",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/aegis",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "2e841e60f2f1cc572d66ebffe0fa62befa5ac2f3",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/medusa",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "30169da7c5b70bb4c43ac1ce32edc1d9e8dac65f",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
     }
   ],
   "retirementReview": {
