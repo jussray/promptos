@@ -184,7 +184,7 @@
         {
           "id": "local-cortex",
           "path": "systems/skills/local-cortex/SKILL.md",
-          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
           "status": "active-export",
           "classification": "shared-operating-skill-export"
         },
@@ -208,6 +208,13 @@
           "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
           "status": "retired",
           "classification": "shared-operating-skill-metadata"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "active-export",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "lockfiles": [],
