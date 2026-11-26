@@ -17,6 +17,7 @@ const EXPECTED_INDEX_SCRIPTS = [
   'parts/p09-cont-design.js',
   'parts/p10-cont-ops-growth.js',
   'parts/app.js',
+  'parts/capability-library.js',
 ];
 const FORBIDDEN_BROWSER_GIST_MARKERS = [
   'GIST_FILENAME',
