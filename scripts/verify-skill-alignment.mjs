@@ -15,6 +15,7 @@ for (const app of manifest.apps) {
   assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
   if (app.repository === null) assert.equal(app.repositoryStatus, 'unresolved');
   assert.equal(resolved.authority, 'catalog-and-compatibility-only');
+  assert.equal(resolved.governanceAuthority, 'jussray/founder-control-room');
   assert.equal(resolved.skillContext, 'repository-operator-only');
   assert.ok(resolved.sharedSkills.every((skill) => skill.audience === 'founder-operator' && skill.distribution === 'reference-only' && skill.scope === 'repository-operator-shared-reference'));
   assert.ok(resolved.ownedSkills.every((skill) => skill.scope === 'proposed-app-owned' && skill.status === 'proposed-awaiting-source-audit'));
@@ -62,6 +63,8 @@ console.log(`Skill alignment verified: ${manifest.apps.length} apps, ${manifest.
 
 assert.equal(audit.schemaVersion, '1.0');
 assert.equal(audit.registry, 'promptos/repository-skill-audit');
+assert.equal(audit.governance.authorityRepository, 'jussray/founder-control-room');
+assert.equal(audit.governance.promptosBoundary, 'PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.');
 assert.equal(audit.coverageStatus, 'partial', 'an initial search pass must not be mislabeled complete');
 assert.ok(Array.isArray(audit.records) && audit.records.length >= 12);
 for (const record of audit.records) {
@@ -79,4 +82,7 @@ assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-socrate
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build'));
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
 assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
+assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
+assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
+assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
 console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
