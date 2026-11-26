@@ -47,6 +47,12 @@ test('unknown intent fails closed instead of guessing a prompt', () => {
   assert.equal(route.reason, 'no-safe-match');
 });
 
+test('missing signal contract is rejected', () => {
+  const result = validateFounderSignal(inbound({ contract: '' }));
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(' '), /contract must be .*founder-signal@v1/);
+});
+
 test('unknown signal contracts are rejected instead of normalized into the current contract', () => {
   const result = validateFounderSignal(inbound({ contract: 'juss/founder-signal@v0' }));
   assert.equal(result.valid, false);
