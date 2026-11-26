@@ -50,11 +50,17 @@ for (const requiredSignal of [
   'invalid-webhook-signature',
   'payload-too-large',
   'GITHUB_INSTALLATION_ID',
-  'SOURCE_REPOSITORY_ID',
-  'github-installation-not-allowlisted',
   'sendFcrObservation',
 ]) {
   assert.ok(worker.includes(requiredSignal), 'worker contract drifted: ' + requiredSignal);
+}
+
+for (const requiredSignal of [
+  'SOURCE_REPOSITORY_ID',
+  'github-installation-not-allowlisted',
+  'github-repository-not-allowlisted',
+]) {
+  assert.ok(relay.includes(requiredSignal), 'relay identity contract drifted: ' + requiredSignal);
 }
 
 for (const requiredSignal of [

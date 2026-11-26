@@ -135,6 +135,7 @@ try {
   const registration = await api.get('/github/registration');
   assert.equal(registration.status(), 200);
   const registrationBody = await registration.json();
+  assert.ok(registrationBody.required_runtime_variables.includes('GITHUB_INSTALLATION_ID'));
   assert.deepEqual(registrationBody.permissions, {
     actions: 'read',
     contents: 'read',
