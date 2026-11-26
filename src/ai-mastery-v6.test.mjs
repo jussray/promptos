@@ -108,6 +108,8 @@ test('compiled prompt preserves V6 kernel order, canonical challenge lenses, and
   assert.match(result.prompt, /Repair OS: LINDY -> REDTEAM I -> ATTACK TEN -> OODA OBSERVE -> OODA ORIENT -> OODA DECIDE -> L99 AUTHORITY -> ACT -> REDTEAM II -> RECURSIVE HARDENING -> VERIFY -> LOOP/);
   assert.match(result.prompt, /BILLGATES lens \(durable_growth\)/);
   assert.match(result.prompt, /standardize proven paths before scaling and do not scale unproven paths/i);
+  assert.match(result.prompt, /GARYVEE lens \(real_human_and_market_outcomes\)/);
+  assert.match(result.prompt, /authentic proof over hype or vanity metrics/i);
   assert.match(result.prompt, /ELONMUSK lens \(upside_growth\)/);
   assert.match(result.prompt, /question requirements; delete before optimizing; simplify from first principles/i);
   assert.match(result.prompt, /Authority effect: none/);
