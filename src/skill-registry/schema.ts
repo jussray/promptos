@@ -17,7 +17,7 @@ export function validateAppManifest(value: unknown): string[] {
  const app = value.app;
  if (!isRecord(app)) return [...errors, "app identity is missing"];
  for (const key of ["id","name","repository","role","authorityScope"] as const) if (typeof app[key] !== "string" || !app[key]) errors.push(`app.${key} is required`);
- if (!SAFE_ID.test(String(app.id ?? ""))) errors.push("app id is invalid");
+ if (!SAFE_ID.test(String(app.id ?? ""))) errors.push("app id is invalid"); if (typeof app.repository !== "string" || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(app.repository)) errors.push("app repository must use owner/name form");
  if (app.authorityOwner !== app.id) errors.push("app authority owner mismatch");
  if (app.identityStatus !== "source-verified" || !SHA.test(String(app.sourceHeadAtAudit ?? ""))) errors.push("app source identity must be pinned to an inspected head");
  if (!Array.isArray(app.surfaces) || app.surfaces.length === 0) errors.push("app surfaces are required");

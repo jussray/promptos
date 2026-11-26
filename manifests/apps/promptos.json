@@ -4,7 +4,7 @@
   "app": {
     "id": "promptos",
     "name": "PromptOS",
-    "repository": "promptos",
+    "repository": "jussray/promptos",
     "defaultBranch": "main",
     "sourceHeadAtAudit": "6d952962d655c13d5208c7d68b1f913f71168a45",
     "identityStatus": "source-verified",

@@ -4,7 +4,7 @@
   "app": {
     "id": "solcontinuity",
     "name": "SolContinuity",
-    "repository": "solcontinuity",
+    "repository": "jussray/solcontinuity",
     "defaultBranch": "main",
     "sourceHeadAtAudit": "2390af375b9980f5015abc146328ff90e24e4660",
     "identityStatus": "source-verified",

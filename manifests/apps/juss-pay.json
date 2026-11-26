@@ -4,7 +4,7 @@
   "app": {
     "id": "juss-pay",
     "name": "JussPay",
-    "repository": "JussPay",
+    "repository": "jussray/JussPay",
     "defaultBranch": "main",
     "sourceHeadAtAudit": "c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1",
     "identityStatus": "source-verified",
