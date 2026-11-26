@@ -76,7 +76,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "chief-ai-machine",
@@ -107,7 +108,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "promptos",
@@ -137,7 +139,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "solcontinuity",
@@ -166,7 +169,8 @@
         ],
         "requiresPlaywrightForUi": false
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "sekret-bip",
@@ -198,7 +202,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "storyengine",
@@ -227,7 +232,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "truth-weaver",
@@ -256,7 +262,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "juss-pay",
@@ -285,7 +292,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "juss-beautiful-hair",
@@ -314,7 +322,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "think-tank",
@@ -343,7 +352,8 @@
         ],
         "requiresPlaywrightForUi": true
       },
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "games-hub",
@@ -380,7 +390,8 @@
         "jussray/jussray-bip-and-seek",
         "jussray/LUMORA"
       ],
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "drift",
@@ -411,7 +422,8 @@
         "requiresPlaywrightForUi": true
       },
       "repositoryStatus": "unresolved",
-      "catalogStatus": "proposed-awaiting-source-audit"
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit"
     }
   ],
   "invariants": [
