@@ -3,7 +3,7 @@ name: PromptOS Control Room Tests
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, feat/promptos-skill-library-ui-20261126]
     paths:
       - "README.md"
       - "AGENTS.md"
