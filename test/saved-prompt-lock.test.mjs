@@ -68,8 +68,10 @@ test("workspace stays locked until the server confirms paid admission", () => {
   assert.doesNotMatch(html, /data-continue-as-guest/);
   assert.match(html, /id="appShell"[^>]*inert/);
   assert.match(auth, /async function refreshWorkspace\(/);
-  assert.match(auth, /await window\.PromptOSBilling\.refresh\(\)/);
-  assert.match(auth, /paid !== true/);
+  assert.match(auth, /await window\.PromptOSBilling\.accessStatus\(\)/);
+  assert.match(auth, /access !== 'paid'/);
+  assert.match(auth, /access === 'free'/);
+  assert.match(html, /id="beginnerLibrary"[^>]*hidden/);
   assert.match(auth, /credential !== verifiedIdToken/);
   assert.match(auth, /window\.addEventListener\('focus', refreshWorkspace\)/);
   assert.doesNotMatch(auth, /function bootAsGuest\(/);
