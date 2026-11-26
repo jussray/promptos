@@ -73,7 +73,7 @@ async function prove(browser, viewport) {
   await page.locator('#v6Inbound').fill(JSON.stringify(fcrResponse));
   await page.locator('#v6Receive').click();
   const received = JSON.parse(await page.locator('#v6InboundOutput').innerText());
-  assert(received.valid === true && received.selectedMode === 'goal-to-action', 'FCR/Chief intake did not compile');
+  assert(received.valid === true && received.selectedMode === 'workflow-optimizer', 'FCR/Chief intake did not compile');
   assert(received.senderAuthenticated === false && received.signalFingerprintVerified === false, 'pasted FCR receipt must not be treated as authenticated');
   assert(received.approvalVerified === false && received.executionAuthorized === false && received.authorityState === 'unresolved', 'FCR/Chief intake crossed an authority boundary');
 
@@ -81,6 +81,11 @@ async function prove(browser, viewport) {
   await page.locator('#v6Receive').click();
   const invalidAuthority = JSON.parse(await page.locator('#v6InboundOutput').innerText());
   assert(invalidAuthority.valid === false, 'inbound FCR response with a forged authority state was not rejected');
+
+  await page.locator('#v6Inbound').fill(JSON.stringify({...fcrResponse, intake: {...fcrResponse.intake, chiefHandoffFingerprint: 'not-a-hash'}}));
+  await page.locator('#v6Receive').click();
+  const invalidFingerprint = JSON.parse(await page.locator('#v6InboundOutput').innerText());
+  assert(invalidFingerprint.valid === false, 'malformed FCR fingerprints were not rejected');
 
   await page.locator('#v6Inbound').fill('{not-json');
   await page.locator('#v6Receive').click();
@@ -102,6 +107,7 @@ async function prove(browser, viewport) {
     inboundSenderAuthenticated: received.senderAuthenticated,
     inboundApprovalVerified: received.approvalVerified,
     forgedAuthorityRejected: invalidAuthority.valid === false,
+    invalidFingerprintRejected: invalidFingerprint.valid === false,
     malformedInboundRejected: rejected.valid === false,
     pageErrors,
     consoleErrors,
