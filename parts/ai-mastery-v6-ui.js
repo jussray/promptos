@@ -197,7 +197,13 @@ async function init() {
           && typeof intake.requestedOutcome === 'string'
           && intake.requestedOutcome.trim().length > 0
           && typeof intake.project === 'string'
-          && typeof intake.chiefReleaseSha === 'string';
+          && /^[a-z0-9][a-z0-9._-]{0,127}$/i.test(intake.project)
+          && typeof intake.commandId === 'string'
+          && typeof intake.capabilityId === 'string'
+          && typeof intake.specialistProduct === 'string'
+          && /^[a-f0-9]{64}$/i.test(intake.sourceIntentFingerprint)
+          && /^[a-f0-9]{64}$/i.test(intake.chiefHandoffFingerprint)
+          && /^[a-f0-9]{40}$/i.test(intake.chiefReleaseSha);
         if (!valid) {
           $('#v6InboundOutput').textContent = JSON.stringify({valid:false, reason:'FCR intake did not satisfy the proposal-only contract'}, null, 2);
           setStatus('#v6ReceiveStatus', 'Rejected: FCR intake contract or authority boundary invalid.');
