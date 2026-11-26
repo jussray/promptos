@@ -44,9 +44,45 @@ function missionCompilerFromSource(source) {
   return sandbox.window.compilePromptOSMission;
 }
 
+function modelExecutionFromInput(input) {
+  const profile = input['model-profile']?.trim();
+  const modelKeys = [
+    'observed-provider',
+    'runtime-model',
+    'capabilities',
+    'truth-refs',
+    'continuity-fingerprint',
+    'authority-required',
+    'proof-required',
+    'claims',
+    'unknowns',
+    'result-evidence',
+  ];
+  if (!profile) {
+    if (modelKeys.some((key) => input[key]?.trim())) {
+      throw new Error('--model-profile is required when model-native execution metadata is supplied.');
+    }
+    return undefined;
+  }
+
+  return {
+    modelProfileId: profile,
+    observedProvider: input['observed-provider'],
+    observedRuntimeModel: input['runtime-model'],
+    observedCapabilities: list(input.capabilities),
+    sourceTruthRefs: list(input['truth-refs']),
+    authorityRequired: list(input['authority-required']),
+    proofRequired: list(input['proof-required']),
+    claims: list(input.claims),
+    unknowns: list(input.unknowns),
+    continuityFingerprint: input['continuity-fingerprint'],
+    resultEvidence: list(input['result-evidence']),
+  };
+}
+
 const input = args(process.argv.slice(2));
 if (input.help === 'true') {
-  console.log('Usage: node scripts/make-workflow.mjs --intent "..." [--project owner/repo] [--id workflow-id] [--title "..."] [--constraints "a,b"] [--providers "github,cloudflare"] [--risk low|medium|high|critical] [--aliases "/alias"] [--lineage "ultrathink,goalfix"]');
+  console.log('Usage: node scripts/make-workflow.mjs --intent "..." [--project owner/repo] [--id workflow-id] [--title "..."] [--constraints "a,b"] [--providers "github,cloudflare,openai"] [--risk low|medium|high|critical] [--aliases "/alias"] [--lineage "ultrathink,goalfix"] [--model-profile chatgpt-sol|claude-code --observed-provider openai|anthropic --runtime-model "observed model" --capabilities "github,playwright" --truth-refs "repo:exact-head" --continuity-fingerprint "fingerprint"]');
   process.exit(0);
 }
 if (!input.intent?.trim()) {
@@ -71,6 +107,7 @@ const workflow = compileWorkflowArtifact(mission, {
   lineage: list(input.lineage),
   desiredOutcome: input['desired-outcome'],
   rollback: input.rollback,
+  modelExecution: modelExecutionFromInput(input),
 });
 const validation = validateWorkflowArtifact(workflow);
 if (!validation.valid) {

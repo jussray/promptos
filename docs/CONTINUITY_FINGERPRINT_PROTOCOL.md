@@ -18,6 +18,33 @@ For PromptOS, high-signal fingerprints include: prompt library, OODA, Redteam, L
 
 If a fingerprint could belong to Chief AI, FCR, Sol Continuity, or another project, verify the exact repo, branch, files, PR/issue, and current `main` before acting.
 
+## TRUE-FIRST discovery invariant
+
+PromptOS must compile truth-seeking work in this order: establish the strongest evidence-bound TRUE baseline first, then search for contradiction.
+
+```text
+exact subject binding
+→ VERIFIED + TRUE claims only
+→ deterministic baseline fingerprint
+→ bounded non-secret proof cookie
+→ contradiction search
+→ exact-subject challenge
+→ reconfirm TRUE, VERIFIED_CONTRADICTION, or force re-baseline
+```
+
+Rules:
+
+1. Only `VERIFIED` TRUE claims carrying evidence references enter the baseline.
+2. `INFERRED`, `REMEMBERED`, `UNKNOWN`, `BLOCKED`, `STALE`, evidence-free, or already-FALSE claims remain outside the TRUE baseline.
+3. A moved repo head, runtime, provider state, authority state, or scope makes the predecessor claim stale. Movement is not automatically proof of falsehood.
+4. After movement, reacquire TRUE before asking what is false. Never compare two different subject bindings and label the difference a contradiction.
+5. Fingerprints must bind the load-bearing subject identity, scope, exact head/runtime identity, and accepted evidence-bound claims.
+6. Proof cookies are continuity receipts only. They must be freshness-bounded, optionally linked to a predecessor, and may never encode standing approval or mutation authority.
+7. Successful contradiction findings preserve both the predecessor TRUE receipt and the contradictory evidence so later agents can reconstruct what changed and why.
+8. Where a project requires Playwright or another real-path verifier, PromptOS must preserve that evidence requirement when compiling the proof gate.
+
+Founder Control Room owns the executable portfolio truth kernel. PromptOS compiles requests into that evidence discipline but does not mint execution authority.
+
 ## Genesis fingerprint
 
 When asked when this project started, resolve in this order:

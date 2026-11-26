@@ -1,5 +1,7 @@
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { PUBLIC_SITE_FILES } from './public-site-files.mjs';
+import { findDanglingReferences } from './staged-reference-check.mjs';
 
 const requestedOutputDir = process.env.PROMPTOS_PUBLIC_SITE_DIR || '_site';
 const repositoryRoot = path.resolve(process.cwd());
@@ -14,29 +16,7 @@ if (!/^[0-9a-f]{40}$/.test(expectedHead)) {
   throw new Error('EXPECTED_HEAD_SHA must be an exact lowercase 40-character SHA');
 }
 
-const publicFiles = [
-  'index.html',
-  'parts/auth.js',
-  'parts/p05-new-prompts.js',
-  'parts/p06-gap-prompts.js',
-  'parts/p07-ship-ultrathink-skills.js',
-  'parts/p08-cont-redteam.js',
-  'parts/p09-cont-design.js',
-  'parts/p10-cont-ops-growth.js',
-  'parts/p11-make-ui.mjs',
-  'parts/app.js',
-  'src/workflow-artifact.mjs',
-  'src/catalog-ui.js',
-  'src/catalog-runtime/index.js',
-  'src/catalog-runtime/openPromptCard.js',
-  'src/catalog-runtime/catalog/buildCatalog.js',
-  'src/catalog-runtime/catalog/clauses.js',
-  'src/catalog-runtime/catalog/compatibility.js',
-  'src/catalog-runtime/catalog/families.js',
-  'src/catalog-runtime/compiler/compilePrompt.js',
-  'src/catalog-runtime/compiler/platformAdapters.js',
-  'styles/catalog.css',
-];
+const publicFiles = [...PUBLIC_SITE_FILES];
 
 await rm(outputDir, { recursive: true, force: true });
 for (const file of publicFiles) {
@@ -102,6 +82,11 @@ for (const file of actualFiles) {
   }
 }
 
+const referenceCheck = await findDanglingReferences(outputDir);
+if (referenceCheck.dangling.length > 0) {
+  throw new Error(`staged artifact references files that were not staged: ${JSON.stringify(referenceCheck.dangling)}`);
+}
+
 console.log(JSON.stringify({
   status: 'passed',
   outputDir: '_site',
@@ -110,4 +95,6 @@ console.log(JSON.stringify({
   files: actualFiles,
   exactAllowlist: true,
   secretLikeMaterialDetected: false,
+  localReferencesChecked: referenceCheck.checked,
+  danglingLocalReferences: 0,
 }));

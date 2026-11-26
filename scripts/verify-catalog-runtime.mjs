@@ -1,12 +1,122 @@
 import assert from 'node:assert/strict';
-import { buildCatalogRecipes, canonicalFamilies, compilePrompt, openPromptCard } from '../src/catalog-runtime/index.js';
+import {
+  adversarialChallengePrompts,
+  buildCatalogRecipes,
+  builderPrompts,
+  canonicalFamilies,
+  compilePrompt,
+  deepReasoningPrompts,
+  openPromptCard,
+  PUBLIC_COMMAND_CATEGORIES,
+  publicCommands,
+  resolvePublicCommand,
+  researchExpansionGroups,
+  researchExpansionPrompts,
+  workflowPrompts,
+} from '../src/catalog-runtime/index.js';
 
 function inputsFor(recipe) { return Object.fromEntries(recipe.inputs.map((key) => [key, `sample-${key}`])); }
+function normalized(value) { return value.toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+const commandIds = publicCommands.map((command) => command.id);
+const commandAliases = publicCommands.flatMap((command) => [command.id, ...command.aliases]);
+assert.deepEqual(PUBLIC_COMMAND_CATEGORIES, ['Build','Money','Sell','Create','Research','Legal','Operate','Communicate','Personal'], 'public command categories drifted');
+assert.equal(publicCommands.length, 30, 'PromptOS public command registry must expose exactly 30 curated commands');
+assert.equal(new Set(commandIds).size, commandIds.length, 'public command ids must be unique');
+assert.equal(new Set(commandAliases).size, commandAliases.length, 'public command aliases must be globally unique');
+for (const command of publicCommands) {
+  assert.ok(PUBLIC_COMMAND_CATEGORIES.includes(command.category), `unknown public command category: ${command.id}`);
+  assert.ok(command.capabilityId, `public command lacks capability: ${command.id}`);
+  assert.ok(command.evidence, `public command lacks evidence contract: ${command.id}`);
+}
+const hiddenCommandSurfaceNames = ['ultrathink','attack-ten','redteam','l99','truthmode','confess'];
+for (const command of publicCommands) {
+  const visible = normalized(`${command.id} ${command.aliases.join(' ')} ${command.label} ${command.description}`);
+  for (const hidden of hiddenCommandSurfaceNames) assert.ok(!visible.includes(hidden), `internal workflow name leaked through public command: ${command.id} -> ${hidden}`);
+}
+const fixRoute = resolvePublicCommand('/fix checkout', { project:'Se\'kret Bip' });
+assert.equal(fixRoute.ok, true, 'fix command did not resolve');
+assert.equal(fixRoute.capabilityId, 'repair', 'fix command routed to the wrong capability');
+assert.equal(fixRoute.arguments, 'checkout', 'fix command lost arguments');
+assert.equal(fixRoute.authorityCeiling, 'advisory-only', 'public command widened PromptOS authority');
+assert.equal(fixRoute.execution.mutationAuthorized, false, 'public command self-authorized mutation');
+assert.equal(fixRoute.route.authorityPlane, 'founder-control-room', 'public command bypassed FCR authority');
+const legalRoute = resolvePublicCommand('/contract vendor NDA', {});
+assert.equal(legalRoute.route.specialistProduct, 'truth-weaver', 'legal command did not route to Truth Weaver');
+assert.equal(legalRoute.capabilityId, 'legal-navigation', 'legal command capability drifted');
+const bipWorld = resolvePublicCommand('/world Bip scene', { project:'Se\'kret Bip' });
+assert.equal(bipWorld.command.id, 'worldbuilding', 'world alias did not resolve to worldbuilding');
+assert.equal(bipWorld.route.specialistProduct, 'se-kret-bip', 'Bip creative command did not preserve product canon boundary');
+const unknownCommand = resolvePublicCommand('/doesnotexist');
+assert.equal(unknownCommand.ok, false, 'unknown public command must fail closed');
+
 const built = buildCatalogRecipes();
+const allCurated = [...builderPrompts, ...workflowPrompts, ...researchExpansionPrompts];
 assert.equal(built.recipes.length, 5000, 'PromptOS catalog must contain exactly 5,000 selected recipes');
 assert.ok(built.candidateCount > 5000, 'catalog must select from a larger valid candidate pool');
 assert.equal(built.rejected.length, 0, 'canonical catalog candidates must not be rejected');
 assert.equal(new Set(built.recipes.map((r) => r.id)).size, 5000, 'catalog recipe ids must be unique');
+
+assert.equal(builderPrompts.length, 200, 'PromptOS must expose exactly 200 curated builder prompts');
+assert.equal(workflowPrompts.length, 48, 'PromptOS must expose exactly 48 implicit workflow prompts');
+assert.equal(deepReasoningPrompts.length, 24, 'PromptOS must expose exactly 24 deep reasoning triggers');
+assert.equal(adversarialChallengePrompts.length, 24, 'PromptOS must expose exactly 24 adversarial challenge triggers');
+assert.equal(researchExpansionGroups.length, 15, 'PromptOS research expansion must contain exactly 15 research groups');
+assert.equal(researchExpansionPrompts.length, 150, 'PromptOS research expansion must contain exactly 150 curated prompts');
+assert.equal(allCurated.length, 398, 'PromptOS must expose exactly 398 curated prompts after research expansion');
+assert.equal(built.curatedCount, 398, 'all curated prompts must be pinned into the selected catalog');
+assert.equal(built.curatedBuilderCount, 200, 'builder curated count drifted');
+assert.equal(built.curatedWorkflowCount, 48, 'workflow curated count drifted');
+assert.equal(built.curatedResearchExpansionCount, 150, 'research expansion curated count drifted');
+assert.equal(new Set(allCurated.map((recipe) => recipe.id)).size, 398, 'curated prompt ids must be globally unique');
+assert.equal(new Set(allCurated.map((recipe) => normalized(recipe.title))).size, 398, 'curated prompt titles must be globally unique');
+assert.equal(new Set(builderPrompts.map((recipe) => normalized(recipe.instructions))).size, 200, 'builder prompt instructions must be semantically distinct at the normalized text level');
+assert.equal(new Set(workflowPrompts.map((recipe) => normalized(recipe.instructions))).size, 48, 'workflow prompt instructions must be semantically distinct at the normalized text level');
+assert.equal(new Set(researchExpansionPrompts.map((recipe) => normalized(recipe.instructions))).size, 150, 'research expansion instructions must be semantically distinct at the normalized text level');
+
+for (const group of researchExpansionGroups) {
+  assert.equal(group.promptCount, 10, `research group must contain exactly ten prompts: ${group.id}`);
+  assert.ok(group.researchBasis.length >= 2, `research group must retain a research basis: ${group.id}`);
+}
+for (const recipe of researchExpansionPrompts) {
+  assert.match(recipe.id, /^research\.curated\./, `research recipe id lacks curated namespace: ${recipe.id}`);
+  assert.ok(recipe.instructions.length >= 1000, `research recipe is too thin: ${recipe.id}`);
+  assert.ok(Array.isArray(recipe.researchBasis) && recipe.researchBasis.length >= 2, `research basis missing: ${recipe.id}`);
+  assert.ok(recipe.researchGroup, `research group missing: ${recipe.id}`);
+  assert.match(recipe.instructions, /VERIFIED, INFERRED, UNKNOWN, and BLOCKED/, `research recipe lacks evidence classification: ${recipe.id}`);
+  assert.match(recipe.instructions, /smallest reversible next action/, `research recipe lacks reversible-action gate: ${recipe.id}`);
+  assert.match(recipe.instructions, /REALITY \| ANALYSIS \| ACTION \| PROOF \| RISK \| ROLLBACK \| NEXT GATE/, `research recipe lacks decision output contract: ${recipe.id}`);
+}
+
+const bannedBuilderPhrases = [
+  'disable auth',
+  'skip tests',
+  'ignore errors',
+  'hardcode secret',
+  'fake proof',
+  'pretend it works',
+];
+for (const recipe of builderPrompts) {
+  assert.ok(recipe.instructions.length >= 500, `builder recipe is too thin: ${recipe.id}`);
+  assert.match(recipe.instructions, /Done when:/, `builder recipe lacks explicit done condition: ${recipe.id}`);
+  assert.match(recipe.instructions, /local-first behavior/, `builder recipe lacks local-first default: ${recipe.id}`);
+  for (const phrase of bannedBuilderPhrases) assert.ok(!normalized(recipe.instructions).includes(phrase), `unsafe builder phrase "${phrase}" in ${recipe.id}`);
+}
+
+const hiddenWorkflowNames = ['ultrathink','attack-ten','attack ten','attack6000','attack 6000'];
+for (const recipe of workflowPrompts) {
+  assert.ok(recipe.instructions.length >= 700, `workflow recipe is too thin: ${recipe.id}`);
+  const publicSurface = normalized(`${recipe.title} ${recipe.description} ${recipe.instructions}`);
+  for (const hiddenName of hiddenWorkflowNames) {
+    assert.ok(!publicSurface.includes(hiddenName), `workflow nickname leaked into visible prompt surface: ${recipe.id} -> ${hiddenName}`);
+  }
+  assert.ok(Array.isArray(recipe.workflowLineage) && recipe.workflowLineage.length > 0, `workflow lineage missing: ${recipe.id}`);
+}
+for (const recipe of deepReasoningPrompts) assert.deepEqual(recipe.workflowLineage, ['ultrathink@1.6'], `deep lineage drift: ${recipe.id}`);
+for (const recipe of adversarialChallengePrompts) assert.deepEqual(recipe.workflowLineage, ['attack-ten','attack6000'], `adversarial lineage drift: ${recipe.id}`);
+
+const selectedIds = new Set(built.recipes.map((recipe) => recipe.id));
+for (const recipe of allCurated) assert.ok(selectedIds.has(recipe.id), `curated recipe was dropped: ${recipe.id}`);
 
 const familyCounts = new Map();
 for (const recipe of built.recipes) {
@@ -16,8 +126,25 @@ for (const recipe of built.recipes) {
   assert.equal(compiled.ok, true, `recipe failed compilation: ${recipe.id}`);
   assert.equal(compiled.readyToCopy, true, `recipe has missing inputs after complete input: ${recipe.id}`);
   assert.equal(compiled.provenance?.canonicalFamilyId, recipe.familyId, `provenance drift: ${recipe.id}`);
+  if (recipe.familyId === 'application.builder') {
+    assert.match(compiled.prompt, /RECIPE BUILD BRIEF/, `builder instructions were not compiled: ${recipe.id}`);
+    if (recipe.requiresUiProof) assert.ok(compiled.provenance.appliedClauseIds.includes('verification.playwright-if-ui'), `UI builder recipe lacks Playwright proof: ${recipe.id}`);
+  }
+  if (recipe.id.startsWith('research.curated.')) {
+    assert.match(compiled.prompt, /RECIPE BUILD BRIEF/, `research instructions were not compiled: ${recipe.id}`);
+    if (recipe.requiresUiProof) assert.ok(compiled.provenance.appliedClauseIds.includes('verification.playwright-if-ui'), `research UI recipe lacks Playwright proof: ${recipe.id}`);
+  }
+  if (recipe.workflowLineage?.length) {
+    assert.deepEqual(compiled.provenance.workflowLineage, recipe.workflowLineage, `compiled workflow lineage drift: ${recipe.id}`);
+    const compiledVisible = normalized(compiled.prompt);
+    for (const hiddenName of hiddenWorkflowNames) assert.ok(!compiledVisible.includes(hiddenName), `workflow nickname leaked into compiled prompt: ${recipe.id} -> ${hiddenName}`);
+  }
 }
-for (const familyId of Object.keys(canonicalFamilies)) assert.ok((familyCounts.get(familyId) ?? 0) >= 400, `family starved: ${familyId}`);
+for (const [familyId, family] of Object.entries(canonicalFamilies)) {
+  const count = familyCounts.get(familyId) ?? 0;
+  if (family.seedOnly) assert.equal(count, family.seedCount, `seed-only family count drift: ${familyId}`);
+  else assert.ok(count >= 400, `family starved: ${familyId}`);
+}
 
 const repoRecipe = built.recipes.find((r) => r.familyId === 'repo.audit.first');
 assert.ok(repoRecipe, 'repo.audit.first recipe missing');
@@ -29,4 +156,39 @@ assert.equal(card.ok, true);
 assert.equal(card.readyToCopy, true);
 assert.equal(card.provenance?.canonicalFamilyId, 'repo.audit.first');
 
-console.log(JSON.stringify({ status:'passed', owner:'jussray/promptos', runtime:'src/catalog-runtime', selected:built.recipes.length, candidates:built.candidateCount, families:Object.keys(canonicalFamilies).length, chiefEmbeddedCopyRequired:false }));
+const builderCard = openPromptCard(builderPrompts[0], inputsFor(builderPrompts[0]), {});
+assert.equal(builderCard.ok, true);
+assert.equal(builderCard.readyToCopy, true);
+assert.match(builderCard.preview, /RECIPE BUILD BRIEF/);
+
+const deepCard = openPromptCard(deepReasoningPrompts[0], inputsFor(deepReasoningPrompts[0]), {});
+assert.equal(deepCard.ok, true);
+assert.equal(deepCard.readyToCopy, true);
+assert.deepEqual(deepCard.provenance?.workflowLineage, ['ultrathink@1.6']);
+
+const challengeCard = openPromptCard(adversarialChallengePrompts[0], inputsFor(adversarialChallengePrompts[0]), {});
+assert.equal(challengeCard.ok, true);
+assert.equal(challengeCard.readyToCopy, true);
+assert.deepEqual(challengeCard.provenance?.workflowLineage, ['attack-ten','attack6000']);
+
+const researchCard = openPromptCard(researchExpansionPrompts[0], inputsFor(researchExpansionPrompts[0]), {});
+assert.equal(researchCard.ok, true);
+assert.equal(researchCard.readyToCopy, true);
+assert.match(researchCard.preview, /RECIPE BUILD BRIEF/);
+
+console.log(JSON.stringify({
+  status:'passed',
+  owner:'jussray/promptos',
+  runtime:'src/catalog-runtime',
+  selected:built.recipes.length,
+  candidates:built.candidateCount,
+  families:Object.keys(canonicalFamilies).length,
+  curatedTotal:built.curatedCount,
+  curatedBuilders:builderPrompts.length,
+  curatedResearchExpansion:researchExpansionPrompts.length,
+  researchExpansionGroups:researchExpansionGroups.length,
+  implicitDeepReasoningTriggers:deepReasoningPrompts.length,
+  implicitAdversarialTriggers:adversarialChallengePrompts.length,
+  visibleWorkflowNameLeaks:0,
+  chiefEmbeddedCopyRequired:false
+}));

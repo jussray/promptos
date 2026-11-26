@@ -1,0 +1,586 @@
+{
+  "schemaVersion": "1.0",
+  "registry": "promptos/repository-skill-audit",
+  "authority": "read-only-source-audit",
+  "coverageStatus": "partial",
+  "scope": "Initial 12 PromptOS app profiles plus related portfolio repositories discovered during the first source pass.",
+  "method": [
+    "GitHub repository-scoped code search for SKILL.md",
+    "Direct reads of discovered skill files, skill metadata, AGENTS.md and skills-lock.json",
+    "Blob SHA recorded for each directly fetched file",
+    "Search-index misses are not treated as proof that a repository has no skills"
+  ],
+  "records": [
+    {
+      "repository": "jussray/founder-control-room",
+      "profile": "founder-control-room",
+      "inventoryStatus": "verified-skill-sources-found",
+      "skillSources": [
+        {
+          "id": "devil",
+          "path": "skills/devil/SKILL.md",
+          "blobSha": "ebb9a2331bfba80ac5e9497ce0cca015914576e9",
+          "status": "active",
+          "classification": "fcr-native-founder-skill"
+        },
+        {
+          "id": "portfolio-control-plane",
+          "path": "skills/portfolio-control-plane/SKILL.md",
+          "blobSha": "8aed3f38145fc61d3ec5195e8444ddaf559a08fc",
+          "status": "active",
+          "classification": "fcr-native-governance-skill"
+        },
+        {
+          "id": "typescript-audit",
+          "path": "skills/typescript-audit/SKILL.md",
+          "blobSha": "151a278c6f003d0ede06acba752f2107d5674ba9",
+          "status": "active",
+          "classification": "fcr-native-engineering-skill"
+        },
+        {
+          "id": "typescript-behavior-tests",
+          "path": "skills/typescript-behavior-tests/SKILL.md",
+          "blobSha": "aba94ababb70f729c34a542af48f5e1048484a6e",
+          "status": "active",
+          "classification": "fcr-native-engineering-skill"
+        },
+        {
+          "id": "ultrathink-attack-godmode",
+          "path": "skills/ultrathink-attack-godmode/SKILL.md",
+          "blobSha": "709a8fd9a891bcc0de23e07ec821b7f28dd84a2a",
+          "status": "not-declared-in-frontmatter",
+          "classification": "fcr-native-execution-skill"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        }
+      ],
+      "retirementMetadata": [
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/skill.yaml",
+          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
+          "declaredStatus": "retired"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
+          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
+          "declaredStatus": "retired"
+        }
+      ],
+      "lockfiles": [
+        {
+          "path": "skills-lock.json",
+          "blobSha": "8273d840307572bb08eb4c59d0018a8f88a6aa9c",
+          "source": "cloudflare/skills",
+          "lockedPackageCount": 13,
+          "interpretation": "locked external skill references; not proof of runtime installation or activation"
+        }
+      ]
+    },
+    {
+      "repository": "jussray/chief-ai-machine",
+      "profile": "chief-ai-machine",
+      "inventoryStatus": "verified-skill-sources-found",
+      "skillSources": [
+        {
+          "id": "futureyou-me-v10",
+          "path": ".claude/skills/futureyou-me-v10/SKILL.md",
+          "blobSha": "2ca1fe87faa006814202854b8d68dfd62df6899c",
+          "status": "not-declared-in-frontmatter",
+          "classification": "chief-native-orchestration-adapter"
+        },
+        {
+          "id": "juss-os",
+          "path": ".agents/skills/juss-os/SKILL.md",
+          "blobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+          "status": "canonicalization-unknown",
+          "classification": "shared-operating-kernel-export"
+        },
+        {
+          "id": "nvidia-capability-evaluation",
+          "path": ".agents/skills/nvidia-capability-evaluation/SKILL.md",
+          "blobSha": "7a1fb4820895c2f9eab85a1c7ad58680a08c88fa",
+          "status": "advisory-only",
+          "classification": "chief-native-vendor-evaluation-skill"
+        },
+        {
+          "id": "pr-autopilot-triage",
+          "path": ".claude/skills/pr-autopilot-triage/SKILL.md",
+          "blobSha": "48becc7d6b52372f2e7e5c371055c50569ba7027",
+          "status": "not-declared-in-frontmatter",
+          "classification": "chief-native-workflow-skill"
+        },
+        {
+          "id": "local-build",
+          "path": "systems/skills/local-build/SKILL.md",
+          "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-cortex",
+          "path": "systems/skills/local-cortex/SKILL.md",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "turnstile-spin",
+          "path": ".agents/skills/turnstile-spin/SKILL.md",
+          "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7",
+          "status": "external-cloudflare-skill-copy",
+          "classification": "vendor-capability-skill"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        }
+      ],
+      "lockfiles": [
+        {
+          "path": "skills-lock.json",
+          "blobSha": "8273d840307572bb08eb4c59d0018a8f88a6aa9c",
+          "source": "cloudflare/skills",
+          "lockedPackageCount": 13,
+          "interpretation": "locked external skill references; not proof of runtime installation or activation"
+        }
+      ],
+      "retirementMetadata": [
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/skill.yaml",
+          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
+          "declaredStatus": "retired"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
+          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
+          "declaredStatus": "retired"
+        }
+      ]
+    },
+    {
+      "repository": "jussray/promptos",
+      "profile": "promptos",
+      "inventoryStatus": "verified-exported-operating-skills",
+      "skillSources": [
+        {
+          "id": "local-build",
+          "path": "systems/skills/local-build/SKILL.md",
+          "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+          "status": "active-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-cortex",
+          "path": "systems/skills/local-cortex/SKILL.md",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+          "status": "active-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "question-led-only",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "active-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        }
+      ],
+      "lockfiles": [],
+      "notes": [
+        "systems/EXPORT-INDEX.md describes a 22-skill exported set, while local-cortex says twenty-seven skills; reconcile the inventory count before calling it complete.",
+        "The inspected local-socrates source asks decision-changing questions and does not contain the full Devil steelman procedure.",
+        "The existing PromptOS app registry is catalog-only; proposed app-owned IDs are not verified installed skills."
+      ],
+      "retirementMetadata": [
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/skill.yaml",
+          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
+          "declaredStatus": "retired"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
+          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
+          "declaredStatus": "retired"
+        }
+      ]
+    },
+    {
+      "repository": "jussray/Sekret-Bip",
+      "profile": "sekret-bip",
+      "inventoryStatus": "verified-product-specific-skill-and-lockfile",
+      "skillSources": [
+        {
+          "id": "bip-current-state",
+          "path": ".agents/skills/bip-current-state/SKILL.md",
+          "blobSha": "8c2703ff10116b142b60b12284bd4d5c6d9615ea",
+          "status": "source-present",
+          "classification": "bip-native-founder-operator-skill"
+        }
+      ],
+      "lockfiles": [
+        {
+          "path": "skills-lock.json",
+          "blobSha": "6c105fe753ece0152519c6d11cf9a05d0ec0046a",
+          "source": "supabase/agent-skills",
+          "lockedPackageCount": 2,
+          "interpretation": "locked external skill references; not proof of runtime installation or activation"
+        }
+      ],
+      "notes": [
+        "AGENTS.md explicitly separates FCR governance, Chief orchestration, PromptOS skill ownership, SolContinuity verification, and Se’kret Bip product privacy and safety.",
+        "docs/MCP_SKILL_ROUTING.md is routing policy, not itself a SKILL.md package."
+      ]
+    },
+    {
+      "repository": "jussray/StoryEngine",
+      "profile": "storyengine",
+      "inventoryStatus": "verified-product-and-engineering-skills",
+      "skillSources": [
+        {
+          "id": "makevideo",
+          "path": ".claude/skills/makevideo/SKILL.md",
+          "blobSha": "857134ffca54f93072c0db776e67d32021004e69",
+          "status": "source-present",
+          "classification": "storyengine-native-creator-skill"
+        },
+        {
+          "id": "l99-operator",
+          "path": ".agents/skills/l99-operator/SKILL.md",
+          "blobSha": "f9ade212603dda48ad3a7e08443f438315ec92e7",
+          "status": "source-present",
+          "classification": "storyengine-native-operator-skill"
+        },
+        {
+          "id": "typescript-debugging-chain",
+          "path": "skills/typescript-debugging-chain/SKILL.md",
+          "blobSha": "1f9f00e6c9c995edd84caf0e8a16afe336fe387d",
+          "status": "source-present",
+          "classification": "storyengine-native-engineering-skill"
+        },
+        {
+          "id": "typescript-behavior-tests",
+          "path": "skills/typescript-behavior-tests/SKILL.md",
+          "blobSha": "94f046db610bd99bba3e37866e24f3a824b71201",
+          "status": "active",
+          "classification": "storyengine-native-engineering-skill"
+        },
+        {
+          "id": "local-build",
+          "path": "systems/skills/local-build/SKILL.md",
+          "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-cortex",
+          "path": "systems/skills/local-cortex/SKILL.md",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        }
+      ],
+      "lockfiles": [],
+      "notes": [
+        "AGENTS.md directly references l99-operator and typescript-debugging-chain; this is stronger evidence than code-search results alone."
+      ]
+    },
+    {
+      "repository": "jussray/solcontinuity",
+      "profile": "solcontinuity",
+      "inventoryStatus": "verified-vendor-skill-imports",
+      "skillSources": [
+        {
+          "id": "turnstile-spin",
+          "path": ".agents/skills/turnstile-spin/SKILL.md",
+          "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7",
+          "status": "external-cloudflare-skill-copy",
+          "classification": "vendor-capability-skill"
+        }
+      ],
+      "lockfiles": [
+        {
+          "path": "skills-lock.json",
+          "blobSha": "8273d840307572bb08eb4c59d0018a8f88a6aa9c",
+          "source": "cloudflare/skills",
+          "lockedPackageCount": 13,
+          "interpretation": "locked external skill references; not proof of runtime installation or activation"
+        }
+      ],
+      "notes": [
+        "systems/live-branding-rule.md is a system instruction, not a skill package.",
+        "No SolContinuity-native domain skill was confirmed in this first source pass."
+      ]
+    },
+    {
+      "repository": "jussray/jbh-private",
+      "profile": "juss-beautiful-hair",
+      "inventoryStatus": "verified-private-operations-skills",
+      "skillSources": [
+        {
+          "id": "juss-beautiful-hair-private",
+          "path": "skills/juss-beautiful-hair-private/SKILL.md",
+          "blobSha": "7e21c0fa9065c6bef6de3fb41dda36a1d323217d",
+          "status": "active",
+          "classification": "jbh-native-private-operator-skill"
+        },
+        {
+          "id": "devil",
+          "path": "skills/devil/SKILL.md",
+          "blobSha": "ece689ea733adc5c883bdf471a54e2f091be17b2",
+          "status": "active",
+          "classification": "jbh-native-founder-skill"
+        },
+        {
+          "id": "sales",
+          "path": "skills/sales/SKILL.md",
+          "blobSha": "7a03afcc0414e183b2475c72dd38f4ac1146439c",
+          "status": "active",
+          "classification": "jbh-native-founder-skill"
+        },
+        {
+          "id": "jbh-private-operator",
+          "path": ".agents/skills/jbh-private-operator/SKILL.md",
+          "blobSha": "8562ee9b3674c3f43e1a4d7222dcceac51708910",
+          "status": "source-present",
+          "classification": "jbh-native-agent-adapter"
+        }
+      ],
+      "lockfiles": [],
+      "notes": [
+        "Juss-beautiful-hair- and jussbeautifulhair-site are separate repositories; the private operator skill is verified in jbh-private, not assumed to be present in the storefront repo."
+      ]
+    },
+    {
+      "repository": "jussray/THINK-TANK",
+      "profile": "think-tank",
+      "inventoryStatus": "verified-shared-operating-exports",
+      "skillSources": [
+        {
+          "id": "local-build",
+          "path": "systems/skills/local-build/SKILL.md",
+          "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-cortex",
+          "path": "systems/skills/local-cortex/SKILL.md",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+          "status": "shared-export",
+          "classification": "shared-operating-skill-export"
+        }
+      ],
+      "lockfiles": [],
+      "notes": [
+        "No Think Tank-specific SKILL.md package was confirmed in the first search pass; AGENTS.md contains product operating instructions."
+      ]
+    },
+    {
+      "repository": "jussray/truth-weaver",
+      "profile": "truth-weaver",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "AGENTS.md was inspected; no direct SKILL.md references were found in the inspected excerpt. Absence is not established."
+      ]
+    },
+    {
+      "repository": "jussray/JussPay",
+      "profile": "juss-pay",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass. Repository tree and alternate instruction formats remain to be inspected."
+      ]
+    },
+    {
+      "repository": "jussray/Juss-beautiful-hair-",
+      "profile": "juss-beautiful-hair-main",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Private app repository is distinct from jbh-private and jussbeautifulhair-site; no indexed SKILL.md match in this pass."
+      ]
+    },
+    {
+      "repository": "jussray/jussbeautifulhair-site",
+      "profile": "juss-beautiful-hair-storefront",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "No indexed SKILL.md match in this pass; storefront agent instructions and other skill formats remain to be inspected."
+      ]
+    },
+    {
+      "repository": "jussray/sync-party-game",
+      "profile": "games-hub-related-sync",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "AGENTS.md exists and defines the product/runtime contract; no indexed SKILL.md package was found in this pass."
+      ]
+    },
+    {
+      "repository": "jussray/chatQuest",
+      "profile": "games-hub-related-chatquest",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+      ]
+    },
+    {
+      "repository": "jussray/jussray-bip-and-seek",
+      "profile": "games-hub-related-bip-and-seek",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+      ]
+    },
+    {
+      "repository": "jussray/LUMORA",
+      "profile": "games-hub-related-lumora",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
+      ]
+    },
+    {
+      "repository": "jussray/juss-protect-me",
+      "profile": "protect-me-model-one",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Protect Me Model One is outside the initial 12-profile manifest; include it in the next portfolio pass."
+      ]
+    },
+    {
+      "repository": "jussray/juss-protect-me-2",
+      "profile": "protect-me-model-two",
+      "inventoryStatus": "search-index-no-skill-match",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Protect Me Model Two is outside the initial 12-profile manifest; include it in the next portfolio pass."
+      ]
+    },
+    {
+      "profile": "drift",
+      "repository": null,
+      "inventoryStatus": "unresolved-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "DRIFT's authoritative repository has not been identified; no repository was guessed."
+      ]
+    }
+  ],
+  "retirementReview": {
+    "localDevil": {
+      "packageId": "local-devil",
+      "status": "retired-as-a-separate-shared-operating-skill",
+      "rationaleRecordedInMetadata": "Consolidated to reduce duplicate discovery; metadata says the steelman method was preserved in local-socrates.",
+      "finding": "The inspected local-socrates source is question-led and does not contain the full Devil steelman procedure. /devil nevertheless remains active through FCR skills/devil, JBH skills/devil, and ULTRATHINK godmode-devil-ultrathink. Retire only the local-devil package identity, not the command or capability.",
+      "doNotInfer": "Do not infer that the /devil command or capability is globally retired."
+    },
+    "localLeanBuildOrchestrator": {
+      "packageId": "local-lean-build-orchestrator",
+      "status": "retired-as-a-separate-shared-operating-skill",
+      "rationaleRecordedInMetadata": "Incremental grind mechanics merged into local-build; token-economy rules live in local-minimal-token-protocol.",
+      "finding": "The inspected local-build contains the TODO ledger, smallest-increment workflow, immediate tests, two-failure stop rule, commit checkpoints and token-budget tiers. local-minimal-token-protocol contains the token-economy rules.",
+      "doNotInfer": "Do not reactivate the retired package merely because its exported SKILL.md file remains in repositories."
+    }
+  },
+  "knownGaps": [
+    "Full recursive tree inventory for every repository is not yet complete.",
+    "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
+    "Protect Me Model One and Two are not yet represented in the PromptOS app manifest.",
+    "Games Hub has related repositories but no canonical hub repository is established in this audit.",
+    "DRIFT repository remains unresolved.",
+    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory."
+  ],
+  "governance": {
+    "owner": "Juss",
+    "authorityRepository": "jussray/founder-control-room",
+    "inheritanceContract": {
+      "path": "config/founder-intelligence.inheritance.json",
+      "blobSha": "204c3ffee55d6a0878559f59b926e50a74b6d625"
+    },
+    "skillSourceManifest": {
+      "path": "src/lib/fcrSkillSourceManifest.ts",
+      "blobSha": "9b47124c1cd62d434e599c57b2df9efe963e49bc",
+      "contract": "juss/fcr-skill-source-manifest@v1",
+      "behavior": "Discovers founder-owned skill files under the configured FCR skills root, hashes source, records status/scope/owner, and exposes prompt/resource references to FCR and Chief while tool exposure remains false."
+    },
+    "externalSkillIntake": {
+      "path": "src/lib/externalSkillIntake.ts",
+      "blobSha": "e4d22a6c248445469103f8204efd7ed07202a3d4",
+      "behavior": "Candidate discovery only; external skills remain QUARANTINED with executionAllowed false until pinned revision, license, security, sandbox, compatibility, and founder-approval gates pass."
+    },
+    "externalSecurityCatalog": {
+      "path": "src/founder-os-lab/externalSecuritySkillCatalog.ts",
+      "blobSha": "289d609b5d3d8cff1d104ad1cb81a55507c63034",
+      "behavior": "Read-only documentation/provenance catalog; execution disabled, auto-fetch disabled, and auto-handoff disabled."
+    },
+    "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority."
+  }
+}

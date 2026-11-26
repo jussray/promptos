@@ -77,6 +77,20 @@
         ]
       },
       {
+        "id": "visual-makeover-handoff-contract",
+        "name": "Visual Makeover advisory handoff acceptance",
+        "kind": "contract",
+        "command": "node scripts/verify-visual-makeover-handoff-contract.mjs",
+        "required": true,
+        "status": "active",
+        "evidencePaths": [
+          ".control-room/visual-makeover-handoff.contract.json",
+          ".control-room/product-boundary.json",
+          "scripts/verify-visual-makeover-handoff-contract.mjs",
+          ".github/workflows/control-room-tests.yml"
+        ]
+      },
+      {
         "id": "zapier-sdk-typecheck",
         "name": "Isolated Zapier SDK TypeScript",
         "kind": "typecheck",

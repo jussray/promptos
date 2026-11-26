@@ -51,7 +51,7 @@ jobs:
         run: node scripts/verify-github-app-contract.mjs
       - name: Install isolated Playwright request client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
-      - name: Prove signed webhook and installation-token path with Playwright
+      - name: Prove signed webhook and FCR relay round-trip with Playwright
         run: node e2e/github-app-runtime.mjs
       - name: Retain sanitized GitHub App proof
         if: always()

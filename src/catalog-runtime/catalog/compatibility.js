@@ -20,5 +20,5 @@ export function validateRecipeSpec(spec, appContext = {}) {
 }
 
 export function shouldRequirePlaywright(recipe, input) {
-  return Boolean(input?.touchesUi || input?.renderedBrowserFlow || recipe.pack === 'ux-ui-design' || recipe.riskLens === 'ux');
+  return Boolean(recipe.requiresUiProof || input?.touchesUi || input?.renderedBrowserFlow || recipe.pack === 'ux-ui-design' || recipe.riskLens === 'ux');
 }

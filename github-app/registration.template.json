@@ -1,5 +1,5 @@
 {
-  "contract": "promptos/github-app@v1",
+  "contract": "promptos/github-app@v2",
   "name": "PromptOS",
   "homepage_url": "https://github.com/jussray/promptos",
   "webhook_url_template": "{{PROMPTOS_GITHUB_APP_ORIGIN}}/github/webhook",
@@ -8,7 +8,7 @@
   "permissions": {
     "actions": "read",
     "contents": "read",
-    "issues": "write",
+    "issues": "read",
     "pull_requests": "read"
   },
   "events": [
@@ -17,20 +17,25 @@
     "workflow_run"
   ],
   "required_runtime_secrets": [
-    "GITHUB_APP_ID",
-    "GITHUB_APP_PRIVATE_KEY",
-    "GITHUB_WEBHOOK_SECRET"
+    "GITHUB_WEBHOOK_SECRET",
+    "PROMPTOS_RELAY_PRIVATE_KEY_JWK"
   ],
-  "optional_runtime_flags": {
-    "PROMPTOS_COMMENT_ON_FAILURES": "false by default; set to true only after a signed command receipt is proven"
-  },
+  "required_runtime_variables": [
+    "PROMPTOS_RELAY_KEY_ID",
+    "PROMPTOS_GIT_SHA",
+    "FCR_RELAY_TARGET_SHA"
+  ],
   "explicitly_not_granted": [
     "contents:write",
+    "issues:write",
     "pull_requests:write",
     "actions:write",
     "workflows:write",
     "administration",
     "secrets",
-    "deployments"
+    "deployments",
+    "merge",
+    "billing",
+    "publication"
   ]
 }

@@ -6,6 +6,9 @@
 (function(){
 'use strict';
 
+var PromptState = window.PromptOSState;
+if (!PromptState) throw new Error('PromptOS state boundary failed to load');
+
 /* ── 1. IN-MEMORY STATE (no localStorage — sandbox-safe) ──────────── */
 var STATE = {
   stars: {},          // { [promptId]: true }
@@ -13,11 +16,20 @@ var STATE = {
   theme: 'dark',
   page: 'library',
   filter: 'all',
-  search: ''
+  search: '',
+  recent: []          // session-only activity log for the home panel; never exported
 };
 
+// Saved custom prompts stay locked until a reviewed release flips this flag.
+var CUSTOM_PROMPTS_UNLOCKED = false;
+
 function serializeState(){
-  return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
+  return PromptState.serializeState({
+    schemaVersion: PromptState.SCHEMA_VERSION,
+    stars: STATE.stars,
+    custom: STATE.custom,
+    theme: STATE.theme
+  });
 }
 
 /* ── 2. BENCH DATA ────────────────────────────────────────────────── */
@@ -63,12 +75,26 @@ function toast(msg, dur){
 }
 
 function copy(text){
-  navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta); toast('<b>Copied</b>');
-  });
+  // Clipboard API exists only in secure contexts: on the public plain-HTTP
+  // origin navigator.clipboard is undefined, and reading .writeText off it
+  // throws synchronously (uncaught pageerror, no toast, proof's #mCopy step
+  // starves). Same guard pattern as parts/p10-cont-ops-growth.js and
+  // parts/p11-make-ui.mjs copyText: fall back to the textarea +
+  // execCommand path, which works on insecure origins.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ toast('<b>Copied</b> to clipboard'); }).catch(function(){
+      fallbackCopy(text);
+    });
+    return;
+  }
+  fallbackCopy(text);
+}
+
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); toast('<b>Copied</b>');
 }
 
 function applyTheme(t){
@@ -77,6 +103,98 @@ function applyTheme(t){
   if (btn) btn.innerHTML = t === 'dark'
     ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
     : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+}
+
+/* ── 4b. HOME PANELS (recent activity + truthful status; session-only) ── */
+var RECENT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.4 3 7.6 7.5 9.5 4.5-1.9 7.5-5.1 7.5-9.5V6Z"/><path d="M9 11.5h6M9 14.5h4"/></svg>';
+function recordRecent(id, action){
+  id = parseInt(id); if (isNaN(id)) return;
+  STATE.recent = STATE.recent.filter(function(r){ return r.id !== id; });
+  STATE.recent.unshift({ id: id, action: action, ts: Date.now() });
+  if (STATE.recent.length > 4) STATE.recent.length = 4;
+  renderHome();
+}
+function agoText(ts){
+  var m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  return Math.floor(m / 60) + ' h ago';
+}
+function renderHome(){
+  var list = qs('#homeRecent'); if (!list) return;
+  var all = allPrompts();
+  list.textContent = '';
+  var shown = 0;
+  STATE.recent.forEach(function(r){
+    var p = all.find(function(x){ return x.id === r.id; });
+    if (!p) return;
+    shown++;
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'recent-row';
+    var ic = document.createElement('span'); ic.className = 'recent-ic'; ic.innerHTML = RECENT_ICON;
+    var tx = document.createElement('span'); tx.className = 'recent-text';
+    var t = document.createElement('span'); t.className = 'recent-title'; t.textContent = p.title;
+    var w = document.createElement('span'); w.className = 'recent-when'; w.textContent = agoText(r.ts);
+    tx.appendChild(t); tx.appendChild(w);
+    var a = document.createElement('span'); a.className = 'recent-tag t-' + r.action.toLowerCase(); a.textContent = r.action;
+    b.appendChild(ic); b.appendChild(tx); b.appendChild(a);
+    b.addEventListener('click', function(){ openModal(r.id); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  var empty = qs('#homeRecentEmpty'); if (empty) empty.hidden = shown > 0;
+  var starred = Object.keys(STATE.stars).filter(function(k){ return STATE.stars[k]; }).length;
+  var plats = new Set(); all.forEach(function(p){ (p.platforms||[]).forEach(function(x){ plats.add(x); }); });
+  var set = function(sel, v){ var el = qs(sel); if (el) el.textContent = v; };
+  set('#hsPrompts', all.length); set('#hsStarred', starred);
+  set('#hsCustom', STATE.custom.length); set('#hsPlatforms', plats.size);
+}
+
+/* ── Mockup pieces: established prompts + status strip. Rollback: delete through wireEstablished's end + its boot() call. ── */
+function goTo(page){
+  var tab = document.querySelector('.mobile-nav [data-page="'+page+'"], .sidebar [data-page="'+page+'"]');
+  if (tab) { tab.click(); return true; }
+  if (qs('#page-'+page)) { switchPage(page); return true; }
+  return false;
+}
+function wireEstablished(){
+  var all = allPrompts();
+  document.querySelectorAll('.est-row[data-est]').forEach(function(btn){
+    var id = parseInt(btn.dataset.est, 10);
+    var p = all.find(function(x){ return x.id === id; });
+    if (!p) {
+      // the card names a prompt this build doesn't ship: say so instead of opening nothing
+      btn.disabled = true;
+      var miss = document.createElement('span'); miss.className = 'est-missing'; miss.textContent = 'Not in this build';
+      var tx = btn.querySelector('.est-text'); if (tx) tx.appendChild(miss);
+      return;
+    }
+    var sub = btn.querySelector('.est-text small'); if (sub && p.sub) sub.textContent = p.sub;
+    var label = btn.querySelector('.est-text b');
+    btn.setAttribute('aria-label', (label ? label.textContent : p.title) + ': opens ' + p.title);
+    btn.title = 'Opens ' + p.title;
+    btn.addEventListener('click', function(){ openModal(id); });
+  });
+  document.querySelectorAll('[data-go]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var page = btn.dataset.go;
+      if (!goTo(page)) { toast('That view is not available in this build'); return; }
+      if (btn.dataset.q) { var s = qs('#search'); if (s) { s.value = btn.dataset.q; s.dispatchEvent(new Event('input')); } }
+      if (page === 'library') setTimeout(function(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    });
+  });
+  // catalog count mirrors the canonical count pill written by src/catalog-ui.js
+  var pill = qs('#countPill'), ssCat = qs('#ssCatalog');
+  function syncCatalog(){
+    var m = pill && /([\d,]+)\s*recipes/i.exec(pill.textContent || '');
+    if (m && ssCat) { ssCat.textContent = m[1] + ' recipes'; return true; }
+    return false;
+  }
+  if (pill && ssCat && !syncCatalog()) {
+    var mo = new MutationObserver(function(){ if (syncCatalog()) mo.disconnect(); });
+    mo.observe(pill, { childList: true, characterData: true, subtree: true });
+    setTimeout(function(){ if (!syncCatalog()) { mo.disconnect(); ssCat.textContent = 'Catalog unavailable'; } }, 10000);
+  }
 }
 
 function allPrompts(){
@@ -93,7 +211,7 @@ function allPrompts(){
 function renderAll(){
   renderStats(); renderChips(); renderGrid();
   renderCustomList(); renderBench();
-  updateCounts();
+  updateCounts(); renderHome();
 }
 
 function renderStats(){
@@ -196,12 +314,14 @@ function qs(sel){ return document.querySelector(sel); }
 function toggleStar(id){
   id = parseInt(id);
   STATE.stars[id] = !STATE.stars[id];
-  if (!STATE.stars[id]) delete STATE.stars[id];
+  if (!STATE.stars[id]) delete STATE.stars[id]; else recordRecent(id, 'Saved');
   renderStats(); renderChips(); renderGrid();
   var mStar = qs('#mStar');
   if (mStar && mStar.dataset.id == id) {
     mStar.classList.toggle('on', !!STATE.stars[id]);
     mStar.textContent = STATE.stars[id] ? '★' : '☆';
+    mStar.setAttribute('aria-pressed', STATE.stars[id] ? 'true' : 'false');
+    mStar.setAttribute('aria-label', STATE.stars[id] ? 'Remove prompt from starred' : 'Add prompt to starred');
   }
 }
 
@@ -231,6 +351,7 @@ function openModal(id){
   renderModalTabs(tabs, versions);
   qs('#modalWrap').classList.add('open');
   document.body.style.overflow = 'hidden';
+  recordRecent(id, 'Opened');
 }
 
 function renderModalTabs(tabs, versions){
@@ -281,6 +402,20 @@ var BUILDER_TEMPLATES = {
   }
 };
 
+/* Council + tool platforms. Each entry shapes the same four builder fields
+   (context, task, constraints, output) the way that surface reads best.
+   Granola and Obsidian are context surfaces, not general chat models: Granola
+   only knows what was said in a meeting, Obsidian only knows the vault. */
+var PACK_ROLES = { coding:['senior software engineer','Repo'], research:['founder-grade research analyst','Scope'], redteam:['red-team security auditor','Target'], system:['platform architect','System'], design:['product designer','Project'] };
+var PLATFORM_FORMATS = {
+  gemini: function(role,label,r,task,con,fmt){ return '## Role\n'+role+'\n\n## '+label+'\n'+r+'\n\n## Task\n'+task+'\n\n## Constraints\n'+con+'\n\n## Output format\n'+fmt; },
+  muse: function(role,label,r,task,con,fmt){ return 'You are a '+role+'. Work in short, checkable steps.\n\n'+label+': '+r+'\nTask: '+task+'\nConstraints: '+con+'\n\nReturn: '+fmt+'\nFlag anything you could not verify.'; },
+  meta: function(role,label,r,task,con,fmt){ return 'Act as a '+role+'.\n\n'+label+': '+r+'\nWhat I need: '+task+'\nKeep to: '+con+'\nAnswer as: '+fmt; },
+  deepseek: function(role,label,r,task,con,fmt){ return 'Role: '+role+'.\n'+label+': '+r+'\nTask: '+task+'\nConstraints: '+con+'\nShow the key reasoning steps, then give the final answer as: '+fmt; },
+  granola: function(role,label,r,task,con,fmt){ return 'Using only what was said in this meeting (notes and transcript), act as a '+role+'.\n\n'+label+': '+r+'\nTask: '+task+'\nConstraints: '+con+'\nIf something was not discussed, write "not discussed" rather than guessing. Quote the speaker where it matters.\nReturn: '+fmt; },
+  obsidian: function(role,label,r,task,con,fmt){ return 'Act as a '+role+' and return one ready-to-save Obsidian note.\n\n'+label+': '+r+'\nTask: '+task+'\nConstraints: '+con+'\n\nNote requirements:\n- YAML frontmatter with title, date, tags and status\n- [[wikilinks]] to related notes, only where the vault would plausibly have them\n- Body in markdown, sections as: '+fmt+'\n- Put open questions in a final "## Open" list'; }
+};
+
 function buildPrompt(){
   var pack = qs('#bPack').value;
   var plat = qs('#bPlatform').value.toLowerCase();
@@ -290,6 +425,8 @@ function buildPrompt(){
   var fmt  = qs('#bFormat').value;
   var tpls = BUILDER_TEMPLATES[pack];
   if (!tpls) return 'No template for pack: ' + pack;
+  var fmtFn = PLATFORM_FORMATS[plat];
+  if (fmtFn && PACK_ROLES[pack]) return fmtFn(PACK_ROLES[pack][0], PACK_ROLES[pack][1], repo, task, con, fmt);
   var fn = tpls[plat] || tpls['chatgpt'];
   return fn(repo, task, con, fmt);
 }
@@ -339,6 +476,12 @@ function generateFreestyle(ask, plats){
     if (plats.indexOf('claude')>-1)  versions.claude  = '<role>\nExpert '+catLabel+' advisor\n</role>\n\n<objective>\n'+ask+'\n</objective>\n\n<instructions>\n1. Understand full scope before acting.\n2. Ask one clarifying question if ambiguous.\n3. Diagnose before fixing.\n4. Be specific — no generic advice.\n5. Flag risks and assumptions.\n</instructions>';
     if (plats.indexOf('perplexity')>-1) versions.perplexity = 'Research this and return current, sourced answers:\n\n' + ask + '\n\nRequirements:\n- Cite sources\n- Prioritise 2024-2026 data\n- Flag any conflicting findings';
   }
+  if (plats.indexOf('gemini')>-1)   versions.gemini   = '## Role\nExpert '+catLabel+' advisor\n\n## Task\n'+ask+'\n\n## Instructions\n1. Understand the full scope before acting.\n2. Diagnose before fixing.\n3. Be specific; no generic advice.\n4. Separate verified facts from assumptions.\n\n## Output format\nDiagnosis, then the smallest correct action, then risks.';
+  if (plats.indexOf('muse')>-1)     versions.muse     = 'You are an expert '+catLabel+' advisor. Work in short, checkable steps.\n\nTask: '+ask+'\n\n1. State what you understand the task to be.\n2. Diagnose before any fix.\n3. Give the smallest correct action.\n4. Flag anything you could not verify.';
+  if (plats.indexOf('meta')>-1)     versions.meta     = 'Act as an expert '+catLabel+' advisor.\n\nWhat I need: '+ask+'\n\nGive me the diagnosis first, then the smallest fix, then what could still go wrong. Keep it specific.';
+  if (plats.indexOf('deepseek')>-1) versions.deepseek = 'Task: '+ask+'\n\nWork through the problem step by step, showing the key reasoning. Then give a final answer with: the diagnosis, the smallest correct action, and the main risk. State any assumption you had to make.';
+  if (plats.indexOf('granola')>-1)  versions.granola  = 'Using only what was said in this meeting (notes and transcript):\n\n'+ask+'\n\nQuote the speaker where it matters. If something was not discussed, write "not discussed" instead of guessing. End with decisions made, open questions and owners.';
+  if (plats.indexOf('obsidian')>-1) versions.obsidian = 'Return one ready-to-save Obsidian note for this:\n\n'+ask+'\n\nRequirements:\n- YAML frontmatter: title, date, tags, status\n- [[wikilinks]] to related notes only where the vault would plausibly have them\n- Sections: Context, Findings, Next actions\n- A final "## Open" list of unanswered questions';
   if (plats.indexOf('figma')>-1)   versions.figma   = '<role>\nFigma design assistant\n</role>\n\n<connector>Requires Figma connector in Claude.</connector>\n\n<objective>\n'+ask+'\n</objective>\n\n<instructions>\n1. Read the relevant frames first.\n2. Diagnose the issue.\n3. Propose changes with layer names.\n</instructions>';
   if (plats.indexOf('canva')>-1)   versions.canva   = '<role>\nCanva brand designer\n</role>\n\n<connector>Requires Canva connector in Claude.</connector>\n\n<objective>\n'+ask+'\n</objective>\n\n<instructions>\n1. Confirm brand kit.\n2. Draft the asset.\n3. Describe before creating.\n</instructions>';
   if (plats.indexOf('shopify')>-1) versions.shopify = '<role>\nShopify commerce assistant\n</role>\n\n<connector>Requires Shopify connector in Claude.</connector>\n\n<objective>\n'+ask+'\n</objective>\n\n<instructions>\n1. Check current store state first.\n2. Propose change.\n3. Confirm before applying.\n</instructions>';
@@ -348,9 +491,13 @@ function generateFreestyle(ask, plats){
 
 /* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
 function saveCustomPrompt(title, sub, cat, platforms, body){
-  var id = 'c_' + Date.now();
-  STATE.custom.push({ id: id, emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() });
+  if (!CUSTOM_PROMPTS_UNLOCKED) { toast('Saved prompts are locked in this build'); return false; }
+  var candidate = { id: 'c_' + Date.now(), emoji: '✨', title: title, sub: sub, cat: cat, platforms: platforms, body: body, ts: Date.now() };
+  var validation = PromptState.validateState({ custom: [candidate], theme: STATE.theme });
+  if (!validation.ok || validation.findings.length) { toast('Prompt rejected by safety validation'); return false; }
+  STATE.custom.push(validation.value.custom[0]);
   renderAll();
+  return true;
 }
 
 function deleteCustom(id){
@@ -360,6 +507,7 @@ function deleteCustom(id){
 
 function renderCustomList(){
   var el = qs('#customList'); if (!el) return;
+  if (!CUSTOM_PROMPTS_UNLOCKED) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">Saved prompts are locked in this build.</div>'; return; }
   if (!STATE.custom.length) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">No saved prompts yet.</div>'; return; }
   el.innerHTML = '';
   STATE.custom.forEach(function(p){
@@ -391,6 +539,7 @@ function renderBench(){
 
 /* ── 12. EXPORT / IMPORT ──────────────────────────────────────────── */
 function exportState(){
+  if (!confirm('Export ' + STATE.custom.length + ' custom prompts and starred state? The file contains your prompt content.')) return false;
   var blob = new Blob([serializeState()], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'promptos-state.json'; a.click();
   toast('State exported');
@@ -398,13 +547,20 @@ function exportState(){
 
 function importState(json){
   try {
+    if (typeof json !== 'string' || json.length > PromptState.LIMITS.maxImportBytes) throw new Error('Import too large');
     var data = JSON.parse(json);
-    if (data.stars) STATE.stars = data.stars;
-    if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
-    if (Array.isArray(data.custom)) STATE.custom = data.custom;
+    var validation = PromptState.validateState(data);
+    if (!validation.ok) throw new Error(validation.errors[0]);
+    if (validation.findings.length) throw new Error('Sensitive-looking material detected');
+    var review = PromptState.summarizeImport(validation.value, { custom: STATE.custom });
+    if (!confirm('Import review: ' + review.additions + ' additions, ' + review.updates + ' updates, ' + review.conflicts + ' conflicts. Continue?')) return false;
+    if (validation.value.stars) STATE.stars = validation.value.stars;
+    if (validation.value.theme) { STATE.theme = validation.value.theme; applyTheme(STATE.theme); }
+    if (CUSTOM_PROMPTS_UNLOCKED) STATE.custom = validation.value.custom;
     renderAll();
     toast('State imported');
-  } catch(e) { toast('Invalid JSON'); }
+    return true;
+  } catch(e) { toast('Import blocked: ' + (e.message || 'invalid state')); return false; }
 }
 
 /* ── 13. NAV / PAGE SWITCHING ─────────────────────────────────────── */
@@ -435,7 +591,24 @@ function boot(){
   });
 
   document.querySelectorAll('[data-page]').forEach(function(btn){
-    btn.addEventListener('click', function(){ switchPage(btn.dataset.page); });
+    btn.addEventListener('click', function(){
+      // Discover tile: already on Library, so bring the prompt grid into view and focus the search box.
+      if (btn.classList.contains('tile') && btn.dataset.page === 'library') {
+        switchPage('library');
+        var grid = qs('#grid'); if (grid) grid.scrollIntoView({ block: 'start' });
+        var search = qs('#search'); if (search) search.focus({ preventScroll: true });
+        return;
+      }
+      // Organize tile: its job is starring and saving, and stars live in Library, so open the Starred view there.
+      if (btn.classList.contains('tile') && btn.dataset.page === 'custom') {
+        var hasStars = Object.keys(STATE.stars).some(function(k){ return STATE.stars[k]; });
+        if (hasStars) { STATE.filter = '⭐ starred'; STATE.search = ''; var s2 = qs('#search'); if (s2) s2.value = ''; renderAll(); }
+        else { toast('Star a prompt in Library to organize it here'); }
+        switchPage('library');
+        return;
+      }
+      switchPage(btn.dataset.page);
+    });
   });
 
   var searchEl = qs('#search');
@@ -444,6 +617,30 @@ function boot(){
     STATE.filter = 'all';
     renderChips(); renderGrid();
   });
+
+  var ask = qs('#search');
+  function toGrid(){
+    if (!qs('#page-library.on')) switchPage('library');
+    setTimeout(function(){ var g = qs('#grid'); if (g && g.scrollIntoView) g.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+  }
+  function toFreestyle(){
+    var fs = qs('#fsAsk'); if (fs && ask) fs.value = ask.value.trim();
+    switchPage('freestyle'); if (fs) fs.focus();
+  }
+  if (ask) {
+    ask.addEventListener('input', function(){ if (!qs('#page-library.on')) switchPage('library'); });
+    ask.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && document.documentElement.getAttribute('data-theme') === 'dark') { e.preventDefault(); toFreestyle(); }
+    });
+    var on = function(id, fn){ var el = qs(id); if (el) el.addEventListener('click', fn); };
+    on('#askSend', toFreestyle);
+    on('#askLib', toGrid);
+    on('#viewAll', toGrid);
+    on('#askPlus', function(){ switchPage('custom'); });
+    on('#askGlobe', function(){ switchPage('bench'); });
+    on('#askFlow', function(){ switchPage(qs('#page-mission') ? 'mission' : 'builder'); });
+  }
+  wireEstablished();
 
   qs('#mClose').addEventListener('click', closeModal);
   qs('#mClose2').addEventListener('click', closeModal);
@@ -455,7 +652,7 @@ function boot(){
   });
 
   qs('#mCopy').addEventListener('click', function(){
-    var body = qs('#mBody'); if (body) copy(body.textContent);
+    var body = qs('#mBody'); if (body) { copy(body.textContent); if (_openId !== null) recordRecent(_openId, 'Used'); }
   });
 
   ['#bPack','#bPlatform','#bRepo','#bTask','#bConstraints','#bFormat'].forEach(function(sel){
@@ -468,8 +665,7 @@ function boot(){
   });
   qs('#saveBuilder').addEventListener('click', function(){
     var title = qs('#bTask').value.slice(0,60) || 'Builder prompt';
-    saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt());
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(title, 'from builder', qs('#bPack').value, [qs('#bPlatform').value.toLowerCase()], buildPrompt())) toast('Saved to My Prompts');
   });
 
   var fsState = null;
@@ -519,8 +715,7 @@ function boot(){
   qs('#fsSave').addEventListener('click', function(){
     if (!fsState) return;
     var firstBody = fsState.versions[Object.keys(fsState.versions)[0]]||'';
-    saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody);
-    toast('Saved to My Prompts');
+    if (saveCustomPrompt(fsState.title, fsState.sub, fsState.cat, fsState.platforms, firstBody)) toast('Saved to My Prompts');
   });
   qs('#fsAsk').addEventListener('keydown', function(e){
     if ((e.metaKey||e.ctrlKey) && e.key==='Enter') runFreestyle();
@@ -534,7 +729,7 @@ function boot(){
     var plats = qs('#cPlatforms').value.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
     var body  = qs('#cBody').value.trim();
     if (!body) { toast('Add a prompt body'); return; }
-    saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body);
+    if (!saveCustomPrompt(title, sub, cat, plats.length ? plats : ['chatgpt'], body)) return;
     qs('#cTitle').value=''; qs('#cSub').value=''; qs('#cPlatforms').value=''; qs('#cBody').value='';
     toast('Prompt saved');
   });

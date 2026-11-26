@@ -9,6 +9,7 @@ const AUTH_RUNTIME = 'parts/auth.js';
 const INDEX_PATH = 'index.html';
 const EXPECTED_INDEX_SCRIPTS = [
   'parts/auth.js',
+  'parts/state.js',
   'parts/p05-new-prompts.js',
   'parts/p06-gap-prompts.js',
   'parts/p07-ship-ultrathink-skills.js',
@@ -34,6 +35,7 @@ const FORBIDDEN_BROWSER_GIST_MARKERS = [
   'STATE.sync',
   'debouncePush',
   'injectSyncUI',
+  'sync via GitHub Gist',
 ];
 const REQUIRED_PERSISTENCE_TRUTH = [
   "canonicalAuthority: 'Founder Control Room'",
@@ -186,7 +188,8 @@ for (const file of promptModules) {
 
 const appRuntime = await readFile(APP_RUNTIME, 'utf8');
 const authRuntime = await readFile(AUTH_RUNTIME, 'utf8');
-const browserRuntime = `${appRuntime}\n${authRuntime}`;
+const indexShell = await readFile('index.html', 'utf8');
+const browserRuntime = `${appRuntime}\n${authRuntime}\n${indexShell}`;
 const presentGistMarkers = FORBIDDEN_BROWSER_GIST_MARKERS.filter((marker) => browserRuntime.includes(marker));
 if (presentGistMarkers.length > 0) {
   errors.push(`browser Gist credential capability must be absent: ${presentGistMarkers.join(', ')}`);

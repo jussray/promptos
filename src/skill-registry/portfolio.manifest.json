@@ -1,0 +1,591 @@
+{
+  "schemaVersion": "1.0",
+  "registry": "promptos/app-aligned-skills",
+  "authority": "catalog-and-compatibility-only",
+  "sharedSkillSource": "jussray/ULTRATHINK-",
+  "sharedSkills": [
+    {
+      "id": "confess",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/confess/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "structured truth and accountability",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "futureyou-me-v10",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/futureyou-me-v10/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "future-oriented decision perspective",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "godmode-devil-ultrathink",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/godmode-devil-ultrathink/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "deep reasoning and adversarial challenge",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "juss-af-skills-pack",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-af-skills-pack/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "reusable Juss operating skill pack",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "juss-command-codex",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-command-codex/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "portable command semantics",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "juss-os",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/juss-os/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "shared operating system conventions",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "reasoning-stack",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/reasoning-stack/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "structured reasoning workflows",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    },
+    {
+      "id": "truthmode",
+      "source": "jussray/ULTRATHINK-",
+      "sourcePath": ".claude/skills/truthmode/SKILL.md",
+      "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
+      "authority": "advisory",
+      "purpose": "truth and evidence discipline",
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
+    }
+  ],
+  "apps": [
+    {
+      "id": "founder-control-room",
+      "name": "Founder Control Room",
+      "repository": "jussray/founder-control-room",
+      "role": "founder-decision-execution-authority-evidence-plane",
+      "authorityOwner": "founder-control-room",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "portfolio-governance",
+        "founder-authorization",
+        "cross-app-evidence",
+        "distribution-governance",
+        "deployment-oversight"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "founder-control-room",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/founder-control-room"
+      ]
+    },
+    {
+      "id": "chief-ai-machine",
+      "name": "Chief AI Machine",
+      "repository": "jussray/chief-ai-machine",
+      "role": "governed-ai-cognition-proposal-layer",
+      "authorityOwner": "chief-ai-machine",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "agent-orchestration",
+        "capability-routing",
+        "agent-identity",
+        "tool-governance",
+        "execution-receipts"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "worker",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "chief-ai-machine",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/chief-ai-machine"
+      ]
+    },
+    {
+      "id": "promptos",
+      "name": "PromptOS",
+      "repository": "jussray/promptos",
+      "role": "human-ai-operating-layer",
+      "authorityOwner": "promptos",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "intent-capture",
+        "context-shaping",
+        "workflow-composition",
+        "skill-catalog-management",
+        "portable-operating-patterns"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "catalog"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "promptos",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/promptos",
+        "jussray/ULTRATHINK-"
+      ]
+    },
+    {
+      "id": "solcontinuity",
+      "name": "SolContinuity",
+      "repository": "jussray/solcontinuity",
+      "role": "independent-continuity-and-resilience-system",
+      "authorityOwner": "solcontinuity",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "continuity-state",
+        "recovery-planning",
+        "drift-detection",
+        "resilience-evaluation"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "service",
+          "api"
+        ],
+        "requiresPlaywrightForUi": false
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "solcontinuity",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/solcontinuity"
+      ]
+    },
+    {
+      "id": "sekret-bip",
+      "name": "Se’kret Bip",
+      "repository": "jussray/Sekret-Bip",
+      "role": "teen-and-family-wellness-companion",
+      "authorityOwner": "sekret-bip",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "age-assurance",
+        "guardian-consent",
+        "teen-privacy",
+        "parent-bridge",
+        "companion-safety",
+        "character-world-continuity"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "mobile",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "sekret-bip",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/Sekret-Bip"
+      ]
+    },
+    {
+      "id": "storyengine",
+      "name": "StoryEngine",
+      "repository": "jussray/StoryEngine",
+      "role": "creator-studio",
+      "authorityOwner": "storyengine",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "story-structure",
+        "chapter-production",
+        "image-asset-lifecycle",
+        "creator-workflows"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "storyengine",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/StoryEngine"
+      ]
+    },
+    {
+      "id": "truth-weaver",
+      "name": "Truth Weaver",
+      "repository": "jussray/truth-weaver",
+      "role": "legal-navigation-product",
+      "authorityOwner": "truth-weaver",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "legal-navigation",
+        "document-analysis",
+        "evidence-organization",
+        "legal-content-boundaries"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "truth-weaver",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/truth-weaver"
+      ]
+    },
+    {
+      "id": "juss-pay",
+      "name": "JussPay",
+      "repository": "jussray/JussPay",
+      "role": "payment-routing-infrastructure",
+      "authorityOwner": "juss-pay",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "payment-routing",
+        "payment-state-reconciliation",
+        "webhook-verification",
+        "live-mode-safety"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "api",
+          "worker"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "juss-pay",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/JussPay"
+      ]
+    },
+    {
+      "id": "juss-beautiful-hair",
+      "name": "Juss Beautiful Hair",
+      "repository": "jussray/Juss-beautiful-hair-",
+      "role": "commerce-storefront",
+      "authorityOwner": "juss-beautiful-hair",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "storefront-integrity",
+        "catalog-operations",
+        "cart-checkout-integrity",
+        "commerce-seo"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "storefront"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "juss-beautiful-hair",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/Juss-beautiful-hair-",
+        "jussray/jbh-private",
+        "jussray/jussbeautifulhair-site"
+      ]
+    },
+    {
+      "id": "think-tank",
+      "name": "Think Tank",
+      "repository": "jussray/THINK-TANK",
+      "role": "research-and-idea-development",
+      "authorityOwner": "think-tank",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "idea-evaluation",
+        "research-synthesis",
+        "opportunity-mapping",
+        "evidence-backed-recommendations"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "think-tank",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/THINK-TANK"
+      ]
+    },
+    {
+      "id": "games-hub",
+      "name": "Games Hub",
+      "repository": null,
+      "role": "gaming-ecosystem",
+      "authorityOwner": "games-hub",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "game-hub-routing",
+        "multiplayer-safety",
+        "game-state-verification",
+        "player-progression"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "game-client",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "repositoryStatus": "unresolved",
+      "relatedRepositories": [
+        "jussray/sync-party-game",
+        "jussray/chatQuest",
+        "jussray/jussray-bip-and-seek",
+        "jussray/LUMORA"
+      ],
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "games-hub",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/sync-party-game",
+        "jussray/chatQuest",
+        "jussray/jussray-bip-and-seek",
+        "jussray/LUMORA"
+      ]
+    },
+    {
+      "id": "drift",
+      "name": "DRIFT",
+      "repository": null,
+      "role": "verification-drift-system",
+      "authorityOwner": "drift",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "baseline-drift-detection",
+        "verification-receipts",
+        "request-access-governance",
+        "drift-remediation"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "worker",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "repositoryStatus": "unresolved",
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "drift",
+      "sourceAuditStatus": "unresolved",
+      "sourceAuditRepositories": []
+    }
+  ],
+  "invariants": [
+    "PromptOS catalogs and resolves skills; it does not grant execution authority.",
+    "Every app remains the authority owner for its own product-specific skills.",
+    "Shared skills are references to ULTRATHINK source packages, not copied app instructions.",
+    "Skill discovery is not installation, execution, approval, or authorization.",
+    "A skill must explicitly declare compatibility with the requesting app.",
+    "External skills remain quarantined until their independent intake gates pass.",
+    "Shared operating skills resolve only for authorized repository operators and are never implicitly exposed to product end users.",
+    "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active.",
+    "FCR remains the portfolio governance and approval authority; PromptOS must not create a competing approval or distribution authority.",
+    "A partial repository skill audit is not evidence of absence; every app profile carries explicit audit coverage and source repositories."
+  ],
+  "sharedSkillDistribution": "repository-operator-only",
+  "governanceAuthority": "jussray/founder-control-room",
+  "governanceContract": "config/founder-intelligence.inheritance.json",
+  "sourceAudit": "src/skill-registry/repository-skill-audit.v1.json"
+}

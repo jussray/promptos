@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "contractId": "promptos/visual-makeover-handoff-acceptance@v1",
+  "status": "active",
+  "sourceProduct": "Visual Makeover",
+  "sourceRepository": "jussray/visual-makeover",
+  "acceptedSourceContract": "visual-makeover/promptos-handoff@v1",
+  "requiredEvidenceContract": "juss/browser-reality@v1",
+  "purpose": "Accept evidence-bound Visual Makeover proposal drafts as PromptOS governance input without inheriting browser or execution authority.",
+  "acceptance": {
+    "mode": "advisory-input-only",
+    "mayCompileGovernedDraft": true,
+    "mayAutoRegisterWorkflow": false,
+    "mayExecuteBrowser": false,
+    "mayWidenBrowserGrant": false,
+    "mayMutateSourceRepository": false,
+    "mayDeploy": false,
+    "mayPublish": false
+  },
+  "requiredArtifactFields": [
+    "contractId",
+    "status",
+    "sourceProduct",
+    "targetProduct",
+    "intent",
+    "authority",
+    "executionAuthorized",
+    "registrationAuthority",
+    "browserRealityContract",
+    "source",
+    "evidence",
+    "makeover",
+    "requestedVerification",
+    "authorityBoundary"
+  ],
+  "requiredValues": {
+    "status": "draft",
+    "targetProduct": "PromptOS",
+    "authority": "advisory-only",
+    "executionAuthorized": false,
+    "registrationAuthority": false,
+    "browserRealityContract": "juss/browser-reality@v1"
+  },
+  "evidenceRules": {
+    "fingerprint": "lowercase-sha256",
+    "rawBrowserPayloadAllowed": false,
+    "rawScreenshotBytesAllowed": false,
+    "browserGrantTokenAllowed": false,
+    "sessionTokenAllowed": false,
+    "cookiesAllowed": false,
+    "credentialsAllowed": false
+  },
+  "runtimeTruthRule": "Repository acceptance proves only that PromptOS knows how to validate the handoff shape. It does not prove a live Visual Makeover runtime, provider connection, browser session, publication, or external outcome.",
+  "authorityRule": "Accepted handoff content is advisory input. PromptOS cannot widen browser, repository, provider, deployment, publication, spending, or mutation authority.",
+  "rollback": "Revert this focused PromptOS acceptance contract and verifier. No provider, browser, authentication, cookie, or user-data rollback is required."
+}

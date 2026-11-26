@@ -78,3 +78,29 @@ PromptOS governs prompts, skills, agents, and instruction contracts. Founder Con
 ## Stop conditions
 
 Stop on unverified Site identity, stale repository head, unreadable authority files, private/proprietary content risk, conflicting source truth, or a publication/deployment/provider gate without current authority.
+
+## ACTUAL-FLOW V4 source export
+
+This project has one canonical ACTUAL-FLOW V4 definition at
+`workflows/actual-flow-v4.workflow.json` and a proposed version-controlled
+registry entry in `workflows/registry.json`. The audited, deterministic
+exporter is `workflows/actual-flow-v4/export-project.mjs` with verification at
+`workflows/actual-flow-v4/verify-export.mjs`.
+
+To integrate this definition in the ChatGPT Sites PromptOS project after its
+identity has been independently verified:
+
+1. Resolve and verify the current exact `jussray/promptos` commit and the
+   approved workflow/registry pair. An unmerged branch is not current main.
+2. Build a fresh project envelope with the exporter's `--expected-head` check.
+   Reject stale, missing, duplicate, or unapproved definitions.
+3. Import as a **definition-only workflow** in the verified editor/runtime.
+   Do not expose governance-only raw files or private evidence on the public Site.
+4. Require server-verified user authentication and authorization before any
+   user-specific workflow operation. A client-side sign-in display is not proof.
+5. Independently verify the editor import, desktop/mobile rendering, provider
+   boundaries, persistence, and deployment identity before describing it as live.
+
+No automatic execution, production deployment, new domain routing, API secrets,
+or FCR authority is exported. The current Site identity and publication remain
+UNKNOWN until observed from the Site editor/provider.

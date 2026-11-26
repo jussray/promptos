@@ -5,14 +5,22 @@ on:
   push:
     branches: [main]
     paths:
+      - "README.md"
       - "AGENTS.md"
       - "AGENTS_FOUNDER_INTELLIGENCE.md"
+      - ".control-room/**"
       - ".control-room/browser-reality.contract.json"
+      - ".control-room/visual-makeover-handoff.contract.json"
       - ".control-room/evidence-decision-loop.contract.json"
       - ".control-room/product-boundary.json"
       - "scripts/verify-juss-os-command-contract.mjs"
       - "scripts/verify-browser-reality-contract.mjs"
+      - "scripts/verify-visual-makeover-handoff-contract.mjs"
       - "scripts/verify-evidence-decision-loop.mjs"
+      - "scripts/verify-current-truth-surface.mjs"
+      - "scripts/verify-main-push-authority.mjs"
+      - "scripts/verify-main-provider-protection.mjs"
+      - "scripts/verify-protected-intelligence-contract.mjs"
       - "src/browser-reality-receipt.mjs"
       - "src/workflow-artifact.mjs"
       - "src/ai-mastery-v6.mjs"
@@ -25,6 +33,9 @@ on:
       - "scripts/verify-catalog-runtime.mjs"
       - "scripts/generate-catalog.mjs"
       - "scripts/stage-public-site.mjs"
+      - "scripts/public-site-files.mjs"
+      - "scripts/staged-reference-check.mjs"
+      - "scripts/verify-staged-reference-check.mjs"
       - "scripts/verify-stage-public-site-safety.mjs"
       - "scripts/verify-plugin-management-contract.mjs"
       - "scripts/verify-founder-os-mission-compiler.mjs"
@@ -38,6 +49,9 @@ on:
       - "skills/browser-reality-inspector/SKILL.md"
       - "skills/evidence-decision-loop/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
+      - "scripts/verify-skill-alignment.mjs"
+      - "src/skill-registry/**"
+      - "scripts/verify-prompt-state.mjs"
       - "parts/**"
       - "index.html"
       - "build.sh"
@@ -45,6 +59,7 @@ on:
       - "tools/zapier/**"
       - ".github/workflows/assemble.yml"
       - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/main-authority-contract.yml"
       - ".github/workflows/control-room-tests.yml"
   workflow_dispatch:
 
@@ -58,6 +73,7 @@ env:
   PROMPTOS_BASE_URL: http://127.0.0.1:4173
   PROMPTOS_PROOF_DIR: artifacts/promptos-rendered-proof
   PROMPTOS_FOUNDER_OS_PROOF_DIR: artifacts/promptos-founder-os-proof
+  PROMPTOS_IMPLICIT_PROOF_DIR: artifacts/promptos-implicit-workflow-proof
 
 concurrency:
   group: promptos-control-room-${{ github.event.pull_request.number || github.ref }}
@@ -86,16 +102,22 @@ jobs:
           node-version: "24"
       - name: Verify portable Juss OS command contract
         run: node scripts/verify-juss-os-command-contract.mjs
+      - name: Verify protected intelligence and live-proof contract
+        run: node scripts/verify-protected-intelligence-contract.mjs
       - name: Verify AI Mastery V6 execution contract
         run: node scripts/verify-ai-mastery-v6.mjs
       - name: Verify migrated PromptOS catalog runtime
         run: node scripts/verify-catalog-runtime.mjs
+      - name: Verify current repo truth surface
+        run: node scripts/verify-current-truth-surface.mjs
       - name: Generate PromptOS catalog quality receipt
         run: node scripts/generate-catalog.mjs
       - name: Verify browser reality inspection contract
         run: node scripts/verify-browser-reality-contract.mjs
       - name: Verify evidence decision loop contract
         run: node scripts/verify-evidence-decision-loop.mjs
+      - name: Verify Visual Makeover advisory handoff contract
+        run: node scripts/verify-visual-makeover-handoff-contract.mjs
       - name: Verify ChatGPT plugin management contract
         run: node scripts/verify-plugin-management-contract.mjs
       - name: Verify Founder OS mission compiler contract
@@ -106,6 +128,10 @@ jobs:
         run: node scripts/verify-control-room-workflow-contract.mjs
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
+      - name: Verify app-aligned skill registry and authority boundaries
+        run: node scripts/verify-skill-alignment.mjs
+      - name: Verify versioned prompt state boundary
+        run: node scripts/verify-prompt-state.mjs
       - name: Verify legacy build entrypoint is non-mutating
         shell: bash
         run: |
@@ -122,6 +148,8 @@ jobs:
         run: npm --prefix tools/zapier run typecheck
       - name: Verify public staging path cannot erase sources
         run: node scripts/verify-stage-public-site-safety.mjs
+      - name: Verify staged artifact has no dangling local references
+        run: node scripts/verify-staged-reference-check.mjs
       - name: Install isolated Playwright browser client
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund playwright@1.61.1
       - name: Install Chromium
@@ -139,8 +167,16 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in source UI
+        run: node e2e/negotiation-outreach-proof.mjs
+      - name: Prove implicit workflow triggers in source UI
+        run: node e2e/implicit-workflow-proof.mjs
+      - name: Prove council platforms and attack prompts in source UI
+        run: node e2e/council-platforms-proof.mjs
       - name: Prove Founder OS mission compiler desktop and mobile
         run: node e2e/founder-os-mission-compiler.mjs
+      - name: Prove home mockup pieces (established prompts, status strip, two-column)
+        run: node e2e/home-v2-proof.mjs
       - name: Stop static source server
         if: always()
         shell: bash
@@ -165,6 +201,23 @@ jobs:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
         run: node e2e/rendered-proof.mjs
+      - name: Prove negotiation-aware outreach prompt in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/negotiation-outreach-proof.mjs
+      - name: Prove implicit workflow triggers in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_IMPLICIT_PROOF_DIR: artifacts/promptos-staged-implicit-workflow-proof
+        run: node e2e/implicit-workflow-proof.mjs
+      - name: Prove council platforms and attack prompts in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/council-platforms-proof.mjs
+      - name: Prove home mockup pieces in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/home-v2-proof.mjs
       - name: Stop staged public-site server
         if: always()
         shell: bash
@@ -178,7 +231,9 @@ jobs:
             artifacts/control-room-tests.json
             artifacts/promptos/catalog-quality-report.json
             artifacts/promptos-rendered-proof
+            artifacts/promptos-implicit-workflow-proof
             artifacts/promptos-founder-os-proof
             artifacts/promptos-staged-proof
+            artifacts/promptos-staged-implicit-workflow-proof
           if-no-files-found: error
           retention-days: 14

@@ -3,56 +3,82 @@ import { readFile } from 'node:fs/promises';
 
 const template = JSON.parse(await readFile('github-app/registration.template.json', 'utf8'));
 const worker = await readFile('github-app/worker.mjs', 'utf8');
+const relay = await readFile('github-app/federated-relay.mjs', 'utf8');
 const docs = await readFile('github-app/README.md', 'utf8');
 const workflow = await readFile('.github/workflows/github-app-tests.yml', 'utf8');
 
-assert.equal(template.contract, 'promptos/github-app@v1');
+assert.equal(template.contract, 'promptos/github-app@v2');
 assert.equal(template.public, false);
 assert.deepEqual(template.permissions, {
   actions: 'read',
   contents: 'read',
-  issues: 'write',
+  issues: 'read',
   pull_requests: 'read',
 });
 assert.deepEqual(template.events, ['issue_comment', 'pull_request', 'workflow_run']);
 assert.deepEqual(template.required_runtime_secrets, [
-  'GITHUB_APP_ID',
-  'GITHUB_APP_PRIVATE_KEY',
   'GITHUB_WEBHOOK_SECRET',
+  'PROMPTOS_RELAY_PRIVATE_KEY_JWK',
+]);
+assert.deepEqual(template.required_runtime_variables, [
+  'PROMPTOS_RELAY_KEY_ID',
+  'PROMPTOS_GIT_SHA',
+  'FCR_RELAY_TARGET_SHA',
 ]);
 
 for (const forbidden of [
   'contents:write',
+  'issues:write',
   'pull_requests:write',
   'actions:write',
   'workflows:write',
   'administration',
   'secrets',
   'deployments',
+  'merge',
+  'billing',
+  'publication',
 ]) {
-  assert.ok(template.explicitly_not_granted.includes(forbidden), `missing denied authority: ${forbidden}`);
+  assert.ok(template.explicitly_not_granted.includes(forbidden), 'missing denied authority: ' + forbidden);
 }
 
-for (const requiredSourceSignal of [
-  "x-hub-signature-256",
-  "x-github-delivery",
-  "/app/installations/${installationId}/access_tokens",
-  "issues/${issueNumber}/comments",
-  "PROMPTOS_COMMENT_ON_FAILURES",
-  "invalid-webhook-signature",
-  "payload-too-large",
+for (const requiredSignal of [
+  'x-hub-signature-256',
+  'x-github-delivery',
+  'invalid-webhook-signature',
+  'payload-too-large',
+  'sendFcrObservation',
 ]) {
-  assert.ok(worker.includes(requiredSourceSignal), `worker contract drifted: ${requiredSourceSignal}`);
+  assert.ok(worker.includes(requiredSignal), 'worker contract drifted: ' + requiredSignal);
 }
 
-for (const forbiddenEndpoint of ['/merges', '/git/refs', '/actions/workflows/']) {
-  assert.ok(!worker.includes(forbiddenEndpoint), `v1 worker must not contain mutation endpoint: ${forbiddenEndpoint}`);
+for (const requiredSignal of [
+  'juss/federated-agent-relay@v3',
+  'Ed25519',
+  'api.foundercontrolroom.org/api/federated-relay/v3',
+  'PROMPTOS_RELAY_PRIVATE_KEY_JWK',
+  'FCR_RELAY_TARGET_SHA',
+  "disposition: 'observe'",
+  'approvalCarriedForward: false',
+]) {
+  assert.ok(relay.includes(requiredSignal), 'relay contract drifted: ' + requiredSignal);
 }
 
-assert.match(docs, /source candidate only/i);
-assert.match(docs, /cannot edit repository contents, merge pull requests/i);
-assert.match(docs, /signed runtime receipt/i);
+for (const forbidden of [
+  'createAppJwt',
+  'postIssueComment',
+  '/issues/',
+  '/merges',
+  '/git/refs',
+  'contents:write',
+]) {
+  assert.ok(!worker.includes(forbidden), 'read-only app contains forbidden operation: ' + forbidden);
+}
+
+assert.match(docs, /read-only GitHub event observer/i);
+assert.match(docs, /FCR remains the only execution-authority owner/i);
+assert.match(docs, /public-key registration through the FCR founder-authorized boundary/i);
 assert.ok(workflow.includes('node scripts/verify-github-app-contract.mjs'));
 assert.ok(workflow.includes('node e2e/github-app-runtime.mjs'));
 
-console.log('PromptOS GitHub App source contract verified');
+console.log('PromptOS GitHub App and FCR relay source contracts verified');
