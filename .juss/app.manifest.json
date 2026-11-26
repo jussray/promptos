@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "registryVersion": "2.0.0",
+  "id": "promptos",
+  "name": "PromptOS",
+  "repository": "jussray/promptos",
+  "defaultBranch": "main",
+  "sourceHeadAtAudit": "6d952962d655c13d5208c7d68b1f913f71168a45",
+  "identityStatus": "source-verified",
+  "role": "human-ai-skill-prompt-and-plugin-compatibility-registry",
+  "authorityOwner": "promptos",
+  "authorityScope": "Skill and plugin catalog, schema, resolution, and compatibility only; no execution authority or automatic installation.",
+  "surfaces": [
+    "web",
+    "catalog"
+  ],
+  "localManifestPaths": [
+    ".juss/app.manifest.json",
+    ".juss/skills.manifest.json"
+  ]
+}
