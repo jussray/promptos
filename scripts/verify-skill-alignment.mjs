@@ -133,6 +133,11 @@ assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canon
 assert.equal(gamesInventory.skills.length, 0, 'a repository search with no skill matches must not fabricate skills');
 assert.equal(gamesInventory.repositoriesWithoutInventoryRecord.length, 0, 'every Games Hub source repository must have an audit record');
 assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-no-native-skill-package-confirmed');
+const gamesAudit = audit.records.find((record) => record.profile === 'games-hub');
+assert.equal(gamesAudit.evidence.runtime.domain, 'https://games.jussco.company/');
+assert.equal(gamesAudit.evidence.runtime.worker, 'jussco-games');
+assert.equal(gamesAudit.evidence.runtime.deploymentConfig, 'wrangler.games.jsonc');
+assert.equal(gamesAudit.skillSources.length, 0, 'proposed Games Hub skills must not be represented as installed packages');
 
 const driftInventory = resolveAppSkillSet(manifest, 'drift', audit).sourceInventory;
 assert.equal(driftInventory.records.length, 0);
