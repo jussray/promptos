@@ -71,6 +71,9 @@ for (const requiredSignal of [
   'FCR_RELAY_TARGET_SHA',
   "disposition: 'observe'",
   'approvalCarriedForward: false',
+  'GITHUB_INSTALLATION_ID',
+  'SOURCE_REPOSITORY_ID',
+  'github-installation-not-allowlisted',
 ]) {
   assert.ok(relay.includes(requiredSignal), 'relay contract drifted: ' + requiredSignal);
 assert.ok(relay.includes('stableDeliveryIds(deliveryId)'), 'delivery retries must retain deterministic relay IDs');
