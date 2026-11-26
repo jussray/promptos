@@ -66,6 +66,12 @@ async function prove(browser, viewport) {
   assert(received.valid === true && received.selectedMode === 'goal-to-action', 'inbound Chief proposal did not compile');
   assert(received.senderAuthenticated === false, 'inbound sender must remain unauthenticated');
   assert(received.approvalVerified === false && received.executionAuthorized === false, 'inbound proposal crossed an authority boundary');
+  assert(received.signalFingerprintVerified === false, 'inbound unkeyed hash must not be treated as verified');
+
+  await page.locator('#v6Inbound').fill(JSON.stringify({...inbound, contract: 'juss/founder-signal@v0'}));
+  await page.locator('#v6Receive').click();
+  const wrongContract = JSON.parse(await page.locator('#v6InboundOutput').innerText());
+  assert(wrongContract.valid === false, 'unknown signal contract was not rejected');
 
   await page.locator('#v6Inbound').fill('{not-json');
   await page.locator('#v6Receive').click();
@@ -87,6 +93,7 @@ async function prove(browser, viewport) {
     inboundSenderAuthenticated: received.senderAuthenticated,
     inboundApprovalVerified: received.approvalVerified,
     malformedInboundRejected: rejected.valid === false,
+    wrongContractRejected: wrongContract.valid === false,
     pageErrors,
     consoleErrors,
   }, null, 2));
