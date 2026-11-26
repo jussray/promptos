@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadAppManifests, resolveAppSkillSet, validateRegistry } from "../src/skill-registry/index.ts";
 
-const expected = ["founder-control-room","chief-ai-machine","promptos","solcontinuity","sekret-bip","storyengine","juss-pay"];
+const expected = ["chief-ai-machine","founder-control-room","juss-pay","promptos","sekret-bip","solcontinuity","storyengine"];
 const manifests = loadAppManifests();
 assert.deepEqual(validateRegistry(manifests), [], "all app manifests must satisfy schema and compatibility contracts");
 assert.deepEqual(manifests.map(item=>item.app.id), expected, "registry must contain the seven requested standalone apps");

@@ -197,7 +197,7 @@
         }
       }
     ],
-    "ownedSkillsStatus": "source-audited"
+    "ownedSkillsStatus": "source-path-verified"
   },
   "plugins": [
     {
