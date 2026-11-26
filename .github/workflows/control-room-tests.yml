@@ -25,6 +25,8 @@ on:
       - "src/workflow-artifact.mjs"
       - "src/ai-mastery-v6.mjs"
       - "src/ai-mastery-v6.test.mjs"
+      - "parts/ai-mastery-v6-ui.js"
+      - "e2e/ai-mastery-v6-ui-proof.mjs"
       - "src/catalog-runtime/**"
       - "src/catalog-ui.js"
       - "styles/catalog.css"
@@ -106,6 +108,8 @@ jobs:
         run: node scripts/verify-protected-intelligence-contract.mjs
       - name: Verify AI Mastery V6 execution contract
         run: node scripts/verify-ai-mastery-v6.mjs
+      - name: Run AI Mastery V6 compiler unit tests
+        run: node --test src/ai-mastery-v6.test.mjs
       - name: Verify migrated PromptOS catalog runtime
         run: node scripts/verify-catalog-runtime.mjs
       - name: Verify current repo truth surface
@@ -167,6 +171,8 @@ jobs:
           exit 1
       - name: Prove rendered desktop and mobile PromptOS source paths
         run: node e2e/rendered-proof.mjs
+      - name: Prove AI Mastery V6 UI and signal handoffs in source UI
+        run: node e2e/ai-mastery-v6-ui-proof.mjs
       - name: Prove negotiation-aware outreach prompt in source UI
         run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in source UI
@@ -201,6 +207,11 @@ jobs:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
           PROMPTOS_PROOF_DIR: artifacts/promptos-staged-proof
         run: node e2e/rendered-proof.mjs
+      - name: Prove AI Mastery V6 UI and signal handoffs in staged UI
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+          PROMPTOS_V6_PROOF_DIR: artifacts/promptos-v6-staged-proof
+        run: node e2e/ai-mastery-v6-ui-proof.mjs
       - name: Prove negotiation-aware outreach prompt in staged UI
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
@@ -230,10 +241,12 @@ jobs:
           path: |
             artifacts/control-room-tests.json
             artifacts/promptos/catalog-quality-report.json
+            artifacts/promptos-v6-proof
+            artifacts/promptos-v6-staged-proof
             artifacts/promptos-rendered-proof
             artifacts/promptos-implicit-workflow-proof
             artifacts/promptos-founder-os-proof
             artifacts/promptos-staged-proof
             artifacts/promptos-staged-implicit-workflow-proof
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14

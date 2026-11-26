@@ -49,9 +49,12 @@ if (!workflow.operatingPrinciples?.some((p) => /Playwright evidence/i.test(p))) 
 if (!workflow.operatingPrinciples?.some((p) => /Never inherit stale green/i.test(p))) fail('stale-proof invalidation missing');
 
 const bill = CHALLENGE_LENS_SEMANTICS.billgates;
+const gary = CHALLENGE_LENS_SEMANTICS.garyvee;
 const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
 if (bill?.objective !== 'durable_growth' || bill?.role !== 'durable-leverage') fail('Bill Gates reasoning lens identity drift');
 if (elon?.objective !== 'upside_growth' || elon?.role !== 'first-principles-execution') fail('Elon Musk reasoning lens identity drift');
+if (gary?.role !== 'founder-value-and-distribution' || gary?.objective !== 'real_human_and_market_outcomes') fail('GaryVee reasoning lens identity drift');
+if (gary?.authorityEffect !== 'none') fail('GaryVee reasoning lens must not create authority');
 if (bill?.authorityEffect !== 'none' || elon?.authorityEffect !== 'none') fail('challenge lenses must not create authority');
 for (const behavior of [
   'identify-the-bottleneck-and-highest-leverage-point',
@@ -87,6 +90,7 @@ for (const behavior of ['prefer_speed','prefer_first_principles','prefer_experim
 if (billPolicy.objective !== bill.objective || elonPolicy.objective !== elon.objective) fail('executable policy and reasoning lens objective drift');
 
 const compiled = compileV6Prompt({
+  contract: 'juss/founder-signal@v1',
   source: 'founder',
   target: 'promptos',
   intent: 'optimize workflow',
@@ -97,6 +101,7 @@ const compiled = compileV6Prompt({
   requestedMode: 'workflow-optimizer',
 });
 if (!compiled.selected || !compiled.prompt) fail('canonical V6 prompt did not compile');
+if (!compiled.prompt.includes('GARYVEE lens (real_human_and_market_outcomes)')) fail('compiled prompt does not pin GaryVee semantics');
 if (!/BILLGATES lens \(durable_growth\)/.test(compiled.prompt || '')) fail('compiled prompt does not pin Bill Gates semantics');
 if (!/standardize proven paths before scaling and do not scale unproven paths/i.test(compiled.prompt || '')) fail('compiled prompt lost Bill Gates scale boundary');
 if (!/ELONMUSK lens \(upside_growth\)/.test(compiled.prompt || '')) fail('compiled prompt does not pin Elon Musk semantics');

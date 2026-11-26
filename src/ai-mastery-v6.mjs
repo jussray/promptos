@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto';
-
 export const AI_MASTERY_V6_CONTRACT = 'promptos/ai-mastery-v6@6.0.0';
 export const SIGNAL_CONTRACT = 'juss/founder-signal@v1';
 
@@ -76,6 +74,18 @@ export const CHALLENGE_LENS_SEMANTICS = Object.freeze({
       'do-not-scale-an-unproven-path',
     ]),
   }),
+  garyvee: Object.freeze({
+    role: 'founder-value-and-distribution',
+    objective: 'real_human_and_market_outcomes',
+    authorityEffect: 'none',
+    behaviors: Object.freeze([
+      'test-practical-founder-and-customer-value',
+      'identify-audience-reality-and-specific-user-need',
+      'remove-distribution-and-adoption-friction',
+      'prefer-authentic-proof-over-hype-or-vanity-metrics',
+      'measure-real-human-outcomes-without-inventing-demand-or-earnings',
+    ]),
+  }),
   elonmusk: Object.freeze({
     role: 'first-principles-execution',
     objective: 'upside_growth',
@@ -142,7 +152,13 @@ const REPAIR_OS_LABELS = Object.freeze({
 function clean(value, max = 2000) {
   return typeof value === 'string' ? value.trim().slice(0, max) : '';
 }
-function sha(value) { return createHash('sha256').update(value).digest('hex'); }
+async function sha(value) {
+  if (!globalThis.crypto?.subtle || typeof TextEncoder === 'undefined') {
+    throw new Error('Web Crypto SHA-256 is unavailable; signal fingerprint was not created');
+  }
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
 function uniq(values = []) { return [...new Set(Array.isArray(values) ? values.map(v => clean(v, 200)).filter(Boolean) : [])]; }
 
 function kernelOrderText() {
@@ -162,8 +178,10 @@ function repairOSOrderText() {
 function challengeLensText() {
   const bill = CHALLENGE_LENS_SEMANTICS.billgates;
   const elon = CHALLENGE_LENS_SEMANTICS.elonmusk;
+  const gary = CHALLENGE_LENS_SEMANTICS.garyvee;
   return [
     `BILLGATES lens (${bill.objective}): identify the bottleneck and highest-leverage point; prefer stable options, reversible changes, generated docs, shared fixtures, and reusable artifacts; standardize proven paths before scaling and do not scale unproven paths. Authority effect: ${bill.authorityEffect}.`,
+    `GARYVEE lens (${gary.objective}): test practical founder and customer value; identify the real audience and user need; remove distribution and adoption friction; prefer authentic proof over hype or vanity metrics; measure human outcomes without inventing demand or earnings. Authority effect: ${gary.authorityEffect}.`,
     `ELONMUSK lens (${elon.objective}): question requirements; delete before optimizing; simplify from first principles; prefer fast small reversible experiments; accelerate feedback and automate last. Authority effect: ${elon.authorityEffect}.`,
   ];
 }
@@ -171,7 +189,7 @@ function challengeLensText() {
 export function normalizeFounderSignal(input = {}) {
   const signal = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   return {
-    contract: SIGNAL_CONTRACT,
+    contract: clean(signal.contract, 80),
     source: clean(signal.source, 40).toLowerCase(),
     target: clean(signal.target, 40).toLowerCase() || 'promptos',
     intent: clean(signal.intent, 120).toLowerCase(),
@@ -190,6 +208,7 @@ export function normalizeFounderSignal(input = {}) {
 export function validateFounderSignal(input) {
   const signal = normalizeFounderSignal(input);
   const errors = [];
+  if (signal.contract !== SIGNAL_CONTRACT) errors.push('contract must be juss/founder-signal@v1');
   if (!SOURCES.has(signal.source)) errors.push('source must be fcr, chief, promptos, or founder');
   if (signal.target !== 'promptos') errors.push('target must be promptos for inbound routing');
   if (!signal.intent) errors.push('intent is required');
@@ -210,7 +229,7 @@ export function selectPromptMode(input) {
   return { selected: false, mode: null, reason: 'no-safe-match', errors: [], signal };
 }
 
-export function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unknown', evidenceRefs = [], authority = 'none', approved = false, mode = '', fingerprint = '', proofCookie = '', correlationId = '' } = {}) {
+export async function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unknown', evidenceRefs = [], authority = 'none', approved = false, mode = '', fingerprint = '', proofCookie = '', correlationId = '' } = {}) {
   if (!['fcr', 'chief'].includes(target)) throw new Error('PromptOS outbound target must be fcr or chief');
   const body = {
     contract: SIGNAL_CONTRACT,
@@ -220,7 +239,7 @@ export function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unk
     selectedMode: MODE_SET.has(mode) ? mode : '', fingerprint: clean(fingerprint, 256),
     proofCookie: clean(proofCookie, 512), correlationId: clean(correlationId, 160),
   };
-  body.signalHash = sha(JSON.stringify(body));
+  body.signalHash = await sha(JSON.stringify(body));
   return body;
 }
 

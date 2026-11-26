@@ -12,6 +12,7 @@ import {
 } from './ai-mastery-v6.mjs';
 
 const inbound = (overrides = {}) => ({
+  contract: 'juss/founder-signal@v1',
   source: 'fcr', target: 'promptos', intent: 'prioritize founder work', goal: 'choose the highest leverage next action',
   evidenceClass: 'verified', evidenceRefs: ['receipt:fcr:123'], authority: 'founder:approval:123', approved: true,
   fingerprint: 'fp:123', proofCookie: 'proof:123', correlationId: 'mission:123', ...overrides,
@@ -44,6 +45,49 @@ test('unknown intent fails closed instead of guessing a prompt', () => {
   const route = selectPromptMode(inbound({ intent: 'florbulate the moon' }));
   assert.equal(route.selected, false);
   assert.equal(route.reason, 'no-safe-match');
+});
+
+test('missing signal contract is rejected', () => {
+  const result = validateFounderSignal(inbound({ contract: '' }));
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(' '), /contract must be .*founder-signal@v1/);
+});
+
+test('unknown signal contracts are rejected instead of normalized into the current contract', () => {
+  const result = validateFounderSignal(inbound({ contract: 'juss/founder-signal@v0' }));
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(' '), /contract must be .*founder-signal@v1/);
+});
+
+test('Red Team 6000: reject 6,000 deterministic hostile signal mutations', () => {
+  for (let i = 0; i < 6000; i += 1) {
+    const mutation = i % 8;
+    const hostile = inbound();
+    if (mutation === 0) hostile.contract = `attacker-contract-${i}`;
+    if (mutation === 1) hostile.source = `attacker-source-${i}`;
+    if (mutation === 2) hostile.target = `attacker-target-${i}`;
+    if (mutation === 3) hostile.intent = '';
+    if (mutation === 4) hostile.evidenceClass = `attacker-evidence-${i}`;
+    if (mutation === 5) hostile.requestedMode = `attacker-mode-${i}`;
+    if (mutation === 6) hostile.authority = 'none';
+    if (mutation === 7) hostile.contract = '';
+    const result = validateFounderSignal(hostile);
+    assert.equal(result.valid, false, `hostile mutation ${i} was accepted`);
+  }
+});
+
+test('6,000 fingerprint and proof-cookie permutations never create authority', () => {
+  for (let i = 0; i < 6000; i += 1) {
+    const result = validateFounderSignal(inbound({
+      approved: false,
+      authority: 'none',
+      fingerprint: `state-fingerprint-${i}`,
+      proofCookie: `continuity-cookie-${i}`,
+    }));
+    assert.equal(result.valid, true, `non-authorizing continuity markers rejected at ${i}`);
+    assert.equal(result.signal.approved, false, `continuity marker created approval at ${i}`);
+    assert.equal(result.signal.authority, 'none', `continuity marker created authority at ${i}`);
+  }
 });
 
 test('approval without authority is rejected', () => {
@@ -101,6 +145,8 @@ test('compiled prompt preserves V6 kernel order, canonical challenge lenses, and
   assert.match(result.prompt, /Repair OS: LINDY -> REDTEAM I -> ATTACK TEN -> OODA OBSERVE -> OODA ORIENT -> OODA DECIDE -> L99 AUTHORITY -> ACT -> REDTEAM II -> RECURSIVE HARDENING -> VERIFY -> LOOP/);
   assert.match(result.prompt, /BILLGATES lens \(durable_growth\)/);
   assert.match(result.prompt, /standardize proven paths before scaling and do not scale unproven paths/i);
+  assert.match(result.prompt, /GARYVEE lens \(real_human_and_market_outcomes\)/);
+  assert.match(result.prompt, /authentic proof over hype or vanity metrics/i);
   assert.match(result.prompt, /ELONMUSK lens \(upside_growth\)/);
   assert.match(result.prompt, /question requirements; delete before optimizing; simplify from first principles/i);
   assert.match(result.prompt, /Authority effect: none/);
@@ -111,12 +157,13 @@ test('compiled prompt preserves V6 kernel order, canonical challenge lenses, and
   assert.match(result.prompt, /never creates or renews authority/);
 });
 
-test('PromptOS emits deterministic bounded signals to FCR or Chief', () => {
-  const a = buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
-  const b = buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
+test('PromptOS emits deterministic bounded signals to FCR or Chief', async () => {
+  const a = await buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
+  const b = await buildPromptOSSignal({ target: 'chief', intent: 'decide', goal: 'select prompt', mode: 'goal-to-action', correlationId: 'm1' });
   assert.equal(a.signalHash, b.signalHash);
   assert.equal(a.source, 'promptos');
   assert.equal(a.target, 'chief');
   assert.equal(a.selectedMode, 'goal-to-action');
-  assert.throws(() => buildPromptOSSignal({ target: 'random-system' }), /target must be fcr or chief/);
+  assert.match(a.signalHash, /^[a-f0-9]{64}$/);
+  await assert.rejects(buildPromptOSSignal({ target: 'random-system' }), /target must be fcr or chief/);
 });
