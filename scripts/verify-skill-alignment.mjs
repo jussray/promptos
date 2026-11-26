@@ -1,92 +1,55 @@
-import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } from '../src/skill-registry/index.mjs';
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { loadAppManifests, resolveAppSkillSet, validateRegistry } from "../src/skill-registry/index.ts";
 
-const manifest = loadPortfolioManifest();
-const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
-assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
-assert.equal(manifest.apps.length, 12, 'registry must cover the currently declared 12 standalone apps');
+const expected = ["founder-control-room","chief-ai-machine","promptos","solcontinuity","sekret-bip","storyengine","juss-pay"];
+const manifests = loadAppManifests();
+assert.deepEqual(validateRegistry(manifests), [], "all app manifests must satisfy schema and compatibility contracts");
+assert.deepEqual(manifests.map(item=>item.app.id), expected, "registry must contain the seven requested standalone apps");
+const names=fs.readdirSync(new URL("../manifests/apps/",import.meta.url)).filter(name=>name.endsWith(".json")).sort();
+assert.deepEqual(names, expected.map(id=>id+".json").sort(), "one central manifest must exist for each requested app");
 
-for (const app of manifest.apps) {
-  const resolved = resolveAppSkillSet(manifest, app.id);
-  assert.equal(resolved.authorityOwner, app.id, `${app.id} must retain its own authority`);
-  assert.equal(resolved.app.repository, app.repository);
-  assert.equal(app.catalogStatus, 'proposed-awaiting-source-audit');
-  assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
-  if (app.repository === null) assert.equal(app.repositoryStatus, 'unresolved');
-  assert.equal(resolved.authority, 'catalog-and-compatibility-only');
-  assert.equal(resolved.governanceAuthority, 'jussray/founder-control-room');
-  assert.equal(resolved.skillContext, 'repository-operator-only');
-  assert.equal(resolved.sourceAudit.record, app.id);
-  assert.ok(['partial', 'unresolved'].includes(resolved.sourceAudit.status));
-  assert.ok(resolved.sharedSkills.every((skill) => skill.audience === 'founder-operator' && skill.distribution === 'reference-only' && skill.scope === 'repository-operator-shared-reference'));
-  assert.ok(resolved.ownedSkills.every((skill) => skill.scope === 'proposed-app-owned' && skill.status === 'proposed-awaiting-source-audit'));
-  assert.equal(resolved.sharedSkills.length, 8, `${app.id} must resolve all declared shared references`);
-  assert.ok(resolved.sharedSkills.every((skill) => skill.resolution === 'source-path-verified' && /^[0-9a-f]{40}$/.test(skill.sourceRevision)), `${app.id} shared source refs must be pinned`);
-  assert.ok(resolved.ownedSkills.length > 0, `${app.id} must declare app-specific skills`);
-  assert.ok(resolved.compatibility.surfaces.length > 0);
+for (const manifest of manifests) {
+ const resolved=resolveAppSkillSet(manifest.app.id,manifests);
+ assert.equal(resolved.app.authorityOwner,manifest.app.id,"each app retains its own authority owner");
+ assert.equal(resolved.authority,"catalog-and-compatibility-only");
+ assert.equal(resolved.installationState,"not-asserted");
+ assert.equal(resolved.executionAuthority,"none");
+ assert.equal(resolved.sharedSkills.length,4);
+ assert.ok(resolved.sharedSkills.every(skill=>skill.sourceRepository==="jussray/ULTRATHINK-"&&skill.sourceRevision==="4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca"&&skill.lifecycle==="candidate"&&skill.mode==="reference-only"));
+ assert.ok(resolved.plugins.length>0&&resolved.plugins.every(plugin=>plugin.connectionState==="runtime-discovery-required"&&plugin.authority==="none"&&plugin.writePolicy==="explicit-action-approval-required"));
+ assert.equal(resolved.compatibility.issues.length,0);
+ assert.deepEqual(manifest.app.localManifestPaths,[".juss/app.manifest.json",".juss/skills.manifest.json"]);
 }
 
-assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
-assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, null, 'unverified Games Hub repository must not be invented');
-assert.equal(manifest.apps.find((app) => app.id === 'drift').repository, null, 'unverified DRIFT repository must not be invented');
+const byId=new Map(manifests.map(item=>[item.app.id,item]));
+const fcr=byId.get("founder-control-room"), chief=byId.get("chief-ai-machine"), bip=byId.get("sekret-bip"), pay=byId.get("juss-pay");
+assert.ok(fcr.skills.owned.some(skill=>skill.id==="portfolio-control-plane"));
+assert.ok(chief.skills.owned.some(skill=>skill.id==="chief-ai-operator"));
+assert.ok(!chief.skills.owned.some(skill=>skill.id==="founder-authorization"),"Chief must not absorb FCR founder approval");
+assert.ok(bip.skills.owned.some(skill=>skill.id==="bip-privacy-redteam"));
+assert.ok(bip.skills.owned.some(skill=>skill.id==="bip-auth-onboarding"));
+assert.ok(pay.plugins.some(plugin=>plugin.id==="stripe"&&plugin.safetyMode==="test-only"&&plugin.liveActions==="blocked-by-product-contract"));
+assert.ok(pay.skills.owned.every(skill=>skill.mode==="proposal"),"JussPay skills remain proposed until source-audited");
 
-const chief = resolveAppSkillSet(manifest, 'chief-ai-machine');
-assert.ok(chief.ownedSkills.some((skill) => skill.id === 'agent-orchestration'));
-assert.ok(!chief.ownedSkills.some((skill) => skill.id === 'founder-authorization'));
+const duplicate=[...manifests,structuredClone(manifests[0])];
+assert.ok(validateRegistry(duplicate).some(error=>error.includes("duplicate app id")));
+const ownerMutation=structuredClone(manifests[0]); ownerMutation.app.authorityOwner="chief-ai-machine";
+assert.ok(validateRegistry([ownerMutation]).some(error=>error.includes("authority owner mismatch")));
+const pluginMutation=structuredClone(manifests[0]); pluginMutation.plugins[0].connectionState="connected";
+assert.ok(validateRegistry([pluginMutation]).some(error=>error.includes("connection state must be discovered")));
+const skillMutation=structuredClone(manifests[0]); skillMutation.skills.shared[0].authority="execute";
+assert.ok(validateRegistry([skillMutation]).some(error=>error.includes("skill authority must be advisory")));
+assert.throws(()=>resolveAppSkillSet("unknown-app",manifests),/Unknown app/);
 
-const fcr = resolveAppSkillSet(manifest, 'founder-control-room');
-assert.ok(fcr.ownedSkills.some((skill) => skill.id === 'founder-authorization'));
-assert.ok(!fcr.ownedSkills.some((skill) => skill.id === 'agent-orchestration'));
-
-const bip = resolveAppSkillSet(manifest, 'sekret-bip');
-assert.ok(bip.ownedSkills.some((skill) => skill.id === 'teen-privacy'));
-assert.ok(bip.ownedSkills.some((skill) => skill.id === 'guardian-consent'));
-
-const mutated = structuredClone(manifest);
-mutated.apps[1].authorityOwner = 'founder-control-room';
-assert.ok(validatePortfolioManifest(mutated).some((error) => error.includes('authority owner mismatch')));
-
-const duplicate = structuredClone(manifest);
-duplicate.apps.push(structuredClone(duplicate.apps[0]));
-assert.ok(validatePortfolioManifest(duplicate).some((error) => error.includes('duplicate app id')));
-
-const escalation = structuredClone(manifest);
-escalation.sharedSkills[0].authority = 'execute';
-assert.ok(validatePortfolioManifest(escalation).some((error) => error.includes('exceeds advisory authority')));
-
-const unknownReference = structuredClone(manifest);
-unknownReference.apps[0].sharedSkills.push('not-a-real-shared-skill');
-assert.ok(validatePortfolioManifest(unknownReference).some((error) => error.includes('unknown shared skill')));
-
-assert.throws(() => resolveAppSkillSet(manifest, 'unknown-app'), /Unknown app/);
-console.log(`Skill alignment verified: ${manifest.apps.length} apps, ${manifest.sharedSkills.length} shared skill references, app-specific ownership and authority boundaries.`);
-
-
-assert.equal(audit.schemaVersion, '1.0');
-assert.equal(audit.registry, 'promptos/repository-skill-audit');
-assert.equal(audit.governance.authorityRepository, 'jussray/founder-control-room');
-assert.equal(audit.governance.promptosBoundary, 'PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.');
-assert.equal(audit.coverageStatus, 'partial', 'an initial search pass must not be mislabeled complete');
-assert.ok(Array.isArray(audit.records) && audit.records.length >= 12);
-for (const record of audit.records) {
-  assert.ok(record.profile && record.inventoryStatus);
-  if (record.repository === null) assert.equal(record.inventoryStatus, 'unresolved-repository');
-  for (const skill of record.skillSources ?? []) {
-    assert.ok(skill.id && skill.path && /^[0-9a-f]{40}$/.test(skill.blobSha), `source evidence must be pinned: ${record.repository}`);
-  }
-}
-assert.equal(audit.retirementReview.localDevil.status, 'retired-as-a-separate-shared-operating-skill');
-assert.equal(audit.retirementReview.localLeanBuildOrchestrator.status, 'retired-as-a-separate-shared-operating-skill');
-const fcrAudit = audit.records.find((record) => record.repository === 'jussray/founder-control-room');
-assert.ok(fcrAudit.skillSources.some((skill) => skill.id === 'devil' && skill.status === 'active'));
-const promptosAudit = audit.records.find((record) => record.repository === 'jussray/promptos');
-assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-socrates' && skill.status === 'question-led-only'));
-assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build'));
-assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
-assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
-assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
-assert.ok(audit.records.some((record) => record.profile === 'drift' && record.repository === null));
-assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
-assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
-console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
+const index=JSON.parse(fs.readFileSync(new URL("../src/skill-registry/portfolio.manifest.json",import.meta.url),"utf8"));
+assert.equal(index.generated,true);
+assert.deepEqual(index.apps,manifests.map(item=>({id:item.app.id,name:item.app.name,repository:item.app.repository,manifestPath:`manifests/apps/${item.app.id}.json`})));
+const promptos=byId.get("promptos");
+const localApp=JSON.parse(fs.readFileSync(new URL("../.juss/app.manifest.json",import.meta.url),"utf8"));
+const localSkills=JSON.parse(fs.readFileSync(new URL("../.juss/skills.manifest.json",import.meta.url),"utf8"));
+assert.deepEqual(localApp,{schemaVersion:"1.0",registryVersion:"2.0.0",...promptos.app});
+assert.deepEqual(localSkills.skills,promptos.skills);
+assert.deepEqual(localSkills.plugins,promptos.plugins);
+assert.equal(localSkills.registry.revision,"self-managed");
+console.log(`Skill alignment verified: ${manifests.length} apps, 4 portable skills, ${manifests.reduce((n,app)=>n+app.plugins.length,0)} declared plugin references; no installation or execution authority asserted.`);
