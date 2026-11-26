@@ -1215,7 +1215,7 @@
     {
       "repository": "jussray/StoryEngine",
       "profile": "storyengine",
-      "inventoryStatus": "verified-product-and-engineering-skills",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
           "id": "makevideo",
@@ -1263,12 +1263,132 @@
       "lockfiles": [],
       "notes": [
         "AGENTS.md directly references l99-operator and typescript-debugging-chain; this is stronger evidence than code-search results alone."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "794e70d7847c93a072e7bc21e6b137d2859b2895",
+        "truncated": false,
+        "skillCount": 28,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/l99-operator/SKILL.md",
+            "blobSha": "f9ade212603dda48ad3a7e08443f438315ec92e7"
+          },
+          {
+            "path": ".claude/skills/makevideo/SKILL.md",
+            "blobSha": "857134ffca54f93072c0db776e67d32021004e69"
+          },
+          {
+            "path": "skills/makevideo/SKILL.md",
+            "blobSha": "91675b279b3c46e9724db5a6e50ca0b938cd3324"
+          },
+          {
+            "path": "skills/typescript-behavior-tests/SKILL.md",
+            "blobSha": "94f046db610bd99bba3e37866e24f3a824b71201"
+          },
+          {
+            "path": "skills/typescript-debugging-chain/SKILL.md",
+            "blobSha": "1f9f00e6c9c995edd84caf0e8a16afe336fe387d"
+          },
+          {
+            "path": "skills/visual-grammar/SKILL.md",
+            "blobSha": "9eb8ea886ab0d9f8efb25b1775a1b804963ce564"
+          },
+          {
+            "path": "systems/skills/local-80-20/SKILL.md",
+            "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0"
+          },
+          {
+            "path": "systems/skills/local-antiadvice/SKILL.md",
+            "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d"
+          },
+          {
+            "path": "systems/skills/local-build/SKILL.md",
+            "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9"
+          },
+          {
+            "path": "systems/skills/local-capability-mode-router/SKILL.md",
+            "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03"
+          },
+          {
+            "path": "systems/skills/local-cortex/SKILL.md",
+            "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93"
+          },
+          {
+            "path": "systems/skills/local-devil/SKILL.md",
+            "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c"
+          },
+          {
+            "path": "systems/skills/local-first-principles/SKILL.md",
+            "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd"
+          },
+          {
+            "path": "systems/skills/local-futureyou/SKILL.md",
+            "blobSha": "d5350374d0925564ebc84691fc4246efdf608232"
+          },
+          {
+            "path": "systems/skills/local-goalfix/SKILL.md",
+            "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd"
+          },
+          {
+            "path": "systems/skills/local-hormozi/SKILL.md",
+            "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf"
+          },
+          {
+            "path": "systems/skills/local-humanize/SKILL.md",
+            "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6"
+          },
+          {
+            "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+            "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5"
+          },
+          {
+            "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+            "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471"
+          },
+          {
+            "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+            "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5"
+          },
+          {
+            "path": "systems/skills/local-moscow/SKILL.md",
+            "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703"
+          },
+          {
+            "path": "systems/skills/local-prompts/SKILL.md",
+            "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4"
+          },
+          {
+            "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+            "blobSha": "a35e5fa4256834231f588589397cf865f74aa092"
+          },
+          {
+            "path": "systems/skills/local-runtime-kernel/SKILL.md",
+            "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e"
+          },
+          {
+            "path": "systems/skills/local-socrates/SKILL.md",
+            "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9"
+          },
+          {
+            "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+            "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3"
+          },
+          {
+            "path": "systems/skills/local-truthmode/SKILL.md",
+            "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88"
+          },
+          {
+            "path": "systems/skills/local-urlfix/SKILL.md",
+            "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/solcontinuity",
       "profile": "solcontinuity",
-      "inventoryStatus": "verified-vendor-skill-imports",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
           "id": "turnstile-spin",
@@ -1290,12 +1410,76 @@
       "notes": [
         "systems/live-branding-rule.md is a system instruction, not a skill package.",
         "No SolContinuity-native domain skill was confirmed in this first source pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "2390af375b9980f5015abc146328ff90e24e4660",
+        "truncated": false,
+        "skillCount": 14,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/agents-sdk/SKILL.md",
+            "blobSha": "d9f1c8a9eaeb271888fb82ecda5d79ebf264944a"
+          },
+          {
+            "path": ".agents/skills/cloudflare-email-service/SKILL.md",
+            "blobSha": "fb3565111a2ce94761e5ad6642d20d02e7707946"
+          },
+          {
+            "path": ".agents/skills/cloudflare-one-migrations/SKILL.md",
+            "blobSha": "53c770fb2cad0339cccffbc85b68b2b9810dbcb4"
+          },
+          {
+            "path": ".agents/skills/cloudflare-one/SKILL.md",
+            "blobSha": "753ab60c176e82f11097caa958cd4646ecd67078"
+          },
+          {
+            "path": ".agents/skills/cloudflare/SKILL.md",
+            "blobSha": "2c7da21964ab4168422c5775ec8eeb469c89b1f7"
+          },
+          {
+            "path": ".agents/skills/durable-objects/SKILL.md",
+            "blobSha": "b595f1c2182f3b7d6f944d7ba0ac59667fba78aa"
+          },
+          {
+            "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md",
+            "blobSha": "745bcc5655dec3b690d6df4c31141a2b46a6d4c3"
+          },
+          {
+            "path": ".agents/skills/sandbox-next/SKILL.md",
+            "blobSha": "6384327710feced81e896501510bd76dd57770ff"
+          },
+          {
+            "path": ".agents/skills/sandbox-stable/SKILL.md",
+            "blobSha": "8faf22bf1a77afdcfbf419e7de49762b9fff7d7f"
+          },
+          {
+            "path": ".agents/skills/turnstile-spin/SKILL.md",
+            "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7"
+          },
+          {
+            "path": ".agents/skills/web-perf/SKILL.md",
+            "blobSha": "0fb166e8e8cb12e42dff4a40905ee4d3d626fcda"
+          },
+          {
+            "path": ".agents/skills/workers-best-practices/SKILL.md",
+            "blobSha": "bebd018cdcae1771eacdee30cfb96af3ad3bd936"
+          },
+          {
+            "path": ".agents/skills/wrangler/SKILL.md",
+            "blobSha": "07d4dbbee98b6a55db42a2a01cb2c84df864a8e6"
+          },
+          {
+            "path": ".github/skills/actions-mail-audit/SKILL.md",
+            "blobSha": "798089692c7642b2ce461f58bb920ffa7d6d4069"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/jbh-private",
       "profile": "juss-beautiful-hair",
-      "inventoryStatus": "verified-private-operations-skills",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
           "id": "juss-beautiful-hair-private",
@@ -1329,7 +1513,35 @@
       "lockfiles": [],
       "notes": [
         "Juss-beautiful-hair- and jussbeautifulhair-site are separate repositories; the private operator skill is verified in jbh-private, not assumed to be present in the storefront repo."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "f4af09360c2405d568c82d9dfddea5314593c282",
+        "truncated": false,
+        "skillCount": 5,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/figma-build-implement/SKILL.md",
+            "blobSha": "5ccb27eb072a028c492ee5b402fd99827f54bd10"
+          },
+          {
+            "path": ".agents/skills/jbh-private-operator/SKILL.md",
+            "blobSha": "8562ee9b3674c3f43e1a4d7222dcceac51708910"
+          },
+          {
+            "path": "skills/devil/SKILL.md",
+            "blobSha": "ece689ea733adc5c883bdf471a54e2f091be17b2"
+          },
+          {
+            "path": "skills/juss-beautiful-hair-private/SKILL.md",
+            "blobSha": "7e21c0fa9065c6bef6de3fb41dda36a1d323217d"
+          },
+          {
+            "path": "skills/sales/SKILL.md",
+            "blobSha": "7a03afcc0414e183b2475c72dd38f4ac1146439c"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/THINK-TANK",
@@ -1379,22 +1591,58 @@
     {
       "repository": "jussray/Juss-beautiful-hair-",
       "profile": "juss-beautiful-hair-main",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "Private app repository is distinct from jbh-private and jussbeautifulhair-site; no indexed SKILL.md match in this pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "90998e44e249b565c8a10014440d559beed74230",
+        "truncated": false,
+        "skillCount": 1,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/jbh-legacy-storefront-operator/SKILL.md",
+            "blobSha": "aaee04e8166cf5a3e05e30c6496cb307f294a7a8"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/jussbeautifulhair-site",
       "profile": "juss-beautiful-hair-storefront",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "No indexed SKILL.md match in this pass; storefront agent instructions and other skill formats remain to be inspected."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "3968e79ab0a8ea2e4a285b295531996f29788684",
+        "truncated": false,
+        "skillCount": 4,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/devil/SKILL.md",
+            "blobSha": "3aa9a96eadea04fa25dbc85af32dc52433380a81"
+          },
+          {
+            "path": ".agents/skills/figma-build-implement/SKILL.md",
+            "blobSha": "8b7e62ce6b131a6ad7f7cd1c77e23b0ce02fe7a8"
+          },
+          {
+            "path": ".agents/skills/jbh-storefront-operator/SKILL.md",
+            "blobSha": "5371307aba0117d88a7081ee85c8672e47752aeb"
+          },
+          {
+            "path": ".agents/skills/sales/SKILL.md",
+            "blobSha": "abdf5325f9737d0be1cf90e19764600ebea95cb2"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/sync-party-game",
