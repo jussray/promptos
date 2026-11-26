@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "artifactType": "promptos-workflow",
   "id": "actual-flow-v4",
-  "version": "4.0.0-draft.2",
+  "version": "4.0.0",
   "title": "ACTUAL-FLOW V4 — Repository-bound Coordinated Engineering",
-  "status": "draft",
-  "registrationAuthority": "founder-review-required",
+  "status": "approved",
+  "registrationAuthority": "founder-approved",
   "intent": "Ship scoped, high-leverage changes using explicit approval boundaries and current source-backed proof.",
   "reasoningSequence": [
     "5W1H + Socratic falsification",
@@ -30,7 +30,10 @@
   "provenance": {
     "contract": "juss/actual-flow-v4-proof@v1",
     "adapter": "workflows/actual-flow-v4/proof-gate.mjs",
-    "inherits": ["juss/main-continuity@v1", "juss/assistant-continuity@v1"],
+    "inherits": [
+      "juss/main-continuity@v1",
+      "juss/assistant-continuity@v1"
+    ],
     "requiresExactRepositoryHead": true,
     "invalidatesOnStateMovement": true,
     "nonSecret": true,
@@ -38,8 +41,20 @@
     "notDeviceFingerprint": true,
     "neverAuthorizesExecution": true
   },
-  "truthStates": ["VERIFIED", "INFERRED", "UNKNOWN", "BLOCKED"],
-  "report": ["REALITY", "FIX", "PROOF", "RISK", "ROLLBACK", "NEXT GATE"],
+  "truthStates": [
+    "VERIFIED",
+    "INFERRED",
+    "UNKNOWN",
+    "BLOCKED"
+  ],
+  "report": [
+    "REALITY",
+    "FIX",
+    "PROOF",
+    "RISK",
+    "ROLLBACK",
+    "NEXT GATE"
+  ],
   "authorityBoundary": "This workflow and its fingerprints and proof cookies are evidence only. No private-resource access, deletion, data sharing, auth/RLS changes, merges, pushes, deployments, publication, spending, TestFlight release, or other consequential execution without appropriate task-specific authority. Founder Control Room and each repository retain their stricter gates.",
   "stopCondition": "Stop when the authorized outcome is verified or an explicit approval/evidence blocker is reached."
 }
