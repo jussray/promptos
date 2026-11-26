@@ -241,7 +241,7 @@ try {
   };
   await mkdir('artifacts', { recursive: true });
   await writeFile('artifacts/promptos-github-app-proof.json', JSON.stringify(proof, null, 2) + '\n');
-  console.log('PromptOS GitHub App signed webhook to FCR Relay v3 round-trip proved with Playwright');
+  console.log('PromptOS GitHub App signed webhook and mocked FCR Relay v3 receipt contract verified with Playwright');
 } finally {
   await api.dispose();
   await new Promise((resolve) => server.close(resolve));
