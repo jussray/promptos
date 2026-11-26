@@ -1847,6 +1847,43 @@
       "notes": [
         "DRIFT's authoritative repository has not been identified; no repository was guessed."
       ]
+    },
+    {
+      "profile": "games-hub",
+      "repository": "jussray/jussray",
+      "inventoryStatus": "verified-canonical-hub-workspace-no-native-skill-package-confirmed",
+      "skillSources": [],
+      "evidence": {
+        "commit": "14f8da150cf88079f335bb780cba334403e8cd67",
+        "files": [
+          {
+            "path": "AGENTS.md",
+            "blobSha": ""
+          },
+          {
+            "path": "CLAUDE.md",
+            "blobSha": ""
+          },
+          {
+            "path": "site/games/index.html",
+            "blobSha": "dbcf00f933fe5bee5251c66b3ac9ac06557c4958"
+          }
+        ],
+        "runtime": {
+          "domain": "https://games.jussco.company/",
+          "sourcePath": "site/games/",
+          "worker": "jussray",
+          "deploymentConfig": "wrangler.jsonc"
+        },
+        "classification": "Juss & Co. product hub; sibling game repositories remain independent codebases and identities"
+      },
+      "notes": [
+        "AGENTS.md identifies this repository as the public Juss & Co. site and Cloudflare Worker configuration, not sibling product backends.",
+        "CLAUDE.md confirms the Game Hub worlds SYNC, LUMORA, ChatQuest, Bip & Seek, Jungle Jinx and Last Laugh belong on site/games/; only SYNC is live and the others retain in-development/prototype labels with no public play link.",
+        "site/games/index.html identifies Juss & Co. Games and canonical https://games.jussco.company/.",
+        "The repository's .agents/skills directory contains shared repository-operator skills; no Games Hub-specific SKILL.md package was confirmed in the inspected source pass.",
+        "The four Games Hub owned skill IDs remain proposed capabilities only until native source contracts and runtime activation are verified."
+      ]
     }
   ],
   "retirementReview": {
@@ -1867,10 +1904,10 @@
   },
   "knownGaps": [
     "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
-    "Games Hub has related repositories but no canonical hub repository is established in this audit.",
     "DRIFT repository remains unresolved.",
     "Confirm whether the canonical workspace's 27 logical dispatch roles map to the 22 packaged SKILL.md exports; current repository evidence supports different counting scopes, not five missing skill files.",
-    "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete."
+    "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete.",
+    "Games Hub's canonical Juss & Co. workspace is verified at jussray/jussray (site/games/, Worker jussray-games?); no Games Hub-specific SKILL.md package has been confirmed. Its four proposed app-owned skill IDs remain unverified capabilities, not active installed skills."
   ],
   "governance": {
     "owner": "Juss",
