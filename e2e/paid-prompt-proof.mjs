@@ -59,7 +59,7 @@ try {
   // This is NOT a claim of production Stripe configuration or entitlement.
   const page = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   const writes = [];
-  const sampleOffer = {billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:1900,currency:'usd',interval:'month',termsUrl:'https://merchant.example/terms'};
+  const sampleOffer = {billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:999,currency:'usd',interval:'month',termsUrl:'https://merchant.example/terms'};
   await page.route('**/*', async route => {
     const req = route.request();
     const url = new URL(req.url());
@@ -102,7 +102,7 @@ try {
   assert(writes.some(x => x.url === '/prompts/admit' && x.auth === 'Bearer test-id-token'), 'Paid save never called backend');
   await page.locator('#billingUpgrade').click();
   await page.locator('#billingConsent').waitFor({state:'visible'});
-  assert.match(await page.locator('#billingOfferSummary').textContent(), /USD \$1\.00.*USD \$19\.00/);
+  assert.match(await page.locator('#billingOfferSummary').textContent(), /USD \$1\.00.*USD \$9\.99/);
   assert.equal(await page.locator('#billingCheckout').isDisabled(),true);
   assert.equal(writes.filter(x=>x.url==='/billing/checkout').length,0);
   await page.locator('#billingRenewalConsent').check();
@@ -114,7 +114,7 @@ try {
   await page.locator('#billingRenewalConsent').check();
   await Promise.all([page.waitForURL('https://checkout.stripe.com/c/test_fixture'),page.locator('#billingCheckout').click()]);
   const sent=writes.find(x=>x.url==='/billing/checkout');
-  assert.deepEqual(sent.body,{acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,renewalAmountMinor:1900,interval:'month',termsUrl:sampleOffer.termsUrl});
+  assert.deepEqual(sent.body,{acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,renewalAmountMinor:999,interval:'month',termsUrl:sampleOffer.termsUrl});
   console.log('Paywall and introductory checkout mocked browser proof: PASS (no real transaction)');
   await page.close();
 
