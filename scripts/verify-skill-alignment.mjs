@@ -12,6 +12,7 @@ assert.deepEqual(names, expected.map(id=>id+".json").sort(), "one central manife
 for (const manifest of manifests) {
  const resolved=resolveAppSkillSet(manifest.app.id,manifests);
  assert.equal(resolved.app.authorityOwner,manifest.app.id,"each app retains its own authority owner");
+ assert.ok(manifest.app.repository.startsWith("jussray/"),"each app pins its canonical owner/repository identity");
  assert.equal(resolved.authority,"catalog-and-compatibility-only");
  assert.equal(resolved.installationState,"not-asserted");
  assert.equal(resolved.executionAuthority,"none");

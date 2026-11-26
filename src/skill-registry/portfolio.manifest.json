@@ -8,43 +8,43 @@
     {
       "id": "chief-ai-machine",
       "name": "Chief AI Machine",
-      "repository": "chief-ai-machine",
+      "repository": "jussray/chief-ai-machine",
       "manifestPath": "manifests/apps/chief-ai-machine.json"
     },
     {
       "id": "founder-control-room",
       "name": "Founder Control Room",
-      "repository": "founder-control-room",
+      "repository": "jussray/founder-control-room",
       "manifestPath": "manifests/apps/founder-control-room.json"
     },
     {
       "id": "juss-pay",
       "name": "JussPay",
-      "repository": "JussPay",
+      "repository": "jussray/JussPay",
       "manifestPath": "manifests/apps/juss-pay.json"
     },
     {
       "id": "promptos",
       "name": "PromptOS",
-      "repository": "promptos",
+      "repository": "jussray/promptos",
       "manifestPath": "manifests/apps/promptos.json"
     },
     {
       "id": "sekret-bip",
       "name": "Se’kret Bip",
-      "repository": "Sekret-Bip",
+      "repository": "jussray/Sekret-Bip",
       "manifestPath": "manifests/apps/sekret-bip.json"
     },
     {
       "id": "solcontinuity",
       "name": "SolContinuity",
-      "repository": "solcontinuity",
+      "repository": "jussray/solcontinuity",
       "manifestPath": "manifests/apps/solcontinuity.json"
     },
     {
       "id": "storyengine",
       "name": "StoryEngine",
-      "repository": "StoryEngine",
+      "repository": "jussray/StoryEngine",
       "manifestPath": "manifests/apps/storyengine.json"
     }
   ]
