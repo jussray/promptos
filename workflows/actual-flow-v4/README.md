@@ -1,8 +1,10 @@
 # ACTUAL-FLOW V4: repository-bound engineering proof
 
-This is a **draft integration** for PromptOS. It reuses the existing canonical
-`workflows/continuity/continuity-fingerprint.mjs`; it does not modify the
-approved ULTRATHINK workflow, replace Founder Control Room, or register itself.
+This is a **founder-requested project export candidate** for PromptOS. It reuses
+`workflows/continuity/continuity-fingerprint.mjs` without altering the approved
+ULTRATHINK workflow or replacing Founder Control Room. The candidate registers
+version 4.0.0 for PromptOS only when its change passes review and merges into main.
+An approved workflow *definition* never authorizes agent execution or publication.
 
 ## Purpose
 
@@ -84,6 +86,38 @@ Playwright tests on the **exact changed head** before claiming completion.
 Existing CI, FCR, Cloudflare, or TestFlight gates remain separate; none of the
 above substitutes for current runtime outcome proof.
 
+## Deterministic PromptOS project export
+
+Run on a verified checked-out commit **after the approved registry and workflow definition
+are both present at that exact head**:
+
+```bash
+node workflows/actual-flow-v4/verify-export.mjs
+node workflows/actual-flow-v4/export-project.mjs \
+  --expected-head "$(git rev-parse HEAD)" \
+  --project promptos \
+  --output artifacts/actual-flow-v4.project-export.json
+```
+
+The export contains the complete versioned workflow definition, exact SHA and a
+fail-closed project envelope.
+It also records the actual checked-out branch ref. Exports made from feature branches
+are explicitly `candidate-definition-only`, with `registrationEffective: false`; only
+a checkout on `refs/heads/main` can report the definition as registered on canonical
+main. The CLI refuses detached or unknown branch refs rather than treating a PR head
+as production. It refuses stale SHA, missing/duplicate registry
+entries, unapproved definitions and unknown project identifiers. It creates a
+new file without overwriting existing exports. Never treat the exported JSON as
+an execution credential, authenticated account, provider connector, deployment,
+or ChatGPT Sites publication.
+
+The ChatGPT Sites identity remains UNVERIFIED under `SITES.md`. Do not claim
+that the Site/editor imported this file, rendered an interface, or published a
+live runtime until those outcomes are directly witnessed. Public domains and
+the separate Founder Control Room surface remain unchanged. Once a real site
+binding is verified, import this versioned definition only behind a verified
+user account and perform desktop/mobile browser verification before release.
+
 ## Separate browser cookies
 
 PromptOS already has opt-in first-party visitor cookies in `parts/auth.js`.
@@ -93,7 +127,7 @@ fingerprinting or cross-site tracking is introduced here.
 
 ## Approval, lifecycle and rollback
 
-- This draft is **not** entered into `workflows/registry.json`.
+- The export candidate adds a source-controlled approved entry to `workflows/registry.json`; this does not take effect on `main` until a separately approved, green merge.
 - No merge/push/deploy is implied by completing any evidence check.
 - A changed head, scope, evidence classification, goal, or next gate invalidates
   the predecessor proof for present-tense claims.

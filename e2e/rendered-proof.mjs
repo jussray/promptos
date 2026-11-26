@@ -44,6 +44,15 @@ async function proveViewport(browser, {name, width, height}) {
   assert(await page.locator('#welcomeScreen').isHidden(), `${name}: welcome screen remained after onboarding started`);
   await page.locator('[data-continue-as-guest]').click();
   await page.locator('#appShell').waitFor({state: 'visible'});
+  const stateBoundary = await page.evaluate(() => {
+    const state = window.PromptOSState;
+    const malformed = JSON.parse('{"custom":[],"theme":"dark","__proto__":{"polluted":true}}');
+    const secret = state ? state.validateState({custom:[{id:'c_secret',title:'Token',sub:'',cat:'coding',platforms:['chatgpt'],body:'ghp_12345678901234567890'}],theme:'dark'}) : {findings:[]};
+    return {loaded:Boolean(state), schemaVersion:state?.SCHEMA_VERSION ?? null, prototypeRejected:state ? !state.validateState(malformed).ok : false, secretFound:Boolean(secret?.findings?.length)};
+  });
+  assert(stateBoundary.loaded && stateBoundary.schemaVersion === 1, `${name}: versioned prompt state boundary did not load`);
+  assert(stateBoundary.prototypeRejected, `${name}: prototype-bearing import was not rejected`);
+  assert(stateBoundary.secretFound, `${name}: secret scanner did not flag a token-like prompt`);
   assert(await page.locator('#onboarding').isHidden(), `${name}: onboarding remained visible after guest choice`);
 
   await page.locator('#page-catalog.on').waitFor({state: 'visible'});

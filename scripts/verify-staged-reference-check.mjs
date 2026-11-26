@@ -48,6 +48,7 @@ try {
   const mutants = [
     ['styles/cinematic-direction.css', 'index.html'], // HTML <link href>
     ['parts/app.js', 'index.html'], // HTML <script src>
+    ['parts/state.js', 'index.html'], // versioned prompt state must survive staging
     ['src/catalog-ui.js', 'parts/app.js'], // classic-script dynamic import()
     ['parts/p11-make-ui.mjs', 'parts/p09-cont-design.js'], // DOM script.src assignment (document-relative)
     ['src/workflow-artifact.mjs', 'parts/p11-make-ui.mjs'], // static ES import
