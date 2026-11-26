@@ -11,6 +11,7 @@ export function validatePortfolioManifest(manifest) {
   if (manifest.schemaVersion !== '1.0') errors.push('schemaVersion must be 1.0');
   if (manifest.registry !== 'promptos/app-aligned-skills') errors.push('unexpected registry identity');
   if (manifest.authority !== 'catalog-and-compatibility-only') errors.push('registry authority must remain catalog-and-compatibility-only');
+  if (manifest.sharedSkillDistribution !== 'repository-operator-only') errors.push('shared skills must remain repository-operator-only');
   if (!Array.isArray(manifest.sharedSkills) || !Array.isArray(manifest.apps)) {
     return [...errors, 'sharedSkills and apps must be arrays'];
   }
@@ -25,6 +26,7 @@ export function validatePortfolioManifest(manifest) {
     if (typeof skill.sourcePath !== 'string' || !skill.sourcePath.startsWith('.claude/skills/') || !skill.sourcePath.endsWith('/SKILL.md') || skill.sourcePath.includes('..')) errors.push(`invalid shared skill source path: ${skill.id}`);
     if (!/^[0-9a-f]{40}$/.test(skill.sourceRevision ?? '')) errors.push(`shared skill source revision must be pinned: ${skill.id}`);
     if (!ALLOWED_SKILL_AUTHORITY.has(skill.authority)) errors.push(`shared skill exceeds advisory authority: ${skill.id}`);
+    if (skill.audience !== 'founder-operator' || skill.distribution !== 'reference-only') errors.push(`shared skill distribution boundary invalid: ${skill.id}`);
   }
 
   const appIds = new Set();
@@ -41,6 +43,7 @@ export function validatePortfolioManifest(manifest) {
       errors.push(`missing repository must be explicitly marked unresolved: ${app.id}`);
     }
     if (!app.name || !app.role) errors.push(`app identity incomplete: ${app.id}`);
+    if (app.sharedSkillContext !== 'repository-operator-only') errors.push(`shared skill context must be repository-operator-only: ${app.id}`);
     if (app.catalogStatus !== 'proposed-awaiting-source-audit') errors.push(`app catalog status must remain explicit until source audit: ${app.id}`);
     if (!Array.isArray(app.ownedSkills) || app.ownedSkillsStatus !== 'proposed-awaiting-source-audit') {
       errors.push(`owned skills must remain marked proposed until source audit: ${app.id}`);
@@ -76,10 +79,11 @@ export function resolveAppSkillSet(manifest, appId) {
   if (!app) throw new Error(`Unknown app: ${appId}`);
   const sharedById = new Map(manifest.sharedSkills.map((skill) => [skill.id, skill]));
   return {
-    app: { id: app.id, name: app.name, repository: app.repository, role: app.role },
+    app: { id: app.id, name: app.name, repository: app.repository, role: app.role, catalogStatus: app.catalogStatus, ownedSkillsStatus: app.ownedSkillsStatus },
     authorityOwner: app.authorityOwner,
-    sharedSkills: app.sharedSkills.map((id) => ({ ...sharedById.get(id), scope: 'shared-reference' })),
-    ownedSkills: app.ownedSkills.map((id) => ({ id, scope: 'app-owned', owner: app.id })),
+    sharedSkills: app.sharedSkills.map((id) => ({ ...sharedById.get(id), scope: 'repository-operator-shared-reference' })),
+    ownedSkills: app.ownedSkills.map((id) => ({ id, scope: 'proposed-app-owned', owner: app.id, status: app.ownedSkillsStatus })),
+    skillContext: app.sharedSkillContext,
     compatibility: { ...app.compatibility },
     authority: 'catalog-and-compatibility-only',
   };
