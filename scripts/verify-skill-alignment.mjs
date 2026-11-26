@@ -40,6 +40,9 @@ for (const app of manifest.apps) {
 
 assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
 assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, 'jussray/jussray', 'Games Hub belongs to the canonical Juss & Co. workspace');
+assert.equal(manifest.apps.find((app) => app.id === 'games-hub').parentBrand, 'Juss & Co.');
+assert.equal(manifest.apps.find((app) => app.id === 'games-hub').portfolioRole, 'owned-product-hub');
+assert.equal(manifest.apps.find((app) => app.id === 'games-hub').gameCodebasesRemainIndependent, true);
 assert.equal(manifest.apps.find((app) => app.id === 'drift').repository, null, 'unverified DRIFT repository must not be invented');
 
 const chief = resolveAppSkillSet(manifest, 'chief-ai-machine');
