@@ -5,6 +5,7 @@ on:
     paths:
       - "workflows/actual-flow-v4/**"
       - "workflows/actual-flow-v4.workflow.json"
+      - "workflows/registry.json"
       - "workflows/continuity/**"
       - ".github/workflows/actual-flow-v4-proof.yml"
   workflow_dispatch:
@@ -35,3 +36,5 @@ jobs:
         run: node workflows/continuity/verify.mjs
       - name: Verify ACTUAL-FLOW V4 evidence gate
         run: node workflows/actual-flow-v4/verify.mjs
+      - name: Verify ACTUAL-FLOW V4 PromptOS project export
+        run: node workflows/actual-flow-v4/verify-export.mjs
