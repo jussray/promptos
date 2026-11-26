@@ -74,7 +74,7 @@ try {
       writes.push({ url: url.pathname, auth: req.headers().authorization, body: req.postDataJSON?.() });
       await route.fulfill({ status: 200, contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify(url.pathname === '/prompts/admit' ? { admitted: true } : url.pathname === '/billing/offer' ? {offer:sampleOffer} : url.pathname === '/billing/checkout' ? {...sampleOffer,url:'https://checkout.stripe.com/c/test_fixture'} : { paid: true }) });
+        body: JSON.stringify(url.pathname === '/prompts/admit' ? { admitted: true, subject: 'https://accounts.google.com#test-owner' } : url.pathname === '/billing/offer' ? {offer:sampleOffer} : url.pathname === '/billing/checkout' ? {...sampleOffer,url:'https://checkout.stripe.com/c/test_fixture'} : { paid: true }) });
       return;
     }
     if (url.hostname === 'checkout.stripe.com') { await route.fulfill({status:200,contentType:'text/html',body:'<title>Mock Stripe sandbox</title>'}); return; }
@@ -108,6 +108,7 @@ try {
   await page.locator('#billingRenewalConsent').check();
   await page.evaluate(() => window.dispatchEvent(new Event('promptos:signedout')));
   assert.equal(await page.locator('#billingConsent').isHidden(),true);
+  assert.equal(await page.locator('#customList .citem').count(),0,'signed-out account still sees saved prompts');
   assert.equal(await page.locator('#billingRenewalConsent').isChecked(),false);
   await page.locator('#billingUpgrade').click();
   await page.locator('#billingConsent').waitFor({state:'visible'});
