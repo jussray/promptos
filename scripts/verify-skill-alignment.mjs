@@ -48,6 +48,8 @@ const pluginMutation=structuredClone(manifests[0]); pluginMutation.plugins[0].co
 assert.ok(validateRegistry([pluginMutation]).some(error=>error.includes("connection state must be discovered")));
 const skillMutation=structuredClone(manifests[0]); skillMutation.skills.shared[0].authority="execute";
 assert.ok(validateRegistry([skillMutation]).some(error=>error.includes("skill authority must be advisory")));
+const staleSource=structuredClone(manifests[0]); staleSource.skills.owned[0].sourceRevision="0".repeat(40);
+assert.ok(validateRegistry([staleSource]).some(error=>error.includes("source revision does not match inspected app head")));
 assert.throws(()=>resolveAppSkillSet("unknown-app",manifests),/Unknown app/);
 
 const index=JSON.parse(fs.readFileSync(new URL("../src/skill-registry/portfolio.manifest.json",import.meta.url),"utf8"));
