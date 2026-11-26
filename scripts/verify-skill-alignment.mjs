@@ -5,7 +5,7 @@ import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } 
 const manifest = loadPortfolioManifest();
 const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
-assert.equal(manifest.apps.length, 12, 'registry must cover the currently declared 12 standalone apps');
+assert.equal(manifest.apps.length, 14, 'registry must cover the currently declared 14 standalone apps');
 
 for (const app of manifest.apps) {
   const resolved = resolveAppSkillSet(manifest, app.id);
@@ -42,6 +42,17 @@ assert.ok(!fcr.ownedSkills.some((skill) => skill.id === 'agent-orchestration'));
 const bip = resolveAppSkillSet(manifest, 'sekret-bip');
 assert.ok(bip.ownedSkills.some((skill) => skill.id === 'teen-privacy'));
 assert.ok(bip.ownedSkills.some((skill) => skill.id === 'guardian-consent'));
+
+const protectOne = resolveAppSkillSet(manifest, 'protect-me-model-one');
+assert.ok(protectOne.ownedSkills.some((skill) => skill.id === 'medusa'));
+assert.equal(protectOne.authorityOwner, 'protect-me-model-one');
+assert.ok(!protectOne.ownedSkills.some((skill) => skill.id === 'protect-me-contract'));
+
+const protectTwo = resolveAppSkillSet(manifest, 'protect-me-model-two');
+assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'medusa'));
+assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'protect-me-contract'));
+assert.ok(protectTwo.ownedSkills.some((skill) => skill.id === 'juss-os'));
+assert.equal(protectTwo.authorityOwner, 'protect-me-model-two');
 
 const mutated = structuredClone(manifest);
 mutated.apps[1].authorityOwner = 'founder-control-room';
