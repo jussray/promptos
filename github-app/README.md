@@ -34,6 +34,10 @@ Use `registration.template.json` as the source of truth. Subscribe to `issue_com
 
 Registration is external provider state. A template or deployed Worker does not prove that the GitHub App exists, is installed, or has delivered a signed event.
 
+## Automated test evidence boundary
+
+The Playwright workflow runs the Worker locally and stubs the FCR HTTP response after independently verifying the Ed25519 signature and envelope contract. It proves webhook authentication, payload reduction, deterministic retries, and receipt validation logic against a controlled fixture. It does **not** prove that the production FCR endpoint accepted a message, that a production public key is registered, or that a real GitHub App delivered the event.
+
 ## Proof gate
 
 1. Register the exact read-only GitHub App permission/event set.
