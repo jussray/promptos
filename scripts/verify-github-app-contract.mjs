@@ -75,7 +75,7 @@ for (const forbidden of [
 
 assert.match(docs, /read-only GitHub event observer/i);
 assert.match(docs, /FCR remains the only execution-authority owner/i);
-assert.match(docs, /public-key registration through the FCR founder-authorized boundary/i);
+assert.ok(docs.includes('FCR founder-authorized boundary'), 'public relay-key registration must remain inside FCR governance');
 assert.ok(workflow.includes('node scripts/verify-github-app-contract.mjs'));
 assert.ok(workflow.includes('node e2e/github-app-runtime.mjs'));
 
