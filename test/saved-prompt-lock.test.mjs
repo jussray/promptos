@@ -61,3 +61,17 @@ test("identity transitions lock personal data, invalidate in-flight writes and r
   assert.match(fnBody("saveCustomPrompt"), /generation !== personalSessionGeneration/);
   assert.match(fnBody("importState"), /generation !== personalSessionGeneration/);
 });
+
+test("workspace stays locked until the server confirms paid admission", () => {
+  const auth = readFileSync(new URL("../parts/auth.js", import.meta.url), "utf8");
+  const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /data-continue-as-guest/);
+  assert.match(html, /id="appShell"[^>]*inert/);
+  assert.match(auth, /async function refreshWorkspace\(/);
+  assert.match(auth, /await window\.PromptOSBilling\.refresh\(\)/);
+  assert.match(auth, /paid !== true/);
+  assert.match(auth, /credential !== verifiedIdToken/);
+  assert.match(auth, /window\.addEventListener\('focus', refreshWorkspace\)/);
+  assert.doesNotMatch(auth, /function bootAsGuest\(/);
+  assert.ok(html.indexOf('id="billingUpgrade"') < html.indexOf('id="appShell"'), "checkout must be reachable outside locked workspace");
+});
