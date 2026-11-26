@@ -146,17 +146,17 @@
         },
         {
           "id": "local-devil",
-          "path": "systems/skills/local-devil/skill.yaml",
-          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
-          "status": "retired",
-          "classification": "shared-operating-skill-metadata"
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
         },
         {
           "id": "local-lean-build-orchestrator",
-          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
-          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
-          "status": "retired",
-          "classification": "shared-operating-skill-metadata"
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "lockfiles": [
@@ -166,6 +166,20 @@
           "source": "cloudflare/skills",
           "lockedPackageCount": 13,
           "interpretation": "locked external skill references; not proof of runtime installation or activation"
+        }
+      ],
+      "retirementMetadata": [
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/skill.yaml",
+          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
+          "declaredStatus": "retired"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
+          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
+          "declaredStatus": "retired"
         }
       ]
     },
@@ -196,24 +210,24 @@
           "classification": "shared-operating-skill-export"
         },
         {
-          "id": "local-devil",
-          "path": "systems/skills/local-devil/skill.yaml",
-          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
-          "status": "retired",
-          "classification": "shared-operating-skill-metadata"
-        },
-        {
-          "id": "local-lean-build-orchestrator",
-          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
-          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
-          "status": "retired",
-          "classification": "shared-operating-skill-metadata"
-        },
-        {
           "id": "local-minimal-token-protocol",
           "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
           "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
           "status": "active-export",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
           "classification": "shared-operating-skill-export"
         }
       ],
@@ -222,6 +236,20 @@
         "systems/EXPORT-INDEX.md describes a 22-skill exported set, while local-cortex says twenty-seven skills; reconcile the inventory count before calling it complete.",
         "The inspected local-socrates source asks decision-changing questions and does not contain the full Devil steelman procedure.",
         "The existing PromptOS app registry is catalog-only; proposed app-owned IDs are not verified installed skills."
+      ],
+      "retirementMetadata": [
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/skill.yaml",
+          "blobSha": "1b2c04c32810747307dea89ab0e9c81b1bfb3d33",
+          "declaredStatus": "retired"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/skill.yaml",
+          "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
+          "declaredStatus": "retired"
+        }
       ]
     },
     {
@@ -501,7 +529,7 @@
       "packageId": "local-devil",
       "status": "retired-as-a-separate-shared-operating-skill",
       "rationaleRecordedInMetadata": "Consolidated to reduce duplicate discovery; metadata says the steelman method was preserved in local-socrates.",
-      "finding": "The inspected local-socrates source is question-led and does not contain the full Devil steelman procedure. However, /devil remains active through FCR skills/devil and ULTRATHINK godmode-devil-ultrathink; JBH also has an active native devil skill.",
+      "finding": "The inspected local-socrates source is question-led and does not contain the full Devil steelman procedure. /devil nevertheless remains active through FCR skills/devil, JBH skills/devil, and ULTRATHINK godmode-devil-ultrathink. Retire only the local-devil package identity, not the command or capability.",
       "doNotInfer": "Do not infer that the /devil command or capability is globally retired."
     },
     "localLeanBuildOrchestrator": {
@@ -517,6 +545,32 @@
     "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
     "Protect Me Model One and Two are not yet represented in the PromptOS app manifest.",
     "Games Hub has related repositories but no canonical hub repository is established in this audit.",
-    "DRIFT repository remains unresolved."
-  ]
+    "DRIFT repository remains unresolved.",
+    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory."
+  ],
+  "governance": {
+    "owner": "Juss",
+    "authorityRepository": "jussray/founder-control-room",
+    "inheritanceContract": {
+      "path": "config/founder-intelligence.inheritance.json",
+      "blobSha": "204c3ffee55d6a0878559f59b926e50a74b6d625"
+    },
+    "skillSourceManifest": {
+      "path": "src/lib/fcrSkillSourceManifest.ts",
+      "blobSha": "9b47124c1cd62d434e599c57b2df9efe963e49bc",
+      "contract": "juss/fcr-skill-source-manifest@v1",
+      "behavior": "Discovers founder-owned skill files under the configured FCR skills root, hashes source, records status/scope/owner, and exposes prompt/resource references to FCR and Chief while tool exposure remains false."
+    },
+    "externalSkillIntake": {
+      "path": "src/lib/externalSkillIntake.ts",
+      "blobSha": "e4d22a6c248445469103f8204efd7ed07202a3d4",
+      "behavior": "Candidate discovery only; external skills remain QUARANTINED with executionAllowed false until pinned revision, license, security, sandbox, compatibility, and founder-approval gates pass."
+    },
+    "externalSecurityCatalog": {
+      "path": "src/founder-os-lab/externalSecuritySkillCatalog.ts",
+      "blobSha": "289d609b5d3d8cff1d104ad1cb81a55507c63034",
+      "behavior": "Read-only documentation/provenance catalog; execution disabled, auto-fetch disabled, and auto-handoff disabled."
+    },
+    "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority."
+  }
 }
