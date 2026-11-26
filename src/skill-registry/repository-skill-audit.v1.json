@@ -2024,6 +2024,360 @@
         }
       },
       "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/Sekret-Bip-Parents",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "bdbcf7147ed963fa80f49e014c95d9fb5d496d58",
+        "truncated": false,
+        "skillCount": 1,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/do-not-use-archive/SKILL.md",
+            "blobSha": "8576154eb7cc981310886697f0f15f147c292136"
+          }
+        ],
+        "pathGroupCounts": {
+          ".agents": 1
+        }
+      },
+      "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/Sekret-Bip-Bridge",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "3be5471b87bf3146739276d060582effbe89f391",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/Bip-Jr",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "cb2105e8b99a1999bd1da863c66e61ee7a41e5d9",
+        "truncated": false,
+        "skillCount": 1,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/sekret-bip-jr-operator/SKILL.md",
+            "blobSha": "ff0f8a577c3a1e4f3fca4374bb738a7f68348183"
+          }
+        ],
+        "pathGroupCounts": {
+          ".agents": 1
+        }
+      },
+      "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/jussbeautifulhair1",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "e3fd00f23889182f7e82e79a8205653544f18fb8",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/sekret-bip-companions",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "ce937ec29f800108f5d42882b9a30af75331651b",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
+    },
+    {
+      "repository": "jussray/untold-stories-storefront",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "451c386dea5fa830b43fed2405075c4302447ee0",
+        "truncated": false,
+        "skillCount": 4,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/devil/SKILL.md",
+            "blobSha": "351fef741e26d4a58de4eb918a58f3cf803bc78c"
+          },
+          {
+            "path": ".agents/skills/figma-build-implement/SKILL.md",
+            "blobSha": "c4302fe242f628d23f0ae160e9acb98bd78f73ff"
+          },
+          {
+            "path": ".agents/skills/sales/SKILL.md",
+            "blobSha": "6f202595c3a906f7d3891988252704117ba11134"
+          },
+          {
+            "path": ".agents/skills/untold-stories-operator/SKILL.md",
+            "blobSha": "816a45aca2175ce08ec4628ca138bd98ccc1a7fd"
+          }
+        ],
+        "pathGroupCounts": {
+          ".agents": 4
+        }
+      },
+      "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/jussray",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "14f8da150cf88079f335bb780cba334403e8cd67",
+        "truncated": false,
+        "skillCount": 43,
+        "skillFiles": [
+          {
+            "path": ".agents/skills/futureyou-me-v10/SKILL.md",
+            "blobSha": "f64ff71a098e85dccf77bb025be59c06af8dc552"
+          },
+          {
+            "path": ".agents/skills/goalfix/SKILL.md",
+            "blobSha": "4329e410995efca12b40a8e2b29f9b93a805b434"
+          },
+          {
+            "path": ".agents/skills/godmode-devil-ultrathink/SKILL.md",
+            "blobSha": "0be3ce5dc4ce3176b79b3a7f0174c9c83fde7723"
+          },
+          {
+            "path": ".agents/skills/juss-os/SKILL.md",
+            "blobSha": "3379c2cb0f6d17875d153612c8fedff8b9b508d9"
+          },
+          {
+            "path": ".agents/skills/portfolio-bottleneck-finder/SKILL.md",
+            "blobSha": "8d0afb9a9d8dece7d4c76c5d78b80c5457f491a9"
+          },
+          {
+            "path": ".claude/skills/juss-authored/medusa/SKILL.md",
+            "blobSha": "12e1314e1f6eb177378f9628896e75fb373e119a"
+          },
+          {
+            "path": "skills/juss-authored/confess/SKILL.md",
+            "blobSha": "015548c61e90afe74997630754e2eccabe674cc9"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/chatgpt-openai-developers-zapier-bridge/SKILL.md",
+            "blobSha": "4be19d0271059f13bcde4437b79d2bd5f7376de6"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/claude-zapier-founder-operator/SKILL.md",
+            "blobSha": "be2474199c8c170a3fe3489f8926d856bce8fa6a"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/fact-check-every-claim/SKILL.md",
+            "blobSha": "2dab4103ee9352040c16702e6c16d62c65d0d22a"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/goalfix/SKILL.md",
+            "blobSha": "6e48d37f553923209a6c2794812ee4473f5e2b75"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/juss-flow-launch-loop/SKILL.md",
+            "blobSha": "6c62585eb7525e3c408e4e85f3c2e9ac6804e4cf"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/juss-founder-os/SKILL.md",
+            "blobSha": "30a9f25ac10b689294ade7330e8bc1d881a15df4"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/truth-decay-audit/SKILL.md",
+            "blobSha": "741d77e918c081293800e3db75a87342d6b6ed8e"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/ultrathink-devil/SKILL.md",
+            "blobSha": "6171bf49400e8ad8aa2ca0d743bde03075e09248"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/ai-skills/unified-growth-inbox/SKILL.md",
+            "blobSha": "d35cd2234d519b81dac198dc5ddb71bff6cd42d8"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/devil/SKILL.md",
+            "blobSha": "602e27b89ecfc2ce279bea416dd0b6eb20fbf59c"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/fact-check-every-claim/SKILL.md",
+            "blobSha": "95dcbe64d998f1494455ad0be4e830b383080bef"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/outcome-first/SKILL.md",
+            "blobSha": "b19d58afa39dcaa53e97243c684fcaaf4e0e289a"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/portfolio-control-plane/SKILL.md",
+            "blobSha": "9300fe845d85b764f1c94fedcd1768123350de16"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/product-design-gate/SKILL.md",
+            "blobSha": "3b0eb0ad4eb3ae331022d7e1714b595d5ad7ffb1"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/sales/SKILL.md",
+            "blobSha": "df6244dfbbc7f0966f230334ceec1df38624223f"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/typescript-audit/SKILL.md",
+            "blobSha": "124fe6e915915bb5546e7519849d78ad57d0f5f9"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/typescript-behavior-tests/SKILL.md",
+            "blobSha": "1a94d238fc03f2a92cecdbfc1e4218a9e06af1b3"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/typescript-minimal-patch/SKILL.md",
+            "blobSha": "c560047b877a93ac295f7607edab05d74b4d1259"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/typescript-root-cause-debugger/SKILL.md",
+            "blobSha": "f70020cb1a3f6467bd079918562d7c0cd1f361d1"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/typescript-strict-review/SKILL.md",
+            "blobSha": "b30eff6190a51c3bfa7e02124bcece80af855404"
+          },
+          {
+            "path": "skills/juss-authored/fcr-set/skills/ultrathink-devil/SKILL.md",
+            "blobSha": "076575fb2fe0614a6b26fd5c2c287870fd2b81c1"
+          },
+          {
+            "path": "skills/juss-authored/founder-action-implant-verify/SKILL.md",
+            "blobSha": "ca09aa8613df2229abe18c667d49c9d99a0f0f31"
+          },
+          {
+            "path": "skills/juss-authored/futureyou-me-v10/SKILL.md",
+            "blobSha": "f64ff71a098e85dccf77bb025be59c06af8dc552"
+          },
+          {
+            "path": "skills/juss-authored/goalfix/SKILL.md",
+            "blobSha": "4329e410995efca12b40a8e2b29f9b93a805b434"
+          },
+          {
+            "path": "skills/juss-authored/godmode-devil-ultrathink/SKILL.md",
+            "blobSha": "0be3ce5dc4ce3176b79b3a7f0174c9c83fde7723"
+          },
+          {
+            "path": "skills/juss-authored/godmode/SKILL.md",
+            "blobSha": "7e82c1972dda904ce7c752feb48b6bc20a66f196"
+          },
+          {
+            "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md",
+            "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec"
+          },
+          {
+            "path": "skills/juss-authored/juss-command-codex/SKILL.md",
+            "blobSha": "baa40db798212adbb1c20645b416118eac6bd302"
+          },
+          {
+            "path": "skills/juss-authored/juss-os/SKILL.md",
+            "blobSha": "3379c2cb0f6d17875d153612c8fedff8b9b508d9"
+          },
+          {
+            "path": "skills/juss-authored/l99-v21-transactional-authority/SKILL.md",
+            "blobSha": "616751d73690cea014f4ad1764283c5543e2c4d9"
+          },
+          {
+            "path": "skills/juss-authored/patch-implant-verify/SKILL.md",
+            "blobSha": "7aa0eafca9cf554c800554aa7b678b9fcaf66bf4"
+          },
+          {
+            "path": "skills/juss-authored/reasoning-stack/SKILL.md",
+            "blobSha": "61c90f7b957143b8a7743770c17dea2accf69517"
+          },
+          {
+            "path": "skills/juss-authored/runtime-kernel/SKILL.md",
+            "blobSha": "8509c41de017a2f63fec81ad86143059fa8d9aad"
+          },
+          {
+            "path": "skills/juss-authored/sauce-guard/SKILL.md",
+            "blobSha": "15ea6b722c6b8fe7976c9f70269b3f930a914527"
+          },
+          {
+            "path": "skills/juss-authored/truth-decay/SKILL.md",
+            "blobSha": "d70ed70a55fd9e77bb02ebf0670afa12c0d4c72b"
+          },
+          {
+            "path": "skills/juss-authored/truthmode/SKILL.md",
+            "blobSha": "a5ac55da55911cadc05640fefce0d805dae37f5c"
+          }
+        ],
+        "pathGroupCounts": {
+          ".agents": 5,
+          ".claude": 1,
+          "skills": 37
+        }
+      },
+      "inventoryStatus": "recursive-tree-audited"
+    },
+    {
+      "repository": "jussray/SleepWealth-Agent",
+      "profile": "related-repository",
+      "skillSources": [],
+      "lockfiles": [],
+      "notes": [
+        "Repository discovered in the accessible GitHub account inventory; product classification pending."
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "9c90c1100fef25b3f68c97a3a9f4ac9444610ce3",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": [],
+        "pathGroupCounts": {}
+      },
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files"
     }
   ],
   "retirementReview": {
