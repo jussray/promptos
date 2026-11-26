@@ -501,10 +501,7 @@
         "truthmode"
       ],
       "ownedSkills": [
-        "game-hub-routing",
-        "multiplayer-safety",
-        "game-state-verification",
-        "player-progression"
+        "game-hub-routing"
       ],
       "compatibility": {
         "surfaces": [
@@ -646,6 +643,163 @@
       "sourceAuditRepositories": [
         "jussray/juss-protect-me-2"
       ]
+    },
+    {
+      "id": "sync-party-game",
+      "name": "SYNC Party",
+      "repository": "jussray/sync-party-game",
+      "role": "server-authoritative-multiplayer-party-game",
+      "authorityOwner": "sync-party-game",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "room-state-authority",
+        "private-choice-reveal",
+        "multiplayer-reconnect",
+        "privacy-safe-leaderboard"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api",
+          "mobile"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "sync-party-game",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/sync-party-game"
+      ],
+      "parentBrand": "Juss & Co.",
+      "portfolioRole": "independent-game-codebase"
+    },
+    {
+      "id": "chatquest",
+      "name": "ChatQuest",
+      "repository": "jussray/chatQuest",
+      "role": "guardian-gated-private-quest-prototype",
+      "authorityOwner": "chatquest",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "guardian-room-authorization",
+        "preset-message-safety",
+        "prototype-safety-boundary"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "chatquest",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/chatQuest"
+      ],
+      "parentBrand": "Juss & Co.",
+      "portfolioRole": "independent-game-codebase"
+    },
+    {
+      "id": "bip-and-seek",
+      "name": "Bip & Seek",
+      "repository": "jussray/jussray-bip-and-seek",
+      "role": "server-authoritative-roblox-hide-and-find-game",
+      "authorityOwner": "bip-and-seek",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "private-player-assignment",
+        "server-validated-rewards",
+        "progression-persistence"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "game-client",
+          "server"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "bip-and-seek",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/jussray-bip-and-seek"
+      ],
+      "parentBrand": "Juss & Co.",
+      "portfolioRole": "independent-game-codebase"
+    },
+    {
+      "id": "lumora",
+      "name": "LUMORA",
+      "repository": "jussray/LUMORA",
+      "role": "single-player-learning-adventure-prototype",
+      "authorityOwner": "lumora",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "learning-progression",
+        "guardian-safety-boundary",
+        "single-player-runtime"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "game-client"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "lumora",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/LUMORA"
+      ],
+      "parentBrand": "Juss & Co.",
+      "portfolioRole": "independent-game-codebase"
     }
   ],
   "invariants": [
