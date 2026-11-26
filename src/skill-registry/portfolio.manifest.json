@@ -8,37 +8,43 @@
       "id": "goalfix",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "smallest reversible repair and verification"
+      "purpose": "smallest reversible repair and verification",
+      "resolution": "source-path-unverified"
     },
     {
       "id": "ultrathink",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "structured deep analysis"
+      "purpose": "structured deep analysis",
+      "resolution": "source-path-unverified"
     },
     {
       "id": "redteam",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "adversarial review and failure discovery"
+      "purpose": "adversarial review and failure discovery",
+      "resolution": "source-path-unverified"
     },
     {
       "id": "l99",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "evidence, authority, state and rollback discipline"
+      "purpose": "evidence, authority, state and rollback discipline",
+      "resolution": "source-path-unverified"
     },
     {
       "id": "ooda",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "observe-orient-decide-act loop"
+      "purpose": "observe-orient-decide-act loop",
+      "resolution": "source-path-unverified"
     },
     {
       "id": "proofmode",
       "source": "jussray/ULTRATHINK-",
       "authority": "advisory",
-      "purpose": "verification and evidence receipts"
+      "purpose": "verification and evidence receipts",
+      "resolution": "source-path-unverified"
     }
   ],
   "apps": [
@@ -69,7 +75,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "chief-ai-machine",
@@ -99,7 +106,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "promptos",
@@ -128,7 +136,8 @@
           "catalog"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "solcontinuity",
@@ -156,7 +165,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": false
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "sekret-bip",
@@ -187,7 +197,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "storyengine",
@@ -215,7 +226,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "truth-weaver",
@@ -243,7 +255,8 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "juss-pay",
@@ -271,12 +284,13 @@
           "worker"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "juss-beautiful-hair",
       "name": "Juss Beautiful Hair",
-      "repository": "jussray/Juss-Beautiful-Hair",
+      "repository": "jussray/Juss-beautiful-hair-",
       "role": "commerce-storefront",
       "authorityOwner": "juss-beautiful-hair",
       "sharedSkills": [
@@ -299,7 +313,8 @@
           "storefront"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "think-tank",
@@ -327,12 +342,13 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "games-hub",
       "name": "Games Hub",
-      "repository": "jussray/Games-Hub",
+      "repository": null,
       "role": "gaming-ecosystem",
       "authorityOwner": "games-hub",
       "sharedSkills": [
@@ -356,12 +372,20 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "repositoryStatus": "unresolved",
+      "relatedRepositories": [
+        "jussray/sync-party-game",
+        "jussray/chatQuest",
+        "jussray/jussray-bip-and-seek",
+        "jussray/LUMORA"
+      ],
+      "catalogStatus": "proposed-awaiting-source-audit"
     },
     {
       "id": "drift",
       "name": "DRIFT",
-      "repository": "jussray/DRIFT",
+      "repository": null,
       "role": "verification-drift-system",
       "authorityOwner": "drift",
       "sharedSkills": [
@@ -385,7 +409,9 @@
           "api"
         ],
         "requiresPlaywrightForUi": true
-      }
+      },
+      "repositoryStatus": "unresolved",
+      "catalogStatus": "proposed-awaiting-source-audit"
     }
   ],
   "invariants": [
