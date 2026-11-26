@@ -570,6 +570,85 @@
       "sourceAuditRecord": "drift",
       "sourceAuditStatus": "unresolved",
       "sourceAuditRepositories": []
+    },
+    {
+      "id": "protect-me-model-one",
+      "name": "Protect Me Model One",
+      "repository": "jussray/juss-protect-me",
+      "role": "human-identity-fraud-and-personal-safety-protection",
+      "authorityOwner": "protect-me-model-one",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "identity-protection",
+        "fraud-prevention",
+        "privacy-and-consent",
+        "device-evidence",
+        "personal-safety"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "protect-me-model-one",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/juss-protect-me"
+      ]
+    },
+    {
+      "id": "protect-me-model-two",
+      "name": "Protect Me Model Two",
+      "repository": "jussray/juss-protect-me-2",
+      "role": "authorized-software-infrastructure-and-supply-chain-defense",
+      "authorityOwner": "protect-me-model-two",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "software-defense",
+        "infrastructure-security",
+        "supply-chain-defense",
+        "security-evidence",
+        "authorized-containment"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "worker",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "protect-me-model-two",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/juss-protect-me-2"
+      ]
     }
   ],
   "invariants": [
