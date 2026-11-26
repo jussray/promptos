@@ -211,16 +211,19 @@ async function init() {
           setStatus('#v6ReceiveStatus', 'Rejected: FCR intake contract or authority boundary invalid.');
           return;
         }
+        const modeMatch = /^Mode:\\s*([a-z0-9-]+)\\.\\s*Outcome:\\s*([\\s\\S]*)$/i.exec(intake.requestedOutcome);
+        const requestedMode = modeMatch && MODES.includes(modeMatch[1]) ? modeMatch[1] : $('#v6Mode').value;
+        const outcome = modeMatch ? modeMatch[2].trim() : intake.requestedOutcome;
         const input = {
           contract: 'juss/founder-signal@v1',
           source: 'chief',
           target: 'promptos',
           intent: 'plan',
-          goal: intake.requestedOutcome,
+          goal: outcome,
           evidenceClass: 'unknown',
           authority: 'none',
           approved: false,
-          requestedMode: $('#v6Mode').value,
+          requestedMode,
         };
         const compiled = compileV6Prompt(input);
         if (!compiled.selected) {
@@ -242,7 +245,7 @@ async function init() {
           executionAuthorized: false,
           authorityEffect: 'none',
           selectedMode: compiled.mode,
-          goal: intake.requestedOutcome,
+          goal: outcome,
           compiledPrompt: compiled.prompt,
         }, null, 2);
         setStatus('#v6ReceiveStatus', 'FCR proposal received and compiled. Release identity, sender, and approval are not independently verified here.');
