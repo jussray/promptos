@@ -87,6 +87,7 @@ for (const behavior of ['prefer_speed','prefer_first_principles','prefer_experim
 if (billPolicy.objective !== bill.objective || elonPolicy.objective !== elon.objective) fail('executable policy and reasoning lens objective drift');
 
 const compiled = compileV6Prompt({
+  contract: 'juss/founder-signal@v1',
   source: 'founder',
   target: 'promptos',
   intent: 'optimize workflow',
