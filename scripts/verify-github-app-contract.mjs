@@ -67,12 +67,10 @@ for (const requiredSignal of [
 for (const forbidden of [
   'createAppJwt',
   'postIssueComment',
-  '/issues/',
-  '/merges',
-  '/git/refs',
-  'contents:write',
+  'githubRequest',
+  'api.github.com',
 ]) {
-  assert.ok(!worker.includes(forbidden), 'read-only app contains forbidden operation: ' + forbidden);
+  assert.ok(!worker.includes(forbidden), 'read-only app contains a direct GitHub API write path: ' + forbidden);
 }
 
 assert.match(docs, /read-only GitHub event observer/i);

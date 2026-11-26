@@ -66,7 +66,7 @@ function stableUuidFromHex(hex) {
   return value.slice(0, 8) + '-' + value.slice(8, 12) + '-' + value.slice(12, 16) + '-' + value.slice(16, 20) + '-' + value.slice(20);
 }
 
-async function stableDeliveryIds(deliveryId) {
+async function stableDeliveryIds(deliveryId, issuedAt) {
   const [chain, operation, nonce, sequence] = await Promise.all([
     sha256Hex('promptos-relay-v3:chain:' + deliveryId),
     sha256Hex('promptos-relay-v3:operation:' + deliveryId),
@@ -77,7 +77,7 @@ async function stableDeliveryIds(deliveryId) {
     chainId: stableUuidFromHex(chain),
     logicalOperationId: stableUuidFromHex(operation),
     nonce: stableUuidFromHex(nonce),
-    sourceSequence: Number(BigInt('0x' + sequence.slice(0, 13))),
+    sourceSequence: Math.floor(issuedAt.getTime() / 1000) * 1_048_576 + Number(BigInt('0x' + sequence.slice(0, 5))),
   };
 }
 
@@ -86,7 +86,7 @@ function eventTimestamp(event, payload) {
   const pullRequest = record(payload.pull_request) ? payload.pull_request : {};
   const workflowRun = record(payload.workflow_run) ? payload.workflow_run : {};
   const raw = event === 'issue_comment'
-    ? issueComment.created_at
+    ? (issueComment.updated_at || issueComment.created_at)
     : event === 'pull_request'
       ? (pullRequest.updated_at || pullRequest.created_at)
       : (workflowRun.updated_at || workflowRun.created_at);
@@ -175,7 +175,8 @@ export async function sendFcrObservation(input) {
     targetHeadSha,
     observation,
   }));
-  const ids = await stableDeliveryIds(deliveryId);
+  const ids = await stableDeliveryIds(deliveryId, issuedAt);
+  if (!Number.isSafeInteger(ids.sourceSequence)) throw new Error('relay-source-sequence-invalid');
 
   const unsigned = {
     contract: RELAY_CONTRACT,
