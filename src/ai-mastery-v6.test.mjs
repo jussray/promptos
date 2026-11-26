@@ -59,6 +59,37 @@ test('unknown signal contracts are rejected instead of normalized into the curre
   assert.match(result.errors.join(' '), /contract must be .*founder-signal@v1/);
 });
 
+test('Red Team 6000: reject 6,000 deterministic hostile signal mutations', () => {
+  for (let i = 0; i < 6000; i += 1) {
+    const mutation = i % 8;
+    const hostile = inbound();
+    if (mutation === 0) hostile.contract = `attacker-contract-${i}`;
+    if (mutation === 1) hostile.source = `attacker-source-${i}`;
+    if (mutation === 2) hostile.target = `attacker-target-${i}`;
+    if (mutation === 3) hostile.intent = '';
+    if (mutation === 4) hostile.evidenceClass = `attacker-evidence-${i}`;
+    if (mutation === 5) hostile.requestedMode = `attacker-mode-${i}`;
+    if (mutation === 6) hostile.authority = 'none';
+    if (mutation === 7) hostile.contract = '';
+    const result = validateFounderSignal(hostile);
+    assert.equal(result.valid, false, `hostile mutation ${i} was accepted`);
+  }
+});
+
+test('6,000 fingerprint and proof-cookie permutations never create authority', () => {
+  for (let i = 0; i < 6000; i += 1) {
+    const result = validateFounderSignal(inbound({
+      approved: false,
+      authority: 'none',
+      fingerprint: `state-fingerprint-${i}`,
+      proofCookie: `continuity-cookie-${i}`,
+    }));
+    assert.equal(result.valid, true, `non-authorizing continuity markers rejected at ${i}`);
+    assert.equal(result.signal.approved, false, `continuity marker created approval at ${i}`);
+    assert.equal(result.signal.authority, 'none', `continuity marker created authority at ${i}`);
+  }
+});
+
 test('approval without authority is rejected', () => {
   const result = validateFounderSignal(inbound({ authority: 'none' }));
   assert.equal(result.valid, false);
