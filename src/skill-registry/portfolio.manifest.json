@@ -11,7 +11,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "structured truth and accountability",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "futureyou-me-v10",
@@ -20,7 +22,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "future-oriented decision perspective",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "godmode-devil-ultrathink",
@@ -29,7 +33,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "deep reasoning and adversarial challenge",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "juss-af-skills-pack",
@@ -38,7 +44,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "reusable Juss operating skill pack",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "juss-command-codex",
@@ -47,7 +55,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "portable command semantics",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "juss-os",
@@ -56,7 +66,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "shared operating system conventions",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "reasoning-stack",
@@ -65,7 +77,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "structured reasoning workflows",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     },
     {
       "id": "truthmode",
@@ -74,7 +88,9 @@
       "sourceRevision": "de476e73754ca9616cb7ed178e1ff9c2f84416ba",
       "authority": "advisory",
       "purpose": "truth and evidence discipline",
-      "resolution": "source-path-verified"
+      "resolution": "source-path-verified",
+      "audience": "founder-operator",
+      "distribution": "reference-only"
     }
   ],
   "apps": [
@@ -109,7 +125,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "chief-ai-machine",
@@ -143,7 +160,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "promptos",
@@ -176,7 +194,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "solcontinuity",
@@ -208,7 +227,8 @@
         "requiresPlaywrightForUi": false
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "sekret-bip",
@@ -243,7 +263,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "storyengine",
@@ -275,7 +296,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "truth-weaver",
@@ -307,7 +329,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "juss-pay",
@@ -339,7 +362,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "juss-beautiful-hair",
@@ -371,7 +395,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "think-tank",
@@ -403,7 +428,8 @@
         "requiresPlaywrightForUi": true
       },
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "games-hub",
@@ -443,7 +469,8 @@
         "jussray/LUMORA"
       ],
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     },
     {
       "id": "drift",
@@ -477,7 +504,8 @@
       },
       "repositoryStatus": "unresolved",
       "catalogStatus": "proposed-awaiting-source-audit",
-      "ownedSkillsStatus": "proposed-awaiting-source-audit"
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only"
     }
   ],
   "invariants": [
@@ -486,6 +514,9 @@
     "Shared skills are references to ULTRATHINK source packages, not copied app instructions.",
     "Skill discovery is not installation, execution, approval, or authorization.",
     "A skill must explicitly declare compatibility with the requesting app.",
-    "External skills remain quarantined until their independent intake gates pass."
-  ]
+    "External skills remain quarantined until their independent intake gates pass.",
+    "Shared operating skills resolve only for authorized repository operators and are never implicitly exposed to product end users.",
+    "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active."
+  ],
+  "sharedSkillDistribution": "repository-operator-only"
 }
