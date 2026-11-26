@@ -99,7 +99,7 @@ test('verified Google bearer is forwarded to the private JussPay binding for its
   assert.deepEqual(await (await run('/billing/entitlement', 'GET', token)).json(), { paid: true });
   const admitted = await run('/prompts/admit', 'POST', token);
   assert.equal(admitted.status, 200);
-  assert.deepEqual(await admitted.json(), { admitted: true, persistence: 'session-only' });
+  assert.deepEqual(await admitted.json(), { admitted: true, persistence: 'session-only', subject: 'https://accounts.google.com#user-123' });
   assert.equal(calls.length, 2);
   assert.deepEqual(calls.map(v => v.url), ['https://jusspay.internal/entitlements', 'https://jusspay.internal/entitlements']);
   assert(calls.every(v => v.method === 'GET' && v.auth === 'Bearer ' + token));
