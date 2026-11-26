@@ -6,7 +6,7 @@
     "name": "SolContinuity",
     "repository": "solcontinuity",
     "defaultBranch": "main",
-    "sourceHeadAtAudit": "b38e1c853599bd0390d860af6f6d4d6c169288e8",
+    "sourceHeadAtAudit": "2390af375b9980f5015abc146328ff90e24e4660",
     "identityStatus": "source-verified",
     "role": "independent-continuity-resilience-and-verification-system",
     "authorityOwner": "solcontinuity",
@@ -106,6 +106,28 @@
     ],
     "owned": [
       {
+        "id": "goalfix",
+        "sourceRepository": "jussray/solcontinuity",
+        "sourcePath": ".ai-skills/skills/goalfix.md",
+        "sourceRevision": "2390af375b9980f5015abc146328ff90e24e4660",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "solcontinuity",
+        "compatibility": {
+          "apps": [
+            "solcontinuity"
+          ],
+          "surfaces": [
+            "web",
+            "service",
+            "api"
+          ]
+        }
+      },
+      {
         "id": "continuity-state",
         "status": "proposed-awaiting-source-audit",
         "lifecycle": "proposed",
@@ -178,7 +200,7 @@
         }
       }
     ],
-    "ownedSkillsStatus": "proposed-awaiting-source-audit"
+    "ownedSkillsStatus": "mixed-source-verified-and-proposed"
   },
   "plugins": [
     {
