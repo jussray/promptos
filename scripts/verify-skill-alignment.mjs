@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { loadPortfolioManifest, resolveAppSkillSet, validatePortfolioManifest } from '../src/skill-registry/index.mjs';
 
 const manifest = loadPortfolioManifest();
+const audit = JSON.parse(await readFile(new URL('../src/skill-registry/repository-skill-audit.v1.json', import.meta.url), 'utf8'));
 assert.deepEqual(validatePortfolioManifest(manifest), [], 'portfolio skill manifest must satisfy its contract');
 assert.equal(manifest.apps.length, 12, 'registry must cover the currently declared 12 standalone apps');
 
@@ -13,7 +15,10 @@ for (const app of manifest.apps) {
   assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
   if (app.repository === null) assert.equal(app.repositoryStatus, 'unresolved');
   assert.equal(resolved.authority, 'catalog-and-compatibility-only');
-  assert.equal(resolved.sharedSkills.length, 8, `${app.id} must resolve all six shared references`);
+  assert.equal(resolved.skillContext, 'repository-operator-only');
+  assert.ok(resolved.sharedSkills.every((skill) => skill.audience === 'founder-operator' && skill.distribution === 'reference-only' && skill.scope === 'repository-operator-shared-reference'));
+  assert.ok(resolved.ownedSkills.every((skill) => skill.scope === 'proposed-app-owned' && skill.status === 'proposed-awaiting-source-audit'));
+  assert.equal(resolved.sharedSkills.length, 8, `${app.id} must resolve all declared shared references`);
   assert.ok(resolved.sharedSkills.every((skill) => skill.resolution === 'source-path-verified' && /^[0-9a-f]{40}$/.test(skill.sourceRevision)), `${app.id} shared source refs must be pinned`);
   assert.ok(resolved.ownedSkills.length > 0, `${app.id} must declare app-specific skills`);
   assert.ok(resolved.compatibility.surfaces.length > 0);
@@ -53,3 +58,25 @@ assert.ok(validatePortfolioManifest(unknownReference).some((error) => error.incl
 
 assert.throws(() => resolveAppSkillSet(manifest, 'unknown-app'), /Unknown app/);
 console.log(`Skill alignment verified: ${manifest.apps.length} apps, ${manifest.sharedSkills.length} shared skill references, app-specific ownership and authority boundaries.`);
+
+
+assert.equal(audit.schemaVersion, '1.0');
+assert.equal(audit.registry, 'promptos/repository-skill-audit');
+assert.equal(audit.coverageStatus, 'partial', 'an initial search pass must not be mislabeled complete');
+assert.ok(Array.isArray(audit.records) && audit.records.length >= 12);
+for (const record of audit.records) {
+  assert.ok(record.repository && record.inventoryStatus);
+  for (const skill of record.skillSources ?? []) {
+    assert.ok(skill.id && skill.path && /^[0-9a-f]{40}$/.test(skill.blobSha), `source evidence must be pinned: ${record.repository}`);
+  }
+}
+assert.equal(audit.retirementReview.localDevil.status, 'retired-as-a-separate-shared-operating-skill');
+assert.equal(audit.retirementReview.localLeanBuildOrchestrator.status, 'retired-as-a-separate-shared-operating-skill');
+const fcrAudit = audit.records.find((record) => record.repository === 'jussray/founder-control-room');
+assert.ok(fcrAudit.skillSources.some((skill) => skill.id === 'devil' && skill.status === 'active'));
+const promptosAudit = audit.records.find((record) => record.repository === 'jussray/promptos');
+assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-socrates' && skill.status === 'question-led-only'));
+assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build'));
+assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
+assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
+console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
