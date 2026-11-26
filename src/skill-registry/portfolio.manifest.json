@@ -531,7 +531,10 @@
         "jussray/chatQuest",
         "jussray/jussray-bip-and-seek",
         "jussray/LUMORA"
-      ]
+      ],
+      "parentBrand": "Juss & Co.",
+      "portfolioRole": "owned-product-hub",
+      "gameCodebasesRemainIndependent": true
     },
     {
       "id": "drift",
