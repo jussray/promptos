@@ -214,7 +214,7 @@ export function selectPromptMode(input) {
   return { selected: false, mode: null, reason: 'no-safe-match', errors: [], signal };
 }
 
-export function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unknown', evidenceRefs = [], authority = 'none', approved = false, mode = '', fingerprint = '', proofCookie = '', correlationId = '' } = {}) {
+export async function buildPromptOSSignal({ target, intent, goal, evidenceClass = 'unknown', evidenceRefs = [], authority = 'none', approved = false, mode = '', fingerprint = '', proofCookie = '', correlationId = '' } = {}) {
   if (!['fcr', 'chief'].includes(target)) throw new Error('PromptOS outbound target must be fcr or chief');
   const body = {
     contract: SIGNAL_CONTRACT,
