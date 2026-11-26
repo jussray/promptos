@@ -56,7 +56,7 @@ async function prove(browser, viewport) {
       commandId: 'ai-mastery-v6',
       capabilityId: 'ai-mastery-v6',
       specialistProduct: 'promptos',
-      requestedOutcome: 'Connect V6 to the Chief and FCR proposal flow.',
+      requestedOutcome: 'Mode: workflow-optimizer. Outcome: Connect the existing V6 compiler to the actual PromptOS UI without granting authority.',
       acceptedForCapabilityPlanning: true,
       acceptedForAuthorityResolution: false,
       authorityState: 'unresolved',
