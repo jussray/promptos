@@ -10,9 +10,6 @@ const MODE_LABELS = {
   'workflow-optimizer': 'Workflow Optimizer',
   'daily-progress-review': 'Daily Progress Review',
 };
-const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-}[char]));
 const $ = (selector) => document.querySelector(selector);
 
 function installStyles() {
@@ -205,6 +202,7 @@ async function init() {
         valid: true,
         senderClaim: checked.signal.source,
         senderAuthenticated: false,
+        signalFingerprintVerified: false,
         approvalClaim: checked.signal.approved,
         approvalVerified: false,
         executionAuthorized: false,
