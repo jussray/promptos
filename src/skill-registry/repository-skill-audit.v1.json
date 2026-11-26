@@ -2031,14 +2031,14 @@
       "packageId": "local-devil",
       "status": "retired-as-a-separate-shared-operating-skill",
       "rationaleRecordedInMetadata": "Consolidated to reduce duplicate discovery; metadata says the steelman method was preserved in local-socrates.",
-      "finding": "The inspected local-socrates source is question-led and does not contain the full Devil steelman procedure. /devil nevertheless remains active through FCR skills/devil, JBH skills/devil, and ULTRATHINK godmode-devil-ultrathink. Retire only the local-devil package identity, not the command or capability.",
+      "finding": "The inspected local-socrates source is question-led and does not contain the full Devil steelman procedure. /devil remains active through ULTRATHINK godmode-devil-ultrathink, FCR native/adapter skills, and JBH native skills. Retire only the local-devil package identity, not the command or capability.",
       "doNotInfer": "Do not infer that the /devil command or capability is globally retired."
     },
     "localLeanBuildOrchestrator": {
       "packageId": "local-lean-build-orchestrator",
       "status": "retired-as-a-separate-shared-operating-skill",
       "rationaleRecordedInMetadata": "Incremental grind mechanics merged into local-build; token-economy rules live in local-minimal-token-protocol.",
-      "finding": "The inspected local-build contains the TODO ledger, smallest-increment workflow, immediate tests, two-failure stop rule, commit checkpoints and token-budget tiers. local-minimal-token-protocol contains the token-economy rules.",
+      "finding": "The retired orchestrator's TODO ledger, smallest-increment workflow, immediate test discipline, two-failure stop rule, checkpoint commits, and token-budget tiers are present in local-build; token-economy rules are present in local-minimal-token-protocol.",
       "doNotInfer": "Do not reactivate the retired package merely because its exported SKILL.md file remains in repositories."
     }
   },
@@ -3119,7 +3119,7 @@
       "fcrPath": "skills/juss-authored/juss-af-skills-pack/SKILL.md",
       "fcrBlobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
       "byteIdentical": true,
-      "review": "byte-different; determine intentional adapter/version lineage before changing"
+      "review": "exact-copy"
     },
     {
       "id": "juss-command-codex",
@@ -3139,7 +3139,7 @@
       "fcrPath": "skills/juss-authored/juss-os/SKILL.md",
       "fcrBlobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
       "byteIdentical": true,
-      "review": "byte-different; determine intentional adapter/version lineage before changing"
+      "review": "exact-copy"
     },
     {
       "id": "reasoning-stack",
@@ -3149,7 +3149,7 @@
       "fcrPath": "skills/juss-authored/reasoning-stack/SKILL.md",
       "fcrBlobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
       "byteIdentical": true,
-      "review": "byte-different; determine intentional adapter/version lineage before changing"
+      "review": "exact-copy"
     },
     {
       "id": "truthmode",
@@ -3167,5 +3167,62 @@
     "exactCopies": 3,
     "byteDifferent": 5,
     "note": "Byte differences are evidence of distinct source content, not proof of a defect. Preserve intentional FCR adaptations; reconcile lineage before copying."
+  },
+  "devilCommandReconciliation": {
+    "retiredSharedPackage": "systems/skills/local-devil/skill.yaml is marked retired in the shared operating exports.",
+    "activeProviders": [
+      {
+        "repository": "jussray/ULTRATHINK-",
+        "path": ".claude/skills/godmode-devil-ultrathink/SKILL.md",
+        "blobSha": "ef413ffff6bb0f301342064538879310dbff34e4",
+        "trigger": "/devil"
+      },
+      {
+        "repository": "jussray/founder-control-room",
+        "path": "skills/devil/SKILL.md",
+        "blobSha": "ebb9a2331bfba80ac5e9497ce0cca015914576e9",
+        "status": "active"
+      },
+      {
+        "repository": "jussray/founder-control-room",
+        "path": ".agents/skills/devil/SKILL.md",
+        "blobSha": "59eeba6a21adf5194d31412c97f7b835a7ac3f00",
+        "trigger": "/devil"
+      },
+      {
+        "repository": "jussray/founder-control-room",
+        "path": "skills/ultrathink-devil/SKILL.md",
+        "blobSha": "cc0c984751e2e7c010c62ed4c817603466448fb8",
+        "trigger": "/devil"
+      },
+      {
+        "repository": "jussray/jbh-private",
+        "path": "skills/devil/SKILL.md",
+        "blobSha": "ece689ea733adc5c883bdf471a54e2f091be17b2",
+        "status": "active"
+      },
+      {
+        "repository": "jussray/jussbeautifulhair-site",
+        "path": ".agents/skills/devil/SKILL.md",
+        "blobSha": "3aa9a96eadea04fa25dbc85af32dc52433380a81",
+        "trigger": "/devil"
+      }
+    ],
+    "localSocratesEvidence": {
+      "repository": "jussray/promptos",
+      "path": "systems/skills/local-socrates/SKILL.md",
+      "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+      "classification": "question-led; not a full Devil steelman procedure"
+    },
+    "separateMedusaBoundary": {
+      "repositories": [
+        "jussray/juss-protect-me",
+        "jussray/juss-protect-me-2"
+      ],
+      "path": ".claude/skills/medusa/SKILL.md",
+      "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+      "note": "Medusa explicitly does not claim bare /devil or bare ULTRATHINK; keep it distinct."
+    },
+    "conclusion": "The local-devil package is retired; the /devil command and capability remain active in multiple canonical or app-native skill packages. Do not restore local-devil just to preserve the command."
   }
 }
