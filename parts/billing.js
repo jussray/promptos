@@ -48,24 +48,28 @@
     return result;
   }
 
-  async function refresh() {
-    if (!apiBase) {
-      message('Paid prompt saving is unavailable until billing is connected. The free library remains open.');
-      return false;
-    }
-    if (!token()) {
-      message('Paid account required to save personal prompts. Sign in with Google to upgrade.');
-      return false;
+  async function accessStatus() {
+    if (!apiBase || !token()) {
+      message('Sign in to check your account access.');
+      return null;
     }
     try {
       var data = await call('/billing/entitlement');
-      message(data.paid ? 'Paid account verified. Personal prompt saving is enabled.' :
-        'Paid account required to save personal prompts. The curated library remains free.');
-      return data.paid === true;
-    } catch {
-      message('Payment verification unavailable. Personal prompt saving is paused.');
-      return false;
-    }
+      if (data.paid === true) {
+        message('Paid account verified. Full workspace access enabled.');
+        return 'paid';
+      }
+      if (data.paid === false) {
+        message('Verified free account. Beginner library available; upgrade for full access.');
+        return 'free';
+      }
+    } catch { /* Missing, expired, or unverified access fails closed. */ }
+    message('Account access could not be verified. Check your sign-in and try again.');
+    return null;
+  }
+
+  async function refresh() {
+    return (await accessStatus()) === 'paid';
   }
 
   async function admit() {
@@ -156,16 +160,15 @@
     } finally { checkoutBusy = false; }
   }
 
-  window.PromptOSBilling = Object.freeze({ admit: admit, refresh: refresh, upgrade: upgrade });
+  window.PromptOSBilling = Object.freeze({ admit: admit, refresh: refresh, accessStatus: accessStatus, upgrade: upgrade });
   document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('billingUpgrade')?.addEventListener('click', upgrade);
     document.getElementById('billingRenewalConsent')?.addEventListener('change', function () {
       document.getElementById('billingCheckout').disabled = !this.checked || !pendingOffer || checkoutBusy;
     });
     document.getElementById('billingCheckout')?.addEventListener('click', checkout);
-    refresh();
   });
   ['promptos:authed', 'promptos:guest', 'promptos:signedout'].forEach(function(event) {
-    window.addEventListener(event, function () { resetOffer(); refresh(); });
+    window.addEventListener(event, function () { resetOffer(); });
   });
 })();
