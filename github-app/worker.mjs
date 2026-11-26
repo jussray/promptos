@@ -2,6 +2,7 @@ import { sendFcrObservation } from './federated-relay.mjs';
 
 const CONTRACT = 'promptos/github-app@v2';
 const MAX_WEBHOOK_BYTES = 1024 * 1024;
+const SOURCE_REPOSITORY_ID = 1299823134;
 const textEncoder = new TextEncoder();
 
 function json(data, status = 200) {
@@ -128,7 +129,8 @@ async function handleWebhook(request, env) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'unknown-error';
-    const status = message.startsWith('missing-env:') || message.startsWith('invalid-env:') ? 503 : 502;
+    const status = message.startsWith('missing-env:') || message.startsWith('invalid-env:') ? 503
+      : message.startsWith('github-') ? 403 : 502;
     return json({
       ok: false,
       contract: CONTRACT,

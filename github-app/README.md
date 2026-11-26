@@ -11,7 +11,7 @@ This adapter is a read-only GitHub event observer. It verifies GitHub webhook HM
 - The app does not merge, deploy, publish, spend, or change secrets.
 - Every forwarded message uses `disposition: observe` and is accepted by FCR as evidence only.
 - FCR remains the only execution-authority owner. Relay receipts explicitly deny execution authorization, authority transfer, and approval carry-forward.
-- Only events from `jussray/promptos` are forwarded. Comment text is never copied into the relay payload; only a bounded command classification is retained.
+- Only events from repository `jussray/promptos` (GitHub repository ID `1299823134`) and the configured exact GitHub App installation ID are forwarded. Comment text is never copied into the relay payload; only a bounded command classification is retained.
 
 ## Runtime
 
@@ -25,6 +25,7 @@ Required plain-text runtime variables:
 - `PROMPTOS_RELAY_KEY_ID`
 - `PROMPTOS_GIT_SHA` (exact PromptOS `main` SHA represented by this deployment)
 - `FCR_RELAY_TARGET_SHA` (exact deployed FCR Worker `GIT_SHA` expected by the receiver)
+- `GITHUB_INSTALLATION_ID` (the exact installation ID returned by GitHub for the private app installation)
 
 The relay destination is fixed in source to `https://api.foundercontrolroom.org/api/federated-relay/v3`; it cannot be changed through an environment variable. Source sequence is a deterministic 52-bit projection of the GitHub delivery UUID, preserving retry identity while making collisions negligible; FCR enforces uniqueness per source key.
 

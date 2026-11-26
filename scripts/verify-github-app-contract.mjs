@@ -16,6 +16,7 @@ assert.deepEqual(template.permissions, {
   pull_requests: 'read',
 });
 assert.deepEqual(template.events, ['issue_comment', 'pull_request', 'workflow_run']);
+assert.ok(template.required_runtime_variables.includes('GITHUB_INSTALLATION_ID'));
 assert.deepEqual(template.required_runtime_secrets, [
   'GITHUB_WEBHOOK_SECRET',
   'PROMPTOS_RELAY_PRIVATE_KEY_JWK',
@@ -47,6 +48,9 @@ for (const requiredSignal of [
   'x-github-delivery',
   'invalid-webhook-signature',
   'payload-too-large',
+  'GITHUB_INSTALLATION_ID',
+  'SOURCE_REPOSITORY_ID',
+  'github-installation-not-allowlisted',
   'sendFcrObservation',
 ]) {
   assert.ok(worker.includes(requiredSignal), 'worker contract drifted: ' + requiredSignal);

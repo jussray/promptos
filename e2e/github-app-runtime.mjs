@@ -95,6 +95,7 @@ globalThis.fetch = async (input, init = {}) => {
 
 const env = {
   GITHUB_WEBHOOK_SECRET: webhookSecret,
+  GITHUB_INSTALLATION_ID: '123',
   PROMPTOS_RELAY_PRIVATE_KEY_JWK: JSON.stringify(privateJwk),
   PROMPTOS_RELAY_KEY_ID: 'promptos-relay-ed25519-test',
   PROMPTOS_GIT_SHA: sourceSha,
@@ -154,7 +155,7 @@ try {
   const payload = JSON.stringify({
     action: 'created',
     installation: { id: 123 },
-    repository: { full_name: 'jussray/promptos' },
+    repository: { id: 1299823134, full_name: 'jussray/promptos' },
     issue: { number: 41, pull_request: { url: 'https://api.github.com/repos/jussray/promptos/pulls/41' } },
     comment: {
       body: '/promptos status private-comment-text-must-not-forward',
@@ -174,6 +175,40 @@ try {
     data: payload,
   };
 
+  const wrongInstallationPayload = JSON.stringify({
+    action: 'created',
+    installation: { id: 124 },
+    repository: { id: 1299823134, full_name: 'jussray/promptos' },
+    comment: { body: '/promptos status', created_at: new Date(Date.now() - 30_000).toISOString() },
+  });
+  const wrongInstallation = await api.post('/github/webhook', {
+    headers: {
+      'content-type': 'application/json',
+      'x-github-event': 'issue_comment',
+      'x-github-delivery': '00000000-0000-4000-8000-000000000042',
+      'x-hub-signature-256': 'sha256=' + createHmac('sha256', webhookSecret).update(wrongInstallationPayload).digest('hex'),
+    },
+    data: wrongInstallationPayload,
+  });
+  assert.equal(wrongInstallation.status(), 403);
+
+  const wrongRepositoryPayload = JSON.stringify({
+    action: 'created',
+    installation: { id: 123 },
+    repository: { id: 1299823135, full_name: 'jussray/promptos' },
+    comment: { body: '/promptos status', created_at: new Date(Date.now() - 30_000).toISOString() },
+  });
+  const wrongRepository = await api.post('/github/webhook', {
+    headers: {
+      'content-type': 'application/json',
+      'x-github-event': 'issue_comment',
+      'x-github-delivery': '00000000-0000-4000-8000-000000000043',
+      'x-hub-signature-256': 'sha256=' + createHmac('sha256', webhookSecret).update(wrongRepositoryPayload).digest('hex'),
+    },
+    data: wrongRepositoryPayload,
+  });
+  assert.equal(wrongRepository.status(), 403);
+
   const first = await api.post('/github/webhook', requestOptions);
   assert.equal(first.status(), 200);
   const firstBody = await first.json();
@@ -191,6 +226,8 @@ try {
     contract: 'promptos/github-app@v2',
     healthStatus: health.status(),
     unsignedWebhookStatus: unsigned.status(),
+    wrongInstallationStatus: wrongInstallation.status(),
+    wrongRepositoryStatus: wrongRepository.status(),
     signedWebhookStatus: first.status(),
     retryStatus: retry.status(),
     retryOutcome: retryBody.relay.outcome,
