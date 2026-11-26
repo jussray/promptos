@@ -1791,42 +1791,88 @@
     {
       "repository": "jussray/jussray-bip-and-seek",
       "profile": "games-hub-related-bip-and-seek",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "5c9c3d16cc92e76cc9661b65b3233b6ed71eacab",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/LUMORA",
       "profile": "games-hub-related-lumora",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "51d35db03a6460c452a581c899d131a6082d83be",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/juss-protect-me",
       "profile": "protect-me-model-one",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "Protect Me Model One is outside the initial 12-profile manifest; include it in the next portfolio pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "2e19a76f7cac59093f1ba3dde4bdf7b3e0591e41",
+        "truncated": false,
+        "skillCount": 1,
+        "skillFiles": [
+          {
+            "path": ".claude/skills/medusa/SKILL.md",
+            "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/juss-protect-me-2",
       "profile": "protect-me-model-two",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "Protect Me Model Two is outside the initial 12-profile manifest; include it in the next portfolio pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "8585474f689f03398266a97703c32fdec02cd7de",
+        "truncated": false,
+        "skillCount": 3,
+        "skillFiles": [
+          {
+            "path": ".claude/skills/medusa/SKILL.md",
+            "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1"
+          },
+          {
+            "path": "contract/SKILL.md",
+            "blobSha": "589248707d32c1fdd0c9cf617e76b4eafcb0dbac"
+          },
+          {
+            "path": "contract/profiles/juss-os/SKILL.md",
+            "blobSha": "f670131625d7c4fe2e3a226a2477ad88117b250c"
+          }
+        ]
+      }
     },
     {
       "profile": "drift",
