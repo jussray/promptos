@@ -215,6 +215,10 @@
   "plugins": [
     {
       "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
       "provider": "GitHub",
       "purpose": "Canonical repository, PR, review, and CI evidence.",
       "mode": "operator-tooling",
@@ -234,8 +238,12 @@
       "secretsPolicy": "never-store-in-manifest"
     },
     {
-      "id": "openai-platform",
-      "provider": "OpenAI Platform",
+      "id": "openai-developers",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_32dba5a7095c8191adca04ee30276304",
+      "displayName": "OpenAI Developers",
+      "catalogStatus": "listed",
+      "provider": "OpenAI Developers",
       "purpose": "Model project and API configuration inspection.",
       "mode": "operator-tooling",
       "status": "declared",
@@ -253,6 +261,10 @@
     },
     {
       "id": "plugin-management",
+      "kind": "platform-capability",
+      "canonicalPluginId": null,
+      "displayName": "Plugin Management",
+      "catalogStatus": "platform-native",
       "provider": "Plugin Management",
       "purpose": "Discover connector options and inspect declared permissions/dependencies.",
       "mode": "operator-tooling",

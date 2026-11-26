@@ -178,6 +178,10 @@
   "plugins": [
     {
       "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
       "provider": "GitHub",
       "purpose": "Repository and CI evidence.",
       "mode": "operator-tooling",
@@ -198,6 +202,10 @@
     },
     {
       "id": "cloudflare",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "Cloudflare",
+      "catalogStatus": "namespace-only",
       "provider": "Cloudflare",
       "purpose": "Worker and deployment metadata.",
       "mode": "operator-tooling",
@@ -217,6 +225,10 @@
     },
     {
       "id": "stripe",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_690ab09fa43c8191bca40280e4563238",
+      "displayName": "Stripe",
+      "catalogStatus": "listed",
       "provider": "Stripe",
       "purpose": "Test-mode payment account, checkout, and webhook evidence only.",
       "mode": "operator-tooling",

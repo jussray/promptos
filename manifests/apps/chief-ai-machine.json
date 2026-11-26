@@ -250,6 +250,10 @@
   "plugins": [
     {
       "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
       "provider": "GitHub",
       "purpose": "Repository, PR, review, and CI evidence.",
       "mode": "operator-tooling",
@@ -270,6 +274,10 @@
     },
     {
       "id": "cloudflare",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "Cloudflare",
+      "catalogStatus": "namespace-only",
       "provider": "Cloudflare",
       "purpose": "Worker, deployment, and runtime metadata.",
       "mode": "operator-tooling",
@@ -288,8 +296,12 @@
       "secretsPolicy": "never-store-in-manifest"
     },
     {
-      "id": "openai-platform",
-      "provider": "OpenAI Platform",
+      "id": "openai-developers",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_32dba5a7095c8191adca04ee30276304",
+      "displayName": "OpenAI Developers",
+      "catalogStatus": "listed",
+      "provider": "OpenAI Developers",
       "purpose": "Model project and API configuration inspection.",
       "mode": "operator-tooling",
       "status": "declared",
@@ -307,6 +319,10 @@
     },
     {
       "id": "aws-core",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "AWS Core",
+      "catalogStatus": "namespace-only",
       "provider": "AWS Core",
       "purpose": "AWS workload and infrastructure inspection when authorized.",
       "mode": "operator-tooling",
@@ -325,13 +341,36 @@
     },
     {
       "id": "atlassian",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_asdk_app_6a83901dde988191b3f3cefdcc19acfa",
+      "displayName": "Atlassian",
+      "catalogStatus": "listed",
       "provider": "Atlassian",
       "purpose": "Jira, Confluence, Bitbucket and internal engineering knowledge.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "chief-ai-machine"
+      ],
       "capabilities": [
         "jira.issue.read",
         "confluence.page.read",
         "bitbucket.repo.read"
       ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest",
+      "resolutionNote": "Current catalog result is Atlassian; a distinct Rovo Legacy plugin entry was not found."
+    },
+    {
+      "id": "gmail",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_95d39881713c8191931482a62d6edff9",
+      "displayName": "Gmail",
+      "catalogStatus": "listed",
+      "provider": "Gmail",
+      "purpose": "Scoped mail search, thread reading, and draft creation for outcome-oriented workflows.",
       "mode": "operator-tooling",
       "status": "declared",
       "connectionState": "runtime-discovery-required",
@@ -339,43 +378,33 @@
       "compatibleApps": [
         "chief-ai-machine"
       ],
-      "writePolicy": "explicit-action-approval-required",
-      "secretsPolicy": "never-store-in-manifest"
-    },
-    {
-      "id": "gmail",
-      "provider": "Gmail",
-      "purpose": "Scoped mail search, thread reading, and draft creation for outcome-oriented workflows.",
       "capabilities": [
         "mail.search",
         "mail.thread.read",
         "mail.draft.create"
-      ],
-      "mode": "operator-tooling",
-      "status": "declared",
-      "connectionState": "runtime-discovery-required",
-      "authority": "none",
-      "compatibleApps": [
-        "chief-ai-machine"
       ],
       "writePolicy": "explicit-action-approval-required",
       "secretsPolicy": "never-store-in-manifest"
     },
     {
       "id": "google-calendar",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_f8509de903288191b14a160c6c5d20b0",
+      "displayName": "Google Calendar",
+      "catalogStatus": "listed",
       "provider": "Google Calendar",
       "purpose": "Availability and event evidence for scheduling workflows.",
-      "capabilities": [
-        "calendar.availability.read",
-        "calendar.event.read",
-        "calendar.event.draft"
-      ],
       "mode": "operator-tooling",
       "status": "declared",
       "connectionState": "runtime-discovery-required",
       "authority": "none",
       "compatibleApps": [
         "chief-ai-machine"
+      ],
+      "capabilities": [
+        "calendar.availability.read",
+        "calendar.event.read",
+        "calendar.event.draft"
       ],
       "writePolicy": "explicit-action-approval-required",
       "secretsPolicy": "never-store-in-manifest"

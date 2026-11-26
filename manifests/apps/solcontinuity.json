@@ -205,6 +205,10 @@
   "plugins": [
     {
       "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
       "provider": "GitHub",
       "purpose": "Repository and exact-head evidence inspection.",
       "mode": "operator-tooling",
@@ -225,6 +229,10 @@
     },
     {
       "id": "cloudflare",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "Cloudflare",
+      "catalogStatus": "namespace-only",
       "provider": "Cloudflare",
       "purpose": "Deployment and runtime metadata inspection.",
       "mode": "operator-tooling",
@@ -244,6 +252,10 @@
     },
     {
       "id": "npm-scan",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "NPMScan",
+      "catalogStatus": "namespace-only",
       "provider": "NPMScan",
       "purpose": "Dependency vulnerability and package provenance inspection.",
       "mode": "operator-tooling",
