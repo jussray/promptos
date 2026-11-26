@@ -46,6 +46,12 @@ test('unknown intent fails closed instead of guessing a prompt', () => {
   assert.equal(route.reason, 'no-safe-match');
 });
 
+test('unknown signal contracts are rejected instead of normalized into the current contract', () => {
+  const result = validateFounderSignal(inbound({ contract: 'juss/founder-signal@v0' }));
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join(' '), /contract must be juss\\/founder-signal@v1/);
+});
+
 test('approval without authority is rejected', () => {
   const result = validateFounderSignal(inbound({ authority: 'none' }));
   assert.equal(result.valid, false);
