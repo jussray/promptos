@@ -19,9 +19,12 @@ var STATE = {
 
 // Saved custom prompts stay locked until a reviewed release flips this flag.
 var CUSTOM_PROMPTS_UNLOCKED = false;
+var personalSessionGeneration = 0;
+// Preserve detached session data in memory; never expose it to another identity.
+var detachedPersonalSessions = [];
 
 function serializeState(){
-  return JSON.stringify({ stars: STATE.stars, custom: STATE.custom, theme: STATE.theme, _v: Date.now() }, null, 2);
+  return JSON.stringify({ stars: STATE.stars, custom: CUSTOM_PROMPTS_UNLOCKED ? STATE.custom : [], theme: STATE.theme, _v: Date.now() }, null, 2);
 }
 
 /* ── 2. BENCH DATA ────────────────────────────────────────────────── */
@@ -191,7 +194,7 @@ function wireEstablished(){
 
 function allPrompts(){
   var base = (typeof PROMPTS !== 'undefined') ? PROMPTS : [];
-  var custom = STATE.custom.map(function(p){
+  var custom = (CUSTOM_PROMPTS_UNLOCKED ? STATE.custom : []).map(function(p){
     return { id: p.id, emoji: p.emoji||'✨', title: p.title, sub: p.sub||'', cat: 'custom',
       platforms: Array.isArray(p.platforms) ? p.platforms : String(p.platforms||'chatgpt').split(',').map(function(x){ return x.trim(); }),
       notes: '', versions: { chatgpt: p.body||'' }, _custom: true };
@@ -481,12 +484,14 @@ function generateFreestyle(ask, plats){
 
 /* ── 10. CUSTOM PROMPTS ───────────────────────────────────────────── */
 async function saveCustomPrompt(title, sub, cat, platforms, body){
+  var generation = personalSessionGeneration;
   // One server-side paid subscription check for every personal-prompt write.
   // Do not rely on a client-side flag or Google profile alone.
   if (!window.PromptOSBilling || !(await window.PromptOSBilling.admit())) {
     toast('Paid account required. Sign in / Upgrade in My Prompts.');
     return false;
   }
+  if (generation !== personalSessionGeneration) return false;
   // The default lock remains closed until this request is admitted by the server.
   CUSTOM_PROMPTS_UNLOCKED = true;
   var id = 'c_' + Date.now();
@@ -540,6 +545,7 @@ function exportState(){
 }
 
 async function importState(json){
+  var generation = personalSessionGeneration;
   try {
     var data = JSON.parse(json);
     if (Array.isArray(data.custom) && data.custom.length &&
@@ -547,6 +553,7 @@ async function importState(json){
       toast('Paid account required to import personal prompts');
       return;
     }
+    if (generation !== personalSessionGeneration) return;
     if (Array.isArray(data.custom) && data.custom.length) CUSTOM_PROMPTS_UNLOCKED = true;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
@@ -748,9 +755,23 @@ function boot(){
   });
 }
 
-window.addEventListener('promptos:signedout', function(){
+function lockPersonalSession(){
+  personalSessionGeneration++;
   CUSTOM_PROMPTS_UNLOCKED = false;
-  renderCustomList();
+  // Detach, not delete, session-only personal data. It cannot be used by the next account.
+  if (STATE.custom.length) detachedPersonalSessions.push(STATE.custom);
+  STATE.custom = [];
+  STATE.stars = {};
+  STATE.recent = [];
+  if (_openId !== null) closeModal();
+  _openTab = null;
+  ['#mTitle', '#mSub', '#mNoteText', '#mBody', '#mTabs'].forEach(function(selector){
+    var el = qs(selector); if (el) el.textContent = '';
+  });
+  renderAll();
+}
+['promptos:authed', 'promptos:guest', 'promptos:signedout'].forEach(function(event){
+  window.addEventListener(event, lockPersonalSession);
 });
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
