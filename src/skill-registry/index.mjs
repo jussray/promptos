@@ -21,6 +21,7 @@ export function validatePortfolioManifest(manifest) {
     if (sharedIds.has(skill.id)) errors.push(`duplicate shared skill id: ${skill.id}`);
     sharedIds.add(skill.id);
     if (skill.source !== manifest.sharedSkillSource) errors.push(`shared skill source mismatch: ${skill.id}`);
+    if (skill.resolution !== 'source-path-unverified') errors.push(`shared skill resolution must remain unverified until source audit: ${skill.id}`);
     if (!ALLOWED_SKILL_AUTHORITY.has(skill.authority)) errors.push(`shared skill exceeds advisory authority: ${skill.id}`);
   }
 
@@ -30,9 +31,18 @@ export function validatePortfolioManifest(manifest) {
     if (!SAFE_ID.test(app.id ?? '')) errors.push(`invalid app id: ${app.id}`);
     if (appIds.has(app.id)) errors.push(`duplicate app id: ${app.id}`);
     appIds.add(app.id);
-    if (repositories.has(app.repository)) errors.push(`duplicate repository ownership: ${app.repository}`);
-    repositories.add(app.repository);
-    if (!app.name || !app.repository || !app.role) errors.push(`app identity incomplete: ${app.id}`);
+    if (app.repository) {
+      if (repositories.has(app.repository)) errors.push(`duplicate repository ownership: ${app.repository}`);
+      repositories.add(app.repository);
+      if (app.repositoryStatus === 'unresolved') errors.push(`repository cannot be unresolved when supplied: ${app.id}`);
+    } else if (app.repositoryStatus !== 'unresolved') {
+      errors.push(`missing repository must be explicitly marked unresolved: ${app.id}`);
+    }
+    if (!app.name || !app.role) errors.push(`app identity incomplete: ${app.id}`);
+    if (app.catalogStatus !== 'proposed-awaiting-source-audit') errors.push(`app catalog status must remain explicit until source audit: ${app.id}`);
+    if (!Array.isArray(app.ownedSkills) || app.ownedSkillsStatus !== 'proposed-awaiting-source-audit') {
+      errors.push(`owned skills must remain marked proposed until source audit: ${app.id}`);
+    }
     if (app.authorityOwner !== app.id) errors.push(`app authority owner mismatch: ${app.id}`);
     if (!Array.isArray(app.sharedSkills) || !Array.isArray(app.ownedSkills)) {
       errors.push(`skill lists must be arrays: ${app.id}`);
