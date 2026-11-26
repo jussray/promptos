@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "registry": "promptos/repository-skill-audit",
   "authority": "read-only-source-audit",
-  "coverageStatus": "partial-portfolio-complete-for-listed-repositories",
+  "coverageStatus": "recursive-tree-complete-for-accessible-account-repositories",
   "scope": "Initial 12 PromptOS app profiles plus related portfolio repositories discovered during the first source pass.",
   "method": [
     "GitHub repository-scoped code search for SKILL.md",
@@ -2987,12 +2987,13 @@
     }
   },
   "knownGaps": [
-    "Recursive tree snapshots cover the 19 currently identified repositories, not the entire Juss & Co. repository universe.",
     "The path inventory is complete for each captured main tree; semantic classification of every imported, native, adapter, and retired package remains in progress.",
     "The recursive tree records SKILL.md files only; non-SKILL instructions, prompt packs, capability manifests, skill YAML metadata and runtime loaders need separate reconciliation.",
     "PromptOS has 27 SKILL.md files: 22 under systems/skills plus five elsewhere; determine whether the export index should include those five.",
     "Games Hub has related repositories but no canonical hub repository is established.",
-    "DRIFT's authoritative repository remains unresolved."
+    "DRIFT's authoritative repository remains unresolved.",
+    "Recursive tree coverage is complete for the 59 repositories visible in the connected GitHub account; repositories outside that account or other systems remain outside this snapshot.",
+    "The recursive tree records SKILL.md files only; nonstandard skill artifacts, manifests, loaders, prompt packs, and other instruction formats need separate reconciliation."
   ],
   "governance": {
     "owner": "Juss",
@@ -3020,8 +3021,8 @@
     "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.",
     "treeScan": "Recursive Git Trees API main-branch snapshots are pinned per repository in records[].treeSnapshot; each snapshot retains tree SHA, truncation state, skill count, every SKILL.md path and blob SHA."
   },
-  "totalSkillFileInstances": 311,
-  "recursiveTreeRepositoryCount": 19,
+  "totalSkillFileInstances": 362,
+  "recursiveTreeRepositoryCount": 59,
   "classificationRules": [
     "SKILL.md under skills/ is treated as a candidate canonical or product-native package; inspect frontmatter and owner/status before assigning authority.",
     "SKILL.md under .agents/, .claude/, .ai/ or .github/skills/ is treated as an agent/provider adapter or local entrypoint until canonical source and content hash are reconciled.",
@@ -3852,6 +3853,42 @@
       ]
     },
     {
+      "blobSha": "0be3ce5dc4ce3176b79b3a7f0174c9c83fde7723",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/godmode-devil-ultrathink/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": ".agents/skills/godmode-devil-ultrathink/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/godmode-devil-ultrathink/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md"
+        },
+        {
+          "repository": "jussray/ULTRATHINK-",
+          "path": ".claude/skills/juss-af-skills-pack/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md"
+        }
+      ]
+    },
+    {
       "blobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
       "copyCount": 3,
       "copies": [
@@ -3866,6 +3903,20 @@
         {
           "repository": "jussray/ULTRATHINK-",
           "path": ".claude/skills/juss-os/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "30a9f25ac10b689294ade7330e8bc1d881a15df4",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".ai/skills/juss-founder-os/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/fcr-set/ai-skills/juss-founder-os/SKILL.md"
         }
       ]
     },
@@ -3968,16 +4019,16 @@
       ]
     },
     {
-      "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+      "blobSha": "baa40db798212adbb1c20645b416118eac6bd302",
       "copyCount": 2,
       "copies": [
         {
           "repository": "jussray/founder-control-room",
-          "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md"
+          "path": "skills/juss-authored/juss-command-codex/SKILL.md"
         },
         {
-          "repository": "jussray/ULTRATHINK-",
-          "path": ".claude/skills/juss-af-skills-pack/SKILL.md"
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/juss-command-codex/SKILL.md"
         }
       ]
     },
@@ -3992,6 +4043,34 @@
         {
           "repository": "jussray/ULTRATHINK-",
           "path": ".claude/skills/reasoning-stack/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "b19d58afa39dcaa53e97243c684fcaaf4e0e289a",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/outcome-first/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/fcr-set/skills/outcome-first/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "8d0afb9a9d8dece7d4c76c5d78b80c5457f491a9",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/portfolio-bottleneck-finder/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": ".agents/skills/portfolio-bottleneck-finder/SKILL.md"
         }
       ]
     },
@@ -4020,6 +4099,48 @@
         {
           "repository": "jussray/juss-protect-me-2",
           "path": ".claude/skills/medusa/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "f64ff71a098e85dccf77bb025be59c06af8dc552",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/jussray",
+          "path": ".agents/skills/futureyou-me-v10/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/futureyou-me-v10/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "4329e410995efca12b40a8e2b29f9b93a805b434",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/jussray",
+          "path": ".agents/skills/goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/goalfix/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "3379c2cb0f6d17875d153612c8fedff8b9b508d9",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/jussray",
+          "path": ".agents/skills/juss-os/SKILL.md"
+        },
+        {
+          "repository": "jussray/jussray",
+          "path": "skills/juss-authored/juss-os/SKILL.md"
         }
       ]
     }
@@ -4168,5 +4289,302 @@
       "note": "Medusa explicitly does not claim bare /devil or bare ULTRATHINK; keep it distinct."
     },
     "conclusion": "The local-devil package is retired; the /devil command and capability remain active in multiple canonical or app-native skill packages. Do not restore local-devil just to preserve the command."
-  }
+  },
+  "repositoryUniverse": [
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": true
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "private",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    },
+    {
+      "defaultBranch": "main",
+      "visibility": "public",
+      "archived": false
+    }
+  ]
 }
