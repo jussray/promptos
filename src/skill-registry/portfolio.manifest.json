@@ -409,7 +409,7 @@
     {
       "id": "juss-beautiful-hair",
       "name": "Juss Beautiful Hair",
-      "repository": "jussray/Juss-beautiful-hair-",
+      "repository": "jussray/jussbeautifulhair-site",
       "role": "commerce-storefront",
       "authorityOwner": "juss-beautiful-hair",
       "sharedSkills": [
@@ -441,9 +441,10 @@
       "sourceAuditRecord": "juss-beautiful-hair",
       "sourceAuditStatus": "partial",
       "sourceAuditRepositories": [
-        "jussray/Juss-beautiful-hair-",
+        "jussray/jussbeautifulhair-site",
         "jussray/jbh-private",
-        "jussray/jussbeautifulhair-site"
+        "jussray/jussbeautifulhair1",
+        "jussray/Juss-beautiful-hair-"
       ]
     },
     {
@@ -649,6 +650,157 @@
       "sourceAuditRepositories": [
         "jussray/juss-protect-me-2"
       ]
+    },
+    {
+      "id": "sekret-bip-parent-side",
+      "name": "Se’kret Bip Parent Side",
+      "repository": "jussray/Sekret-Bip-Parents",
+      "role": "parent-side-privacy-and-guardian-portal",
+      "authorityOwner": "sekret-bip-parent-side",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "guardian-identity",
+        "teen-controlled-sharing",
+        "parent-privacy-boundary",
+        "revocation-controls",
+        "parent-coach-reflection"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "api"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "sekret-bip-parent-side",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/Sekret-Bip-Parents"
+      ]
+    },
+    {
+      "id": "untold-stories-storefront",
+      "name": "Untold Stories Storefront",
+      "repository": "jussray/untold-stories-storefront",
+      "role": "story-commerce-shopify-hydrogen-storefront",
+      "authorityOwner": "untold-stories-storefront",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "untold-stories-operator",
+        "catalog-truth",
+        "storefront-commerce",
+        "fulfillment-boundaries"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "storefront"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "untold-stories-storefront",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/untold-stories-storefront"
+      ]
+    },
+    {
+      "id": "makevideo",
+      "name": "MakeVideo",
+      "repository": "jussray/make-video-",
+      "role": "browser-storyboard-and-animatic-studio",
+      "authorityOwner": "makevideo",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "cinematic-image-to-code",
+        "storyboard-workflow",
+        "animatic-export"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "browser"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "makevideo",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/make-video-"
+      ]
+    },
+    {
+      "id": "steel-city-game",
+      "name": "Steel City",
+      "repository": "jussray/steel-city",
+      "role": "pittsburgh-inspired-browser-game",
+      "authorityOwner": "steel-city-game",
+      "sharedSkills": [
+        "confess",
+        "futureyou-me-v10",
+        "godmode-devil-ultrathink",
+        "juss-af-skills-pack",
+        "juss-command-codex",
+        "juss-os",
+        "reasoning-stack",
+        "truthmode"
+      ],
+      "ownedSkills": [
+        "cinematic-image-to-code",
+        "gameplay-rendering",
+        "graphics-export"
+      ],
+      "compatibility": {
+        "surfaces": [
+          "web",
+          "browser"
+        ],
+        "requiresPlaywrightForUi": true
+      },
+      "catalogStatus": "proposed-awaiting-source-audit",
+      "ownedSkillsStatus": "proposed-awaiting-source-audit",
+      "sharedSkillContext": "repository-operator-only",
+      "sourceAuditRecord": "steel-city-game",
+      "sourceAuditStatus": "partial",
+      "sourceAuditRepositories": [
+        "jussray/steel-city"
+      ]
     }
   ],
   "invariants": [
@@ -661,10 +813,53 @@
     "Shared operating skills resolve only for authorized repository operators and are never implicitly exposed to product end users.",
     "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active.",
     "FCR remains the portfolio governance and approval authority; PromptOS must not create a competing approval or distribution authority.",
-    "A partial repository skill audit is not evidence of absence; every app profile carries explicit audit coverage and source repositories."
+    "A partial repository skill audit is not evidence of absence; every app profile carries explicit audit coverage and source repositories.",
+    "Skill mirrors are not canonical sources; byte-different copies require lineage review and must never be overwritten by filename-only synchronization.",
+    "Additional standalone skill libraries remain discovery-only and execution-disabled until their own governance and compatibility gates are satisfied."
   ],
   "sharedSkillDistribution": "repository-operator-only",
   "governanceAuthority": "jussray/founder-control-room",
   "governanceContract": "config/founder-intelligence.inheritance.json",
-  "sourceAudit": "src/skill-registry/repository-skill-audit.v1.json"
+  "sourceAudit": "src/skill-registry/repository-skill-audit.v1.json",
+  "sharedSkillMirrors": [
+    {
+      "repository": "jussray/jussray",
+      "manifestPath": "skills/juss-authored/MANIFEST.md",
+      "declaredSkillCount": 36,
+      "treeSkillFileInstances": 43,
+      "authority": "export-mirror-not-canonical"
+    }
+  ],
+  "additionalSkillLibraries": [
+    {
+      "id": "aegis",
+      "repository": "jussray/aegis",
+      "path": "skill v1",
+      "version": "1.1",
+      "scope": "separate-skill-library",
+      "executionAllowed": false,
+      "autoFetch": false,
+      "autoHandoff": false
+    },
+    {
+      "id": "sarissa",
+      "repository": "jussray/sarissa",
+      "path": "skill v1",
+      "version": "1.0",
+      "scope": "separate-skill-library",
+      "executionAllowed": false,
+      "autoFetch": false,
+      "autoHandoff": false
+    },
+    {
+      "id": "medusa",
+      "repository": "jussray/medusa",
+      "path": "medusa-v1_1-SKILL.md",
+      "version": "1.1",
+      "scope": "separate-skill-library",
+      "executionAllowed": false,
+      "autoFetch": false,
+      "autoHandoff": false
+    }
+  ]
 }
