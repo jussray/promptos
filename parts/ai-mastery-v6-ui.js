@@ -136,6 +136,7 @@ function setStatus(selector, message) {
 
 function readIntent() {
   return {
+    contract: 'juss/founder-signal@v1',
     source: 'founder',
     target: 'promptos',
     intent: $('#v6Intent').value.trim(),
