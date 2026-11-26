@@ -781,6 +781,7 @@ function lockPersonalSession(){
   });
   renderAll();
 }
+window.addEventListener('promptos:access-revoked', lockPersonalSession);
 ['promptos:authed', 'promptos:guest', 'promptos:signedout'].forEach(function(event){
   window.addEventListener(event, lockPersonalSession);
 });
