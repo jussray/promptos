@@ -133,9 +133,24 @@ assert.ok(!promptosInventory.some((skill) => skill.id === 'local-devil' && skill
 
 const gamesInventory = resolveAppSkillSet(manifest, 'games-hub', audit).sourceInventory;
 assert.equal(gamesInventory.records.length, 5, 'Games Hub must include its canonical Juss & Co. workspace and all four related game repositories');
+for (const appId of ['sync-party-game', 'chatquest', 'bip-and-seek', 'lumora']) {
+  const app = manifest.apps.find((entry) => entry.id === appId);
+  assert.ok(app, `missing independent game app profile: ${appId}`);
+  assert.equal(app.repository, app.sourceAuditRepositories[0]);
+  assert.equal(app.parentBrand, 'Juss & Co.');
+  assert.equal(app.portfolioRole, 'independent-game-codebase');
+  assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
+  assert.ok(app.ownedSkills.length > 0);
+  const record = audit.records.find((entry) => entry.profile === appId);
+  assert.ok(record, `missing game source audit record: ${appId}`);
+  assert.equal(record.skillSources.length, 0, 'capabilities must not be mislabeled as installed SKILL.md files');
+  assert.ok(record.capabilityEvidence.length > 0);
+  assert.ok(record.capabilityEvidence.every((capability) => capability.status.includes('not-installed-skill') || capability.status === 'prototype-source-verified-not-production'));
+}
 assert.equal(gamesInventory.skills.length, 43, 'Games Hub inventory must expose all real workspace-level skill sources');
 assert.equal(gamesInventory.repositoriesWithoutInventoryRecord.length, 0, 'every Games Hub source repository must have an audit record');
 assert.equal(gamesInventory.records.find((record) => record.repository === 'jussray/jussray').inventoryStatus, 'verified-canonical-hub-workspace-and-43-skill-files-no-game-specific-package');
+assert.deepEqual(manifest.apps.find((app) => app.id === 'games-hub').ownedSkills, ['game-hub-routing'], 'gameplay capabilities must be owned by their individual game codebases');
 const gamesAudit = audit.records.find((record) => record.profile === 'games-hub');
 assert.equal(gamesAudit.evidence.runtime.domain, 'https://games.jussco.company/');
 assert.equal(gamesAudit.evidence.runtime.worker, 'jussco-games');
