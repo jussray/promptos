@@ -36,11 +36,11 @@ jobs:
     name: Verify bounded provider runtime contract
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
       - name: Run provider proof contract tests
@@ -99,11 +99,11 @@ jobs:
       PROMPTOS_PUBLIC_URL: ${{ vars.PROMPTOS_PUBLIC_URL }}
       PROMPTOS_PROVIDER_URL: ${{ vars.PROMPTOS_PROVIDER_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
       - name: Enforce founder, current main, and exact dispatch head
@@ -162,11 +162,11 @@ jobs:
       PROMPTOS_RUNTIME_PROOF_PROVIDER: ${{ vars.PROMPTOS_RUNTIME_PROOF_PROVIDER || 'openai' }}
       EXPECTED_HEAD_SHA: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
       - name: Require configured deployed runtime witness
@@ -190,7 +190,7 @@ jobs:
           test -s artifacts/promptos-runtime-proof/promptos-browser.png
       - name: Retain sanitized runtime evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: promptos-runtime-proof-${{ github.sha }}
           path: artifacts/promptos-runtime-proof

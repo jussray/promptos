@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 18
     steps:
       - name: Check out exact head
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ env.EXPECTED_HEAD_SHA }}
           persist-credentials: false
@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD_SHA"
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
       - name: Verify prompt memory contract
@@ -108,7 +108,7 @@ jobs:
         run: test ! -f /tmp/promptos-memory-staged.pid || kill "$(cat /tmp/promptos-memory-staged.pid)" || true
       - name: Retain prompt memory proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: promptos-prompt-memory-${{ env.EXPECTED_HEAD_SHA }}
           path: |
