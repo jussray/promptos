@@ -44,6 +44,9 @@ globalThis.fetch = async (input, init = {}) => {
   assert.equal(envelope.source.member, 'promptos');
   assert.equal(envelope.source.repository, 'jussray/promptos');
   assert.equal(envelope.source.headSha, sourceSha);
+  assert.ok(Number.isSafeInteger(envelope.ordering.sourceSequence));
+  assert.ok(envelope.ordering.sourceSequence >= 0);
+  assert.ok(envelope.ordering.sourceSequence < Number.MAX_SAFE_INTEGER);
   assert.equal(envelope.target.member, 'founder-control-room');
   assert.equal(envelope.target.headSha, targetSha);
   assert.equal(envelope.payload.contentType, 'application/json');
@@ -155,7 +158,7 @@ try {
     issue: { number: 41, pull_request: { url: 'https://api.github.com/repos/jussray/promptos/pulls/41' } },
     comment: {
       body: '/promptos status private-comment-text-must-not-forward',
-      created_at: '2026-11-26T05:00:00.000Z',
+      created_at: new Date(Date.now() - 30_000).toISOString(),
     },
     sender: { login: 'jussray', type: 'User' },
   });

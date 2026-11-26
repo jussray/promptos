@@ -66,7 +66,7 @@ function stableUuidFromHex(hex) {
   return value.slice(0, 8) + '-' + value.slice(8, 12) + '-' + value.slice(12, 16) + '-' + value.slice(16, 20) + '-' + value.slice(20);
 }
 
-async function stableDeliveryIds(deliveryId, issuedAt) {
+async function stableDeliveryIds(deliveryId) {
   const [chain, operation, nonce, sequence] = await Promise.all([
     sha256Hex('promptos-relay-v3:chain:' + deliveryId),
     sha256Hex('promptos-relay-v3:operation:' + deliveryId),
@@ -77,7 +77,7 @@ async function stableDeliveryIds(deliveryId, issuedAt) {
     chainId: stableUuidFromHex(chain),
     logicalOperationId: stableUuidFromHex(operation),
     nonce: stableUuidFromHex(nonce),
-    sourceSequence: Math.floor(issuedAt.getTime() / 1000) * 1_048_576 + Number(BigInt('0x' + sequence.slice(0, 5))),
+    sourceSequence: Number(BigInt('0x' + sequence.slice(0, 13))),
   };
 }
 
@@ -175,7 +175,7 @@ export async function sendFcrObservation(input) {
     targetHeadSha,
     observation,
   }));
-  const ids = await stableDeliveryIds(deliveryId, issuedAt);
+  const ids = await stableDeliveryIds(deliveryId);
   if (!Number.isSafeInteger(ids.sourceSequence)) throw new Error('relay-source-sequence-invalid');
 
   const unsigned = {

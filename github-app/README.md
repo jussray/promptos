@@ -26,7 +26,7 @@ Required plain-text runtime variables:
 - `PROMPTOS_GIT_SHA` (exact PromptOS `main` SHA represented by this deployment)
 - `FCR_RELAY_TARGET_SHA` (exact deployed FCR Worker `GIT_SHA` expected by the receiver)
 
-The relay destination is fixed in source to `https://api.foundercontrolroom.org/api/federated-relay/v3`; it cannot be changed through an environment variable.
+The relay destination is fixed in source to `https://api.foundercontrolroom.org/api/federated-relay/v3`; it cannot be changed through an environment variable. Source sequence is a deterministic 52-bit projection of the GitHub delivery UUID, preserving retry identity while making collisions negligible; FCR enforces uniqueness per source key.
 
 ## Registration
 
