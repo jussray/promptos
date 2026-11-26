@@ -27,7 +27,7 @@ for (const app of manifest.apps) {
   assert.ok(resolved.compatibility.surfaces.length > 0);
 }
 
-assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
+assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/jussbeautifulhair-site');
 assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, null, 'unverified Games Hub repository must not be invented');
 assert.equal(manifest.apps.find((app) => app.id === 'drift').repository, null, 'unverified DRIFT repository must not be invented');
 
@@ -67,10 +67,11 @@ assert.equal(audit.schemaVersion, '1.0');
 assert.equal(audit.registry, 'promptos/repository-skill-audit');
 assert.equal(audit.governance.authorityRepository, 'jussray/founder-control-room');
 assert.equal(audit.governance.promptosBoundary, 'PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.');
-assert.equal(audit.coverageStatus, 'partial', 'an initial search pass must not be mislabeled complete');
-assert.ok(Array.isArray(audit.records) && audit.records.length >= 20);
-assert.equal(audit.recursiveTreeRepositoryCount, 19);
-assert.equal(audit.totalSkillFileInstances, 311);
+assert.equal(audit.coverageStatus, 'recursive-tree-complete-for-accessible-account-repositories');
+assert.ok(Array.isArray(audit.records) && audit.records.length >= 61);
+assert.equal(audit.repositoryUniverse.length, 59);
+assert.equal(audit.recursiveTreeRepositoryCount, 59);
+assert.equal(audit.totalSkillFileInstances, 362);
 for (const record of audit.records) {
   assert.ok(record.profile && record.inventoryStatus);
   if (record.repository === null) assert.equal(record.inventoryStatus, 'unresolved-repository');
@@ -87,7 +88,7 @@ assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-socrate
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-build'));
 assert.ok(promptosAudit.skillSources.some((skill) => skill.id === 'local-minimal-token-protocol'));
 assert.ok(audit.knownGaps.some((gap) => gap.includes('Full recursive tree inventory')));
-assert.ok(audit.knownGaps.some((gap) => gap.includes('22 while local-cortex says twenty-seven')));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/promptos').notes.some((note) => note.includes('22 under systems/skills')));
 assert.ok(audit.records.some((record) => record.profile === 'drift' && record.repository === null));
 const protectOne = resolveAppSkillSet(manifest, 'protect-me-model-one');
 assert.equal(protectOne.app.repository, 'jussray/juss-protect-me');
@@ -115,6 +116,12 @@ assert.ok(manifest.sharedSkillMirrors.some((mirror) => mirror.repository === 'ju
 assert.ok(manifest.additionalSkillLibraries.every((library) => library.executionAllowed === false && library.autoFetch === false && library.autoHandoff === false));
 assert.ok(audit.records.find((record) => record.repository === 'jussray/Sekret-Bip-Parents').skillSources.some((skill) => skill.status === 'legacy-archive-only'));
 assert.ok(audit.records.find((record) => record.repository === 'jussray/Bip-Jr').notes.some((note) => note.includes('investigate-only')));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/Sekret-Bip-Bridge').notes.some((note) => note.includes('investigate-only')));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/jussbeautifulhair1').notes.some((note) => note.includes('historical source only')));
+assert.ok(audit.records.find((record) => record.repository === 'jussray/Juss-beautiful-hair-').notes.some((note) => note.includes('archived')));
+assert.ok(audit.records.some((record) => record.profile === 'games-hub' && record.repository === null));
+assert.equal(audit.sharedSkillLibraries.find((library) => library.repository === 'jussray/ULTRATHINK-').skillCount, 8);
+assert.ok(audit.nonstandardSkillArtifacts.every((skill) => skill.executionStatus === 'catalog-only'));
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.total, 8);
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.exactCopies, 3);
 assert.equal(audit.canonicalSharedSkillReconciliationSummary.byteDifferent, 5);
@@ -124,4 +131,4 @@ assert.ok(audit.devilCommandReconciliation.localSocratesEvidence.classification.
 assert.ok(audit.devilCommandReconciliation.separateMedusaBoundary.note.includes('does not claim bare /devil'));
 assert.ok(audit.governance.externalSkillIntake.behavior.includes('QUARANTINED'));
 assert.ok(audit.governance.skillSourceManifest.behavior.includes('tool exposure remains false'));
-console.log(`Repository skill audit loaded: ${audit.records.length} repository records; coverage remains explicitly partial.`);
+console.log(`Repository skill audit loaded: ${audit.recursiveTreeRepositoryCount} repositories, ${audit.totalSkillFileInstances} SKILL.md file instances; full tree coverage for the connected account, semantic classification still in progress.`);
