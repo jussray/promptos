@@ -71,7 +71,7 @@
   async function admit() {
     try {
       var data = await call('/prompts/admit', 'POST');
-      if (data.admitted === true) return true;
+      if (data.admitted === true && typeof data.subject === 'string' && data.subject.startsWith('https://accounts.google.com#') && data.subject.length > 28) return data.subject;
     } catch (e) {
       message(e.message === 'sign in required' ? 'Sign in with Google, then choose Upgrade to save prompts.' :
         e.message === 'paid account required' ? 'A paid account is required to save or import personal prompts.' :
