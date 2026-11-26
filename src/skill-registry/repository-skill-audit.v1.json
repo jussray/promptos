@@ -8,7 +8,8 @@
     "GitHub repository-scoped code search for SKILL.md",
     "Direct reads of discovered skill files, skill metadata, AGENTS.md and skills-lock.json",
     "Blob SHA recorded for each directly fetched file",
-    "Search-index misses are not treated as proof that a repository has no skills"
+    "Search-index misses are not treated as proof that a repository has no skills",
+    "Recursive Git tree inventory of the default main branch, recording commit SHA, all SKILL.md paths and blob SHAs, skill.yaml counts, and path-root classifications."
   ],
   "records": [
     {
@@ -64,6 +65,741 @@
           "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
           "status": "retired-export-copy",
           "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "agents-sdk",
+          "path": ".agents/skills/agents-sdk/SKILL.md",
+          "blobSha": "d9f1c8a9eaeb271888fb82ecda5d79ebf264944a",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "artifact-template-creator-response",
+          "path": ".agents/skills/artifact-template-creator-response/SKILL.md",
+          "blobSha": "b7f61e21baaef9596b6e4e55b8f72fab47f34e13",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "change-genealogy-audit",
+          "path": ".agents/skills/change-genealogy-audit/SKILL.md",
+          "blobSha": "3d79f0acbb8956538190eb91aab0334ed8c01225",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-email-service",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md",
+          "blobSha": "fb3565111a2ce94761e5ad6642d20d02e7707946",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-one-migrations",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md",
+          "blobSha": "53c770fb2cad0339cccffbc85b68b2b9810dbcb4",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-one",
+          "path": ".agents/skills/cloudflare-one/SKILL.md",
+          "blobSha": "753ab60c176e82f11097caa958cd4646ecd67078",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare",
+          "path": ".agents/skills/cloudflare/SKILL.md",
+          "blobSha": "2c7da21964ab4168422c5775ec8eeb469c89b1f7",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-agent-handoff",
+          "path": ".agents/skills/control-room-agent-handoff/SKILL.md",
+          "blobSha": "5edf6150f90400af4dd6a96acc12ccd4bea34620",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-agent-router",
+          "path": ".agents/skills/control-room-agent-router/SKILL.md",
+          "blobSha": "29c95b0888ede17f69f9aa5a07ec2c3fad973305",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-cloudflare-agent-fleet",
+          "path": ".agents/skills/control-room-cloudflare-agent-fleet/SKILL.md",
+          "blobSha": "5131537d853429c925bcfbcbff00b78a37fb6b31",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-design-implementation",
+          "path": ".agents/skills/control-room-design-implementation/SKILL.md",
+          "blobSha": "be251e41bda983d984b3e005f294b0bc6394bc9c",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-figma-builder",
+          "path": ".agents/skills/control-room-figma-builder/SKILL.md",
+          "blobSha": "6e23315a5dbfbfd4608ada5c371d8969b664edfd",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-futureyou-leverage",
+          "path": ".agents/skills/control-room-futureyou-leverage/SKILL.md",
+          "blobSha": "cfcae1a7e3f0316c9f758550529ac07fd693f82b",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-incident-triage",
+          "path": ".agents/skills/control-room-incident-triage/SKILL.md",
+          "blobSha": "6edaf7abedf48a77ab641246dbc7da85f939f6d6",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-proof-ladder",
+          "path": ".agents/skills/control-room-proof-ladder/SKILL.md",
+          "blobSha": "55dcb155465d7959911d1ce6ee3ebe9a2d5362fa",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-repo-contract",
+          "path": ".agents/skills/control-room-repo-contract/SKILL.md",
+          "blobSha": "5ff0ea47bfc6bdd29e94675eefc1a8cac71a3f6c",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-skill-router",
+          "path": ".agents/skills/control-room-skill-router/SKILL.md",
+          "blobSha": "8712264b3a757c4734b9de41fa8c91b2321a0469",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "control-room-token-efficient-execution",
+          "path": ".agents/skills/control-room-token-efficient-execution/SKILL.md",
+          "blobSha": "987c54ae4fc1c57eddfd6bdca4ee3fad28d2039d",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "devil--agents-skills-devil",
+          "path": ".agents/skills/devil/SKILL.md",
+          "blobSha": "59eeba6a21adf5194d31412c97f7b835a7ac3f00",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "durable-objects",
+          "path": ".agents/skills/durable-objects/SKILL.md",
+          "blobSha": "b595f1c2182f3b7d6f944d7ba0ac59667fba78aa",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "fact-check-every-claim",
+          "path": ".agents/skills/fact-check-every-claim/SKILL.md",
+          "blobSha": "90bf0e469ef9a00b701504271ec7f6a65e64e6f4",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "b3a71bcc9a3e4af39ce4639b4fbd89181729b9ba",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "founder-control-room-operator",
+          "path": ".agents/skills/founder-control-room-operator/SKILL.md",
+          "blobSha": "28586503145cc7e84f282917186b4bd5efe41910",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "l99-v21-transactional-authority",
+          "path": ".agents/skills/l99-v21-transactional-authority/SKILL.md",
+          "blobSha": "10eceef2936f997dbca119b544f221eb2101e506",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "outcome-first",
+          "path": ".agents/skills/outcome-first/SKILL.md",
+          "blobSha": "d52cac7c03aab3000fe111e61cf480467cb1ab42",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sales",
+          "path": ".agents/skills/sales/SKILL.md",
+          "blobSha": "7d22d0b4f3316b1712ad8ba3dfdf093775d46d4c",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-migrate-to-next",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md",
+          "blobSha": "745bcc5655dec3b690d6df4c31141a2b46a6d4c3",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-next",
+          "path": ".agents/skills/sandbox-next/SKILL.md",
+          "blobSha": "6384327710feced81e896501510bd76dd57770ff",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-stable",
+          "path": ".agents/skills/sandbox-stable/SKILL.md",
+          "blobSha": "8faf22bf1a77afdcfbf419e7de49762b9fff7d7f",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sauce-guard",
+          "path": ".agents/skills/sauce-guard/SKILL.md",
+          "blobSha": "4f94279ebe57cbace05fa5e36e25cd7c4cb594a2",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "truth-decay",
+          "path": ".agents/skills/truth-decay/SKILL.md",
+          "blobSha": "8b787299706fc7db1051c04063f8c0303c01b476",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "turnstile-spin",
+          "path": ".agents/skills/turnstile-spin/SKILL.md",
+          "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "web-perf",
+          "path": ".agents/skills/web-perf/SKILL.md",
+          "blobSha": "0fb166e8e8cb12e42dff4a40905ee4d3d626fcda",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "workers-best-practices",
+          "path": ".agents/skills/workers-best-practices/SKILL.md",
+          "blobSha": "bebd018cdcae1771eacdee30cfb96af3ad3bd936",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "wrangler",
+          "path": ".agents/skills/wrangler/SKILL.md",
+          "blobSha": "07d4dbbee98b6a55db42a2a01cb2c84df864a8e6",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "chatgpt-openai-developers-zapier-bridge",
+          "path": ".ai/skills/chatgpt-openai-developers-zapier-bridge/SKILL.md",
+          "blobSha": "d6caae2daa4298faee5945dd2c0fbd2b94108614",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "claude-zapier-founder-operator",
+          "path": ".ai/skills/claude-zapier-founder-operator/SKILL.md",
+          "blobSha": "35582f9866956e0ade62859bc69abac834f4f5bf",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "fact-check-every-claim--ai-skills-fact-check-every-claim",
+          "path": ".ai/skills/fact-check-every-claim/SKILL.md",
+          "blobSha": "b082b975391b272502fc3dcb77f351de5703edb8",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "goalfix",
+          "path": ".ai/skills/goalfix/SKILL.md",
+          "blobSha": "440bcecf6edc37226989f042e84f0bb0f0ca43df",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "juss-flow-launch-loop",
+          "path": ".ai/skills/juss-flow-launch-loop/SKILL.md",
+          "blobSha": "091d58c4e2df302f0d576fde0674bd27e812eeaa",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "juss-founder-os",
+          "path": ".ai/skills/juss-founder-os/SKILL.md",
+          "blobSha": "30a9f25ac10b689294ade7330e8bc1d881a15df4",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "truth-decay-audit",
+          "path": ".ai/skills/truth-decay-audit/SKILL.md",
+          "blobSha": "ba0758b52d5746a09b2868d3b6d06f6da7694a6b",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "ultrathink-devil",
+          "path": ".ai/skills/ultrathink-devil/SKILL.md",
+          "blobSha": "cc0c984751e2e7c010c62ed4c817603466448fb8",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "unified-growth-inbox",
+          "path": ".ai/skills/unified-growth-inbox/SKILL.md",
+          "blobSha": "265dd9bd5698eed28c27ab9862990250439b2c35",
+          "status": "source-present-pending-content-review",
+          "classification": "ai-agent-adapter-skill"
+        },
+        {
+          "id": "confidentiality-gate",
+          "path": ".claude/skills/confidentiality-gate/SKILL.md",
+          "blobSha": "41b1e2da04f2dbaab81ac414d59a98706ac33cce",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "founder-end-to-end",
+          "path": ".claude/skills/founder-end-to-end/SKILL.md",
+          "blobSha": "96d7d5abf1d2875149ef8d8f8e4d28ba9d08c65f",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "goalfix--claude-skills-goalfix",
+          "path": ".claude/skills/goalfix/SKILL.md",
+          "blobSha": "ad98549169946b5b69a9a073811eadb4669c8b1a",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "juss-chief-ai",
+          "path": ".claude/skills/juss-chief-ai/SKILL.md",
+          "blobSha": "e625a7fd7762a0cae8bd42853d6768b220ece538",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "makevideo",
+          "path": ".claude/skills/makevideo/SKILL.md",
+          "blobSha": "1bc4b55f7887c113377668c00996d48ef5cdff30",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "outcome-first--claude-skills-outcome-first",
+          "path": ".claude/skills/outcome-first/SKILL.md",
+          "blobSha": "004a0a73cc48c121f1676dba08609cd159fc89d1",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "playwright-proof",
+          "path": ".claude/skills/playwright-proof/SKILL.md",
+          "blobSha": "ac3f89b450e562e4e0f3897a24cb4aa7063d9a7a",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "proof-led-publishing",
+          "path": ".claude/skills/proof-led-publishing/SKILL.md",
+          "blobSha": "cf1baf9b672dfe7fc550388f60feaaf054d4c094",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "repo-truth",
+          "path": ".claude/skills/repo-truth/SKILL.md",
+          "blobSha": "cd5061021f78b1cdd176bc669ac06bc9577cc3df",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "review-verify-merge",
+          "path": ".claude/skills/review-verify-merge/SKILL.md",
+          "blobSha": "3f42d0159a61c27e0a4a20f8631869ab37e993cd",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "sekret-bip-canon",
+          "path": ".claude/skills/sekret-bip-canon/SKILL.md",
+          "blobSha": "2e1522b1bc503530fdecc908c1601b2f596af36d",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "ultrathink",
+          "path": ".claude/skills/ultrathink/SKILL.md",
+          "blobSha": "682d3196ce2004a7429aa0a36629cfeedb335f03",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "buffer-control",
+          "path": "plugins/buffer-control/skills/buffer-control/SKILL.md",
+          "blobSha": "af2375742db22f33a797bacff7107eebb986a0cc",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-plugin-skill"
+        },
+        {
+          "id": "fcr-public-workflows",
+          "path": "plugins/fcr-public/skills/fcr-public-workflows/SKILL.md",
+          "blobSha": "41eda0048f9d86ced54b418df3c072a140fc1f92",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-plugin-skill"
+        },
+        {
+          "id": "continuity-proof-ledger",
+          "path": "skills/continuity-proof-ledger/SKILL.md",
+          "blobSha": "a2212a02a4fb89a7badc1828a2a7b32facfbff4a",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "fact-check-every-claim-skills-fact-check-every-claim",
+          "path": "skills/fact-check-every-claim/SKILL.md",
+          "blobSha": "18d44e2719aa21714faeb5ef6bf5c0403b9548aa",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "confess",
+          "path": "skills/juss-authored/confess/SKILL.md",
+          "blobSha": "3724a1f42078e89dbf3b1d050d1eb36b04a3feb9",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "founder-action-implant-verify",
+          "path": "skills/juss-authored/founder-action-implant-verify/SKILL.md",
+          "blobSha": "f3360730e01ff3de278c48be7824bca7071bdd94",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "futureyou-me-v10",
+          "path": "skills/juss-authored/futureyou-me-v10/SKILL.md",
+          "blobSha": "0495abc871a02d80e0a9b9fabc323f3e1ef56074",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "goalfix-skills-juss-authored-goalfix",
+          "path": "skills/juss-authored/goalfix/SKILL.md",
+          "blobSha": "53552e5cef18a03399be78b2edf97d2c635b504b",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "godmode-devil-ultrathink",
+          "path": "skills/juss-authored/godmode-devil-ultrathink/SKILL.md",
+          "blobSha": "0be3ce5dc4ce3176b79b3a7f0174c9c83fde7723",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "godmode",
+          "path": "skills/juss-authored/godmode/SKILL.md",
+          "blobSha": "0a2b638d268cb3708573fbc86eee2facb1c48c63",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "juss-af-skills-pack",
+          "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md",
+          "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "juss-command-codex",
+          "path": "skills/juss-authored/juss-command-codex/SKILL.md",
+          "blobSha": "baa40db798212adbb1c20645b416118eac6bd302",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "juss-os",
+          "path": "skills/juss-authored/juss-os/SKILL.md",
+          "blobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "l99-v21-transactional-authority-skills-juss-authored-l99-v21-transactional-authority",
+          "path": "skills/juss-authored/l99-v21-transactional-authority/SKILL.md",
+          "blobSha": "fa1a52e0fdc660b05be6f976039cd8eb6ced787f",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "patch-implant-verify",
+          "path": "skills/juss-authored/patch-implant-verify/SKILL.md",
+          "blobSha": "0765eef5b1c799b3a2c1f68d0cd5518e9bbac9c3",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "reasoning-stack",
+          "path": "skills/juss-authored/reasoning-stack/SKILL.md",
+          "blobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "runtime-kernel",
+          "path": "skills/juss-authored/runtime-kernel/SKILL.md",
+          "blobSha": "f8324e55d66606bc7287f244217e6a9f18e48efa",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "sauce-guard-skills-juss-authored-sauce-guard",
+          "path": "skills/juss-authored/sauce-guard/SKILL.md",
+          "blobSha": "1ef6cfcab1e1bb65d69338541ae74cbe08fed92e",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "truth-decay-skills-juss-authored-truth-decay",
+          "path": "skills/juss-authored/truth-decay/SKILL.md",
+          "blobSha": "dacdc202b608db67af156c29ee110805132bd11a",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "truthmode",
+          "path": "skills/juss-authored/truthmode/SKILL.md",
+          "blobSha": "8322b161b85b89268780ef5721671768e8c3f1f3",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "outcome-first-skills-outcome-first",
+          "path": "skills/outcome-first/SKILL.md",
+          "blobSha": "b19d58afa39dcaa53e97243c684fcaaf4e0e289a",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "product-design-gate",
+          "path": "skills/product-design-gate/SKILL.md",
+          "blobSha": "7836baac587f6213934dd53a9e816c4f5a181458",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "repair-to-proof",
+          "path": "skills/repair-to-proof/SKILL.md",
+          "blobSha": "1ab037bd501b40a04489ca2ef462aa9525956587",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "sales-skills-sales",
+          "path": "skills/sales/SKILL.md",
+          "blobSha": "7bfa980bcd00be89cd411d9ccc7454d1c1cc70f9",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "typescript-minimal-patch",
+          "path": "skills/typescript-minimal-patch/SKILL.md",
+          "blobSha": "e8525ec71bd9c3e89dfdcedbd3162e3fca938872",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "typescript-root-cause-debugger",
+          "path": "skills/typescript-root-cause-debugger/SKILL.md",
+          "blobSha": "f0ecad72df51ec5a0cfa97877d13aa727ac57142",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "typescript-strict-review",
+          "path": "skills/typescript-strict-review/SKILL.md",
+          "blobSha": "3c63ae2e80523370d538e6bd72c9f228c73cae50",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "ultrathink-devil-skills-ultrathink-devil",
+          "path": "skills/ultrathink-devil/SKILL.md",
+          "blobSha": "cc0c984751e2e7c010c62ed4c817603466448fb8",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "urlfix",
+          "path": "skills/urlfix/SKILL.md",
+          "blobSha": "ca873b7243bd819c68d389df116b3fd64c7d100e",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "local-80-20",
+          "path": "systems/skills/local-80-20/SKILL.md",
+          "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-antiadvice",
+          "path": "systems/skills/local-antiadvice/SKILL.md",
+          "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-build",
+          "path": "systems/skills/local-build/SKILL.md",
+          "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-capability-mode-router",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md",
+          "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-cortex",
+          "path": "systems/skills/local-cortex/SKILL.md",
+          "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-first-principles",
+          "path": "systems/skills/local-first-principles/SKILL.md",
+          "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-futureyou",
+          "path": "systems/skills/local-futureyou/SKILL.md",
+          "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-goalfix",
+          "path": "systems/skills/local-goalfix/SKILL.md",
+          "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-hormozi",
+          "path": "systems/skills/local-hormozi/SKILL.md",
+          "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-humanize",
+          "path": "systems/skills/local-humanize/SKILL.md",
+          "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-intent-repair-reader",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+          "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-moscow",
+          "path": "systems/skills/local-moscow/SKILL.md",
+          "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-prompts",
+          "path": "systems/skills/local-prompts/SKILL.md",
+          "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-regression-stagnation-guard",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+          "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-runtime-kernel",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md",
+          "blobSha": "50b54616130156049ec3bf75afd7700525dc0df1",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truth-research-optimizer",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+          "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truthmode",
+          "path": "systems/skills/local-truthmode/SKILL.md",
+          "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-urlfix",
+          "path": "systems/skills/local-urlfix/SKILL.md",
+          "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "retirementMetadata": [
@@ -88,7 +824,24 @@
           "lockedPackageCount": 13,
           "interpretation": "locked external skill references; not proof of runtime installation or activation"
         }
-      ]
+      ],
+      "inventorySnapshot": {
+        "branch": "main",
+        "commitSha": "48396f75a6543f4ccb54275e416594b7112fac3e",
+        "recursiveTree": true,
+        "treeEntryCount": 3333,
+        "skillFileCount": 112,
+        "skillMetadataCount": 22,
+        "skillFilesByRoot": {
+          ".agents": 35,
+          ".ai": 9,
+          ".claude": 12,
+          "plugins": 2,
+          "skills": 32,
+          "systems": 22
+        },
+        "contentReview": "pending-for-newly-discovered-sources"
+      }
     },
     {
       "repository": "jussray/chief-ai-machine",
@@ -157,6 +910,342 @@
           "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
           "status": "retired-export-copy",
           "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "agents-sdk",
+          "path": ".agents/skills/agents-sdk/SKILL.md",
+          "blobSha": "d9f1c8a9eaeb271888fb82ecda5d79ebf264944a",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "chief-ai-operator",
+          "path": ".agents/skills/chief-ai-operator/SKILL.md",
+          "blobSha": "352004a4775dfa9a8f6a9342093f74772ebc0286",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-email-service",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md",
+          "blobSha": "fb3565111a2ce94761e5ad6642d20d02e7707946",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-one-migrations",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md",
+          "blobSha": "53c770fb2cad0339cccffbc85b68b2b9810dbcb4",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare-one",
+          "path": ".agents/skills/cloudflare-one/SKILL.md",
+          "blobSha": "753ab60c176e82f11097caa958cd4646ecd67078",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "cloudflare",
+          "path": ".agents/skills/cloudflare/SKILL.md",
+          "blobSha": "2c7da21964ab4168422c5775ec8eeb469c89b1f7",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "durable-objects",
+          "path": ".agents/skills/durable-objects/SKILL.md",
+          "blobSha": "b595f1c2182f3b7d6f944d7ba0ac59667fba78aa",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "figma-build-implement",
+          "path": ".agents/skills/figma-build-implement/SKILL.md",
+          "blobSha": "cc2dbdcb1f269821c098a156c85b1863027cd320",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "futureyou-me-v10--agents-skills-futureyou-me-v10",
+          "path": ".agents/skills/futureyou-me-v10/SKILL.md",
+          "blobSha": "0495abc871a02d80e0a9b9fabc323f3e1ef56074",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "goalfix",
+          "path": ".agents/skills/goalfix/SKILL.md",
+          "blobSha": "7cbc1fda5c04d7d7023dda85117a98d8ad97a8ac",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "godmode-devil-ultrathink",
+          "path": ".agents/skills/godmode-devil-ultrathink/SKILL.md",
+          "blobSha": "f6231e5387bc35a58df23d703774bcbd2b5eed7a",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "portfolio-bottleneck-finder",
+          "path": ".agents/skills/portfolio-bottleneck-finder/SKILL.md",
+          "blobSha": "8d0afb9a9d8dece7d4c76c5d78b80c5457f491a9",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-migrate-to-next",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md",
+          "blobSha": "745bcc5655dec3b690d6df4c31141a2b46a6d4c3",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-next",
+          "path": ".agents/skills/sandbox-next/SKILL.md",
+          "blobSha": "6384327710feced81e896501510bd76dd57770ff",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "sandbox-stable",
+          "path": ".agents/skills/sandbox-stable/SKILL.md",
+          "blobSha": "8faf22bf1a77afdcfbf419e7de49762b9fff7d7f",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "scoped-parallel-proof-workflow",
+          "path": ".agents/skills/scoped-parallel-proof-workflow/SKILL.md",
+          "blobSha": "a9675d4a00e82e11a8fefa5d81c5dbb4a74f99ed",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "web-perf",
+          "path": ".agents/skills/web-perf/SKILL.md",
+          "blobSha": "0fb166e8e8cb12e42dff4a40905ee4d3d626fcda",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "workers-best-practices",
+          "path": ".agents/skills/workers-best-practices/SKILL.md",
+          "blobSha": "bebd018cdcae1771eacdee30cfb96af3ad3bd936",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "wrangler",
+          "path": ".agents/skills/wrangler/SKILL.md",
+          "blobSha": "07d4dbbee98b6a55db42a2a01cb2c84df864a8e6",
+          "status": "source-present-pending-content-review",
+          "classification": "agent-adapter-or-vendor-skill-pending-origin-review"
+        },
+        {
+          "id": "evidence-decision-loop",
+          "path": ".claude/skills/evidence-decision-loop/SKILL.md",
+          "blobSha": "db23ec07798195690234ae727937efeef95c2ed5",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "goalfix--claude-skills-goalfix",
+          "path": ".claude/skills/goalfix/SKILL.md",
+          "blobSha": "0084caae13e486c571972fdaedf2f3250fdb2d2e",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "juss-chief-ai",
+          "path": ".claude/skills/juss-chief-ai/SKILL.md",
+          "blobSha": "c4f84915c48e86a45d00c0231563448234994aba",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "playwright-proof",
+          "path": ".claude/skills/playwright-proof/SKILL.md",
+          "blobSha": "ac3f89b450e562e4e0f3897a24cb4aa7063d9a7a",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "proof-led-publishing",
+          "path": ".claude/skills/proof-led-publishing/SKILL.md",
+          "blobSha": "cf1baf9b672dfe7fc550388f60feaaf054d4c094",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "repo-truth",
+          "path": ".claude/skills/repo-truth/SKILL.md",
+          "blobSha": "cd5061021f78b1cdd176bc669ac06bc9577cc3df",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "review-verify-merge",
+          "path": ".claude/skills/review-verify-merge/SKILL.md",
+          "blobSha": "3f42d0159a61c27e0a4a20f8631869ab37e993cd",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "sekret-bip-canon",
+          "path": ".claude/skills/sekret-bip-canon/SKILL.md",
+          "blobSha": "2e1522b1bc503530fdecc908c1601b2f596af36d",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "ultrathink-devil",
+          "path": ".claude/skills/ultrathink-devil/SKILL.md",
+          "blobSha": "cc0c984751e2e7c010c62ed4c817603466448fb8",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "actions-mail-audit",
+          "path": ".github/skills/actions-mail-audit/SKILL.md",
+          "blobSha": "798089692c7642b2ce461f58bb920ffa7d6d4069",
+          "status": "source-present-pending-content-review",
+          "classification": "github-workflow-skill-pending-content-review"
+        },
+        {
+          "id": "gmail-resolve",
+          "path": "skills/gmail-resolve/SKILL.md",
+          "blobSha": "a28f91a596230637ee7b80f9fa1cf56262d3aeba",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-native-skill-pending-content-review"
+        },
+        {
+          "id": "local-80-20",
+          "path": "systems/skills/local-80-20/SKILL.md",
+          "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-antiadvice",
+          "path": "systems/skills/local-antiadvice/SKILL.md",
+          "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-capability-mode-router",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md",
+          "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-first-principles",
+          "path": "systems/skills/local-first-principles/SKILL.md",
+          "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-futureyou",
+          "path": "systems/skills/local-futureyou/SKILL.md",
+          "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-goalfix",
+          "path": "systems/skills/local-goalfix/SKILL.md",
+          "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-hormozi",
+          "path": "systems/skills/local-hormozi/SKILL.md",
+          "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-humanize",
+          "path": "systems/skills/local-humanize/SKILL.md",
+          "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-intent-repair-reader",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+          "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-moscow",
+          "path": "systems/skills/local-moscow/SKILL.md",
+          "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-prompts",
+          "path": "systems/skills/local-prompts/SKILL.md",
+          "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-regression-stagnation-guard",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+          "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-runtime-kernel",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md",
+          "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truth-research-optimizer",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+          "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truthmode",
+          "path": "systems/skills/local-truthmode/SKILL.md",
+          "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-urlfix",
+          "path": "systems/skills/local-urlfix/SKILL.md",
+          "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "lockfiles": [
@@ -181,7 +1270,23 @@
           "blobSha": "3b5aada47f761f12702277d7f772f246a2bf6b3c",
           "declaredStatus": "retired"
         }
-      ]
+      ],
+      "inventorySnapshot": {
+        "branch": "main",
+        "commitSha": "c154767b8e570cf50bfb7f5d8d042dbab76d7358",
+        "recursiveTree": true,
+        "treeEntryCount": 3006,
+        "skillFileCount": 57,
+        "skillMetadataCount": 22,
+        "skillFilesByRoot": {
+          ".agents": 22,
+          ".claude": 11,
+          ".github": 1,
+          "skills": 1,
+          "systems": 22
+        },
+        "contentReview": "pending-for-newly-discovered-sources"
+      }
     },
     {
       "repository": "jussray/promptos",
@@ -401,7 +1506,7 @@
     {
       "repository": "jussray/THINK-TANK",
       "profile": "think-tank",
-      "inventoryStatus": "verified-shared-operating-exports",
+      "inventoryStatus": "verified-recursive-tree-inventory",
       "skillSources": [
         {
           "id": "local-build",
@@ -416,12 +1521,165 @@
           "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
           "status": "shared-export",
           "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-80-20",
+          "path": "systems/skills/local-80-20/SKILL.md",
+          "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-antiadvice",
+          "path": "systems/skills/local-antiadvice/SKILL.md",
+          "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-capability-mode-router",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md",
+          "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-devil",
+          "path": "systems/skills/local-devil/SKILL.md",
+          "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-first-principles",
+          "path": "systems/skills/local-first-principles/SKILL.md",
+          "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-futureyou",
+          "path": "systems/skills/local-futureyou/SKILL.md",
+          "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-goalfix",
+          "path": "systems/skills/local-goalfix/SKILL.md",
+          "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-hormozi",
+          "path": "systems/skills/local-hormozi/SKILL.md",
+          "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-humanize",
+          "path": "systems/skills/local-humanize/SKILL.md",
+          "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-intent-repair-reader",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+          "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-lean-build-orchestrator",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+          "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+          "status": "retired-export-copy",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-minimal-token-protocol",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+          "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-moscow",
+          "path": "systems/skills/local-moscow/SKILL.md",
+          "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-prompts",
+          "path": "systems/skills/local-prompts/SKILL.md",
+          "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-regression-stagnation-guard",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+          "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-runtime-kernel",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md",
+          "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-socrates",
+          "path": "systems/skills/local-socrates/SKILL.md",
+          "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truth-research-optimizer",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+          "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-truthmode",
+          "path": "systems/skills/local-truthmode/SKILL.md",
+          "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
+        },
+        {
+          "id": "local-urlfix",
+          "path": "systems/skills/local-urlfix/SKILL.md",
+          "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+          "status": "shared-export-pending-canonical-status",
+          "classification": "shared-operating-skill-export"
         }
       ],
       "lockfiles": [],
       "notes": [
-        "No Think Tank-specific SKILL.md package was confirmed in the first search pass; AGENTS.md contains product operating instructions."
-      ]
+        "No Think Tank-specific SKILL.md package was confirmed in the first search pass; AGENTS.md contains product operating instructions.",
+        "Recursive main tree confirms 22 SKILL.md files and 22 matching skill.yaml files. local-cortex describes a 27-skill logical dispatch roster; EXPORT-INDEX documents 22 packaged skill exports. These are different counting scopes, not yet evidence of five missing package files."
+      ],
+      "inventorySnapshot": {
+        "branch": "main",
+        "commitSha": "3a1a4f2cd8dbb06a6c399b3345da93747984e7a6",
+        "recursiveTree": true,
+        "treeEntryCount": 332,
+        "skillFileCount": 22,
+        "skillMetadataCount": 22,
+        "skillFilesByRoot": {
+          "systems": 22
+        },
+        "contentReview": "pending-for-newly-discovered-sources"
+      }
     },
     {
       "repository": "jussray/truth-weaver",
@@ -507,21 +1765,76 @@
       "repository": "jussray/juss-protect-me",
       "profile": "protect-me-model-one",
       "inventoryStatus": "search-index-no-skill-match",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "medusa",
+          "path": ".claude/skills/medusa/SKILL.md",
+          "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
         "Protect Me Model One is outside the initial 12-profile manifest; include it in the next portfolio pass."
-      ]
+      ],
+      "inventorySnapshot": {
+        "branch": "main",
+        "commitSha": "2e19a76f7cac59093f1ba3dde4bdf7b3e0591e41",
+        "recursiveTree": true,
+        "treeEntryCount": 74,
+        "skillFileCount": 1,
+        "skillMetadataCount": 0,
+        "skillFilesByRoot": {
+          ".claude": 1
+        },
+        "contentReview": "pending-for-newly-discovered-sources"
+      }
     },
     {
       "repository": "jussray/juss-protect-me-2",
       "profile": "protect-me-model-two",
       "inventoryStatus": "search-index-no-skill-match",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "medusa",
+          "path": ".claude/skills/medusa/SKILL.md",
+          "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+          "status": "source-present-pending-content-review",
+          "classification": "claude-agent-adapter-skill"
+        },
+        {
+          "id": "contract",
+          "path": "contract/SKILL.md",
+          "blobSha": "589248707d32c1fdd0c9cf617e76b4eafcb0dbac",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-skill-source-pending-review"
+        },
+        {
+          "id": "juss-os",
+          "path": "contract/profiles/juss-os/SKILL.md",
+          "blobSha": "f670131625d7c4fe2e3a226a2477ad88117b250c",
+          "status": "source-present-pending-content-review",
+          "classification": "repository-skill-source-pending-review"
+        }
+      ],
       "lockfiles": [],
       "notes": [
         "Protect Me Model Two is outside the initial 12-profile manifest; include it in the next portfolio pass."
-      ]
+      ],
+      "inventorySnapshot": {
+        "branch": "main",
+        "commitSha": "8585474f689f03398266a97703c32fdec02cd7de",
+        "recursiveTree": true,
+        "treeEntryCount": 111,
+        "skillFileCount": 3,
+        "skillMetadataCount": 0,
+        "skillFilesByRoot": {
+          ".claude": 1,
+          "contract": 2
+        },
+        "contentReview": "pending-for-newly-discovered-sources"
+      }
     },
     {
       "profile": "drift",
@@ -551,12 +1864,12 @@
     }
   },
   "knownGaps": [
-    "Full recursive tree inventory for every repository is not yet complete.",
     "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
     "Protect Me Model One and Two are not yet represented in the PromptOS app manifest.",
     "Games Hub has related repositories but no canonical hub repository is established in this audit.",
     "DRIFT repository remains unresolved.",
-    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory."
+    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory.",
+    "FCR and Chief recursive inventories are complete at recorded main SHAs, but most newly discovered skill contents and runtime activation still need review; other portfolio repositories remain incomplete."
   ],
   "governance": {
     "owner": "Juss",
