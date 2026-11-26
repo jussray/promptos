@@ -211,7 +211,7 @@ async function init() {
           setStatus('#v6ReceiveStatus', 'Rejected: FCR intake contract or authority boundary invalid.');
           return;
         }
-        const modeMatch = /^Mode:\\s*([a-z0-9-]+)\\.\\s*Outcome:\\s*([\\s\\S]*)$/i.exec(intake.requestedOutcome);
+        const modeMatch = /^Mode:\s*([a-z0-9-]+)\.\s*Outcome:\s*([\s\S]*)$/i.exec(intake.requestedOutcome);
         const requestedMode = modeMatch && MODES.includes(modeMatch[1]) ? modeMatch[1] : $('#v6Mode').value;
         const outcome = modeMatch ? modeMatch[2].trim() : intake.requestedOutcome;
         const input = {
