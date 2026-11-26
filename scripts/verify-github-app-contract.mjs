@@ -25,6 +25,7 @@ assert.deepEqual(template.required_runtime_variables, [
   'PROMPTOS_RELAY_KEY_ID',
   'PROMPTOS_GIT_SHA',
   'FCR_RELAY_TARGET_SHA',
+  'GITHUB_INSTALLATION_ID',
 ]);
 
 for (const forbidden of [
