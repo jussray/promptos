@@ -22,7 +22,7 @@ export function validatePortfolioManifest(manifest) {
     sharedIds.add(skill.id);
     if (skill.source !== manifest.sharedSkillSource) errors.push(`shared skill source mismatch: ${skill.id}`);
     if (skill.resolution !== 'source-path-verified') errors.push(`shared skill source path must be verified: ${skill.id}`);
-    if (!/^\\.claude\\/skills\\/[a-z0-9-]+\\/SKILL\\.md$/.test(skill.sourcePath ?? '')) errors.push(`invalid shared skill source path: ${skill.id}`);
+    if (typeof skill.sourcePath !== 'string' || !skill.sourcePath.startsWith('.claude/skills/') || !skill.sourcePath.endsWith('/SKILL.md') || skill.sourcePath.includes('..')) errors.push(`invalid shared skill source path: ${skill.id}`);
     if (!/^[0-9a-f]{40}$/.test(skill.sourceRevision ?? '')) errors.push(`shared skill source revision must be pinned: ${skill.id}`);
     if (!ALLOWED_SKILL_AUTHORITY.has(skill.authority)) errors.push(`shared skill exceeds advisory authority: ${skill.id}`);
   }
