@@ -435,6 +435,7 @@ button.ss-item:hover{border-color:var(--primary)}
 @media(max-width:760px){.est-list{grid-template-columns:1fr}[data-theme="dark"] .status-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.est-text small{white-space:normal}.est-head .viewall{margin-left:44px}}
 </style>
+  <link rel="stylesheet" href="./parts/capability-library.css">
 </head>
 <body>
 
@@ -521,6 +522,7 @@ button.ss-item:hover{border-color:var(--primary)}
   <aside class="sidebar">
     <div class="side-label">Workspace</div>
     <button class="nav-item active" data-page="library">Library <span class="n-count" id="navCount">0</span></button>
+    <button class="nav-item" data-page="capabilities">App Capabilities</button>
     <button class="nav-item" data-page="builder">Builder</button>
     <button class="nav-item" data-page="freestyle">Freestyle</button>
     <button class="nav-item" data-page="custom">My Prompts <span class="n-count" id="navCustom">0</span></button>
@@ -537,6 +539,7 @@ button.ss-item:hover{border-color:var(--primary)}
   <nav class="mobile-nav" id="mobileNav">
     <button class="nav-item" data-page="freestyle">Create</button>
     <button class="nav-item active" data-page="library">Library</button>
+    <button class="nav-item" data-page="capabilities">Capabilities</button>
     <button class="nav-item" data-page="builder">Workflows</button>
     <button class="nav-item" data-page="custom">My Prompts</button>
     <button class="nav-item" data-page="anatomy">Anatomy</button>
@@ -651,6 +654,24 @@ button.ss-item:hover{border-color:var(--primary)}
         <button type="button" class="cta-go alt" data-page="builder">Open Prompt Builder →</button>
       </section>
     </div>
+    </section>
+
+    <!-- APP-ALIGNED CAPABILITY LIBRARY -->
+    <section class="page" id="page-capabilities" aria-labelledby="capabilityPageTitle">
+      <div class="page-head"><div class="crumb">promptos <span>/</span> <b>app-capabilities</b></div><h2 id="capabilityPageTitle">App Capability Library</h2><p>Each product gets its own source-backed skill inventory and relevant integration references. Shared operator guidance stays separate from app-owned skills.</p></div>
+      <div class="cap-intro"><div class="cap-intro-copy"><h3 id="capabilityAppName">Loading app…</h3><p id="capabilityAppRole"></p><p class="cap-runtime-note">Repository: <strong id="capabilityRepository">Checking source…</strong> · <strong id="capabilityAudit">Checking audit coverage…</strong></p></div><p class="cap-truth">Catalog only. A listed skill is not automatically installed or active. Plugin connection, permissions, and execution remain owned by the host runtime.</p></div>
+      <div class="cap-toolbar"><div class="cap-field"><label for="capabilityApp">App library</label><select id="capabilityApp" aria-label="Choose an app capability library"></select></div><div class="cap-field"><label for="capabilitySearch">Search this app's capabilities</label><input id="capabilitySearch" type="search" placeholder="Search skills, plugins, sources, or status"></div></div>
+      <div class="cap-filters" role="group" aria-label="Filter capability library"><button type="button" class="cap-filter" data-cap-filter="all" aria-pressed="true">All</button><button type="button" class="cap-filter" data-cap-filter="skills" aria-pressed="false">Skills</button><button type="button" class="cap-filter" data-cap-filter="shared" aria-pressed="false">Shared references</button><button type="button" class="cap-filter" data-cap-filter="plugins" aria-pressed="false">Plugins</button><button type="button" class="cap-filter" data-cap-filter="proposed" aria-pressed="false">Proposed</button><button type="button" class="cap-filter" data-cap-filter="sources" aria-pressed="false">Sources</button></div>
+      <div class="cap-overview" aria-label="Selected app capability summary"><div class="cap-stat"><strong id="capabilityAppSkillCount">0</strong><span>App-specific skill files</span></div><div class="cap-stat"><strong id="capabilitySharedCount">0</strong><span>Shared operator references</span></div><div class="cap-stat"><strong id="capabilityIntegrationCount">0</strong><span>Plugin / skill references</span></div><div class="cap-stat"><strong id="capabilityProposedCount">0</strong><span>Proposed capability areas</span></div></div>
+      <div class="cap-panels">
+        <section class="cap-panel" data-cap-section="skills"><div class="cap-panel-head"><div><h3>App-owned skill sources</h3><p>Public source files found in the app's audited repositories. Status and provenance stay visible.</p></div><span class="cap-panel-count">Source-backed</span></div><div class="cap-list" id="capabilitySkills"></div></section>
+        <section class="cap-panel" data-cap-section="shared"><div class="cap-panel-head"><div><h3>Shared operator references</h3><p>Founder/operator guidance. Reference-only, not copied into each product runtime.</p></div><span class="cap-panel-count">Advisory</span></div><div class="cap-list" id="capabilityShared"></div></section>
+        <section class="cap-panel" data-cap-section="integrations"><div class="cap-panel-head"><div><h3>Plugins and skill references</h3><p>Mapped by product relevance. No connection or execution claim is made.</p></div><span class="cap-panel-count">Host-owned</span></div><div class="cap-list" id="capabilityIntegrations"></div><p class="cap-runtime-note">Runtime discovery required. Check connection and permission state in the host application before relying on a connector.</p></section>
+        <section class="cap-panel" data-cap-section="proposed"><div class="cap-panel-head"><div><h3>Proposed app capability areas</h3><p>Product-specific capability intent from the manifest. These are not verified skill files.</p></div><span class="cap-panel-count">Not yet source-verified</span></div><div class="cap-list" id="capabilityProposed"></div></section>
+        <section class="cap-panel" data-cap-section="retired"><div class="cap-panel-head"><div><h3>Retired skill exports</h3><p>Historical references only. Retired exports are excluded from the active skill list.</p></div><span class="cap-panel-count">Inactive</span></div><div class="cap-list" id="capabilityRetired"></div></section>
+        <section class="cap-panel" data-cap-section="sources"><div class="cap-panel-head"><div><h3>Repository evidence</h3><p>Visibility and audit coverage determine which source details can be displayed.</p></div><span class="cap-panel-count">Provenance</span></div><div class="cap-list" id="capabilitySources"></div><p class="cap-note" id="capabilityExcludedNote" hidden></p><p class="cap-runtime-note">Partial audits are not complete inventories. Private and unverified repository details are withheld.</p></section>
+      </div>
+      <p class="cap-empty" id="capabilityNoResults" hidden>No capabilities match this search and filter.</p><p id="capabilityStatus" role="status" aria-live="polite" data-state="loading">Loading source-backed capability catalog…</p>
     </section>
 
     <!-- BUILDER -->
@@ -832,5 +853,6 @@ button.ss-item:hover{border-color:var(--primary)}
 <script src="./parts/p09-cont-design.js"></script>
 <script src="./parts/p10-cont-ops-growth.js"></script>
 <script src="./parts/app.js"></script>
+<script src="./parts/capability-library.js"></script>
 </body>
 </html>
