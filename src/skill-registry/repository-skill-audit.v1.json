@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "registry": "promptos/repository-skill-audit",
   "authority": "read-only-source-audit",
-  "coverageStatus": "partial",
+  "coverageStatus": "partial-portfolio-complete-for-listed-repositories",
   "scope": "Initial 12 PromptOS app profiles plus related portfolio repositories discovered during the first source pass.",
   "method": [
     "GitHub repository-scoped code search for SKILL.md",
@@ -1980,12 +1980,10 @@
     }
   },
   "knownGaps": [
-    "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
-    "Games Hub has related repositories but no canonical hub repository is established in this audit.",
-    "DRIFT repository remains unresolved.",
     "Recursive tree snapshots cover the 19 currently identified repositories, not the entire Juss & Co. repository universe.",
     "The path inventory is complete for each captured main tree; semantic classification of every imported, native, adapter, and retired package remains in progress.",
-    "PromptOS has 27 SKILL.md files: 22 under systems/skills plus five in other locations; reconcile whether the export index should include those five.",
+    "The recursive tree records SKILL.md files only; non-SKILL instructions, prompt packs, capability manifests, skill YAML metadata and runtime loaders need separate reconciliation.",
+    "PromptOS has 27 SKILL.md files: 22 under systems/skills plus five elsewhere; determine whether the export index should include those five.",
     "Games Hub has related repositories but no canonical hub repository is established.",
     "DRIFT's authoritative repository remains unresolved."
   ],
@@ -2014,5 +2012,1009 @@
     },
     "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.",
     "treeScan": "Recursive Git Trees API main-branch snapshots are pinned per repository in records[].treeSnapshot; each snapshot retains tree SHA, truncation state, skill count, every SKILL.md path and blob SHA."
-  }
+  },
+  "totalSkillFileInstances": 311,
+  "recursiveTreeRepositoryCount": 19,
+  "classificationRules": [
+    "SKILL.md under skills/ is treated as a candidate canonical or product-native package; inspect frontmatter and owner/status before assigning authority.",
+    "SKILL.md under .agents/, .claude/, .ai/ or .github/skills/ is treated as an agent/provider adapter or local entrypoint until canonical source and content hash are reconciled.",
+    "systems/skills/ is treated as a shared operating-skill export; copies are deduplicated by blob SHA and lifecycle metadata, not by filename alone.",
+    "plugins/**/SKILL.md is a plugin-scoped capability package, not automatically a product-owned skill.",
+    "skills-lock.json records external package references and hashes; it does not by itself prove the package is installed, active, compatible, or authorized.",
+    "AGENTS.md, CLAUDE.md, GLOBAL_AI.md and docs/MCP_SKILL_ROUTING.md are repository instructions or routing contracts, not standalone SKILL.md packages."
+  ],
+  "duplicateBlobs": [
+    {
+      "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-80-20/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-80-20/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-80-20/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-80-20/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-80-20/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-antiadvice/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-antiadvice/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-antiadvice/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-antiadvice/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-antiadvice/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-build/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-build/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-build/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-build/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-build/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-capability-mode-router/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-cortex/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-cortex/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-cortex/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-cortex/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-cortex/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-devil/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-first-principles/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-first-principles/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-first-principles/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-first-principles/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-first-principles/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "d5350374d0925564ebc84691fc4246efdf608232",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-futureyou/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-futureyou/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-futureyou/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-futureyou/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-futureyou/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-goalfix/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-hormozi/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-hormozi/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-hormozi/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-hormozi/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-hormozi/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-humanize/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-humanize/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-humanize/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-humanize/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-humanize/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-intent-repair-reader/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-lean-build-orchestrator/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-minimal-token-protocol/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-moscow/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-moscow/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-moscow/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-moscow/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-moscow/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-prompts/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-prompts/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-prompts/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-prompts/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-prompts/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "a35e5fa4256834231f588589397cf865f74aa092",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-regression-stagnation-guard/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-socrates/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-socrates/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-socrates/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-socrates/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-socrates/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-truth-research-optimizer/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-truthmode/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-truthmode/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-truthmode/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-truthmode/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-truthmode/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277",
+      "copyCount": 5,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "systems/skills/local-urlfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-urlfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-urlfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-urlfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-urlfix/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e",
+      "copyCount": 4,
+      "copies": [
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md"
+        },
+        {
+          "repository": "jussray/StoryEngine",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md"
+        },
+        {
+          "repository": "jussray/THINK-TANK",
+          "path": "systems/skills/local-runtime-kernel/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "d9f1c8a9eaeb271888fb82ecda5d79ebf264944a",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/agents-sdk/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/agents-sdk/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/agents-sdk/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "fb3565111a2ce94761e5ad6642d20d02e7707946",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/cloudflare-email-service/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "53c770fb2cad0339cccffbc85b68b2b9810dbcb4",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/cloudflare-one-migrations/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "753ab60c176e82f11097caa958cd4646ecd67078",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/cloudflare-one/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/cloudflare-one/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/cloudflare-one/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "2c7da21964ab4168422c5775ec8eeb469c89b1f7",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/cloudflare/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/cloudflare/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/cloudflare/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "b595f1c2182f3b7d6f944d7ba0ac59667fba78aa",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/durable-objects/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/durable-objects/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/durable-objects/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "745bcc5655dec3b690d6df4c31141a2b46a6d4c3",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/sandbox-migrate-to-next/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "6384327710feced81e896501510bd76dd57770ff",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/sandbox-next/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/sandbox-next/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/sandbox-next/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "8faf22bf1a77afdcfbf419e7de49762b9fff7d7f",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/sandbox-stable/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/sandbox-stable/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/sandbox-stable/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "57188f97bbbcf2e4ac498c73b19cfe3022b9d8a7",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/turnstile-spin/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/turnstile-spin/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/turnstile-spin/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "0fb166e8e8cb12e42dff4a40905ee4d3d626fcda",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/web-perf/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/web-perf/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/web-perf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "bebd018cdcae1771eacdee30cfb96af3ad3bd936",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/workers-best-practices/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/workers-best-practices/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/workers-best-practices/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "07d4dbbee98b6a55db42a2a01cb2c84df864a8e6",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".agents/skills/wrangler/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/wrangler/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".agents/skills/wrangler/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "cc0c984751e2e7c010c62ed4c817603466448fb8",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".ai/skills/ultrathink-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/ultrathink-devil/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/ultrathink-devil/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+      "copyCount": 3,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/juss-os/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/juss-os/SKILL.md"
+        },
+        {
+          "repository": "jussray/ULTRATHINK-",
+          "path": ".claude/skills/juss-os/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "ad98549169946b5b69a9a073811eadb4669c8b1a",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/goalfix/SKILL.md"
+        },
+        {
+          "repository": "jussray/promptos",
+          "path": ".claude/skills/goalfix/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "ac3f89b450e562e4e0f3897a24cb4aa7063d9a7a",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/playwright-proof/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/playwright-proof/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "cf1baf9b672dfe7fc550388f60feaaf054d4c094",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/proof-led-publishing/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/proof-led-publishing/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "cd5061021f78b1cdd176bc669ac06bc9577cc3df",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/repo-truth/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/repo-truth/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "3f42d0159a61c27e0a4a20f8631869ab37e993cd",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/review-verify-merge/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/review-verify-merge/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "2e1522b1bc503530fdecc908c1601b2f596af36d",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": ".claude/skills/sekret-bip-canon/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".claude/skills/sekret-bip-canon/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "0495abc871a02d80e0a9b9fabc323f3e1ef56074",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/futureyou-me-v10/SKILL.md"
+        },
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".agents/skills/futureyou-me-v10/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/juss-af-skills-pack/SKILL.md"
+        },
+        {
+          "repository": "jussray/ULTRATHINK-",
+          "path": ".claude/skills/juss-af-skills-pack/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/founder-control-room",
+          "path": "skills/juss-authored/reasoning-stack/SKILL.md"
+        },
+        {
+          "repository": "jussray/ULTRATHINK-",
+          "path": ".claude/skills/reasoning-stack/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "798089692c7642b2ce461f58bb920ffa7d6d4069",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/chief-ai-machine",
+          "path": ".github/skills/actions-mail-audit/SKILL.md"
+        },
+        {
+          "repository": "jussray/solcontinuity",
+          "path": ".github/skills/actions-mail-audit/SKILL.md"
+        }
+      ]
+    },
+    {
+      "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+      "copyCount": 2,
+      "copies": [
+        {
+          "repository": "jussray/juss-protect-me",
+          "path": ".claude/skills/medusa/SKILL.md"
+        },
+        {
+          "repository": "jussray/juss-protect-me-2",
+          "path": ".claude/skills/medusa/SKILL.md"
+        }
+      ]
+    }
+  ]
 }
