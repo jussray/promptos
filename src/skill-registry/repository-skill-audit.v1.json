@@ -1546,7 +1546,7 @@
     {
       "repository": "jussray/THINK-TANK",
       "profile": "think-tank",
-      "inventoryStatus": "verified-shared-operating-exports",
+      "inventoryStatus": "recursive-tree-audited",
       "skillSources": [
         {
           "id": "local-build",
@@ -1566,27 +1566,137 @@
       "lockfiles": [],
       "notes": [
         "No Think Tank-specific SKILL.md package was confirmed in the first search pass; AGENTS.md contains product operating instructions."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "3a1a4f2cd8dbb06a6c399b3345da93747984e7a6",
+        "truncated": false,
+        "skillCount": 22,
+        "skillFiles": [
+          {
+            "path": "systems/skills/local-80-20/SKILL.md",
+            "blobSha": "36ff07a75e44caf4b7684e9eddc1e060ea7087e0"
+          },
+          {
+            "path": "systems/skills/local-antiadvice/SKILL.md",
+            "blobSha": "819d8588ba72f435153e135c7a673cd2303ba35d"
+          },
+          {
+            "path": "systems/skills/local-build/SKILL.md",
+            "blobSha": "70ed7fb5244670e1e7895825ff3e81c6124185e9"
+          },
+          {
+            "path": "systems/skills/local-capability-mode-router/SKILL.md",
+            "blobSha": "540282c9e07da93faf6e2011ef93b4d52af90c03"
+          },
+          {
+            "path": "systems/skills/local-cortex/SKILL.md",
+            "blobSha": "3cc684afe649e954a5dc82b4f5feb94cb9b5cd93"
+          },
+          {
+            "path": "systems/skills/local-devil/SKILL.md",
+            "blobSha": "fed9bcc2c1379a674feddfe27b85af9c5d11818c"
+          },
+          {
+            "path": "systems/skills/local-first-principles/SKILL.md",
+            "blobSha": "d6b35d11d03fa6b28c68d3457a27534d08874edd"
+          },
+          {
+            "path": "systems/skills/local-futureyou/SKILL.md",
+            "blobSha": "d5350374d0925564ebc84691fc4246efdf608232"
+          },
+          {
+            "path": "systems/skills/local-goalfix/SKILL.md",
+            "blobSha": "466854235eeb7a029c3cebe5fa1f38a5f9e2e2fd"
+          },
+          {
+            "path": "systems/skills/local-hormozi/SKILL.md",
+            "blobSha": "35fc262a4747b8607cdf250099527dc2e6ab12bf"
+          },
+          {
+            "path": "systems/skills/local-humanize/SKILL.md",
+            "blobSha": "5fc6166d8090c6ca7feeec9f86f31e39f00090e6"
+          },
+          {
+            "path": "systems/skills/local-intent-repair-reader/SKILL.md",
+            "blobSha": "8d9867abe343c5be5843b84be5ce7b15197670d5"
+          },
+          {
+            "path": "systems/skills/local-lean-build-orchestrator/SKILL.md",
+            "blobSha": "54d912543aa027dc841c530d073f9fb8bbd84471"
+          },
+          {
+            "path": "systems/skills/local-minimal-token-protocol/SKILL.md",
+            "blobSha": "e8c1b42efc8e5b1d2e0170d4bf2372d1875818d5"
+          },
+          {
+            "path": "systems/skills/local-moscow/SKILL.md",
+            "blobSha": "e3c8f888757002ece60090d7e597f7fa4f3e0703"
+          },
+          {
+            "path": "systems/skills/local-prompts/SKILL.md",
+            "blobSha": "f552b6b55e6f76e8679418dc45ced323ceb4f9c4"
+          },
+          {
+            "path": "systems/skills/local-regression-stagnation-guard/SKILL.md",
+            "blobSha": "a35e5fa4256834231f588589397cf865f74aa092"
+          },
+          {
+            "path": "systems/skills/local-runtime-kernel/SKILL.md",
+            "blobSha": "3597261771abac7ebeaab866818cd3a82460bf9e"
+          },
+          {
+            "path": "systems/skills/local-socrates/SKILL.md",
+            "blobSha": "96db3d9677fa18f82701f2268ce594866c3942d9"
+          },
+          {
+            "path": "systems/skills/local-truth-research-optimizer/SKILL.md",
+            "blobSha": "66212a0ad9886293846b608d2418f1d21ee6e7e3"
+          },
+          {
+            "path": "systems/skills/local-truthmode/SKILL.md",
+            "blobSha": "658accf770e5300da54d13a51cdf30c9def3ac88"
+          },
+          {
+            "path": "systems/skills/local-urlfix/SKILL.md",
+            "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
+          }
+        ]
+      }
     },
     {
       "repository": "jussray/truth-weaver",
       "profile": "truth-weaver",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "AGENTS.md was inspected; no direct SKILL.md references were found in the inspected excerpt. Absence is not established."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "8bd3a0cbac516a00ea76c8b72364ba78e025a957",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/JussPay",
       "profile": "juss-pay",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "No indexed SKILL.md match or AGENTS.md at the checked path in this pass. Repository tree and alternate instruction formats remain to be inspected."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/Juss-beautiful-hair-",
@@ -1647,22 +1757,36 @@
     {
       "repository": "jussray/sync-party-game",
       "profile": "games-hub-related-sync",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "AGENTS.md exists and defines the product/runtime contract; no indexed SKILL.md package was found in this pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "ed90db9ea3d25beee95744ce3438ff7e7e79c157",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/chatQuest",
       "profile": "games-hub-related-chatquest",
-      "inventoryStatus": "search-index-no-skill-match",
+      "inventoryStatus": "recursive-tree-audited-zero-skill-files",
       "skillSources": [],
       "lockfiles": [],
       "notes": [
         "No indexed SKILL.md match or AGENTS.md at the checked path in this pass."
-      ]
+      ],
+      "treeSnapshot": {
+        "branch": "main",
+        "treeSha": "99db2095746a71d3cdf17f7c5c4c9b3aa4639439",
+        "truncated": false,
+        "skillCount": 0,
+        "skillFiles": []
+      }
     },
     {
       "repository": "jussray/jussray-bip-and-seek",
