@@ -9,11 +9,18 @@ for (const app of manifest.apps) {
   const resolved = resolveAppSkillSet(manifest, app.id);
   assert.equal(resolved.authorityOwner, app.id, `${app.id} must retain its own authority`);
   assert.equal(resolved.app.repository, app.repository);
+  assert.equal(app.catalogStatus, 'proposed-awaiting-source-audit');
+  assert.equal(app.ownedSkillsStatus, 'proposed-awaiting-source-audit');
+  if (app.repository === null) assert.equal(app.repositoryStatus, 'unresolved');
   assert.equal(resolved.authority, 'catalog-and-compatibility-only');
   assert.equal(resolved.sharedSkills.length, 6, `${app.id} must resolve all six shared references`);
   assert.ok(resolved.ownedSkills.length > 0, `${app.id} must declare app-specific skills`);
   assert.ok(resolved.compatibility.surfaces.length > 0);
 }
+
+assert.equal(manifest.apps.find((app) => app.id === 'juss-beautiful-hair').repository, 'jussray/Juss-beautiful-hair-');
+assert.equal(manifest.apps.find((app) => app.id === 'games-hub').repository, null, 'unverified Games Hub repository must not be invented');
+assert.equal(manifest.apps.find((app) => app.id === 'drift').repository, null, 'unverified DRIFT repository must not be invented');
 
 const chief = resolveAppSkillSet(manifest, 'chief-ai-machine');
 assert.ok(chief.ownedSkills.some((skill) => skill.id === 'agent-orchestration'));
