@@ -32,7 +32,7 @@ async function prove(browser, viewport) {
   await page.locator('#v6Goal').fill('Connect the existing V6 compiler to the actual PromptOS UI without granting authority.');
   await page.locator('#v6Compile').click();
   const prompt = await page.locator('#v6PromptOutput').innerText();
-  for (const required of ['AI MASTERY V6 :: workflow-optimizer', 'TRUTHMODE', 'CONFESS', 'REDTEAM I', 'REDTEAM II', 'L99', 'OODA', 'ATTACK TEN', 'separate receipts', 'never creates or renews authority']) {
+  for (const required of ['AI MASTERY V6 :: workflow-optimizer', 'TRUTHMODE', 'CONFESS', 'GARYVEE', 'REDTEAM I', 'REDTEAM II', 'L99', 'OODA', 'ATTACK TEN', 'separate receipts', 'never creates or renews authority']) {
     assert(prompt.includes(required), `compiled prompt missing ${required}`);
   }
 
