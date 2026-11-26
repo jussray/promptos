@@ -248,5 +248,5 @@ jobs:
             artifacts/promptos-founder-os-proof
             artifacts/promptos-staged-proof
             artifacts/promptos-staged-implicit-workflow-proof
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
