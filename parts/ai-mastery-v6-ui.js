@@ -86,7 +86,7 @@ function installPage() {
           <section class="v6-panel">
             <div class="v6-section">04 · Prepare the canonical FCR → Chief request</div>
             <div class="v6-note">This emits the existing <b>promptos/public-command-intent@v1</b> contract accepted by FCR's founder-authenticated <code>/promptos/command-intake</code> route. It does not transmit the request or grant authority.</div>
-            <div class="v6-actions"><button class="mini-btn solid" id="v6BuildSignal" type="button">Build FCR command request</button><button class="mini-btn" id="v6CopySignal" type="button">Copy request JSON</button></div>
+            <div class="v6-actions"><button class="mini-btn solid" id="v6BuildSignal" type="button">Build FCR command request</button><button class="mini-btn" id="v6CopySignal" type="button">Copy request JSON</button><a class="mini-btn" href="https://foundercontrolroom.org/control-room/?tab=promptos" target="_blank" rel="noopener noreferrer">Open FCR intake</a></div>
             <div class="v6-status" id="v6SignalStatus" role="status" aria-live="polite"></div>
             <pre class="v6-output" id="v6SignalOutput">No FCR command request prepared.</pre>
           </section>
@@ -187,6 +187,7 @@ async function init() {
         const valid = raw.proposalOnly === true
           && raw.acceptedForAuthorityResolution === false
           && raw.executionAuthorized === false
+          && raw.nextRequiredContract === 'juss-v10/capability-plan@v1'
           && intake.receivedFrom === 'chief-ai-machine'
           && intake.acceptedForCapabilityPlanning === true
           && intake.acceptedForAuthorityResolution === false
