@@ -1,0 +1,263 @@
+{
+  "schemaVersion": "1.0",
+  "registryVersion": "2.0.0",
+  "app": {
+    "id": "juss-pay",
+    "name": "JussPay",
+    "repository": "jussray/JussPay",
+    "defaultBranch": "main",
+    "sourceHeadAtAudit": "c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1",
+    "identityStatus": "source-verified",
+    "role": "payment-routing-and-entitlement-infrastructure",
+    "authorityOwner": "juss-pay",
+    "authorityScope": "Payment orchestration is not activated; test-mode constraints apply; no live charges, fund pooling, or production activation are authorized.",
+    "surfaces": [
+      "worker",
+      "api"
+    ],
+    "localManifestPaths": [
+      ".juss/app.manifest.json",
+      ".juss/skills.manifest.json"
+    ]
+  },
+  "skills": {
+    "shared": [
+      {
+        "id": "goalfix",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/goalfix/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "ultrathink",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/ultrathink/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "redteam",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/redteam/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "proofmode",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/proofmode/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "owned": [
+      {
+        "id": "payment-routing",
+        "status": "proposed-awaiting-source-audit",
+        "lifecycle": "proposed",
+        "mode": "proposal",
+        "authority": "advisory",
+        "owner": "juss-pay",
+        "compatibility": {
+          "apps": [
+            "juss-pay"
+          ],
+          "surfaces": [
+            "worker",
+            "api"
+          ]
+        }
+      },
+      {
+        "id": "payment-state-reconciliation",
+        "status": "proposed-awaiting-source-audit",
+        "lifecycle": "proposed",
+        "mode": "proposal",
+        "authority": "advisory",
+        "owner": "juss-pay",
+        "compatibility": {
+          "apps": [
+            "juss-pay"
+          ],
+          "surfaces": [
+            "worker",
+            "api"
+          ]
+        }
+      },
+      {
+        "id": "webhook-verification",
+        "status": "proposed-awaiting-source-audit",
+        "lifecycle": "proposed",
+        "mode": "proposal",
+        "authority": "advisory",
+        "owner": "juss-pay",
+        "compatibility": {
+          "apps": [
+            "juss-pay"
+          ],
+          "surfaces": [
+            "worker",
+            "api"
+          ]
+        }
+      },
+      {
+        "id": "live-mode-safety",
+        "status": "proposed-awaiting-source-audit",
+        "lifecycle": "proposed",
+        "mode": "proposal",
+        "authority": "advisory",
+        "owner": "juss-pay",
+        "compatibility": {
+          "apps": [
+            "juss-pay"
+          ],
+          "surfaces": [
+            "worker",
+            "api"
+          ]
+        }
+      }
+    ],
+    "ownedSkillsStatus": "proposed-awaiting-source-audit"
+  },
+  "plugins": [
+    {
+      "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
+      "provider": "GitHub",
+      "purpose": "Repository and CI evidence.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "juss-pay"
+      ],
+      "capabilities": [
+        "repository.read",
+        "branch.read",
+        "pull-request.read",
+        "checks.read"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "cloudflare",
+      "kind": "connector",
+      "canonicalPluginId": null,
+      "displayName": "Cloudflare",
+      "catalogStatus": "namespace-only",
+      "provider": "Cloudflare",
+      "purpose": "Worker and deployment metadata.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "juss-pay"
+      ],
+      "capabilities": [
+        "worker.read",
+        "deployment.read",
+        "runtime.read"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "stripe",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_690ab09fa43c8191bca40280e4563238",
+      "displayName": "Stripe",
+      "catalogStatus": "listed",
+      "provider": "Stripe",
+      "purpose": "Test-mode payment account, checkout, and webhook evidence only.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "juss-pay"
+      ],
+      "capabilities": [
+        "stripe.account.read",
+        "stripe.test-mode.checkout.verify",
+        "stripe.webhook.verify"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest",
+      "safetyMode": "test-only",
+      "liveActions": "blocked-by-product-contract"
+    }
+  ],
+  "compatibility": {
+    "surfaces": [
+      "worker",
+      "api"
+    ],
+    "requiresPlaywrightForUi": false,
+    "observedSkillDirectories": []
+  },
+  "authority": "catalog-and-compatibility-only",
+  "installationState": "not-asserted",
+  "executionAuthority": "none"
+}
