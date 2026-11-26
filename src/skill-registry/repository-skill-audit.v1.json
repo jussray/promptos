@@ -1826,10 +1826,18 @@
       "repository": "jussray/juss-protect-me",
       "profile": "protect-me-model-one",
       "inventoryStatus": "recursive-tree-audited",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "medusa",
+          "path": ".claude/skills/medusa/SKILL.md",
+          "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+          "status": "source-present-version-1.2",
+          "classification": "protect-me-native-red-team-skill"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "Protect Me Model One is outside the initial 12-profile manifest; include it in the next portfolio pass."
+        "AGENTS.md confirms Model One is focused on people, identity, fraud, privacy, family, device and account security; it is not the software/system defense product."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -1848,10 +1856,32 @@
       "repository": "jussray/juss-protect-me-2",
       "profile": "protect-me-model-two",
       "inventoryStatus": "recursive-tree-audited",
-      "skillSources": [],
+      "skillSources": [
+        {
+          "id": "medusa",
+          "path": ".claude/skills/medusa/SKILL.md",
+          "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1",
+          "status": "source-present-version-1.2",
+          "classification": "protect-me-native-red-team-skill"
+        },
+        {
+          "id": "protect-me-contract",
+          "path": "contract/SKILL.md",
+          "blobSha": "589248707d32c1fdd0c9cf617e76b4eafcb0dbac",
+          "status": "source-present-version-1.0.0",
+          "classification": "protect-me-native-governance-kernel"
+        },
+        {
+          "id": "juss-os",
+          "path": "contract/profiles/juss-os/SKILL.md",
+          "blobSha": "f670131625d7c4fe2e3a226a2477ad88117b250c",
+          "status": "draft-not-founder-accepted",
+          "classification": "protect-me-profile-adapter"
+        }
+      ],
       "lockfiles": [],
       "notes": [
-        "Protect Me Model Two is outside the initial 12-profile manifest; include it in the next portfolio pass."
+        "AGENTS.md confirms Model Two is focused on authorized software, repositories, APIs, Workers, CI/CD and supply-chain defense; keep it separate from Model One and Se’kret Bip."
       ],
       "treeSnapshot": {
         "branch": "main",
@@ -1950,12 +1980,14 @@
     }
   },
   "knownGaps": [
-    "Full recursive tree inventory for every repository is not yet complete.",
     "Repository instructions and agent adapters may reference skill files missed by code search; follow those references before marking a repository complete.",
-    "Protect Me Model One and Two are not yet represented in the PromptOS app manifest.",
     "Games Hub has related repositories but no canonical hub repository is established in this audit.",
     "DRIFT repository remains unresolved.",
-    "The exported PromptOS skill directory count is 22 while local-cortex says twenty-seven; this discrepancy must be reconciled against the canonical workspace inventory."
+    "Recursive tree snapshots cover the 19 currently identified repositories, not the entire Juss & Co. repository universe.",
+    "The path inventory is complete for each captured main tree; semantic classification of every imported, native, adapter, and retired package remains in progress.",
+    "PromptOS has 27 SKILL.md files: 22 under systems/skills plus five in other locations; reconcile whether the export index should include those five.",
+    "Games Hub has related repositories but no canonical hub repository is established.",
+    "DRIFT's authoritative repository remains unresolved."
   ],
   "governance": {
     "owner": "Juss",
@@ -1980,6 +2012,7 @@
       "blobSha": "289d609b5d3d8cff1d104ad1cb81a55507c63034",
       "behavior": "Read-only documentation/provenance catalog; execution disabled, auto-fetch disabled, and auto-handoff disabled."
     },
-    "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority."
+    "promptosBoundary": "PromptOS owns catalog and compatibility resolution only. It must not create a competing approval, installation, execution, or distribution authority.",
+    "treeScan": "Recursive Git Trees API main-branch snapshots are pinned per repository in records[].treeSnapshot; each snapshot retains tree SHA, truncation state, skill count, every SKILL.md path and blob SHA."
   }
 }
