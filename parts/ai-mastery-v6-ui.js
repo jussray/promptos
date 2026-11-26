@@ -201,6 +201,7 @@ async function init() {
           && typeof intake.commandId === 'string'
           && typeof intake.capabilityId === 'string'
           && typeof intake.specialistProduct === 'string'
+          && intake.specialistProduct === intake.project
           && /^[a-f0-9]{64}$/i.test(intake.sourceIntentFingerprint)
           && /^[a-f0-9]{64}$/i.test(intake.chiefHandoffFingerprint)
           && /^[a-f0-9]{40}$/i.test(intake.chiefReleaseSha);
