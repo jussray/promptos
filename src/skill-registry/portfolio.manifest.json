@@ -516,7 +516,10 @@
     "A skill must explicitly declare compatibility with the requesting app.",
     "External skills remain quarantined until their independent intake gates pass.",
     "Shared operating skills resolve only for authorized repository operators and are never implicitly exposed to product end users.",
-    "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active."
+    "Proposed app-owned skill IDs are planning placeholders until their exact source packages pass repository audit; resolution does not mean installed or active.",
+    "FCR remains the portfolio governance and approval authority; PromptOS must not create a competing approval or distribution authority."
   ],
-  "sharedSkillDistribution": "repository-operator-only"
+  "sharedSkillDistribution": "repository-operator-only",
+  "governanceAuthority": "jussray/founder-control-room",
+  "governanceContract": "config/founder-intelligence.inheritance.json"
 }
