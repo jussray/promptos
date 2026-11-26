@@ -12,6 +12,7 @@ import {
 } from './ai-mastery-v6.mjs';
 
 const inbound = (overrides = {}) => ({
+  contract: 'juss/founder-signal@v1',
   source: 'fcr', target: 'promptos', intent: 'prioritize founder work', goal: 'choose the highest leverage next action',
   evidenceClass: 'verified', evidenceRefs: ['receipt:fcr:123'], authority: 'founder:approval:123', approved: true,
   fingerprint: 'fp:123', proofCookie: 'proof:123', correlationId: 'mission:123', ...overrides,
