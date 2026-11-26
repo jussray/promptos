@@ -30,48 +30,57 @@ async function prove(browser, viewport) {
   await page.locator('#v6Mode').selectOption('workflow-optimizer');
   await page.locator('#v6Intent').fill('repair verify workflow');
   await page.locator('#v6Goal').fill('Connect the existing V6 compiler to the actual PromptOS UI without granting authority.');
+  await page.locator('#v6Project').fill('promptos');
   await page.locator('#v6Compile').click();
   const prompt = await page.locator('#v6PromptOutput').innerText();
   for (const required of ['AI MASTERY V6 :: workflow-optimizer', 'TRUTHMODE', 'CONFESS', 'GARYVEE', 'REDTEAM I', 'REDTEAM II', 'L99', 'OODA', 'ATTACK TEN', 'separate receipts', 'never creates or renews authority']) {
     assert(prompt.includes(required), `compiled prompt missing ${required}`);
   }
 
-  await page.locator('#v6Target').selectOption('fcr');
   await page.locator('#v6BuildSignal').click();
-  const signal = JSON.parse(await page.locator('#v6SignalOutput').innerText());
-  assert(signal.contract === 'juss/founder-signal@v1', 'outbound signal contract mismatch');
-  assert(signal.source === 'promptos' && signal.target === 'fcr', 'outbound signal routing mismatch');
-  assert(signal.approved === false && signal.authority === 'none', 'outbound signal must not transport approval or authority');
-  assert(signal.evidenceClass === 'unknown', 'outbound signal must not invent evidence');
-  assert(/^[a-f0-9]{64}$/.test(signal.signalHash), 'outbound signal SHA-256 fingerprint missing');
+  const request = JSON.parse(await page.locator('#v6SignalOutput').innerText());
+  const intent = request.intent;
+  assert(intent.schema === 'promptos/public-command-intent@v1', 'outbound request must use the existing FCR command-intake contract');
+  assert(intent.project === 'promptos' && intent.route.specialistProduct === 'promptos', 'outbound project scope mismatch');
+  assert(intent.route.owner === 'promptos' && intent.route.reasoningPlane === 'chief-ai-machine' && intent.route.authorityPlane === 'founder-control-room', 'outbound routing mismatch');
+  assert(intent.authorityCeiling === 'advisory-only' && intent.execution.mutationAuthorized === false, 'outbound request must remain advisory and unexecuted');
+  assert(intent.evidence.staleOnStateChange === true && intent.evidence.contract === 'current-authority', 'outbound request evidence invalidation contract missing');
 
-  const inbound = {
-    contract: 'juss/founder-signal@v1',
-    source: 'chief',
-    target: 'promptos',
-    intent: 'plan',
-    goal: 'Produce a founder-approved next-step proposal.',
-    evidenceClass: 'unknown',
-    evidenceRefs: [],
-    authority: 'none',
-    approved: false,
-    requestedMode: 'goal-to-action',
-    fingerprint: 'test-fingerprint',
-    proofCookie: 'test-cookie',
-    correlationId: 'e2e-chief-proposal',
+  const fcrResponse = {
+    intake: {
+      contract: 'juss/fcr-public-command-intake@v1',
+      receivedFrom: 'chief-ai-machine',
+      sourceIntentFingerprint: 'a'.repeat(64),
+      chiefHandoffFingerprint: 'b'.repeat(64),
+      project: 'promptos',
+      commandId: 'ai-mastery-v6',
+      capabilityId: 'ai-mastery-v6',
+      specialistProduct: 'promptos',
+      requestedOutcome: 'Connect V6 to the Chief and FCR proposal flow.',
+      acceptedForCapabilityPlanning: true,
+      acceptedForAuthorityResolution: false,
+      authorityState: 'unresolved',
+      actionAuthority: false,
+      executionAuthorized: false,
+      nextRequiredContract: 'juss-v10/capability-plan@v1',
+      chiefReleaseSha: 'c'.repeat(40),
+    },
+    proposalOnly: true,
+    acceptedForAuthorityResolution: false,
+    executionAuthorized: false,
+    nextRequiredContract: 'juss-v10/capability-plan@v1',
   };
-  await page.locator('#v6Inbound').fill(JSON.stringify(inbound));
+  await page.locator('#v6Inbound').fill(JSON.stringify(fcrResponse));
   await page.locator('#v6Receive').click();
   const received = JSON.parse(await page.locator('#v6InboundOutput').innerText());
-  assert(received.valid === true && received.selectedMode === 'goal-to-action', 'inbound Chief proposal did not compile');
-  assert(received.senderAuthenticated === false, 'inbound sender must remain unauthenticated');
-  assert(received.approvalVerified === false && received.executionAuthorized === false, 'inbound proposal crossed an authority boundary');
-  assert(received.signalFingerprintVerified === false, 'inbound unkeyed hash must not be treated as verified');
+  assert(received.valid === true && received.selectedMode === 'goal-to-action', 'FCR/Chief intake did not compile');
+  assert(received.senderAuthenticated === false && received.signalFingerprintVerified === false, 'pasted FCR receipt must not be treated as authenticated');
+  assert(received.approvalVerified === false && received.executionAuthorized === false && received.authorityState === 'unresolved', 'FCR/Chief intake crossed an authority boundary');
 
-  await page.locator('#v6Inbound').fill(JSON.stringify({...inbound, contract: 'juss/founder-signal@v0'}));
+  await page.locator('#v6Inbound').fill(JSON.stringify({...fcrResponse, intake: {...fcrResponse.intake, authorityState: 'approved'}}));
   await page.locator('#v6Receive').click();
-  const wrongContract = JSON.parse(await page.locator('#v6InboundOutput').innerText());
-  assert(wrongContract.valid === false, 'unknown signal contract was not rejected');
+  const invalidAuthority = JSON.parse(await page.locator('#v6InboundOutput').innerText());
+  assert(invalidAuthority.valid === false, 'inbound FCR response with a forged authority state was not rejected');
 
   await page.locator('#v6Inbound').fill('{not-json');
   await page.locator('#v6Receive').click();
@@ -88,12 +97,12 @@ async function prove(browser, viewport) {
     uiVersion: await page.evaluate(() => window.PROMPTOS_AI_MASTERY_V6_UI_VERSION),
     specialistModes: await page.locator('#v6Mode option').count(),
     promptCompiled: true,
-    outboundTarget: signal.target,
-    outboundAuthority: signal.authority,
+    outboundContract: intent.schema,
+    outboundAuthority: intent.authorityCeiling,
     inboundSenderAuthenticated: received.senderAuthenticated,
     inboundApprovalVerified: received.approvalVerified,
+    forgedAuthorityRejected: invalidAuthority.valid === false,
     malformedInboundRejected: rejected.valid === false,
-    wrongContractRejected: wrongContract.valid === false,
     pageErrors,
     consoleErrors,
   }, null, 2));
