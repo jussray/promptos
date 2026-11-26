@@ -45,6 +45,7 @@ export function validatePortfolioManifest(manifest) {
     }
     if (!app.name || !app.role) errors.push(`app identity incomplete: ${app.id}`);
     if (app.sharedSkillContext !== 'repository-operator-only') errors.push(`shared skill context must be repository-operator-only: ${app.id}`);
+    if (app.sourceAuditRecord !== app.id || !['partial', 'unresolved'].includes(app.sourceAuditStatus) || !Array.isArray(app.sourceAuditRepositories)) errors.push(`source audit pointer/status invalid: ${app.id}`);
     if (app.catalogStatus !== 'proposed-awaiting-source-audit') errors.push(`app catalog status must remain explicit until source audit: ${app.id}`);
     if (!Array.isArray(app.ownedSkills) || app.ownedSkillsStatus !== 'proposed-awaiting-source-audit') {
       errors.push(`owned skills must remain marked proposed until source audit: ${app.id}`);
@@ -85,6 +86,7 @@ export function resolveAppSkillSet(manifest, appId) {
     sharedSkills: app.sharedSkills.map((id) => ({ ...sharedById.get(id), scope: 'repository-operator-shared-reference' })),
     ownedSkills: app.ownedSkills.map((id) => ({ id, scope: 'proposed-app-owned', owner: app.id, status: app.ownedSkillsStatus })),
     skillContext: app.sharedSkillContext,
+    sourceAudit: { record: app.sourceAuditRecord, status: app.sourceAuditStatus, repositories: [...app.sourceAuditRepositories] },
     compatibility: { ...app.compatibility },
     governanceAuthority: manifest.governanceAuthority,
     authority: 'catalog-and-compatibility-only',
