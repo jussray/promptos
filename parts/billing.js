@@ -110,7 +110,7 @@
       var terms = new URL(offer.termsUrl);
       if (offer.billingMode !== 'test' || offer.currency !== 'usd' || offer.interval !== 'month' ||
           offer.firstInvoiceAmountMinor !== 100 || !Number.isSafeInteger(offer.renewalAmountMinor) ||
-          offer.renewalAmountMinor <= 100 || terms.protocol !== 'https:' || terms.username || terms.password || terms.port) {
+          offer.renewalAmountMinor !== 999 || terms.protocol !== 'https:' || terms.username || terms.password || terms.port) {
         throw new Error('invalid offer');
       }
       pendingOffer = {offer:offer, credential:credential};
