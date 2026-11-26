@@ -1,0 +1,9 @@
+{
+  "project": "promptos",
+  "status": "draft",
+  "intendedUseCases": [
+    "Prompt, skill and instruction lifecycle governance",
+    "Reusable workflows and instruction testing"
+  ],
+  "verifiedCapabilities": []
+}
