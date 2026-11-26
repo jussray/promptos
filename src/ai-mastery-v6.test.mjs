@@ -119,5 +119,5 @@ test('PromptOS emits deterministic bounded signals to FCR or Chief', async () =>
   assert.equal(a.target, 'chief');
   assert.equal(a.selectedMode, 'goal-to-action');
   assert.match(a.signalHash, /^[a-f0-9]{64}$/);
-  assert.throws(() => buildPromptOSSignal({ target: 'random-system' }), /target must be fcr or chief/);
+  await assert.rejects(buildPromptOSSignal({ target: 'random-system' }), /target must be fcr or chief/);
 });
