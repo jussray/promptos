@@ -165,12 +165,12 @@ test('sandbox billing requires verified identity, explicit current terms and a m
   const token = await jwt();
   const termsUrl = 'https://merchant.example/terms';
   const row = {id:'promptos', purchaseStatus:'requires_provider_validation', offerConfigured:true,
-    currency:'usd',interval:'month',unitAmount:1900,termsUrl,entitlements:['promptos.personal_prompts'],
-    introOffer:{approved:true,billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:1900,renewalInterval:'month'}};
+    currency:'usd',interval:'month',unitAmount:999,termsUrl,entitlements:['promptos.personal_prompts'],
+    introOffer:{approved:true,billingMode:'test',firstInvoiceAmountMinor:100,renewalAmountMinor:999,renewalInterval:'month'}};
   const receipt = {billingMode:'test',currency:'usd',interval:'month',termsUrl,firstInvoiceAmountMinor:100,
-    renewalAmountMinor:1900,url:'https://checkout.stripe.com/c/test_fixture'};
+    renewalAmountMinor:999,url:'https://checkout.stripe.com/c/test_fixture'};
   const consent = {acceptsTerms:true,acceptsAutomaticRenewal:true,firstInvoiceAmountMinor:100,
-    renewalAmountMinor:1900,interval:'month',termsUrl};
+    renewalAmountMinor:999,interval:'month',termsUrl};
   const requests = [];
   let catalog = row, checkoutReceipt = receipt;
   const config = {PROMPTOS_INTRO_SANDBOX_ENABLED:'true',PROMPTOS_JUSSPAY:{fetch:async request => {
@@ -187,11 +187,17 @@ test('sandbox billing requires verified identity, explicit current terms and a m
   assert.equal(requests.length,0);
   const offer = await call('/billing/offer','GET',token);
   assert.equal(offer.status,200);
-  assert.equal((await offer.json()).offer.renewalAmountMinor,1900);
+  assert.equal((await offer.json()).offer.renewalAmountMinor,999);
   for (const invalid of [{...consent,acceptsAutomaticRenewal:false},{...consent,renewalAmountMinor:1},{...consent,termsUrl:'https://evil.example'}]) {
     assert.equal((await call('/billing/checkout','POST',token,invalid)).status,409);
   }
   assert.equal(requests.filter(r=>r.path==='/checkout').length,0);
+  // A valid-looking offer for any amount other than the approved renewal must fail closed.
+  for (const amount of [998, 1000, 1900]) {
+    catalog={...row,unitAmount:amount,introOffer:{...row.introOffer,renewalAmountMinor:amount}};
+    assert.equal((await call('/billing/offer','GET',token)).status,503);
+    assert.equal((await call('/billing/checkout','POST',token,{...consent,renewalAmountMinor:amount})).status,503);
+  }
   catalog={...row,introOffer:{...row.introOffer,billingMode:'live'}};
   assert.equal((await call('/billing/checkout','POST',token,consent)).status,503);
   assert.equal(requests.filter(r=>r.path==='/checkout').length,0);
