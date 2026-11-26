@@ -46,3 +46,18 @@ test("all three save call sites await server admission", () => {
   const awaits = (src.match(/if \(await saveCustomPrompt\(/g) || []).length;
   assert.equal(awaits, 3, "every save must await the server decision");
 });
+
+test("personal prompt state is inaccessible through library and export while locked", () => {
+  assert.match(fnBody("allPrompts"), /CUSTOM_PROMPTS_UNLOCKED\s*\?\s*STATE\.custom\s*:\s*\[\]/);
+  assert.match(fnBody("serializeState"), /CUSTOM_PROMPTS_UNLOCKED\s*\?\s*STATE\.custom\s*:\s*\[\]/);
+});
+
+test("identity transitions lock personal data, invalidate in-flight writes and repaint all surfaces", () => {
+  const body = fnBody("lockPersonalSession");
+  assert.match(body, /CUSTOM_PROMPTS_UNLOCKED = false/);
+  assert.match(body, /personalSessionGeneration\+\+/);
+  assert.match(body, /renderAll\(\)/);
+  assert.match(src, /\['promptos:authed', 'promptos:guest', 'promptos:signedout'\]/);
+  assert.match(fnBody("saveCustomPrompt"), /generation !== personalSessionGeneration/);
+  assert.match(fnBody("importState"), /generation !== personalSessionGeneration/);
+});
