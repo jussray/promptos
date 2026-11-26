@@ -544,7 +544,15 @@
             "path": "systems/skills/local-urlfix/SKILL.md",
             "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 35,
+          ".ai": 9,
+          ".claude": 12,
+          "plugins": 2,
+          "skills": 32,
+          "systems": 22
+        }
       }
     },
     {
@@ -873,7 +881,14 @@
             "path": "systems/skills/local-urlfix/SKILL.md",
             "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 22,
+          ".claude": 11,
+          ".github": 1,
+          "skills": 1,
+          "systems": 22
+        }
       }
     },
     {
@@ -1058,7 +1073,12 @@
             "path": "systems/skills/local-urlfix/SKILL.md",
             "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".claude": 1,
+          "skills": 4,
+          "systems": 22
+        }
       }
     },
     {
@@ -1209,7 +1229,11 @@
             "path": ".claude/skills/makevideo/SKILL.md",
             "blobSha": "367465953b9f8696fbf967e6337de51566b6ae04"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 28,
+          ".claude": 1
+        }
       }
     },
     {
@@ -1382,7 +1406,13 @@
             "path": "systems/skills/local-urlfix/SKILL.md",
             "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 1,
+          ".claude": 1,
+          "skills": 4,
+          "systems": 22
+        }
       }
     },
     {
@@ -1473,7 +1503,11 @@
             "path": ".github/skills/actions-mail-audit/SKILL.md",
             "blobSha": "798089692c7642b2ce461f58bb920ffa7d6d4069"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 13,
+          ".github": 1
+        }
       }
     },
     {
@@ -1540,7 +1574,11 @@
             "path": "skills/sales/SKILL.md",
             "blobSha": "7a03afcc0414e183b2475c72dd38f4ac1146439c"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 2,
+          "skills": 3
+        }
       }
     },
     {
@@ -1661,7 +1699,10 @@
             "path": "systems/skills/local-urlfix/SKILL.md",
             "blobSha": "ff1b93ec08fa1a64707d787d3b0aea3a92601277"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          "systems": 22
+        }
       }
     },
     {
@@ -1678,7 +1719,8 @@
         "treeSha": "8bd3a0cbac516a00ea76c8b72364ba78e025a957",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1695,7 +1737,8 @@
         "treeSha": "c1b6ad1011ad3cf5fa5df011a4af25d335f4b6e1",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1717,7 +1760,10 @@
             "path": ".agents/skills/jbh-legacy-storefront-operator/SKILL.md",
             "blobSha": "aaee04e8166cf5a3e05e30c6496cb307f294a7a8"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 1
+        }
       }
     },
     {
@@ -1751,7 +1797,10 @@
             "path": ".agents/skills/sales/SKILL.md",
             "blobSha": "abdf5325f9737d0be1cf90e19764600ebea95cb2"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".agents": 4
+        }
       }
     },
     {
@@ -1768,7 +1817,8 @@
         "treeSha": "ed90db9ea3d25beee95744ce3438ff7e7e79c157",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1785,7 +1835,8 @@
         "treeSha": "99db2095746a71d3cdf17f7c5c4c9b3aa4639439",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1802,7 +1853,8 @@
         "treeSha": "5c9c3d16cc92e76cc9661b65b3233b6ed71eacab",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1819,7 +1871,8 @@
         "treeSha": "51d35db03a6460c452a581c899d131a6082d83be",
         "truncated": false,
         "skillCount": 0,
-        "skillFiles": []
+        "skillFiles": [],
+        "pathGroupCounts": {}
       }
     },
     {
@@ -1849,7 +1902,10 @@
             "path": ".claude/skills/medusa/SKILL.md",
             "blobSha": "7cef0c2d53e7cf6f189b395e7462d98f4e01c9f1"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".claude": 1
+        }
       }
     },
     {
@@ -1901,7 +1957,11 @@
             "path": "contract/profiles/juss-os/SKILL.md",
             "blobSha": "f670131625d7c4fe2e3a226a2477ad88117b250c"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".claude": 1,
+          "contract": 2
+        }
       }
     },
     {
@@ -1958,7 +2018,10 @@
             "path": ".claude/skills/truthmode/SKILL.md",
             "blobSha": "a9962d8ad3b15a4e5671717e8b4821f66a9b8f5e"
           }
-        ]
+        ],
+        "pathGroupCounts": {
+          ".claude": 8
+        }
       },
       "inventoryStatus": "recursive-tree-audited"
     }
@@ -3016,5 +3079,93 @@
         }
       ]
     }
-  ]
+  ],
+  "canonicalSharedSkillReconciliation": [
+    {
+      "id": "confess",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/confess/SKILL.md",
+      "canonicalBlobSha": "3dbfdc5c2f0e672de35fb899f23175e7322e1230",
+      "fcrPath": "skills/juss-authored/confess/SKILL.md",
+      "fcrBlobSha": "3724a1f42078e89dbf3b1d050d1eb36b04a3feb9",
+      "byteIdentical": false,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "futureyou-me-v10",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/futureyou-me-v10/SKILL.md",
+      "canonicalBlobSha": "17afd83e2d1d645a7393a80180945a8c57fc0e92",
+      "fcrPath": "skills/juss-authored/futureyou-me-v10/SKILL.md",
+      "fcrBlobSha": "0495abc871a02d80e0a9b9fabc323f3e1ef56074",
+      "byteIdentical": false,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "godmode-devil-ultrathink",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/godmode-devil-ultrathink/SKILL.md",
+      "canonicalBlobSha": "ef413ffff6bb0f301342064538879310dbff34e4",
+      "fcrPath": "skills/juss-authored/godmode-devil-ultrathink/SKILL.md",
+      "fcrBlobSha": "0be3ce5dc4ce3176b79b3a7f0174c9c83fde7723",
+      "byteIdentical": false,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "juss-af-skills-pack",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/juss-af-skills-pack/SKILL.md",
+      "canonicalBlobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+      "fcrPath": "skills/juss-authored/juss-af-skills-pack/SKILL.md",
+      "fcrBlobSha": "d29849ef773c0cb31af062b5e121fe1f2f5289ec",
+      "byteIdentical": true,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "juss-command-codex",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/juss-command-codex/SKILL.md",
+      "canonicalBlobSha": "f4475f6aae17c0a5aead25dd39dcedf9fc8fea21",
+      "fcrPath": "skills/juss-authored/juss-command-codex/SKILL.md",
+      "fcrBlobSha": "baa40db798212adbb1c20645b416118eac6bd302",
+      "byteIdentical": false,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "juss-os",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/juss-os/SKILL.md",
+      "canonicalBlobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+      "fcrPath": "skills/juss-authored/juss-os/SKILL.md",
+      "fcrBlobSha": "3617e2b45566a7b5dd9fb53fe42ea3977ad9f364",
+      "byteIdentical": true,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "reasoning-stack",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/reasoning-stack/SKILL.md",
+      "canonicalBlobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
+      "fcrPath": "skills/juss-authored/reasoning-stack/SKILL.md",
+      "fcrBlobSha": "7e87a6032b98dbb582d97bed6e48815f4dff5d21",
+      "byteIdentical": true,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    },
+    {
+      "id": "truthmode",
+      "canonicalRepository": "jussray/ULTRATHINK-",
+      "canonicalPath": ".claude/skills/truthmode/SKILL.md",
+      "canonicalBlobSha": "a9962d8ad3b15a4e5671717e8b4821f66a9b8f5e",
+      "fcrPath": "skills/juss-authored/truthmode/SKILL.md",
+      "fcrBlobSha": "8322b161b85b89268780ef5721671768e8c3f1f3",
+      "byteIdentical": false,
+      "review": "byte-different; determine intentional adapter/version lineage before changing"
+    }
+  ],
+  "canonicalSharedSkillReconciliationSummary": {
+    "total": 8,
+    "exactCopies": 3,
+    "byteDifferent": 5,
+    "note": "Byte differences are evidence of distinct source content, not proof of a defect. Preserve intentional FCR adaptations; reconcile lineage before copying."
+  }
 }
