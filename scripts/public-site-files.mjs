@@ -14,6 +14,8 @@ export const PUBLIC_SITE_FILES = Object.freeze([
   'parts/p10-cont-ops-growth.js',
   'parts/p11-make-ui.mjs',
   'parts/app.js',
+  'parts/ai-mastery-v6-ui.js',
+  'src/ai-mastery-v6.mjs',
   'src/workflow-artifact.mjs',
   'src/prompt-memory.js',
   'src/prompt-memory-ui.js',

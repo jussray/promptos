@@ -758,3 +758,7 @@ else boot();
 import('../src/catalog-ui.js').catch(function(error){
   console.error('[PromptOS catalog] failed to load', error);
 });
+
+import('./ai-mastery-v6-ui.js').catch(function(error){
+  console.error('[PromptOS AI Mastery V6] UI module failed to load', error);
+});

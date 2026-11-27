@@ -1,0 +1,42 @@
+{
+  "contract": "promptos/github-app@v2",
+  "name": "PromptOS",
+  "homepage_url": "https://github.com/jussray/promptos",
+  "webhook_url_template": "{{PROMPTOS_GITHUB_APP_ORIGIN}}/github/webhook",
+  "setup_url_template": "{{PROMPTOS_GITHUB_APP_ORIGIN}}/github/setup",
+  "public": false,
+  "permissions": {
+    "actions": "read",
+    "contents": "read",
+    "issues": "read",
+    "pull_requests": "read"
+  },
+  "events": [
+    "issue_comment",
+    "pull_request",
+    "workflow_run"
+  ],
+  "required_runtime_secrets": [
+    "GITHUB_WEBHOOK_SECRET",
+    "PROMPTOS_RELAY_PRIVATE_KEY_JWK"
+  ],
+  "required_runtime_variables": [
+    "PROMPTOS_RELAY_KEY_ID",
+    "PROMPTOS_GIT_SHA",
+    "FCR_RELAY_TARGET_SHA",
+    "GITHUB_INSTALLATION_ID"
+  ],
+  "explicitly_not_granted": [
+    "contents:write",
+    "issues:write",
+    "pull_requests:write",
+    "actions:write",
+    "workflows:write",
+    "administration",
+    "secrets",
+    "deployments",
+    "merge",
+    "billing",
+    "publication"
+  ]
+}
