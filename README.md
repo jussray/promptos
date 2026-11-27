@@ -54,6 +54,12 @@ Bundling with Founder Control Room does not collapse PromptOS product identity, 
 - **Verification:** focused source-contract checks plus desktop/mobile Playwright proof run in the Control Room test workflow and retain proof artifacts.
 - **Visual Makeover advisory handoff acceptance:** accepts `visual-makeover/promptos-handoff@v1` drafts backed by `juss/browser-reality@v1` receipts while refusing browser, execution, registration, deployment, and publication authority inheritance.
 
+## App-aligned skill registry
+
+The v2 registry in `manifests/apps/` is a selected set of seven standalone app profiles, not a claim that it exhausts the full Juss & Co. portfolio. Each profile records app-owned skill sources, candidate shared-skill references, and plugin compatibility without taking ownership of another app's runtime.
+
+The `localManifestPaths` values identify canonical target locations only. They do **not** prove that either file is present or installed in the corresponding app repository. The registry therefore keeps `installationState: "not-asserted"`; installation may be claimed only after reading the exact target repository and commit. PromptOS catalog membership never writes to another repository or grants installation or execution authority.
+
 ## Truth boundary
 
 PromptOS compiles and governs instructions; it does **not** turn an audit, prompt, plugin declaration, generated mission, or Chief proposal into deployment or production authority.

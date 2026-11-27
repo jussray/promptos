@@ -1,0 +1,288 @@
+{
+  "schemaVersion": "1.0",
+  "registryVersion": "2.0.0",
+  "appId": "promptos",
+  "registry": {
+    "repository": "jussray/promptos",
+    "manifestPath": "manifests/apps/promptos.json",
+    "revision": "self-managed"
+  },
+  "skills": {
+    "shared": [
+      {
+        "id": "goalfix",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/goalfix/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "ultrathink",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/ultrathink/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "redteam",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/redteam/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "proofmode",
+        "sourceRepository": "jussray/ULTRATHINK-",
+        "sourcePath": "skills/proofmode/SKILL.md",
+        "sourceRevision": "4e650bdb2ca3a372300ca99bbf8af18c75a1d5ca",
+        "sourceRef": "feat/portable-skill-packages-20261125",
+        "status": "source-path-verified",
+        "lifecycle": "candidate",
+        "mode": "reference-only",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "*"
+          ],
+          "surfaces": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "owned": [
+      {
+        "id": "promptos-goalfix",
+        "sourceRepository": "jussray/promptos",
+        "sourcePath": ".claude/skills/goalfix/SKILL.md",
+        "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "promptos"
+          ],
+          "surfaces": [
+            "web",
+            "catalog"
+          ]
+        }
+      },
+      {
+        "id": "browser-reality-inspector",
+        "sourceRepository": "jussray/promptos",
+        "sourcePath": "skills/browser-reality-inspector/SKILL.md",
+        "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "promptos"
+          ],
+          "surfaces": [
+            "web",
+            "catalog"
+          ]
+        }
+      },
+      {
+        "id": "evidence-decision-loop",
+        "sourceRepository": "jussray/promptos",
+        "sourcePath": "skills/evidence-decision-loop/SKILL.md",
+        "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "promptos"
+          ],
+          "surfaces": [
+            "web",
+            "catalog"
+          ]
+        }
+      },
+      {
+        "id": "local-cortex",
+        "sourceRepository": "jussray/promptos",
+        "sourcePath": "systems/skills/local-cortex/SKILL.md",
+        "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "promptos"
+          ],
+          "surfaces": [
+            "web",
+            "catalog"
+          ]
+        }
+      },
+      {
+        "id": "memory-snapshot",
+        "sourceRepository": "jussray/promptos",
+        "sourcePath": "skills/memory-snapshot/SKILL.md",
+        "sourceRevision": "6d952962d655c13d5208c7d68b1f913f71168a45",
+        "sourceRef": "main",
+        "status": "source-path-verified",
+        "lifecycle": "current-main",
+        "mode": "app-native",
+        "authority": "advisory",
+        "owner": "promptos",
+        "compatibility": {
+          "apps": [
+            "promptos"
+          ],
+          "surfaces": [
+            "web",
+            "catalog"
+          ]
+        }
+      }
+    ],
+    "ownedSkillsStatus": "source-path-verified"
+  },
+  "plugins": [
+    {
+      "id": "github",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_1a69035c238881919c4190932b2df699",
+      "displayName": "GitHub",
+      "catalogStatus": "listed",
+      "provider": "GitHub",
+      "purpose": "Canonical repository, PR, review, and CI evidence.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "promptos"
+      ],
+      "capabilities": [
+        "repository.read",
+        "branch.read",
+        "pull-request.read",
+        "checks.read"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "openai-developers",
+      "kind": "chatgpt-plugin",
+      "canonicalPluginId": "plugin_connector_1p_32dba5a7095c8191adca04ee30276304",
+      "displayName": "OpenAI Developers",
+      "catalogStatus": "listed",
+      "provider": "OpenAI Developers",
+      "purpose": "Model project and API configuration inspection.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "promptos"
+      ],
+      "capabilities": [
+        "model-project.read",
+        "model-config.read"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    },
+    {
+      "id": "plugin-management",
+      "kind": "platform-capability",
+      "canonicalPluginId": null,
+      "displayName": "Plugin Management",
+      "catalogStatus": "platform-native",
+      "provider": "Plugin Management",
+      "purpose": "Discover connector options and inspect declared permissions/dependencies.",
+      "mode": "operator-tooling",
+      "status": "declared",
+      "connectionState": "runtime-discovery-required",
+      "authority": "none",
+      "compatibleApps": [
+        "promptos"
+      ],
+      "capabilities": [
+        "plugin.search",
+        "plugin.permissions.read",
+        "plugin.dependencies.read"
+      ],
+      "writePolicy": "explicit-action-approval-required",
+      "secretsPolicy": "never-store-in-manifest"
+    }
+  ],
+  "compatibility": {
+    "surfaces": [
+      "web",
+      "catalog"
+    ],
+    "requiresPlaywrightForUi": true,
+    "observedSkillDirectories": [
+      ".claude/skills/",
+      "skills/",
+      "systems/skills/"
+    ]
+  },
+  "authority": "catalog-and-compatibility-only",
+  "installationState": "not-asserted",
+  "executionAuthority": "none"
+}

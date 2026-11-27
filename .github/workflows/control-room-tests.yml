@@ -52,6 +52,9 @@ on:
       - "skills/evidence-decision-loop/SKILL.md"
       - "scripts/verify-control-room-tests.mjs"
       - "scripts/verify-skill-alignment.mjs"
+      - "scripts/verify-app-manifest-registry-v2.mjs"
+      - "manifests/apps/**"
+      - ".juss/**"
       - "src/skill-registry/**"
       - "scripts/verify-prompt-state.mjs"
       - "parts/**"
@@ -133,7 +136,9 @@ jobs:
       - name: Verify non-mutating source authority, prompt syntax, and catalog
         run: node scripts/verify-control-room-tests.mjs
       - name: Verify app-aligned skill registry and authority boundaries
-        run: node scripts/verify-skill-alignment.mjs
+        run: node --experimental-strip-types scripts/verify-skill-alignment.mjs
+      - name: Verify per-app skill and plugin manifests
+        run: node --experimental-strip-types scripts/verify-app-manifest-registry-v2.mjs
       - name: Verify versioned prompt state boundary
         run: node scripts/verify-prompt-state.mjs
       - name: Verify legacy build entrypoint is non-mutating
