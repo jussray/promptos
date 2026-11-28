@@ -578,6 +578,10 @@ async function deleteCustom(id){
 function renderCustomList(){
   var el = qs('#customList'); if (!el) return;
   el.dataset.libraryState = durableLibraryEnabled() ? (CUSTOM_PROMPTS_UNLOCKED && libraryRevision !== null ? 'ready' : 'unavailable') : 'session-only';
+  var status = qs('#personalLibraryStatus');
+  if (status && durableLibraryEnabled()) status.textContent = el.dataset.libraryState === 'ready'
+    ? 'Account library loaded. Save and import changes require an acknowledged server write.'
+    : 'Account library not loaded. Sign in again or retry once storage is available.';
   if (!CUSTOM_PROMPTS_UNLOCKED) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">Saved prompts are locked in this build.</div>'; return; }
   if (!STATE.custom.length) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">No saved prompts yet.</div>'; return; }
   el.innerHTML = '';
@@ -842,6 +846,7 @@ function boot(){
   qs('#resetBtn').addEventListener('click', async function(){
     if (!confirm('Reset all stars, custom prompts, and theme? This cannot be undone.')) return;
     if (durableLibraryEnabled()) {
+      if (libraryRevision === null) { toast('Load your account library before resetting it.'); return; }
       var generation = personalSessionGeneration;
       var subject = await window.PromptOSBilling.admit();
       if (!subject || generation !== personalSessionGeneration ||
