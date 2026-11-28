@@ -2,8 +2,8 @@
  * auth.js — PromptOS Auth + Analytics + Persistence Truth
  *
  * Boot behaviour:
- *   • Public welcome only until a verified account is established.
- *   • Google sign-in is required; free accounts receive beginner prompts only.
+ *   • Public welcome and five-template guest preview before authentication.
+ *   • Google sign-in and paid entitlement are required for the full workspace.
  *   • Signing in upgrades the session in-place.
  *
  * Persistence authority (app state — stars, custom prompts, theme):
@@ -355,7 +355,7 @@
     lockWorkspace();
     if (qs('#welcomeScreen')) qs('#welcomeScreen').style.display = 'none';
     if (qs('#onboarding')) qs('#onboarding').style.display = 'flex';
-    if (qs('#beginnerLibrary')) qs('#beginnerLibrary').hidden = access !== 'free';
+    if (qs('#beginnerLibrary')) qs('#beginnerLibrary').hidden = access === 'paid';
     if (qs('#accountBilling')) qs('#accountBilling').hidden = !verifiedIdToken;
     if (qs('#billingUpgrade')) qs('#billingUpgrade').disabled = access !== 'free';
   }
@@ -485,7 +485,27 @@
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) refreshWorkspace(); });
   setInterval(function(){ if (verifiedIdToken) refreshWorkspace(); }, 60000);
 
+  function compileGuestPrompt(event) {
+    event.preventDefault();
+    var templates = [
+      'Explain this topic in plain language, with an example and three key takeaways.',
+      'Break this goal into manageable steps. Ask about missing requirements and suggest a first step.',
+      'Review this draft for clarity and organization. Preserve my meaning and explain suggested changes.',
+      'Review this work against the stated goal. Identify strengths, gaps and one practical improvement.',
+      'Draft a concise, respectful message about this topic. Include the purpose and next step.'
+    ];
+    var index = qs('#guestPromptTemplate').value;
+    var context = qs('#guestPromptContext').value.trim();
+    var output = qs('#guestPromptOutput');
+    if (!/^[0-4]$/.test(index) || !context || context.length > 1000) {
+      output.textContent = 'Choose a beginner template and enter up to 1000 characters of context.';
+      return;
+    }
+    output.textContent = templates[Number(index)] + '\n\nContext:\n' + context;
+  }
+
   function boot() {
+    qs('#guestPromptForm')?.addEventListener('submit', compileGuestPrompt);
     qs('#billingRecheck')?.addEventListener('click', refreshWorkspace);
     qs('#onboardingSignOut')?.addEventListener('click', signOut);
     initVisitorIdentification();
