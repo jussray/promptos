@@ -100,7 +100,7 @@ export default {
     const url    = new URL(request.url);
     const method = request.method.toUpperCase();
 
-    if (url.pathname.startsWith('/billing/') || url.pathname === '/prompts/admit') {
+    if (url.pathname.startsWith('/billing/') || ['/prompts/admit','/prompts/library'].includes(url.pathname)) {
       const cors = billingCors(request);
       if (!cors.allowed) return new Response(null, { status: 403, headers: cors.headers });
       if (method === 'OPTIONS') return new Response(null, { status: 204, headers: cors.headers });
