@@ -17,14 +17,14 @@ function validPrompt(p) {
     p.platforms.every(value => bounded(value,40,true)) &&
     Number.isSafeInteger(p.ts) && p.ts >= 0;
 }
-function validLibrary(value) {
+export function validLibrary(value) {
   return hasOnly(value,['revision','prompts']) && Number.isSafeInteger(value.revision) &&
     value.revision >= 0 && value.revision < Number.MAX_SAFE_INTEGER &&
     Array.isArray(value.prompts) && value.prompts.length <= MAX_PROMPTS &&
     value.prompts.every(validPrompt) &&
     new Set(value.prompts.map(p => p.id)).size === value.prompts.length;
 }
-async function limitedJson(message) {
+export async function limitedJson(message) {
   if (!message.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) throw new Error('invalid content type');
   if (Number(message.headers.get('Content-Length')) > MAX_BYTES || !message.body) throw new Error('invalid length');
   const reader = message.body.getReader();
