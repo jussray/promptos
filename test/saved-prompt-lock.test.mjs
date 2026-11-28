@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 
 // Source-level guard: parts/app.js is a browser IIFE, so these assertions pin the lock
 // structure. Behavioral proof lives in the Playwright check on the exact head.
@@ -76,4 +77,22 @@ test("workspace stays locked until the server confirms paid admission", () => {
   assert.match(auth, /window\.addEventListener\('focus', refreshWorkspace\)/);
   assert.doesNotMatch(auth, /function bootAsGuest\(/);
   assert.ok(html.indexOf('id="billingUpgrade"') < html.indexOf('id="appShell"'), "checkout must be reachable outside locked workspace");
+});
+
+test("all JSON imports require fresh paid admission, including empty and preferences-only imports", async () => {
+  for (const json of ['{"custom":[]}', '{"theme":"light"}', '{"stars":{"a":true}}', '{"custom":[{"id":"c_1"}]}']) {
+    const state = {custom:[{id:"existing"}], stars:{}, theme:"dark"};
+    let calls = 0, renders = 0;
+    const context = {STATE:state, CUSTOM_PROMPTS_UNLOCKED:true, personalSessionGeneration:0,
+      window:{PromptOSBilling:{admit:async()=>{calls++;return false;}}},
+      selectPersonalSubject:()=>{throw new Error("denied import selected subject");},
+      toast:()=>{}, renderAll:()=>{renders++;}, applyTheme:()=>{}};
+    const invoke = runInNewContext("(" + "async " + fnBody("importState").trim() + ")",context);
+    await invoke(json);
+    assert.equal(calls,1);
+    assert.equal(renders,0);
+    assert.equal(state.theme,"dark");
+    assert.equal(state.custom[0].id,"existing");
+    assert.deepEqual(state.stars,{});
+  }
 });

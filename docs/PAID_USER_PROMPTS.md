@@ -4,7 +4,7 @@
 
 ## Product rule
 
-Anonymous visitors see only the public welcome and explicit account onboarding. A server-verified free account receives a separate beginner-only library; the full curated catalog, builder, freestyle, workflows and personal prompt tools require paid admission. The initial beginner collection is a candidate selection, not a verified canonical catalog classification. Current static app assets still require server-side protection before a production release. Saving personal prompts (New Prompt, Builder save, Freestyle save and custom JSON import) requires a signed-in visitor with a current JussPay entitlement: `product: promptos`, `entitlements` including `promptos.personal_prompts`, `until` strictly in the future. Rejected saves preserve unsaved form inputs. Saved custom prompts are session-only; there is no claim of FCR-backed persistence.
+Anonymous visitors and verified free accounts may use exactly five fixed beginner templates and a bounded, non-persistent basic compiler. The full curated catalog, advanced builder, freestyle, workflows and personal prompt tools require paid admission. The initial beginner collection is a candidate selection, not a verified canonical catalog classification. Current static app assets still require server-side protection before a production release. Saving personal prompts (New Prompt, Builder save, Freestyle save and all JSON imports, including empty and preferences-only files) requires a signed-in visitor with a current JussPay entitlement: `product: promptos`, `entitlements` including `promptos.personal_prompts`, `until` strictly in the future. Rejected saves preserve unsaved form inputs. Saved custom prompts are session-only; there is no claim of FCR-backed persistence.
 
 ## Payment authority
 
@@ -19,6 +19,14 @@ The server-side Worker route `GET /billing/entitlement` and `POST /prompts/admit
 3. JussPay's **own private `AUTH` service binding must independently validate** this token for audience `jusspay`, issuer, stable user mapping, session revocation policy and expiry. Do not infer that PromptOS's Google login is already compatible with JussPay's deployed identity adapter.
 4. Accept only that caller's current JussPay `promptos.personal_prompts` entitlement, and deny missing, other-product, wrong-permission, expired, unauthenticated or unavailable responses. Browser values, success URLs, and cookies do not grant admission.
 5. The UI remains a browser client. Private JussPay and `AUTH` service bindings are never configured as browser URLs or sent to the client.
+
+## Candidate durable account library — not connected
+
+The provider Worker now has a candidate `GET /prompts/library` and `POST /prompts/library` bridge. Both use the existing verified Google identity, current JussPay entitlement and restricted billing CORS. No client-supplied subject selects a storage account. Requests fail closed when the optional private `PROMPTOS_LIBRARY_STORE` service binding is absent.
+
+The proposed receiving service contract is `https://promptos-library.internal/v1/library` (a fixed internal service URL, not an existing verified endpoint). The service must be authorized under the existing Founder Control Room persistence governance, independently verify the bearer/subject mapping, partition records by verified identity, and return the verified subject alongside revision and prompt records. Writes must atomically compare and increment a nonnegative revision; a stale write returns 409. The bridge rejects malformed records, duplicate IDs, oversized bodies and wrong-subject responses; it never returns a storage success for a missing or invalid backend response.
+
+No backend service or database has been provisioned, no service binding configured, and no customer data transferred. The existing UI remains explicitly session-only until an authorized backing store and browser read/write/hydration path are implemented and verified. Required release proof: save, reload and reauthenticate; read identical contents; verify cross-account denial, stale-write conflicts, entitlement expiry and provider outage. Do not enable billing on a mocked store result.
 
 ## $1 offer configuration and release blockers
 

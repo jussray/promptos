@@ -18,11 +18,23 @@ try {
     assert.equal(await page.locator('[data-continue-as-guest]').count(),0);
     await page.locator('[data-start-onboarding]').click();
     assert(await page.locator('#appShell').isHidden());
-    assert(await page.locator('#beginnerLibrary').isHidden());
+    await page.locator('#beginnerLibrary').waitFor({state:'visible'});
+    assert.equal(await page.locator('#beginnerLibrary details').count(),5);
+    assert.equal(await page.locator('#guestPromptTemplate option').count(),5);
+    for (let i=0;i<5;i++) {
+      await page.locator('#guestPromptTemplate').selectOption(String(i));
+      await page.locator('#guestPromptContext').fill('Beginner example ' + i);
+      await page.locator('#guestPromptCompile').click();
+      assert.match(await page.locator('#guestPromptOutput').textContent(),new RegExp('Beginner example '+i));
+    }
+    assert(await page.locator('#saveCustom').isHidden());
+    assert(await page.locator('#importBtn').isHidden());
     await signInFixture(page);
     await page.locator('#beginnerLibrary').waitFor({state:'visible'});
-    assert.equal(await page.locator('#beginnerLibrary details').count(),4);
+    assert.equal(await page.locator('#beginnerLibrary details').count(),5);
     assert(await page.locator('#appShell').isHidden());
+    // The guest preview is already visible; wait for asynchronous entitlement verification, not preview visibility.
+    await page.waitForFunction(()=>{const button=document.querySelector('#billingUpgrade');return button && !button.disabled && !button.closest('[hidden]');});
     assert(await page.locator('#billingUpgrade').isEnabled());
     await page.locator('#billingUpgrade').click();
     await page.locator('#billingConsent').waitFor({state:'visible'});
@@ -43,6 +55,10 @@ try {
     state.admit=true;
     await page.locator('#saveCustom').click();
     await page.waitForFunction(()=>document.querySelectorAll('#customList .citem').length===1);
+    await page.locator('#customList .citem [data-open-custom]').click();
+    assert.match(await page.locator('#mTitle').textContent(),/Account-bound draft/);
+    assert.equal(await page.locator('#mBody').textContent(),'Save only after server admission.');
+    assert(await page.locator('#modalWrap').isVisible());
     state.paid=false;
     await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
     await page.locator('#beginnerLibrary').waitFor({state:'visible'});

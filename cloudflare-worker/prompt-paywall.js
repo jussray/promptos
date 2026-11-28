@@ -11,6 +11,7 @@
  * contract is supported and verified in JussPay itself.
  */
 import { handleIntroBilling } from './intro-billing.mjs';
+import { handlePrivateLibrary } from './private-library.mjs';
 
 const GOOGLE_ISSUERS = ['https://accounts.google.com', 'accounts.google.com'];
 const GOOGLE_KEYS = 'https://www.googleapis.com/oauth2/v3/certs';
@@ -81,11 +82,11 @@ async function eligibleInJussPay(request, env) {
 export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
   const method = request.method.toUpperCase();
   const replyJson = (value, status) => reply(value, status, corsHeaders);
-  if (!['/billing/entitlement', '/billing/offer', '/billing/checkout', '/prompts/admit'].includes(pathname)) {
+  if (!['/billing/entitlement', '/billing/offer', '/billing/checkout', '/prompts/admit', '/prompts/library'].includes(pathname)) {
     return replyJson({ error: 'not found' }, 404);
   }
   const expected = ['/billing/entitlement', '/billing/offer'].includes(pathname) ? 'GET' : 'POST';
-  if (method !== expected) return replyJson({ error: 'method not allowed' }, 405);
+  if (pathname === '/prompts/library' ? !['GET','POST'].includes(method) : method !== expected) return replyJson({ error: 'method not allowed' }, 405);
   const checkoutRoute = ['/billing/offer', '/billing/checkout'].includes(pathname);
   if (checkoutRoute && env.PROMPTOS_INTRO_SANDBOX_ENABLED !== 'true') {
     return replyJson({ error: 'sandbox_checkout_disabled' }, 503);
@@ -100,6 +101,9 @@ export async function handlePromptPaywall(request, env, pathname, corsHeaders) {
   try {
     const paid = await eligibleInJussPay(request, env);
     if (pathname === '/billing/entitlement') return replyJson({ paid }, 200);
+    if (pathname === '/prompts/library') return paid
+      ? handlePrivateLibrary(request, env, subject, replyJson)
+      : replyJson({ error: 'paid account required' },402);
     return paid
       ? replyJson({ admitted: true, persistence: 'session-only', subject }, 200)
       : replyJson({ error: 'paid account required' }, 402);

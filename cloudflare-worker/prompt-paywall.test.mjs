@@ -216,3 +216,53 @@ test('sandbox billing requires verified identity, explicit current terms and a m
     assert.equal((await call('/billing/checkout','POST',token,consent)).status,503);
   }
 });
+
+test('private library route denies anonymous, unpaid and unconfigured storage requests', async () => {
+  const token = await jwt();
+  upstream = [];
+  assert.equal((await run('/prompts/library','GET')).status,401);
+  assert.equal((await run('/prompts/library','GET',token)).status,402);
+  upstream = [{product:'promptos',entitlements:['promptos.personal_prompts'],until:now()+1000}];
+  assert.equal((await run('/prompts/library','GET',token)).status,503);
+});
+test('library reads and writes are scoped to the verified subject and fail closed on conflicts', async () => {
+  const token = await jwt();
+  const other = await jwt({sub:'user-456'});
+  upstream = [{product:'promptos',entitlements:['promptos.personal_prompts'],until:now()+1000}];
+  const stored = new Map();
+  const calls = [];
+  const config = {...env,PROMPTOS_LIBRARY_STORE:{async fetch(req) {
+    const data = req.method==='POST'?await req.json():null;
+    const subject = req.headers.get('X-PromptOS-Subject');
+    calls.push({subject,auth:req.headers.get('Authorization'),data,url:req.url});
+    const row = stored.get(subject)||{revision:0,prompts:[]};
+    if (req.method==='GET') return Response.json({...row,subject});
+    if (data.revision!==row.revision) return Response.json({error:'revision conflict'},{status:409});
+    const next={revision:row.revision+1,prompts:data.prompts};
+    stored.set(subject,next);
+    return Response.json({...next,subject});
+  }}};
+  const call=(method,credential,body)=>worker.fetch(new Request('https://promptos.example/prompts/library',{
+    method,headers:{Authorization:'Bearer '+credential,'Content-Type':'application/json','X-PromptOS-Subject':'forged'},
+    ...(body===undefined?{}:{body:JSON.stringify(body)})}),config);
+  const prompt={id:'c_123',title:'Test prompt',sub:'',cat:'custom',platforms:['chatgpt'],body:'Keep this',ts:1,emoji:'✨'};
+  assert.deepEqual(await (await call('GET',token)).json(),{revision:0,prompts:[]});
+  const saved=await call('POST',token,{revision:0,prompts:[prompt]});
+  assert.equal(saved.status,200);
+  assert.deepEqual(await saved.json(),{revision:1,prompts:[prompt]});
+  assert.deepEqual(await (await call('GET',token)).json(),{revision:1,prompts:[prompt]});
+  assert.deepEqual(await (await call('GET',other)).json(),{revision:0,prompts:[]});
+  assert.equal((await call('POST',token,{revision:0,prompts:[]})).status,409);
+  const count=calls.length;
+  assert.equal((await call('POST',token,{revision:1,prompts:[prompt],subject:'https://accounts.google.com#user-456'})).status,400);
+  assert.equal((await call('POST',token,{revision:1,prompts:[{...prompt,id:'bad"id'}]})).status,400);
+  assert.equal(calls.length,count);
+  assert.equal(calls[0].subject,'https://accounts.google.com#user-123');
+  assert.equal(calls[0].auth,'Bearer '+token);
+  assert.equal(calls[0].url,'https://promptos-library.internal/v1/library');
+  const wrongStore={...config,PROMPTOS_LIBRARY_STORE:{fetch:async()=>Response.json({subject:'https://accounts.google.com#user-456',revision:1,prompts:[prompt]})}};
+  const wrong=await run('/prompts/library','GET',token,wrongStore);
+  assert.equal(wrong.status,503);
+  upstream=[];
+  assert.equal((await call('GET',token)).status,402);
+});

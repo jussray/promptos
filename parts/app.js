@@ -112,7 +112,7 @@ function applyTheme(t){
 /* ── 4b. HOME PANELS (recent activity + truthful status; session-only) ── */
 var RECENT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.4 3 7.6 7.5 9.5 4.5-1.9 7.5-5.1 7.5-9.5V6Z"/><path d="M9 11.5h6M9 14.5h4"/></svg>';
 function recordRecent(id, action){
-  id = parseInt(id); if (isNaN(id)) return;
+  id = String(id); if (!allPrompts().some(function(p){ return String(p.id) === id; })) return;
   STATE.recent = STATE.recent.filter(function(r){ return r.id !== id; });
   STATE.recent.unshift({ id: id, action: action, ts: Date.now() });
   if (STATE.recent.length > 4) STATE.recent.length = 4;
@@ -130,7 +130,7 @@ function renderHome(){
   list.textContent = '';
   var shown = 0;
   STATE.recent.forEach(function(r){
-    var p = all.find(function(x){ return x.id === r.id; });
+    var p = all.find(function(x){ return String(x.id) === String(r.id); });
     if (!p) return;
     shown++;
     var li = document.createElement('li');
@@ -276,28 +276,28 @@ function renderGrid(){
     var card = document.createElement('div');
     card.className = 'pcard'; card.style.setProperty('--pa', accent);
     card.innerHTML =
-      '<div class="top"><span class="emoji">'+(p.emoji||'📝')+'</span>'+
+      '<div class="top"><span class="emoji">'+esc(p.emoji||'📝')+'</span>'+
       '<div style="min-width:0"><h3>'+esc(p.title)+'</h3><div class="sub">'+esc(p.sub||'')+'</div></div>'+
-      '<button class="star-btn'+(starred?' on':'')+'" data-id="'+p.id+'" title="Star">'+(starred?'★':'☆')+'</button></div>'+
+      '<button class="star-btn'+(starred?' on':'')+'" data-id="'+esc(p.id)+'" title="Star">'+(starred?'★':'☆')+'</button></div>'+
       '<div class="badges">'+
         '<span class="badge cat">'+esc(p.cat)+'</span>'+
         plats.map(function(pl){ return '<span class="badge">'+esc(pl)+'</span>'; }).join('')+
       '</div>'+
       (preview ? '<div class="snippet">'+esc(preview.slice(0,300))+'</div>' : '')+
       '<div class="foot"><span class="kind">'+(p._custom?'custom':'library')+'</span>'+
-      '<button class="mini-btn push" data-open="'+p.id+'">Open →</button></div>';
+      '<button class="mini-btn push" data-open="'+esc(p.id)+'">Open →</button></div>';
     el.appendChild(card);
   });
   el.querySelectorAll('.star-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){ e.stopPropagation(); toggleStar(btn.dataset.id); });
   });
   el.querySelectorAll('[data-open]').forEach(function(btn){
-    btn.addEventListener('click', function(e){ e.stopPropagation(); openModal(parseInt(btn.dataset.open)); });
+    btn.addEventListener('click', function(e){ e.stopPropagation(); openModal(btn.dataset.open); });
   });
   el.querySelectorAll('.pcard').forEach(function(card){
     card.addEventListener('click', function(){
       var btn = card.querySelector('[data-open]');
-      if (btn) openModal(parseInt(btn.dataset.open));
+      if (btn) openModal(btn.dataset.open);
     });
   });
 }
@@ -316,7 +316,8 @@ function qs(sel){ return document.querySelector(sel); }
 
 /* ── 6. STARS ─────────────────────────────────────────────────────── */
 function toggleStar(id){
-  id = parseInt(id);
+  id = String(id);
+  if (!allPrompts().some(function(p){ return String(p.id) === id; })) return;
   STATE.stars[id] = !STATE.stars[id];
   if (!STATE.stars[id]) delete STATE.stars[id]; else recordRecent(id, 'Saved');
   renderStats(); renderChips(); renderGrid();
@@ -333,7 +334,7 @@ var _openTab = null;
 
 function openModal(id){
   var all = allPrompts();
-  var p = all.find(function(x){ return x.id === id; });
+  var p = all.find(function(x){ return String(x.id) === String(id); });
   if (!p) return;
   _openId = id;
   var versions = p.versions || {};
@@ -523,9 +524,11 @@ function renderCustomList(){
   STATE.custom.forEach(function(p){
     var item = document.createElement('div'); item.className = 'citem';
     item.innerHTML = '<div class="row"><strong>'+esc(p.title)+'</strong>'+
-      '<button class="mini-btn push" data-del="'+p.id+'">Delete</button></div>'+
+      '<button class="mini-btn" data-open-custom>Open</button>'+
+      '<button class="mini-btn push" data-del="'+esc(p.id)+'">Delete</button></div>'+
       '<div style="font-size:11px;color:var(--text-faint);margin-top:4px;font-family:var(--mono)">'+esc(p.cat)+' · '+esc((p.platforms||[]).join(', '))+'</div>';
     el.appendChild(item);
+    item.querySelector('[data-open-custom]').addEventListener('click', function(){ openModal(p.id); });
     item.querySelector('[data-del]').addEventListener('click', function(){
       if (confirm('Delete "'+p.title+'"?')) deleteCustom(p.id);
     });
@@ -558,12 +561,13 @@ async function importState(json){
   var generation = personalSessionGeneration;
   try {
     var data = JSON.parse(json);
-    if (Array.isArray(data.custom) && data.custom.length) {
-      var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
-      if (!subject) { toast('Paid account required to import personal prompts'); return; }
-      if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
-      CUSTOM_PROMPTS_UNLOCKED = true;
-    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) { toast('Invalid JSON'); return; }
+    // Every import, including an empty custom array or preferences-only file,
+    // requires fresh server admission before any state is changed.
+    var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
+    if (!subject) { toast('Paid account required to import personal prompts'); return; }
+    if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
+    CUSTOM_PROMPTS_UNLOCKED = true;
     if (generation !== personalSessionGeneration) return;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
