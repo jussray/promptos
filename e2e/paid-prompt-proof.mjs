@@ -55,6 +55,10 @@ try {
     state.admit=true;
     await page.locator('#saveCustom').click();
     await page.waitForFunction(()=>document.querySelectorAll('#customList .citem').length===1);
+    await page.locator('#customList .citem [data-open-custom]').click();
+    assert.match(await page.locator('#mTitle').textContent(),/Account-bound draft/);
+    assert.equal(await page.locator('#mBody').textContent(),'Save only after server admission.');
+    assert(await page.locator('#modalWrap').isVisible());
     state.paid=false;
     await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
     await page.locator('#beginnerLibrary').waitFor({state:'visible'});
