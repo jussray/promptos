@@ -236,11 +236,11 @@ test('library reads and writes are scoped to the verified subject and fail close
     const subject = req.headers.get('X-PromptOS-Subject');
     calls.push({subject,auth:req.headers.get('Authorization'),data,url:req.url});
     const row = stored.get(subject)||{revision:0,prompts:[]};
-    if (req.method==='GET') return Response.json(row);
+    if (req.method==='GET') return Response.json({...row,subject});
     if (data.revision!==row.revision) return Response.json({error:'revision conflict'},{status:409});
     const next={revision:row.revision+1,prompts:data.prompts};
     stored.set(subject,next);
-    return Response.json(next);
+    return Response.json({...next,subject});
   }}};
   const call=(method,credential,body)=>worker.fetch(new Request('https://promptos.example/prompts/library',{
     method,headers:{Authorization:'Bearer '+credential,'Content-Type':'application/json','X-PromptOS-Subject':'forged'},
@@ -260,6 +260,9 @@ test('library reads and writes are scoped to the verified subject and fail close
   assert.equal(calls[0].subject,'https://accounts.google.com#user-123');
   assert.equal(calls[0].auth,'Bearer '+token);
   assert.equal(calls[0].url,'https://promptos-library.internal/v1/library');
+  const wrongStore={...config,PROMPTOS_LIBRARY_STORE:{fetch:async()=>Response.json({subject:'https://accounts.google.com#user-456',revision:1,prompts:[prompt]})}};
+  const wrong=await run('/prompts/library','GET',token,wrongStore);
+  assert.equal(wrong.status,503);
   upstream=[];
   assert.equal((await call('GET',token)).status,402);
 });
