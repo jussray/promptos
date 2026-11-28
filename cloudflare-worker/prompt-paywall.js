@@ -32,7 +32,7 @@ function decode64(value) {
 }
 function text64(value) { return new TextDecoder().decode(decode64(value)); }
 
-async function verifyIdentity(request, env) {
+export async function verifyIdentity(request, env) {
   const bearer = (request.headers.get('Authorization') || '').match(/^Bearer\s+(\S+)$/i);
   if (!bearer || bearer[1].length > 8192) return false;
   try {
@@ -60,7 +60,7 @@ async function verifyIdentity(request, env) {
   } catch { return false; }
 }
 
-async function eligibleInJussPay(request, env) {
+export async function eligibleInJussPay(request, env) {
   if (!env.PROMPTOS_JUSSPAY || typeof env.PROMPTOS_JUSSPAY.fetch !== 'function') {
     throw new Error('JussPay binding unavailable');
   }
