@@ -558,12 +558,13 @@ async function importState(json){
   var generation = personalSessionGeneration;
   try {
     var data = JSON.parse(json);
-    if (Array.isArray(data.custom) && data.custom.length) {
-      var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
-      if (!subject) { toast('Paid account required to import personal prompts'); return; }
-      if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
-      CUSTOM_PROMPTS_UNLOCKED = true;
-    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) { toast('Invalid JSON'); return; }
+    // Every import, including an empty custom array or preferences-only file,
+    // requires fresh server admission before any state is changed.
+    var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
+    if (!subject) { toast('Paid account required to import personal prompts'); return; }
+    if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
+    CUSTOM_PROMPTS_UNLOCKED = true;
     if (generation !== personalSessionGeneration) return;
     if (data.stars) STATE.stars = data.stars;
     if (data.theme) { STATE.theme = data.theme; applyTheme(STATE.theme); }
