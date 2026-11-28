@@ -445,8 +445,8 @@ button.ss-item:hover{border-color:var(--primary)}
     <div style="color:var(--primary);font:700 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;">PromptOS · Welcome</div>
     <h1 id="welcomeTitle" tabindex="-1" style="margin:18px 0 14px;font-size:clamp(38px,8vw,72px);line-height:.98;letter-spacing:-.055em;">Turn a thought into something you can use.</h1>
     <p style="max-width:56ch;color:var(--text-muted);font-size:clamp(16px,2vw,19px);line-height:1.6;">Organize prompts, shape workflows, and keep useful instructions ready for the next time you need them.</p>
-    <button type="button" data-start-onboarding style="margin-top:28px;padding:13px 20px;border:0;border-radius:12px;background:linear-gradient(135deg,#38eaa0,#22c77f);color:#03140d;font:700 14px var(--sans);cursor:pointer;box-shadow:0 0 22px var(--primary-glow);">Start here <span aria-hidden="true">→</span></button>
-    <p style="margin-top:16px;color:var(--text-faint);font-size:12px;">Create or sign in to a verified account. Beginner prompts are free; full access requires a subscription.</p>
+    <button type="button" data-start-onboarding style="margin-top:28px;padding:13px 20px;border:0;border-radius:12px;background:linear-gradient(135deg,#38eaa0,#22c77f);color:#03140d;font:700 14px var(--sans);cursor:pointer;box-shadow:0 0 22px var(--primary-glow);">Try 5 beginner prompts <span aria-hidden="true">→</span></button>
+    <p style="margin-top:16px;color:var(--text-faint);font-size:12px;">Try five beginner prompts without an account. Subscribe for advanced workflows and your personal library.</p>
   </section>
 </main>
 
@@ -486,7 +486,7 @@ button.ss-item:hover{border-color:var(--primary)}
         <div style="width:32px;height:32px;flex-shrink:0;border-radius:8px;background:rgba(253,171,67,.1);display:grid;place-items:center;font-size:15px;">☁️</div>
         <div>
           <div style="font-weight:600;font-size:13px;margin-bottom:2px;">Yours to keep</div>
-          <div style="color:var(--text-muted);font-size:12px;line-height:1.5;">Stars, custom prompts, and preferences stay in this browser session. Use Export / Import to back up or move them.</div>
+          <div style="color:var(--text-muted);font-size:12px;line-height:1.5;">Personal saving and import require a paid account. Persistent storage is not yet connected in this test build.</div>
         </div>
       </div>
     </div>
@@ -497,11 +497,21 @@ button.ss-item:hover{border-color:var(--primary)}
 
     <section id="beginnerLibrary" hidden aria-label="Free beginner prompt library" style="width:100%;margin:12px 0;">
       <h2>Beginner library</h2>
-      <p>Start with these free prompts.</p>
+      <p>Try these five fixed templates. Basic compilation is free; advanced recipes and personal saving require a subscription.</p>
       <details><summary>Understand a topic</summary><p>Explain [topic] in plain language, with an example and three key takeaways.</p></details>
       <details><summary>Plan a project</summary><p>Help me break [goal] into manageable steps. Ask about missing requirements and suggest a first step.</p></details>
       <details><summary>Improve my writing</summary><p>Review [draft] for clarity and organization. Preserve my meaning and explain your suggested changes.</p></details>
       <details><summary>Learn from feedback</summary><p>Review [work] against [goal]. Identify strengths, gaps and one practical improvement.</p></details>
+      <details><summary>Write a clear message</summary><p>Draft a concise, respectful message about [topic]. Include the purpose and next step.</p></details>
+      <form id="guestPromptForm" style="display:grid;gap:10px;margin:16px 0;">
+        <label for="guestPromptTemplate">Choose a beginner template</label>
+        <select id="guestPromptTemplate"><option value="0">Understand a topic</option><option value="1">Plan a project</option><option value="2">Improve my writing</option><option value="3">Learn from feedback</option><option value="4">Write a clear message</option></select>
+        <label for="guestPromptContext">Your topic or context</label>
+        <textarea id="guestPromptContext" maxlength="1000" required rows="3"></textarea>
+        <button id="guestPromptCompile" class="mini-btn" type="submit">Compile beginner prompt</button>
+        <pre id="guestPromptOutput" aria-live="polite" style="white-space:pre-wrap;overflow-wrap:anywhere;"></pre>
+        <button type="button" class="mini-btn" data-google-signin>Sign in to unlock advanced access</button>
+      </form>
     </section>
     <section id="accountBilling" hidden style="width:100%;margin:12px 0;">
         <p id="billingStatus" role="status" aria-live="polite">Verify your account to check access.</p>
@@ -517,7 +527,7 @@ button.ss-item:hover{border-color:var(--primary)}
       <button type="button" id="onboardingSignOut" class="mini-btn">Sign out</button>
     </section>
     <p style="font-size:11px;color:var(--text-faint);text-align:center;max-width:36ch;line-height:1.6;">
-      Verified accounts can use the beginner library free. Full workspace access requires an active subscription.
+      Guests and free accounts can try five beginner prompts. Full workspace access requires an active subscription.
     </p>
 
   </div>
