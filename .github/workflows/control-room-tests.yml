@@ -167,6 +167,8 @@ jobs:
         run: node e2e/rendered-proof.mjs
       - name: Prove paid prompt gate in real desktop/mobile browser
         run: node e2e/paid-prompt-proof.mjs
+      - name: Prove paid library reload and account isolation using mock storage
+        run: node e2e/durable-library-proof.mjs
       - name: Prove negotiation-aware outreach prompt in source UI
         run: node e2e/negotiation-outreach-proof.mjs
       - name: Prove implicit workflow triggers in source UI
@@ -200,6 +202,10 @@ jobs:
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
         run: node e2e/paid-prompt-proof.mjs
+      - name: Prove staged paid library reload with mock storage
+        env:
+          PROMPTOS_BASE_URL: http://127.0.0.1:4174
+        run: node e2e/durable-library-proof.mjs
       - name: Prove staged public artifact desktop and mobile
         env:
           PROMPTOS_BASE_URL: http://127.0.0.1:4174
