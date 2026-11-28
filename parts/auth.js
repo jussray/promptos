@@ -389,6 +389,7 @@
     }
     renderUserChip(SESSION.user);
     showWorkspace();
+    window.dispatchEvent(new CustomEvent('promptos:paid-workspace'));
   }
 
   function triggerGoogleSignIn() {

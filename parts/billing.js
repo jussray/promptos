@@ -7,6 +7,7 @@
   'use strict';
   var raw = document.querySelector('meta[name="promptos-billing-api"]')?.content?.trim() || '';
   var apiBase = '';
+  var durableLibrary = document.querySelector('meta[name="promptos-durable-library"]')?.content === 'enabled';
   try {
     var candidate = new URL(raw);
     if (candidate.protocol === 'https:' && !candidate.username && !candidate.password &&
@@ -41,6 +42,7 @@
     if (!response.ok) {
       if (response.status === 401) throw new Error('sign in required');
       if (response.status === 402) throw new Error('paid account required');
+      if (response.status === 409) throw new Error('library revision conflict');
       throw new Error('billing unavailable');
     }
     var result = await response.json();
@@ -160,7 +162,19 @@
     } finally { checkoutBusy = false; }
   }
 
-  window.PromptOSBilling = Object.freeze({ admit: admit, refresh: refresh, accessStatus: accessStatus, upgrade: upgrade });
+  async function libraryRequest(method, body) {
+    if (!durableLibrary) throw new Error('account library not enabled');
+    var result = await call('/prompts/library', method, body);
+    if (!Number.isSafeInteger(result?.revision) || result.revision < 0 ||
+        !Array.isArray(result.prompts) || result.prompts.length > 200 ||
+        (body && result.revision !== body.revision + 1)) throw new Error('invalid library response');
+    return result;
+  }
+  window.PromptOSBilling = Object.freeze({ admit: admit, refresh: refresh, accessStatus: accessStatus, upgrade: upgrade,
+    durableLibrary: durableLibrary,
+    readLibrary: function(){ return libraryRequest('GET'); },
+    writeLibrary: function(revision,prompts){ return libraryRequest('POST',{revision:revision,prompts:prompts}); }
+  });
   document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('billingUpgrade')?.addEventListener('click', upgrade);
     document.getElementById('billingRenewalConsent')?.addEventListener('change', function () {

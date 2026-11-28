@@ -23,6 +23,53 @@ var personalSessionGeneration = 0;
 // Preserve detached session data in memory; never expose it to another identity.
 var detachedPersonalSessions = new Map();
 var activePersonalSubject = null;
+var libraryRevision = null;
+var libraryBusy = null;
+function durableLibraryEnabled(){ return window.PromptOSBilling?.durableLibrary === true; }
+async function durableLibraryTransaction(subject,generation,change){
+  if (generation !== personalSessionGeneration || !subject || libraryBusy) return false;
+  if (activePersonalSubject && activePersonalSubject !== subject) return false;
+  var task = {};
+  libraryBusy = task;
+  var current = function(){ return generation === personalSessionGeneration && libraryBusy === task; };
+  try {
+    if (libraryRevision === null) {
+      var loaded = await window.PromptOSBilling.readLibrary();
+      if (!current()) return false;
+      activePersonalSubject = subject;
+      libraryRevision = loaded.revision;
+      STATE.custom = loaded.prompts;
+      CUSTOM_PROMPTS_UNLOCKED = true;
+      renderAll();
+    }
+    if (!change) return true;
+    var next = change(STATE.custom.slice());
+    var saved = await window.PromptOSBilling.writeLibrary(libraryRevision,next);
+    if (!current()) return false;
+    libraryRevision = saved.revision;
+    STATE.custom = saved.prompts;
+    renderAll();
+    return true;
+  } catch (error) {
+    if (current()) {
+      if (error.message === 'library revision conflict') {
+        libraryRevision = null;
+        CUSTOM_PROMPTS_UNLOCKED = false;
+        STATE.custom = [];
+        renderAll();
+      }
+      toast(change ? 'Prompt changes not saved. Retry after checking account storage.' : 'Account library unavailable. Try again.');
+    }
+    return false;
+  } finally { if (libraryBusy === task) libraryBusy = null; }
+}
+async function hydrateDurableLibrary(){
+  if (!durableLibraryEnabled() || libraryRevision !== null) return;
+  var generation = personalSessionGeneration;
+  var subject = await window.PromptOSBilling.admit();
+  if (!subject || generation !== personalSessionGeneration) return;
+  await durableLibraryTransaction(subject,generation,null);
+}
 function selectPersonalSubject(subject){
   if (typeof subject !== 'string' || !subject.startsWith('https://accounts.google.com#')) return false;
   if (activePersonalSubject === subject) return true;
@@ -502,7 +549,12 @@ async function saveCustomPrompt(title, sub, cat, platforms, body){
     toast('Paid account required. Sign in / Upgrade in My Prompts.');
     return false;
   }
-  if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return false;
+  if (generation !== personalSessionGeneration) return false;
+  if (durableLibraryEnabled()) {
+    var record = {id:'c_'+crypto.randomUUID(),emoji:'✨',title:title,sub:sub,cat:cat,platforms:platforms,body:body,ts:Date.now()};
+    return durableLibraryTransaction(subject,generation,function(prompts){ return prompts.concat(record); });
+  }
+  if (!selectPersonalSubject(subject)) return false;
   // The default lock remains closed until this request is admitted by the server.
   CUSTOM_PROMPTS_UNLOCKED = true;
   var id = 'c_' + Date.now();
@@ -511,13 +563,25 @@ async function saveCustomPrompt(title, sub, cat, platforms, body){
   return true;
 }
 
-function deleteCustom(id){
+async function deleteCustom(id){
+  if (durableLibraryEnabled()) {
+    var generation = personalSessionGeneration;
+    var subject = await window.PromptOSBilling.admit();
+    if (subject && generation === personalSessionGeneration)
+      await durableLibraryTransaction(subject,generation,function(prompts){return prompts.filter(function(p){return p.id!==id;});});
+    return;
+  }
   STATE.custom = STATE.custom.filter(function(p){ return p.id !== id; });
   renderAll();
 }
 
 function renderCustomList(){
   var el = qs('#customList'); if (!el) return;
+  el.dataset.libraryState = durableLibraryEnabled() ? (CUSTOM_PROMPTS_UNLOCKED && libraryRevision !== null ? 'ready' : 'unavailable') : 'session-only';
+  var status = qs('#personalLibraryStatus');
+  if (status && durableLibraryEnabled()) status.textContent = el.dataset.libraryState === 'ready'
+    ? 'Account library loaded. Save and import changes require an acknowledged server write.'
+    : 'Account library not loaded. Sign in again or retry once storage is available.';
   if (!CUSTOM_PROMPTS_UNLOCKED) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">Saved prompts are locked in this build.</div>'; return; }
   if (!STATE.custom.length) { el.innerHTML = '<div style="color:var(--text-faint);font-family:var(--mono);font-size:12px;padding:10px">No saved prompts yet.</div>'; return; }
   el.innerHTML = '';
@@ -566,7 +630,24 @@ async function importState(json){
     // requires fresh server admission before any state is changed.
     var subject = window.PromptOSBilling && await window.PromptOSBilling.admit();
     if (!subject) { toast('Paid account required to import personal prompts'); return; }
-    if (generation !== personalSessionGeneration || !selectPersonalSubject(subject)) return;
+    if (generation !== personalSessionGeneration) return;
+    if (durableLibraryEnabled()) {
+      if (Array.isArray(data.custom)) {
+        var ok = await durableLibraryTransaction(subject,generation,function(prompts){
+          var byId = new Map(prompts.map(function(p){return [p.id,p];}));
+          data.custom.forEach(function(p){
+            if (byId.has(p.id) && JSON.stringify(byId.get(p.id)) !== JSON.stringify(p)) throw new Error('import ID conflict');
+            byId.set(p.id,p);
+          });
+          return Array.from(byId.values());
+        });
+        if (!ok) return;
+      }
+      if (generation !== personalSessionGeneration) return;
+      toast('State imported');
+      return;
+    }
+    if (!selectPersonalSubject(subject)) return;
     CUSTOM_PROMPTS_UNLOCKED = true;
     if (generation !== personalSessionGeneration) return;
     if (data.stars) STATE.stars = data.stars;
@@ -762,8 +843,15 @@ function boot(){
     r.readAsText(file);
     e.target.value = '';
   });
-  qs('#resetBtn').addEventListener('click', function(){
+  qs('#resetBtn').addEventListener('click', async function(){
     if (!confirm('Reset all stars, custom prompts, and theme? This cannot be undone.')) return;
+    if (durableLibraryEnabled()) {
+      if (libraryRevision === null) { toast('Load your account library before resetting it.'); return; }
+      var generation = personalSessionGeneration;
+      var subject = await window.PromptOSBilling.admit();
+      if (!subject || generation !== personalSessionGeneration ||
+          !await durableLibraryTransaction(subject,generation,function(){return [];})) return;
+    }
     STATE.stars = {}; STATE.custom = []; STATE.theme = 'dark';
     applyTheme('dark'); renderAll(); toast('State reset');
   });
@@ -771,9 +859,11 @@ function boot(){
 
 function lockPersonalSession(){
   personalSessionGeneration++;
+  libraryRevision = null;
+  libraryBusy = null;
   CUSTOM_PROMPTS_UNLOCKED = false;
   // Detach, not delete, session-only personal data. It cannot be used by the next account.
-  if (activePersonalSubject) detachedPersonalSessions.set(activePersonalSubject, STATE.custom);
+  if (activePersonalSubject && !durableLibraryEnabled()) detachedPersonalSessions.set(activePersonalSubject, STATE.custom);
   activePersonalSubject = null;
   STATE.custom = [];
   STATE.stars = {};
@@ -789,7 +879,9 @@ window.addEventListener('promptos:access-revoked', lockPersonalSession);
 ['promptos:authed', 'promptos:guest', 'promptos:signedout'].forEach(function(event){
   window.addEventListener(event, lockPersonalSession);
 });
+window.addEventListener('promptos:paid-workspace', hydrateDurableLibrary);
 window.addEventListener('promptos:authed', async function(){
+  if (durableLibraryEnabled()) return;
   if (!detachedPersonalSessions.size || !window.PromptOSBilling) return;
   var generation = personalSessionGeneration;
   var subject = await window.PromptOSBilling.admit();
