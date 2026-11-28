@@ -33,6 +33,8 @@ try {
     await page.locator('#beginnerLibrary').waitFor({state:'visible'});
     assert.equal(await page.locator('#beginnerLibrary details').count(),5);
     assert(await page.locator('#appShell').isHidden());
+    // The guest preview is already visible; wait for asynchronous entitlement verification, not preview visibility.
+    await page.waitForFunction(()=>{const button=document.querySelector('#billingUpgrade');return button && !button.disabled && !button.closest('[hidden]');});
     assert(await page.locator('#billingUpgrade').isEnabled());
     await page.locator('#billingUpgrade').click();
     await page.locator('#billingConsent').waitFor({state:'visible'});
